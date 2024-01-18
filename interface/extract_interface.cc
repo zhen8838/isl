@@ -86,6 +86,7 @@
 #include "extract_interface.h"
 #include "generator.h"
 #include "python.h"
+#include "csharp.h"
 #include "plain_cpp.h"
 #include "cpp_conversion.h"
 #include "template_cpp.h"
@@ -512,6 +513,9 @@ static void generate(MyASTConsumer &consumer, SourceManager &SM)
 
 	if (OutputLanguage.compare("python") == 0) {
 		gen = new python_generator(SM, consumer.exported_types,
+			consumer.exported_functions, consumer.functions);
+  } else if (OutputLanguage.compare("csharp") == 0) {
+		gen = new csharp_generator(SM, consumer.exported_types,
 			consumer.exported_functions, consumer.functions);
 	} else if (OutputLanguage.compare("cpp") == 0) {
 		gen = new plain_cpp_generator(SM, consumer.exported_types,
