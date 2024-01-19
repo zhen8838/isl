@@ -49,7 +49,7 @@
 static const char *fixed_arg_fmt = "arg%d";
 /* Argument format for Python methods with a variable number of arguments.
  */
-static const char *var_arg_fmt = "args[%d]";
+static const char *var_arg_fmt = "args_%d";
 
 /* Drop the "isl_" initial part of the type name "name".
  */
@@ -296,7 +296,11 @@ void csharp_generator::print_arg_in_call(FunctionDecl *fd, const char *fmt,
     printf(fmt, arg - skip);
     printf(".encode('ascii')");
   } else if (type->isPointerType()) {
-    printf(fmt, arg - skip);
+    if (0 == (arg - skip)) {
+      printf("this");
+    } else {
+      printf(fmt, arg - skip);
+    }
     printf(".ptr");
   } else {
     printf(fmt, arg - skip);
@@ -761,7 +765,7 @@ void csharp_generator::print_constructor(const isl_class &clazz,
       printf(", ");
     print_arg_in_call(cons, var_arg_fmt, i, drop_ctx);
   }
-  printf(")\n");
+  printf(");\n");
   printf("    }\n");
 }
 
