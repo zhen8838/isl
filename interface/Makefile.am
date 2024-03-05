@@ -15,6 +15,8 @@ extract_interface_SOURCES = \
 	python.cc \
 	csharp.h \
 	csharp.cc \
+	plain_csharp.h \
+	plain_csharp.cc \
 	cpp.h \
 	cpp.cc \
 	cpp_conversion.h \

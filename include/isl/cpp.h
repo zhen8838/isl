@@ -36,8 +36,8 @@
 #define ISL_USE_EXCEPTIONS	0
 #endif
 #endif
-
 namespace isl {
+
 
 class ctx {
 	isl_ctx *ptr;

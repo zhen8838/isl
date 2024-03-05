@@ -1,5 +1,5 @@
 /*
- * Copyright 2011,2015 Sven Verdoolaege. All rights reserved.
+ * Copyright 2016, 2017 Tobias Grosser. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -13,10 +13,10 @@
  *       disclaimer in the documentation and/or other materials provided
  *       with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY SVEN VERDOOLAEGE ''AS IS'' AND ANY
+ * THIS SOFTWARE IS PROVIDED BY TOBIAS GROSSER ''AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SVEN VERDOOLAEGE OR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL TOBIAS GROSSER OR
  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
@@ -28,1135 +28,1236 @@
  * The views and conclusions contained in the software and documentation
  * are those of the authors and should not be interpreted as
  * representing official policies, either expressed or implied, of
- * Sven Verdoolaege.
+ * Tobias Grosser.
  */
 
-#include "isl_config.h"
-
-#include <stdarg.h>
-#include <stdio.h>
-
-#include <algorithm>
 #include <iostream>
-#include <map>
+#include <string>
 #include <vector>
 
 #include "csharp.h"
-#include "generator.h"
+#include "isl_config.h"
 
-/* Argument format for Python methods with a fixed number of arguments.
- */
-static const char *fixed_arg_fmt = "arg%d";
-/* Argument format for Python methods with a variable number of arguments.
- */
-static const char *var_arg_fmt = "args_%d";
-
-/* Drop the "isl_" initial part of the type name "name".
- */
-static string type2csharp(string name) { return name.substr(4); }
-
-/* Print the arguments of a method with "n_arg" arguments, starting at "first".
- */
-void csharp_generator::print_method_arguments(int first, int n_arg) {
-  for (int i = first; i < n_arg; ++i) {
-    if (i > first)
-      printf(", ");
-    printf("arg%d", i);
-  }
-}
-
-/* Print the start of a definition for method "name"
- * (without specifying the arguments).
- * If "is_static" is set, then mark the python method as static.
+/* Determine the isl types from which the given class can be implicitly
+ * constructed using a unary constructor.
  *
- * If the method is called "from", then rename it to "convert_from"
- * because "from" is a python keyword.
+ * Look through all constructors for implicit conversion constructors that take
+ * an isl type and add those types, along with the corresponding
+ * constructor argument.
  */
-static void print_method_def(bool is_static, bool is_get, const string &name,
-                             QualType returnType) {
-  const char *s;
-  printf("    public");
-  if (is_static)
-    printf(" static ");
+void csharp_generator::set_class_construction_types(isl_class &clazz) {
+  for (const auto &cons : clazz.constructors) {
+    ParmVarDecl *param;
+    QualType type;
+    std::string arg_type;
 
-  s = name.c_str();
-  if (name == "from")
-    s = "convert_from";
-
-  printf(" %s %s", returnType->getTypeClassName(), s);
-}
-
-/* Print the header of the method "name" with "n_arg" arguments.
- * If "is_static" is set, then mark the python method as static.
- */
-void csharp_generator::print_method_header(bool is_static, bool is_get,
-                                           const string &name, int n_arg,
-                                           QualType returnType) {
-  print_method_def(is_static, is_get, name, returnType);
-  printf("(");
-  print_method_arguments(0, n_arg);
-  printf(") {\n");
-}
-
-/* Print formatted output with the given indentation.
- */
-static void print_indent(int indent, const char *format, ...) {
-  va_list args;
-
-  printf("%*s", indent, " ");
-  va_start(args, format);
-  vprintf(format, args);
-  va_end(args);
-}
-
-/* Print a check that the argument in position "pos" is of type "type"
- * with the given indentation.
- * If this fails and if "upcast" is set, then convert the first
- * argument to "super" and call the method "name" on it, passing
- * the remaining of the "n" arguments.
- * If the check fails and "upcast" is not set, then simply raise
- * an exception.
- * If "upcast" is not set, then the "super", "name" and "n" arguments
- * to this function are ignored.
- * "fmt" is the format for printing Python method arguments.
- */
-void csharp_generator::print_type_check(int indent, const string &type,
-                                        const char *fmt, int pos, bool upcast,
-                                        const string &super, const string &name,
-                                        int n) {
-  print_indent(indent, "try:\n");
-  print_indent(indent, "    if not ");
-  printf(fmt, pos);
-  printf(".__class__ is %s:\n", type.c_str());
-  print_indent(indent, "        ");
-  printf(fmt, pos);
-  printf(" = %s(", type.c_str());
-  printf(fmt, pos);
-  printf(")\n");
-  print_indent(indent, "except:\n");
-  if (upcast) {
-    print_indent(indent, "    return %s(", type2csharp(super).c_str());
-    printf(fmt, 0);
-    printf(").%s(", name.c_str());
-    for (int i = 1; i < n; ++i) {
-      if (i != 1)
-        printf(", ");
-      printf(fmt, i);
-    }
-    printf(")\n");
-  } else
-    print_indent(indent, "    raise\n");
-}
-
-/* For each of the "n" initial arguments of the function "method"
- * that refer to an isl structure,
- * including the object on which the method is called,
- * check if the corresponding actual argument is of the right type.
- * If not, try and convert it to the right type.
- * If that doesn't work and if "super" contains at least one element,
- * try and convert this to the type of the first superclass in "super" and
- * call the corresponding method.
- * If "first_is_ctx" is set, then the first argument is skipped.
- */
-void csharp_generator::print_type_checks(const string &cname,
-                                         FunctionDecl *method,
-                                         bool first_is_ctx, int n,
-                                         const vector<string> &super) {
-  for (int i = first_is_ctx; i < n; ++i) {
-    ParmVarDecl *param = method->getParamDecl(i);
-    string type;
-
-    if (!is_isl_type(param->getOriginalType()))
+    if (!is_implicit_conversion(CSharpMethod(clazz, cons)))
       continue;
-    type = type2csharp(extract_type(param->getOriginalType()));
-    if (!first_is_ctx && i > 0 && super.size() > 0)
-      print_type_check(8, type, fixed_arg_fmt, i - first_is_ctx, true, super[0],
-                       cname, n);
-    else
-      print_type_check(8, type, fixed_arg_fmt, i - first_is_ctx, false, "",
-                       cname, -1);
+
+    param = cons->getParamDecl(0);
+    type = param->getOriginalType();
+    arg_type = extract_type(type);
+    clazz.construction_types.emplace(arg_type, param);
   }
 }
 
-/* Print a call to the *_copy function corresponding to "type".
+/* Determine the isl types from which any (proper) class can be constructed
+ * using a unary constructor.
  */
-void csharp_generator::print_copy(QualType type) {
-  string type_s = extract_type(type);
-
-  printf("Interop.%s_copy", type_s.c_str());
-}
-
-/* Construct a wrapper for callback argument "param" (at position "arg").
- * Assign the wrapper to "cb{arg}".
- *
- * The wrapper converts the arguments of the callback to python types,
- * taking a copy if the C callback does not take its arguments.
- * If any exception is thrown, the wrapper keeps track of it in exc_info[0]
- * and returns a value indicating an error.  Otherwise the wrapper
- * returns a value indicating success.
- * In case the C callback is expected to return an isl_stat,
- * the error value is -1 and the success value is 0.
- * In case the C callback is expected to return an isl_bool,
- * the error value is -1 and the success value is 1 or 0 depending
- * on the result of the Python callback.
- * Otherwise, None is returned to indicate an error and
- * a copy of the object in case of success.
- */
-void csharp_generator::print_callback(ParmVarDecl *param, int arg) {
-  QualType type = param->getOriginalType();
-  const FunctionProtoType *fn = extract_prototype(type);
-  QualType return_type = fn->getReturnType();
-  unsigned n_arg = fn->getNumArgs();
-
-  printf("        var exc_info = new Exception[1];\n");
-  printf("        var fn = (");
-  for (unsigned i = 0; i < n_arg - 1; ++i) {
-    if (!is_isl_type(fn->getArgType(i)))
-      die("Argument has non-isl type");
-    if (i)
-      printf(", ");
-    printf("IntPtr cb_arg%d", i);
-  }
-  printf(", IntPtr user) => {\n");
-  for (unsigned i = 0; i < n_arg - 1; ++i) {
-    string arg_type;
-    arg_type = type2csharp(extract_type(fn->getArgType(i)));
-    printf("            var cb_cls%d = new %s(ctx: arg0.ctx, ptr: ", i,
-           arg_type.c_str());
-    if (!callback_takes_argument(param, i))
-      print_copy(fn->getArgType(i));
-    printf("(cb_arg%d));\n", i);
-  }
-  printf("            try {\n");
-  if (is_isl_stat(return_type))
-    printf("                arg%d(", arg);
-  else
-    printf("                var res = arg%d(", arg);
-  for (unsigned i = 0; i < n_arg - 1; ++i) {
-    if (i)
-      printf(", ");
-    printf("cb_cls%d", i);
-  }
-  printf(");\n");
-  printf("            }\n");
-  printf("            catch (Exception e) { \n");
-  printf("                exc_info[0] = e;\n");
-  if (is_isl_stat(return_type) || is_isl_bool(return_type))
-    printf("                return -1;\n");
-  else
-    printf("                return IntPtr.Zero;\n");
-  printf("             }\n");
-  if (is_isl_stat(return_type)) {
-    printf("            return 0;\n");
-  } else if (is_isl_bool(return_type)) {
-    printf("            return res;\n");
-  } else {
-    printf("            return ");
-    print_copy(return_type);
-    printf("(res.ptr);\n");
-  }
-  printf("    };\n");
-  printf("        var cb%d = Marshal.GetFunctionPointerForDelegate(cb_func);\n",
-         arg);
-}
-
-/* Print the argument at position "arg" in call to "fd".
- * "fmt" is the format for printing Python method arguments.
- * "skip" is the number of initial arguments of "fd" that are
- * skipped in the Python method.
- *
- * If the (first) argument is an isl_ctx, then print "ctx",
- * assuming that the caller has made the context available
- * in a "ctx" variable.
- * Otherwise, if the argument is a callback, then print a reference to
- * the corresponding callback wrapper.
- * Otherwise, if the argument is marked as consuming a reference,
- * then pass a copy of the pointer stored in the corresponding
- * argument passed to the Python method.
- * Otherwise, if the argument is a string, then the python string is first
- * encoded as a byte sequence, using 'ascii' as encoding.  This assumes
- * that all strings passed to isl can be converted to 'ascii'.
- * Otherwise, if the argument is a pointer, then pass this pointer itthis.
- * Otherwise, pass the argument directly.
- */
-void csharp_generator::print_arg_in_call(FunctionDecl *fd, const char *fmt,
-                                         int arg, int skip) {
-  ParmVarDecl *param = fd->getParamDecl(arg);
-  QualType type = param->getOriginalType();
-  if (is_isl_ctx(type)) {
-    printf("ctx");
-  } else if (is_callback(type)) {
-    printf("cb%d", arg - skip);
-  } else if (takes(param)) {
-    print_copy(type);
-    printf("(");
-    printf(fmt, arg - skip);
-    printf(".ptr)");
-  } else if (is_string(type)) {
-    printf(fmt, arg - skip);
-    printf(".encode('ascii')");
-  } else if (type->isPointerType()) {
-    if (0 == (arg - skip)) {
-      printf("this");
-    } else {
-      printf(fmt, arg - skip);
-    }
-    printf(".ptr");
-  } else {
-    printf(fmt, arg - skip);
+void csharp_generator::set_construction_types() {
+  for (auto &kvp : classes) {
+    auto &clazz = kvp.second;
+    set_class_construction_types(clazz);
   }
 }
 
-/* Generate code that raises the exception captured in "exc_info", if any,
- * with the given indentation.
+/* Construct a generator for C++ bindings.
+ *
+ * The classes and methods are extracted by the constructor
+ * of the generator superclass.
+ *
+ * Additionally extract information about types
+ * that can be converted to a class and copy all methods
+ * from superclasses that can be converted to a given class
+ * to that class.
  */
-static void print_rethrow(int indent, const char *exc_info) {
-  print_indent(indent, "if (%s is not null) {\n", exc_info);
-  print_indent(indent, "    throw %s;\n", exc_info);
-  print_indent(indent, "}\n");
+csharp_generator::csharp_generator(SourceManager &SM,
+                                   set<RecordDecl *> &exported_types,
+                                   set<FunctionDecl *> exported_functions,
+                                   set<FunctionDecl *> functions)
+    : generator(SM, exported_types, exported_functions, functions) {
+  set_construction_types();
+  copy_super_methods();
 }
 
-/* Print code with the given indentation that checks
- * whether any of the persistent callbacks of "clazz"
- * is set and if it failed with an exception.  If so, the 'exc_info'
- * field contains the exception and is raised again.
- * The field is cleared because the callback and its data may get reused.
- * "fmt" is the format for printing Python method arguments.
+/* Copy the method called "name" described by "fd" from "super" to "clazz"
+ * with the distance to the original ancestor given by "depth".
+ *
+ * In particular, keep track of "fd" as well as the superclass
+ * from which it was copied and the distance to the original ancestor.
  */
-static void print_persistent_callback_failure_check(int indent,
-                                                    const isl_class &clazz,
-                                                    const char *fmt) {
-  const set<FunctionDecl *> &callbacks = clazz.persistent_callbacks;
-  set<FunctionDecl *>::const_iterator in;
-
-  for (in = callbacks.begin(); in != callbacks.end(); ++in) {
-    string callback_name = clazz.persistent_callback_name(*in);
-
-    print_indent(indent, "if hasattr(");
-    printf(fmt, 0);
-    printf(", '%s') and ", callback_name.c_str());
-    printf(fmt, 0);
-    printf(".%s['exc_info'] != None:\n", callback_name.c_str());
-    print_indent(indent, "    exc_info = ");
-    printf(fmt, 0);
-    printf(".%s['exc_info'][0]\n", callback_name.c_str());
-    print_indent(indent, "    ");
-    printf(fmt, 0);
-    printf(".%s['exc_info'][0] = None\n", callback_name.c_str());
-    print_rethrow(indent + 4, "exc_info");
-  }
+static void copy_method(isl_class &clazz, const isl_class &super,
+                        const std::string &name, FunctionDecl *fd, int depth) {
+  clazz.methods[name].insert(fd);
+  clazz.copied_from.emplace(fd, super);
+  clazz.copy_depth.emplace(fd, depth);
 }
 
-/* Print the return statement of the python method corresponding
- * to the C function "method" with the given indentation.
- * If the object on which the method was called
- * may have a persistent callback, then first check if any of those failed.
- * "fmt" is the format for printing Python method arguments.
- *
- * If the method returns a new instance of the same object type and
- * if the class has any persistent callbacks, then the data
- * for these callbacks are copied from the original to the new object.
- * If the method it itthis setting a persistent callback,
- * then keep track of the constructed C callback (such that it doesn't
- * get destroyed) and the data structure that holds the captured exception
- * (such that it can be raised again).
- * The callback appears in position 1 and the C callback is therefore
- * called "cb1".
- *
- * If the return type is a (const) char *, then convert the result
- * to a Python string, raising an error on NULL and freeing
- * the C string if needed.  For python 3 compatibility, the string returned
- * by isl is explicitly decoded as an 'ascii' string.  This is correct
- * as all strings returned by isl are expected to be 'ascii'.
- *
- * If the return type is isl_stat, isl_bool or isl_size, then
- * raise an error on isl_stat_error, isl_bool_error or isl_size_error.
- * In case of isl_bool, the result is converted to
- * a Python boolean.
- * In case of isl_size, the result is converted to a Python int.
+/* Do "fd1" and "fd2" have the same signature (ignoring the first argument
+ * which represents the object class on which the corresponding method
+ * gets called).
  */
-void csharp_generator::print_method_return(int indent, const isl_class &clazz,
-                                           FunctionDecl *method,
-                                           const char *fmt) {
-  QualType return_type = method->getReturnType();
+static bool same_signature(FunctionDecl *fd1, FunctionDecl *fd2) {
+  int n1 = fd1->getNumParams();
+  int n2 = fd2->getNumParams();
 
-  if (!is_static(clazz, method))
-    print_persistent_callback_failure_check(indent, clazz, fmt);
+  if (n1 != n2)
+    return false;
 
-  if (is_isl_type(return_type)) {
-    string type;
+  for (int i = 1; i < n1; ++i) {
+    ParmVarDecl *p1 = fd1->getParamDecl(i);
+    ParmVarDecl *p2 = fd2->getParamDecl(i);
 
-    type = type2csharp(extract_type(return_type));
-    print_indent(indent, "var obj = new %s(ctx=ctx, ptr=res);\n", type.c_str());
-    if (is_mutator(clazz, method) && clazz.has_persistent_callbacks())
-      print_indent(indent, "obj.copy_callbacks(arg0);\n");
-    if (clazz.persistent_callbacks.count(method)) {
-      string callback_name;
-
-      callback_name = clazz.persistent_callback_name(method);
-      print_indent(indent, "obj.%s = new CallBackInfo(cb1, exc_info);\n",
-                   callback_name.c_str());
-    }
-    print_indent(indent, "return obj;\n");
-  } else if (is_string(return_type)) {
-    print_indent(indent, "if (res == IntPtr.Zero) {\n");
-    print_indent(indent, "    throw new InvalidOperationException();\n");
-    print_indent(indent, "}\n");
-    print_indent(indent, "var str = Marshal.PtrToStringAnsi(res);\n");
-
-    if (gives(method))
-      print_indent(indent, "Marshal.FreeHGlobal(res);\n");
-
-    print_indent(indent, "return str;\n");
-  } else if (is_isl_neg_error(return_type)) {
-    print_indent(indent, "if (res < 0) {\n");
-    print_indent(indent, "    throw new InvalidOperationException();\n");
-    print_indent(indent, "}\n");
-    if (is_isl_bool(return_type))
-      print_indent(indent, "return res;\n");
-    else if (is_isl_size(return_type))
-      print_indent(indent, "return res;\n");
-  } else {
-    print_indent(indent, "return res;\n");
+    if (p1->getOriginalType() != p2->getOriginalType())
+      return false;
   }
-  print_indent(indent - 4, "}\n");
+
+  return true;
 }
 
-/* Print a python "get" method corresponding to the C function "fd"
- * in class "clazz" using a name that includes the "get_" prefix.
- *
- * This method simply calls the variant without the "get_" prefix and
- * returns its result.
- * Note that static methods are not considered to be "get" methods.
+/* Return the distance between "clazz" and the ancestor
+ * from which "fd" got copied.
+ * If no distance was recorded, then the method has not been copied
+ * but appears in "clazz" itself and so the distance is zero.
  */
-// void csharp_generator::print_get_method(const isl_class &clazz,
-//                                         FunctionDecl *fd) {
-//   string get_name = clazz.base_method_name(fd);
-//   string name = clazz.method_name(fd);
-//   int num_params = fd->getNumParams();
-//   QualType type = fd->getReturnType();
+static int copy_depth(const isl_class &clazz, FunctionDecl *fd) {
+  if (clazz.copy_depth.count(fd) == 0)
+    return 0;
+  return clazz.copy_depth.at(fd);
+}
 
-//   print_method_header(false, get_name, num_params, type);
-//   printf("        return arg0.%s(", name.c_str());
-//   print_method_arguments(1, num_params);
-//   printf(")\n");
-// }
-
-/* Print a call to "method", along with the corresponding
- * return statement, with the given indentation.
- * "drop_ctx" is set if the first argument is an isl_ctx.
+/* Is the method derived from "fd", with method name "name" and
+ * with distance to the original ancestor "depth",
+ * overridden by a method already in "clazz"?
  *
- * A "ctx" variable is first initialized as it may be needed
- * in the first call to print_arg_in_call and in print_method_return.
+ * A method is considered to have been overridden if there
+ * is a method with the same name in "clazz" that has the same signature and
+ * that comes from an ancestor closer to "clazz",
+ * where an ancestor is closer if the distance in the class hierarchy
+ * is smaller or the distance is the same and the ancestor appears
+ * closer in the declaration of the type (in which case it gets added first).
  *
- * If the method has any callback function, then any exception
- * thrown in any callback also need to be rethrown.
+ * If a method with the same signature has already been added,
+ * but it does not override the method derived from "fd",
+ * then this method is removed since it is overridden by "fd".
  */
-void csharp_generator::print_method_call(int indent, const isl_class &clazz,
-                                         FunctionDecl *method, const char *fmt,
-                                         int drop_ctx) {
-  string fullname = method->getName().str();
-  int num_params = method->getNumParams();
-  int drop_user = 0;
+static bool is_overridden(FunctionDecl *fd, isl_class &clazz,
+                          const std::string &name, int depth) {
+  if (clazz.methods.count(name) == 0)
+    return false;
 
-  if (drop_ctx) {
-    print_indent(indent, "var ctx = Context.DefaultInstance;\n");
-  } else {
-    // print_indent(indent, "ctx = ");
-    // printf(fmt, 0);
-    // printf(".ctx\n");
-  }
-  print_indent(indent, "var res = Interop.%s(", fullname.c_str());
-  for (int i = 0; i < num_params; ++i) {
-    if (i > 0)
-      printf(", ");
-    print_arg_in_call(method, fmt, i, drop_ctx + drop_user);
-    if (!is_callback_arg(method, i))
+  for (const auto &m : clazz.methods.at(name)) {
+    if (!same_signature(fd, m))
       continue;
-    ++drop_user;
-    ++i;
-    printf(", IntPtr.Zerp");
+    if (copy_depth(clazz, m) <= depth)
+      return true;
+    clazz.methods[name].erase(m);
+    return false;
   }
-  printf(");\n");
-
-  if (drop_user > 0)
-    print_rethrow(indent, "exc_info[0]");
-
-  print_method_return(indent, clazz, method, fmt);
+  return false;
 }
 
-/* Print a python method corresponding to the C function "method".
- * "super" contains the superclasses of the class to which the method belongs,
- * with the first element corresponding to the annotation that appears
- * closest to the annotated type.  This superclass is the least
- * general extension of the annotated type in the linearization
- * of the class hierarchy.
+/* Add the methods "methods" with method name "name" from "super" to "clazz"
+ * provided they have not been overridden by a method already in "clazz".
  *
- * If the first argument of "method" is something other than an instance
- * of the class, then mark the python method as static.
- * If, moreover, this first argument is an isl_ctx, then remove
- * it from the arguments of the Python method.
- *
- * If the function has any callback arguments, then it also has corresponding
- * "user" arguments.  Since Python has closures, there is no need for such
- * user arguments in the Python interface, so we simply drop them.
- * We also create a wrapper ("cb{arg}") for each callback.
- *
- * If the function consumes a reference, then we pass it a copy of
- * the actual argument.
- *
- * For methods that are identified as "get" methods, also
- * print a variant of the method using a name that includes
- * the "get_" prefix.
+ * Methods that are static in their original class are not copied.
  */
-void csharp_generator::print_method(const isl_class &clazz,
-                                    FunctionDecl *method,
-                                    vector<string> super) {
-  string cname = clazz.method_name(method);
-  int num_params = method->getNumParams();
+void csharp_generator::copy_methods(isl_class &clazz, const std::string &name,
+                                    const isl_class &super,
+                                    const function_set &methods) {
+  for (auto fd : methods) {
+    int depth;
 
-  int drop_ctx = first_arg_is_isl_ctx(method);
-  {
-    print_method_def(clazz.is_static(method), clazz.is_get_method(method),
-                     cname, method->getCallResultType());
-    printf("(");
-    int nargs = 0;
-    for (int i = 0; i < num_params; ++i) {
-      auto param = method->getParamDecl(0);
-      if (i == 0 && is_isl_ctx(param->getOriginalType())) {
-        continue;
-      }
-      if (is_callback_arg(method, i)) {
-        continue;
-      }
-      if (nargs > 0) {
-        printf(", ");
-      }
-      auto paramType = param->getOriginalType();
-      printf("%s arg%d", paramType->getTypeClassName(), nargs);
-      nargs++;
-    }
-    printf(") {\n");
-  }
-
-  // print_type_checks(cname, method, drop_ctx, num_params, super);
-  int drop_user = 0;
-  for (int i = 1; i < num_params; ++i) {
-    ParmVarDecl *param = method->getParamDecl(i);
-    QualType type = param->getOriginalType();
-    if (!is_callback(type))
+    if (method2class(fd)->is_static(fd))
       continue;
-    print_callback(param, i - drop_ctx - drop_user);
-    drop_user += 1;
-  }
-  print_method_call(8, clazz, method, fixed_arg_fmt, drop_ctx);
-
-  // NOTE no need add get method.
-  // if (clazz.is_get_method(method))
-  // 	print_get_method(clazz, method);
-}
-
-/* Print a condition that checks whether Python method argument "i"
- * corresponds to the C function argument type "type".
- */
-static void print_argument_check(QualType type, int i) {
-  if (generator::is_isl_type(type)) {
-    string type_str;
-    type_str = generator::extract_type(type);
-    type_str = type2csharp(type_str);
-    printf("%s arg_%d", type_str.c_str(), i);
-  } else if (type->isPointerType()) {
-    printf("string arg_%d", i);
-  } else {
-    printf("int args_%d", i);
+    depth = copy_depth(super, fd) + 1;
+    if (is_overridden(fd, clazz, name, depth))
+      continue;
+    copy_method(clazz, super, name, fd, depth);
   }
 }
 
-/* Is any element of "vector" set?
- */
-static bool any(const std::vector<bool> &vector) {
-  return std::find(vector.begin(), vector.end(), true) != vector.end();
-}
-
-/* Print a test that checks whether the arguments passed
- * to the Python method correspond to the arguments
- * expected by "fd" and
- * check if the object on which the method is called, if any,
- * is of the right type.
- * "drop_ctx" is set if the first argument of "fd" is an isl_ctx,
- * which does not appear as an argument to the Python method.
+/* Add all methods from "super" to "clazz" that have not been overridden
+ * by a method already in "clazz".
  *
- * If an automatic conversion function is available for any
- * of the argument types, then also allow the argument
- * to be of the type as prescribed by the second input argument
- * of the conversion function.
- * The corresponding arguments are then converted to the expected types
- * if needed.
- * The object on which the method is called is also converted if needed.
- * The argument tuple first needs to be converted to a list
- * in order to be able to modify the entries.
+ * Look through all groups of methods with the same name.
  */
-void csharp_generator::print_argument_checks(const isl_class &clazz,
-                                             FunctionDecl *fd, int drop_ctx) {
-  int num_params = fd->getNumParams();
-  bool is_static = generator::is_static(clazz, fd);
-  int first = is_static ? drop_ctx : 1;
-  std::vector<bool> convert(num_params);
-  // num_params - drop_ctx
-  printf("(");
-  for (int i = first; i < num_params; ++i) {
-    ParmVarDecl *param = fd->getParamDecl(i);
-    QualType type = param->getOriginalType();
-    const Type *ptr = type.getTypePtr();
+void csharp_generator::copy_super_methods(isl_class &clazz,
+                                          const isl_class &super) {
+  for (const auto &kvp : super.methods) {
+    const auto &name = kvp.first;
+    const auto &methods = kvp.second;
 
-    if (conversions.count(ptr) == 0) {
-      print_argument_check(type, i - drop_ctx);
-    } else {
-      QualType type2 = conversions.at(ptr)->getOriginalType();
-      convert[i] = true;
-      print_argument_check(type, i - drop_ctx);
-      // note conversion use implict cast.
-      // printf("(");
-      // printf(" or ");
-      // print_argument_check(type2, i - drop_ctx);
-      // printf(")");
-    }
+    copy_methods(clazz, name, super, methods);
   }
-  printf(") { \n");
-
-  if (is_static && !any(convert))
-    return;
-  // note no need for type check
-  // print_indent(8, "args = list(args)\n");
-  // first = is_static ? drop_ctx : 0;
-  // for (int i = first; i < num_params; ++i) {
-  //   bool is_this = !is_static && i == 0;
-  //   ParmVarDecl *param = fd->getParamDecl(i);
-  //   string type;
-
-  //   if (!is_this && !convert[i])
-  //     continue;
-  //   type = type2csharp(extract_type(param->getOriginalType()));
-  //   print_type_check(12, type, var_arg_fmt, i - drop_ctx, false, "", "", -1);
-  // }
 }
 
-/* Print part of an overloaded python method corresponding to the C function
- * "method".
- * "drop_ctx" is set if the first argument of "method" is an isl_ctx.
+/* Copy methods from the superclasses of "clazz"
+ * if an object of this class can be implicitly converted to an object
+ * from the superclass, keeping track
+ * of the classes that have already been handled in "done".
  *
- * In particular, print code to test whether the arguments passed to
- * the python method correspond to the arguments expected by "method"
- * and to call "method" if they do.
- */
-void csharp_generator::print_method_overload(const isl_class &clazz,
-                                             FunctionDecl *method) {
-  int drop_ctx = first_arg_is_isl_ctx(method);
-
-  print_argument_checks(clazz, method, drop_ctx);
-  print_method_call(12, clazz, method, var_arg_fmt, drop_ctx);
-}
-
-/* Print a python method with a name derived from "fullname"
- * corresponding to the C functions "methods".
- * "super" contains the superclasses of the class to which the method belongs.
+ * Make sure the superclasses have copied methods from their superclasses first
+ * since those methods could be copied further down to this class.
  *
- * If "methods" consists of a single element that is not marked overloaded,
- * the use print_method to print the method.
- * Otherwise, print an overloaded method with pieces corresponding
- * to each function in "methods".
+ * Consider the superclass that appears closest to the subclass first.
  */
-void csharp_generator::print_method(const isl_class &clazz,
-                                    const string &fullname,
-                                    const function_set &methods,
-                                    vector<string> super) {
-  string cname;
-  function_set::const_iterator it;
-  FunctionDecl *any_method;
+void csharp_generator::copy_super_methods(isl_class &clazz, set<string> &done) {
+  auto supers = find_superclasses(clazz.type);
 
-  any_method = *methods.begin();
-  if (methods.size() == 1 && !is_overload(any_method)) {
-    print_method(clazz, any_method, super);
-    return;
+  for (const auto &super : supers)
+    if (done.count(super) == 0)
+      copy_super_methods(classes[super], done);
+  done.insert(clazz.name);
+
+  for (const auto &super_name : supers) {
+    const auto &super = classes[super_name];
+
+    if (super.construction_types.count(clazz.name) == 0)
+      continue;
+    copy_super_methods(clazz, super);
   }
-
-  cname = clazz.method_name(any_method);
-
-  for (it = methods.begin(); it != methods.end(); ++it) {
-    print_method_def(is_static(clazz, any_method),
-                     clazz.is_get_method(any_method), cname,
-                     any_method->getCallResultType());
-    print_method_overload(clazz, *it);
-  }
-  // printf("        raise Error\n");
 }
 
-/* Print a python method "name" corresponding to "fd" setting
- * the enum value "value".
- * "super" contains the superclasses of the class to which the method belongs,
- * with the first element corresponding to the annotation that appears
- * closest to the annotated type.
+/* For each (proper) class, copy methods from its superclasses,
+ * if an object from the class can be converted to an object
+ * from the superclass.
  *
- * The last argument of the C function does not appear in the method call,
- * but is fixed to "value" instead.
- * Other than that, the method printed here is similar to one
- * printed by csharp_generator::print_method, except that
- * some of the special cases do not occur.
+ * Type based subclasses are not considered for now since
+ * they do not have any explicit superclasses.
+ *
+ * Iterate through all (proper) classes and copy methods
+ * from their superclasses,
+ * unless they have already been determined by a recursive call.
  */
-void csharp_generator::print_set_enum(const isl_class &clazz, FunctionDecl *fd,
-                                      int value, const string &name,
-                                      const vector<string> &super) {
-  string fullname = fd->getName().str();
-  int num_params = fd->getNumParams();
+void csharp_generator::copy_super_methods() {
+  set<string> done;
 
-  print_method_header(is_static(clazz, fd), clazz.is_get_method(fd), name,
-                      num_params - 1, fd->getCallResultType());
+  for (auto &kvp : classes) {
+    auto &clazz = kvp.second;
 
-  print_type_checks(name, fd, false, num_params - 1, super);
-  printf("        ctx = arg0.ctx\n");
-  printf("        res = isl.%s(", fullname.c_str());
-  for (int i = 0; i < num_params - 1; ++i) {
-    if (i)
-      printf(", ");
-    print_arg_in_call(fd, fixed_arg_fmt, i, 0);
+    if (clazz.is_type_subclass())
+      continue;
+    if (done.count(clazz.name) != 0)
+      continue;
+    copy_super_methods(clazz, done);
   }
-  printf(", %d", value);
-  printf(")\n");
-  print_method_return(8, clazz, fd, fixed_arg_fmt);
 }
 
-/* Print python methods corresponding to "fd", which sets an enum.
- * "super" contains the superclasses of the class to which the method belongs,
- * with the first element corresponding to the annotation that appears
- * closest to the annotated type.
+/* Print declarations or implementations of constructors.
+ *
+ * For each isl function that is marked as __isl_constructor,
+ * add a corresponding C++ constructor.
+ *
+ * Example of declarations:
+ *
+ * 	inline /\* implicit *\/ union_set(basic_set bset);
+ * 	inline /\* implicit *\/ union_set(set set);
+ * 	inline explicit val(ctx ctx, long i);
+ * 	inline explicit val(ctx ctx, const std::string &str);
+ */
+void csharp_generator::class_printer::print_constructors() {
+  for (const auto &cons : clazz.constructors)
+    print_method(CSharpMethod(clazz, cons));
+}
+
+/* Print declarations or definitions for methods in the class.
+ */
+void csharp_generator::class_printer::print_methods() {
+  for (const auto &kvp : clazz.methods)
+    print_method_group(kvp.second, kvp.first);
+}
+
+/* Print declarations or implementations for the methods derived from "fd",
+ * which sets an enum.
  *
  * A method is generated for each value in the enum, setting
  * the enum to that value.
  */
-void csharp_generator::print_set_enum(const isl_class &clazz, FunctionDecl *fd,
-                                      const vector<string> &super) {
-  vector<set_enum>::const_iterator it;
-  const vector<set_enum> &set_enums = clazz.set_enums.at(fd);
-
-  for (it = set_enums.begin(); it != set_enums.end(); ++it)
-    print_set_enum(clazz, fd, it->value, it->method_name, super);
+void csharp_generator::class_printer::print_set_enums(FunctionDecl *fd) {
+  CSharpMethod method(clazz, fd);
+  print_method(method);
+  // for (const auto &set : clazz.set_enums.at(fd)) {
+  //   CSharpEnumMethod method(clazz, fd, set.method_name, set.name);
+  //   print_method(method);
+  // }
 }
 
-/* Print part of the constructor for this isl_class.
- *
- * In particular, check if the actual arguments correspond to the
- * formal arguments of "cons" and if so call "cons" and put the
- * result in this.ptr and a reference to the default context in this.ctx.
+/* Print declarations or implementations for methods derived from functions
+ * that set an enum.
  */
-void csharp_generator::print_constructor(const isl_class &clazz,
-                                         FunctionDecl *cons) {
-  string fullname = cons->getName().str();
-  string cname = clazz.method_name(cons);
-  int num_params = cons->getNumParams();
-  int drop_ctx = first_arg_is_isl_ctx(cons);
-
-  print_argument_checks(clazz, cons, drop_ctx);
-  printf("        this.ctx = Context.DefaultInstance;\n");
-  printf("        this.ptr = Interop.%s(", fullname.c_str());
-  if (drop_ctx)
-    printf("this.ctx");
-  for (int i = drop_ctx; i < num_params; ++i) {
-    if (i)
-      printf(", ");
-    print_arg_in_call(cons, var_arg_fmt, i, drop_ctx);
-  }
-  printf(");\n");
-  printf("    }\n");
-}
-
-/* The definition of the part of constructor for the "id" class
- * that construct an object from a name and a user object,
- * without the initial newline.
- *
- * Just like the parts generated by csharp_generator::print_constructor,
- * the result of the isl_id_alloc call is stored in this.ptr and
- * a reference to the default context is stored in this.ctx.
- * Also, just like any other constructor or method with a string argument,
- * the python string is first encoded as a byte sequence,
- * using 'ascii' as encoding.
- *
- * Since the isl_id keeps a reference to the Python user object,
- * the reference count of the Python object needs to be incremented,
- * but only if the construction of the isl_id is successful.
- * The reference count of the Python object is decremented again
- * by Context.free_user when the reference count of the isl_id
- * drops to zero.
- */
-static const char *const id_constructor_user = &R"(
-        if len(args) == 2 and type(args[0]) == str:
-            this.ctx = Context.DefaultInstance
-            name = args[0].encode('ascii')
-            this.ptr = isl.isl_id_alloc(this.ctx, name, args[1])
-            this.ptr = isl.isl_id_set_free_user(this.ptr, Context.free_user)
-            if this.ptr is not None:
-                pythonapi.Py_IncRef(py_object(args[1]))
-            return
-)"[1];
-
-/* Print any special constructor parts of this class that are not
- * automatically derived from the C interface.
- *
- * In particular, print a special constructor part for the "id" class.
- */
-void csharp_generator::print_special_constructors(const isl_class &clazz) {
-  if (clazz.name != "isl_id")
-    return;
-
-  printf("%s", id_constructor_user);
-}
-
-/* The definition of an "id" method
- * for retrieving the user object associated to the identifier,
- * without the initial newline.
- *
- * The isl_id needs to have been created by the constructor
- * in id_constructor_user.  That is, it needs to have a user pointer and
- * it needs to have its free_user callback set to Context.free_user.
- * The functions need to be cast to c_void_p to be able to compare
- * the addresses.
- *
- * Return None if any of the checks fail.
- * Note that isl_id_get_user returning NULL automatically results in None.
- */
-static const char *const id_user = &R"(
-    def user(this):
-        free_user = cast(Context.free_user, c_void_p)
-        id_free_user = cast(isl.isl_id_get_free_user(this.ptr), c_void_p)
-        if id_free_user.value != free_user.value:
-            return None
-        return isl.isl_id_get_user(this.ptr)
-)"[1];
-
-/* Print any special methods of this class that are not
- * automatically derived from the C interface.
- *
- * In particular, print a special method for the "id" class.
- */
-void csharp_generator::print_special_methods(const isl_class &clazz) {
-  if (clazz.name != "isl_id")
-    return;
-
-  printf("%s", id_user);
-}
-
-/* If "clazz" has a type function describing subclasses,
- * then add constructors that allow each of these subclasses
- * to be treated as an object to the superclass.
- */
-void csharp_generator::print_upcast_constructors(const isl_class &clazz) {
-  map<int, string>::const_iterator i;
-
-  if (!clazz.fn_type)
-    return;
-
-  for (i = clazz.type_subclasses.begin(); i != clazz.type_subclasses.end();
-       ++i) {
-    printf("    public %s (%s arg0) {\n", type2csharp(clazz.name).c_str(),
-           type2csharp(i->second).c_str());
-    printf("        this.ctx = arg0.ctx;\n");
-    printf("        this.ptr = isl.%s_copy(arg0.ptr);\n", clazz.name.c_str());
-    printf("    }\n");
-  }
-}
-
-/* Print the header of the class "name" with superclasses "super".
- * The order of the superclasses is the opposite of the order
- * in which the corresponding annotations appear in the source code.
- * If "clazz" is a subclass derived from a type function,
- * then the immediate superclass is recorded in "clazz" itthis.
- */
-void csharp_generator::print_class_header(const isl_class &clazz,
-                                          const string &name,
-                                          const vector<string> &super) {
-  printf("public class %s", name.c_str());
-  if (super.size() > 0) {
-    for (unsigned i = 0; i < super.size(); ++i) {
-      if (i > 0)
-        printf(", ");
-      printf("%s", type2csharp(super[i]).c_str());
-    }
-  } else if (clazz.is_type_subclass()) {
-    printf(": %s", type2csharp(clazz.superclass_name).c_str());
-  }
-  printf("{\n");
-}
-
-/* Tell ctypes about the return type of "fd".
- * In particular, if "fd" returns a pointer to an isl object,
- * then tell ctypes it returns a "c_void_p".
- * If "fd" returns a char *, then simply tell ctypes.
- *
- * Nothing needs to be done for functions returning
- * isl_bool, isl_stat or isl_size since they are represented by an int and
- * ctypes assumes that a function returns int by default.
- */
-void csharp_generator::print_restype(FunctionDecl *fd) {
-  string fullname = fd->getName().str();
-  QualType type = fd->getReturnType();
-  printf("public static extern IntPtr %s", fullname.c_str());
-  // if (is_isl_type(type))
-  // else if (is_string(type))
-  //   printf("public static extern IntPtr %s \n", fullname.c_str());
-}
-
-/* Tell ctypes about the types of the arguments of the function "fd".
- *
- * Any callback argument is followed by a user pointer argument.
- * Each such pair or arguments is handled together.
- */
-void csharp_generator::print_argtypes(FunctionDecl *fd) {
-  string fullname = fd->getName().str();
-  int n = fd->getNumParams();
-
-  printf("(");
-  for (int i = 0; i < n; ++i) {
-    ParmVarDecl *param = fd->getParamDecl(i);
-    QualType type = param->getOriginalType();
-    if (i)
-      printf(", ");
-    if (is_isl_ctx(type))
-      printf("Context");
-    else if (is_isl_type(type))
-      printf("IntPtr");
-    else if (is_callback(type))
-      printf("[MarshalAs(UnmanagedType.FunctionPtr)] IntPtr arg%d, IntPtr", i);
-    else if (is_string(type))
-      printf("IntPtr");
-    else if (is_long(type))
-      printf("long");
-    else
-      printf("int");
-    if (is_callback(type))
-      ++i;
-    printf(" arg%d", i);
-  }
-  printf(");\n");
-}
-
-/* Print type definitions for the method 'fd'.
- */
-void csharp_generator::print_method_type(FunctionDecl *fd) {
-  print_restype(fd);
-  print_argtypes(fd);
-}
-
-/* If "clazz" has a type function describing subclasses or
- * if it is one of those type subclasses, then print a __new__ method.
- *
- * In the superclass, the __new__ method constructs an object
- * of the subclass type specified by the type function,
- * raising an error on an error type.
- * In the subclass, the __new__ method reverts to the original behavior.
- */
-void csharp_generator::print_new(const isl_class &clazz,
-                                 const string &python_name) {
-  if (!clazz.fn_type && !clazz.is_type_subclass())
-    return;
-
-  printf("    def __new__(cls, *args, **keywords):\n");
-
-  if (clazz.fn_type) {
-    map<int, string>::const_iterator i;
-
-    printf("        if \"ptr\" in keywords:\n");
-    printf("            type = isl.%s(keywords[\"ptr\"])\n",
-           clazz.fn_type->getNameAsString().c_str());
-
-    for (i = clazz.type_subclasses.begin(); i != clazz.type_subclasses.end();
-         ++i) {
-      printf("            if type == %d:\n", i->first);
-      printf("                return %s(**keywords)\n",
-             type2csharp(i->second).c_str());
-    }
-    printf("            raise Error\n");
-  }
-
-  printf("        return super(%s, cls).__new__(cls)\n", python_name.c_str());
-}
-
-/* Print declarations for methods printing the class representation,
- * provided there is a corresponding *_to_str function.
- *
- * In particular, provide an implementation of __str__ and __repr__ methods to
- * override the default representation used by python. Python uses __str__ to
- * pretty print the class (e.g., when calling print(obj)) and uses __repr__
- * when printing a precise representation of an object (e.g., when dumping it
- * in the REPL console).
- *
- * Check the type of the argument before calling the *_to_str function
- * on it in case the method was called on an object from a subclass.
- *
- * The return value of the *_to_str function is decoded to a python string
- * assuming an 'ascii' encoding.  This is necessary for python 3 compatibility.
- */
-void csharp_generator::print_representation(const isl_class &clazz,
-                                            const string &python_name) {
-  if (!clazz.fn_to_str)
-    return;
-
-  printf("    public override ToString() {\n");
-  // print_type_check(8, python_name, fixed_arg_fmt, 0, false, "", "", -1);
-  printf("        IntPtr char_p = isl.%s(ptr)\n",
-         string(clazz.fn_to_str->getName()).c_str());
-  printf("        string res = Marshal.PtrToStringAnsi(ptr);\n");
-  printf("        Marshal.FreeHGlobal(ptr);\n");
-  printf("        return res;\n");
-  printf("    }\n");
-}
-
-/* If "clazz" has any persistent callbacks, then print the definition
- * of a "copy_callbacks" function that copies the persistent callbacks
- * from one object to another.
- */
-void csharp_generator::print_copy_callbacks(const isl_class &clazz) {
-  const set<FunctionDecl *> &callbacks = clazz.persistent_callbacks;
-  set<FunctionDecl *>::const_iterator in;
-
-  if (!clazz.has_persistent_callbacks())
-    return;
-
-  printf("    public void copy_callbacks(%s obj) {\n",
-         type2csharp(clazz.name).c_str());
-  for (in = callbacks.begin(); in != callbacks.end(); ++in) {
-    string callback_name = clazz.persistent_callback_name(*in);
-
-    printf("        if (obj.%s is not null) {\n", callback_name.c_str());
-    printf("            this.%s = obj.%s;\n", callback_name.c_str(),
-           callback_name.c_str());
-    printf("        }\n");
-  }
-  printf("    }\n");
-}
-
-/* Print code to set method type signatures.
- *
- * To be able to call C functions it is necessary to explicitly set their
- * argument and result types.  Do this for all exported constructors and
- * methods (including those that set a persistent callback and
- * those that set an enum value),
- * as well as for the *_to_str and the type function, if they exist.
- * Assuming each exported class has a *_copy and a *_free method,
- * also unconditionally set the type of such methods.
- */
-void csharp_generator::print_interop(const isl_class &clazz) {
-  function_set::const_iterator in;
-  map<string, function_set>::const_iterator it;
-  map<FunctionDecl *, vector<set_enum>>::const_iterator ie;
-  const set<FunctionDecl *> &callbacks = clazz.persistent_callbacks;
-  printf("internal static partial class Interop {\n");
-  for (in = clazz.constructors.begin(); in != clazz.constructors.end(); ++in)
-    print_method_type(*in);
-
-  for (in = callbacks.begin(); in != callbacks.end(); ++in)
-    print_method_type(*in);
-  for (it = clazz.methods.begin(); it != clazz.methods.end(); ++it)
-    for (in = it->second.begin(); in != it->second.end(); ++in)
-      print_method_type(*in);
-  for (ie = clazz.set_enums.begin(); ie != clazz.set_enums.end(); ++ie)
-    print_method_type(ie->first);
-
-  print_method_type(clazz.fn_copy);
-  print_method_type(clazz.fn_free);
-  if (clazz.fn_to_str)
-    print_method_type(clazz.fn_to_str);
-  if (clazz.fn_type)
-    print_method_type(clazz.fn_type);
-  printf("}\n");
-}
-
-/* Print out the definition of this isl_class.
- *
- * We first check if this isl_class is a subclass of one or more other classes.
- * If it is, we make sure those superclasses are printed out first.
- *
- * Then we print a constructor with several cases, one for constructing
- * a Python object from a return value, one for each function that
- * was marked as a constructor, a class specific constructor, if any, and
- * one for each type based subclass.
- *
- * Next, we print out some common methods, class specific methods and
- * the methods corresponding
- * to functions that are not marked as constructors, including those
- * that set a persistent callback and those that set an enum value.
- *
- * Finally, we tell ctypes about the types of the arguments of the
- * constructor functions and the return types of those function returning
- * an isl object.
- */
-void csharp_generator::print(const isl_class &clazz) {
-  string p_name = type2csharp(clazz.subclass_name);
-  vector<string> super = find_superclasses(clazz.type);
-  const set<FunctionDecl *> &callbacks = clazz.persistent_callbacks;
-
-  for (unsigned i = 0; i < super.size(); ++i)
-    if (done.find(super[i]) == done.end())
-      print(classes[super[i]]);
-  if (clazz.is_type_subclass() && done.find(clazz.name) == done.end())
-    print(classes[clazz.name]);
-  done.insert(clazz.subclass_name);
-
-  printf("\n");
-  print_class_header(clazz, p_name, super);
-  printf("    private Context ctx;\n");
-  printf("    private IntPtr ptr;\n");
-  printf("    public %s(isl_context? ctx = null, IntPtr? ptr = null) {\n",
-         p_name.c_str());
-
-  printf("        if (ptr is not null) { \n");
-  printf("            this.ctx = ctx!;\n");
-  printf("            this.ptr = ptr!;\n");
-  printf("            }\n");
-  printf("    }\n");
-
-  for (const auto &cons : clazz.constructors) {
-    printf("    public %s", p_name.c_str());
-    print_constructor(clazz, cons);
-  }
-  print_special_constructors(clazz);
-  print_upcast_constructors(clazz);
-  // printf("        raise Error\n");
-  printf("    public Dispose() {\n");
-  printf("        if (ptr is not null) {\n");
-  printf("            isl.%s_free(ptr);\n", clazz.name.c_str());
-  printf("        }\n");
-  printf("    }\n");
-
-  // print_new(clazz, p_name);
-  print_representation(clazz, p_name);
-  print_copy_callbacks(clazz);
-
-  print_special_methods(clazz);
-  for (const auto &callback : callbacks)
-    print_method(clazz, callback, super);
-  for (const auto &kvp : clazz.methods)
-    print_method(clazz, kvp.first, kvp.second, super);
+void csharp_generator::class_printer::print_set_enums() {
   for (const auto &kvp : clazz.set_enums)
-    print_set_enum(clazz, kvp.first, super);
-
-  printf("}\n");
-
-  print_interop(clazz);
+    print_set_enums(kvp.first);
 }
 
-/* Generate a python interface based on the extracted types and
- * functions.
+/* Update "convert" to reflect the next combination of automatic conversions
+ * for the arguments of "fd",
+ * returning false if there are no more combinations.
  *
- * Print out each class in turn.  If one of these is a subclass of some
- * other class, make sure the superclass is printed out first.
- * functions.
+ * In particular, find the last argument for which an automatic
+ * conversion function is available mapping to the type of this argument and
+ * that is not already marked for conversion.
+ * Mark this argument, if any, for conversion and clear the markings
+ * of all subsequent arguments.
+ * Repeated calls to this method therefore run through
+ * all possible combinations.
+ *
+ * Note that the first function argument is never considered
+ * for automatic conversion since this is the argument
+ * from which the isl_ctx used in the conversion is extracted.
  */
-void csharp_generator::generate() {
-  map<string, isl_class>::iterator ci;
-  printf("using System.Runtime.InteropServices;\n");
-  printf("namespace ISLSharp;\n");
+bool csharp_generator::class_printer::next_variant(FunctionDecl *fd,
+                                                   std::vector<bool> &convert) {
+  size_t n = convert.size();
 
-  for (ci = classes.begin(); ci != classes.end(); ++ci) {
-    if (done.find(ci->first) == done.end())
-      print(ci->second);
+  for (int i = n - 1; i >= 1; --i) {
+    ParmVarDecl *param = fd->getParamDecl(i);
+    const Type *type = param->getOriginalType().getTypePtr();
+
+    if (generator.conversions.count(type) == 0)
+      continue;
+    if (convert[i])
+      continue;
+    convert[i] = true;
+    for (size_t j = i + 1; j < n; ++j)
+      convert[j] = false;
+    return true;
+  }
+
+  return false;
+}
+
+/* Print a declaration or definition for a method called "name"
+ * derived from "fd".
+ *
+ * If the method was copied from a superclass, then print a definition
+ * that calls the corresponding method in the superclass.
+ * Otherwise, for methods that are identified as "get" methods, also
+ * print a declaration or definition for the method
+ * using a name that includes the "get_" prefix.
+ *
+ * If the generated method is an object method, then check
+ * whether any of its arguments can be automatically converted
+ * from something else, and, if so, generate a method
+ * for each combination of converted arguments.
+ * Do so by constructing a ConversionMethod that changes the converted arguments
+ * to those of the sources of the conversions.
+ *
+ * Note that a method may be both copied from a superclass and
+ * have arguments that can be automatically converted.
+ * In this case, the conversion methods for the arguments
+ * call the corresponding method in this class, which
+ * in turn will call the method in the superclass.
+ */
+void csharp_generator::class_printer::print_method_variants(
+    FunctionDecl *fd, const std::string &name) {
+  CSharpMethod method(clazz, fd, name);
+  std::vector<bool> convert(method.num_params());
+
+  if (method.clazz.copied_from.count(method.fd) == 0) {
+    print_method(method);
+    // if (clazz.is_get_method(fd))
+    //   print_get_method(fd);
+  } else {
+    auto super = method.clazz.copied_from.at(method.fd);
+    print_method(CSharpConversionMethod(method, super.name));
+  }
+  if (method.kind != CSharpMethod::Kind::member_method)
+    return;
+  while (next_variant(fd, convert)) {
+    print_method(CSharpConversionMethod(
+        method, [&](int pos) { return get_param(fd, pos, convert); }));
   }
 }
+
+/* Given a function declaration representing a method,
+ * does this method have a single argument (beyond the object
+ * on which the method is called) that corresponds to
+ * an isl object?
+ */
+static bool has_single_isl_argument(FunctionDecl *fd) {
+  ParmVarDecl *param;
+
+  if (fd->getNumParams() != 2)
+    return false;
+
+  param = fd->getParamDecl(1);
+  return generator::is_isl_type(param->getOriginalType());
+}
+
+/* Does the set "methods" contain exactly one function declaration
+ * that corresponds to a method of "clazz" itself (i.e., that
+ * was not copied from an ancestor)?
+ */
+static FunctionDecl *single_local(const isl_class &clazz,
+                                  const function_set &methods) {
+  int count = 0;
+  FunctionDecl *local;
+
+  for (const auto &fn : methods) {
+    if (!clazz.first_arg_matches_class(fn))
+      continue;
+    ++count;
+    local = fn;
+  }
+
+  return count == 1 ? local : NULL;
+}
+
+/* Given a function declaration "fd" for a method called "name"
+ * with a single argument representing an isl object,
+ * generate declarations or definitions for methods with the same name,
+ * but with as argument an isl object of a class that can be implicitly
+ * converted to that of the original argument.
+ * In particular, generate methods for converting this argument.
+ */
+void csharp_generator::class_printer::print_descendent_overloads(
+    FunctionDecl *fd, const std::string &name) {
+  CSharpMethod method(clazz, fd, name);
+  ParmVarDecl *param = fd->getParamDecl(1);
+  QualType type = param->getOriginalType();
+  std::string arg = type->getPointeeType().getAsString();
+
+  for (const auto &kvp : generator.classes[arg].construction_types) {
+    const auto sub = kvp.second;
+    print_method(CSharpConversionMethod(method, [&](int pos) { return sub; }));
+  }
+}
+
+/* Print declarations or definitions for methods called "name"
+ * derived from "methods".
+ *
+ * If want_descendent_overloads signals that variants should be added that take
+ * as arguments those types that can be converted to the original argument type
+ * through a unary constructor and if only one of the methods in the group
+ * was originally defined in "clazz", then effectively add those variants.
+ * Only do this for methods with a single (isl object) argument.
+ */
+void csharp_generator::class_printer::print_method_group(
+    const function_set &methods, const std::string &name) {
+  FunctionDecl *local;
+
+  for (const auto &fd : methods)
+    print_method_variants(fd, name);
+  if (!want_descendent_overloads(methods))
+    return;
+  local = single_local(clazz, methods);
+  if (!local)
+    return;
+  if (!has_single_isl_argument(local))
+    return;
+  print_descendent_overloads(local, name);
+}
+
+/* Print the use of the argument at position "pos" to "os".
+ *
+ * Member methods pass the isl object corresponding to "this"
+ * as first argument (at position 0).
+ * Any other arguments are passed along from the method arguments.
+ *
+ * If the argument value is loaded from a this pointer, the original
+ * value must be preserved and must consequently be copied.  Values that are
+ * loaded from method parameters do not need to be preserved, as such values
+ * will already be copies of the actual parameters.  It is consequently possible
+ * to directly take the pointer from these values, which saves
+ * an unnecessary copy.
+ *
+ * In case the parameter is a callback function, two parameters get printed,
+ * a wrapper for the callback function and a pointer to the actual
+ * callback function.  The wrapper is expected to be available
+ * in a previously declared variable <name>_lambda, while
+ * the actual callback function is expected to be stored
+ * in a structure called <name>_data.
+ * The caller of this function must ensure that these variables exist.
+ */
+void CSharpMethod::print_param_use(ostream &os, int pos) const {
+  ParmVarDecl *param = fd->getParamDecl(pos);
+  bool load_from_this_ptr = pos == 0 && kind == member_method;
+  string name = param->getName().str();
+  QualType type = param->getOriginalType();
+
+  if (type->isIntegerType()) {
+    os << name;
+    return;
+  }
+
+  if (generator::is_string(type)) {
+    os << name; // << ".c_str()";
+    return;
+  }
+
+  if (generator::is_callback(type)) {
+    os << name << "_lambda, ";
+    // os << "&" << name << "_data";
+    os << "IntPtr.Zero";
+    return;
+  }
+
+  if (!load_from_this_ptr) {
+    os << name;
+    if (name == "params") {
+      os << '_';
+    }
+    os << ".";
+  }
+
+  if (generator::keeps(param)) {
+    os << "get()";
+  } else {
+    if (generator::is_isl_ctx(type))
+      os << "get()";
+    else
+      os << "copy()";
+  }
+}
+
+/* Does the isl function from which this method is derived
+ * modify an object of a subclass based on a type function?
+ */
+bool CSharpMethod::is_subclass_mutator() const {
+  return clazz.is_type_subclass() && generator::is_mutator(clazz, fd);
+}
+
+/* Return the C++ return type of the method "method".
+ *
+ * If the corresponding function modifies an object of a subclass, then return
+ * the type of this subclass.
+ * Otherwise, return the C++ counterpart of the actual return type.
+ */
+std::string csharp_type_printer::return_type(const CSharpMethod &method) const {
+  if (method.is_subclass_mutator())
+    return csharp_generator::type2csharp(method.clazz);
+  else
+    return param(-1, method.fd->getReturnType());
+}
+
+/* Return the formal parameter at position "pos" of "fd".
+ * However, if this parameter should be converted, as indicated
+ * by "convert", then return the second formal parameter
+ * of the conversion function instead.
+ */
+ParmVarDecl *
+csharp_generator::class_printer::get_param(FunctionDecl *fd, int pos,
+                                           const std::vector<bool> &convert) {
+  ParmVarDecl *param = fd->getParamDecl(pos);
+
+  if (!convert[pos])
+    return param;
+  return generator.conversions[param->getOriginalType().getTypePtr()];
+}
+
+/* Print the header for "method", without newline or semicolon,
+ * using "type_printer" to print argument and return types.
+ *
+ * Print the header of a declaration if this->declarations is set,
+ * otherwise print the header of a method definition.
+ *
+ * This function prints headers for member methods, static methods, and
+ * constructors, either for their declaration or definition.
+ *
+ * Member functions are declared as "const", as they do not change the current
+ * object, but instead create a new object. They always retrieve the first
+ * parameter of the original isl function from the this-pointer of the object,
+ * such that only starting at the second parameter the parameters of the
+ * original function become part of the method's interface.
+ *
+ * A function
+ *
+ * 	__isl_give isl_set *isl_set_intersect(__isl_take isl_set *s1,
+ * 		__isl_take isl_set *s2);
+ *
+ * is translated into:
+ *
+ * 	inline set intersect(set set2) const
+ *
+ * For static functions and constructors all parameters of the original isl
+ * function are exposed.
+ *
+ * Parameters of which no copy is required, are passed
+ * as const reference, which allows the compiler to optimize the parameter
+ * transfer.
+ *
+ * Constructors are marked as explicit using the C++ keyword 'explicit' or as
+ * implicit using a comment in place of the explicit keyword. By annotating
+ * implicit constructors with a comment, users of the interface are made
+ * aware of the potential danger that implicit construction is possible
+ * for these constructors, whereas without a comment not every user would
+ * know that implicit construction is allowed in absence of an explicit keyword.
+ *
+ * Note that in case "method" is a ConversionMethod, the argument returned
+ * by Method::get_param may be different from the original argument.
+ * The name of the argument is, however, derived from the original
+ * function argument.
+ */
+void csharp_generator::class_printer::print_method_header(
+    const CSharpMethod &method, const csharp_type_printer &type_printer) {
+  string rettype_str = type_printer.return_type(method);
+
+  // if (declarations) {
+  os << " public ";
+
+  if (method.kind == CSharpMethod::Kind::static_method)
+    os << "static ";
+
+  if (method.kind == CSharpMethod::Kind::constructor) {
+    if (generator.is_implicit_conversion(method))
+      os << "/* implicit */ ";
+    else
+      os << "/* explicit */ ";
+  }
+  // }
+
+  if (method.kind != CSharpMethod::Kind::constructor)
+    os << rettype_str << " ";
+
+  // if (!declarations)
+  //   os << type_printer.class_type(csharpstring) << "::";
+
+  if (method.kind != CSharpMethod::Kind::constructor) {
+    os << method.name;
+  } else {
+    os << csharpstring;
+  }
+
+  method.print_csharp_arg_list(os, [&](int i, int arg) {
+    std::string name = method.fd->getParamDecl(i)->getNameAsString();
+    ParmVarDecl *param = method.get_param(i);
+    QualType type = param->getOriginalType();
+    string csharptype = type_printer.param(arg, type);
+
+    // if (!method.param_needs_copy(i))
+    // 	os << "const " << csharptype << " &" << name;
+    // else
+    os << csharptype << " " << name;
+    if (name == "params") {
+      os << '_';
+    }
+  });
+
+  if (method.kind == CSharpEnumMethod::Kind::constructor &&
+      clazz.is_type_subclass()) {
+    os << " : base(IntPtr.Zero) ";
+  }
+
+  // if (method.kind == CSharpMethod::Kind::member_method)
+  // 	os << " const";
+}
+
+/* Generate the list of argument types for a callback function of
+ * type "type", appearing in argument position "arg".
+ * If "csharp" is set, then generate the C++ type list, otherwise
+ * the C type list.
+ *
+ * For a callback of type
+ *
+ *      isl_stat (*)(__isl_take isl_map *map, void *user)
+ *
+ * the following C++ argument list is generated:
+ *
+ *      map
+ *
+ * The arguments of the callback are considered to appear
+ * after the position of the callback itself.
+ */
+std::string csharp_type_printer::generate_callback_args(int arg, QualType type,
+                                                        bool csharp,
+                                                        bool with_arg) const {
+  std::string type_str;
+  const FunctionProtoType *callback;
+  int num_params;
+
+  callback = generator::extract_prototype(type);
+  num_params = callback->getNumArgs();
+  if (csharp)
+    num_params--;
+
+  for (long i = 0; i < num_params; i++) {
+    QualType type = callback->getArgType(i);
+
+    if (csharp)
+      type_str += param(arg + 1 + i, type);
+    else
+      type_str += "IntPtr"; // type.getAsString();
+
+    if (with_arg)
+      type_str += " arg_" + ::to_string(i);
+
+    if (i != num_params - 1)
+      type_str += ", ";
+  }
+
+  return type_str;
+}
+
+/* Generate the full csharp type of a callback function of type "type",
+ * appearing in argument position "arg".
+ *
+ * For a callback of type
+ *
+ *      isl_stat (*)(__isl_take isl_map *map, void *user)
+ *
+ * the following type is generated:
+ *
+ *      std::function<stat(map)>
+ */
+std::string csharp_type_printer::generate_callback_type(int arg, QualType type,
+                                                        bool csharp) const {
+  std::string type_str;
+  const FunctionProtoType *callback = generator::extract_prototype(type);
+  auto num_params = callback->getNumArgs();
+  if (csharp)
+    num_params--;
+
+  QualType return_type = callback->getReturnType();
+  string rettype_str = param(arg, return_type, csharp);
+  if (rettype_str == "void") {
+    type_str = "Action";
+  } else {
+    type_str = "Func";
+  }
+
+  type_str += "<";
+  type_str += generate_callback_args(arg, type, csharp, false);
+  if (rettype_str != "void") {
+    type_str += ", ";
+    type_str += rettype_str;
+  }
+  type_str += ">";
+
+  return type_str;
+}
+
+/* An array listing functions that must be renamed and the function name they
+ * should be renamed to. We currently rename functions in case their name would
+ * match a reserved C++ keyword, which is not allowed in C++.
+ */
+static const char *rename_map[][2] = {
+    {"params", "paramss"},
+    {"foreach", "Foreach"},
+};
+
+/* Rename method "name" in case the method name in the C++ bindings should not
+ * match the name in the C bindings. We do this for example to avoid
+ * C++ keywords.
+ */
+static std::string rename_method(std::string name) {
+  for (size_t i = 0; i < sizeof(rename_map) / sizeof(rename_map[0]); i++)
+    if (name.compare(rename_map[i][0]) == 0)
+      return rename_map[i][1];
+
+  return name;
+}
+
+/* Translate isl class "clazz" to its corresponding C++ type.
+ * Use the name of the type based subclass, if any.
+ */
+string csharp_generator::type2csharp(const isl_class &clazz) {
+  return type2csharp(clazz.subclass_name);
+}
+
+/* Translate type string "type_str" to its C++ name counterpart.
+ */
+string csharp_generator::type2csharp(string type_str) {
+  return type_str.substr(4);
+}
+
+/* Return the C++ counterpart to the isl_bool type.
+ *
+ * By default, this is simply "bool" since
+ * the exceptional case is handled through exceptions.
+ */
+std::string csharp_type_printer::isl_bool() const { return "bool"; }
+
+/* Return the C++ counterpart to the isl_stat type.
+ *
+ * By default, this is simply "void" since
+ * the exceptional case is handled through exceptions.
+ */
+string csharp_type_printer::isl_stat() const { return "void"; }
+
+/* Return the C++ counterpart to the isl_size type.
+ *
+ * By default, this is simply "unsigned" since
+ * the exceptional case is handled through exceptions.
+ */
+string csharp_type_printer::isl_size() const { return "int"; }
+
+/* Return the namespace of the generated C++ bindings.
+ *
+ * By default, this is "isl::".
+ */
+std::string csharp_type_printer::isl_namespace() const { return ""; }
+
+/* Return the class type given the C++ name.
+ *
+ * By default, directly use the C++ name.
+ */
+std::string
+csharp_type_printer::class_type(const std::string &csharp_name) const {
+  return csharp_name;
+}
+
+/* Return the qualified form of the given C++ isl type name appearing
+ * in argument position "arg" (-1 for return type).
+ *
+ * By default, the argument position is ignored.
+ */
+std::string
+csharp_type_printer::qualified(int arg, const std::string &csharp_type) const {
+  return isl_namespace() + csharp_type;
+}
+
+/* Return the C++ counterpart to the given isl type appearing
+ * in argument position "arg" (-1 for return type).
+ */
+std::string csharp_type_printer::isl_type(int arg, QualType type) const {
+  auto name = type->getPointeeType().getAsString();
+  return qualified(arg, csharp_generator::type2csharp(name));
+}
+
+/* Translate parameter or return type "type" to its C++ name counterpart.
+ * "arg" is the position of the argument, or -1 in case of the return type.
+ * If any callback is involved, then the return type and arguments types
+ * of the callback are considered to start at the position of the callback.
+ */
+std::string csharp_type_printer::param(int arg, QualType type,
+                                       bool csharp) const {
+  if (csharp_generator::is_isl_type(type))
+    return csharp ? isl_type(arg, type) : "IntPtr";
+
+  if (csharp_generator::is_isl_bool(type))
+    return csharp ? isl_bool() : "isl_bool";
+
+  if (csharp_generator::is_isl_stat(type))
+    return csharp ? isl_stat() : "isl_stat";
+
+  if (csharp_generator::is_isl_size(type))
+    return isl_size();
+
+  if (csharp_generator::is_long(type)) {
+    return "long";
+  } else if (type->isUnsignedIntegerType()) {
+    return "uint";
+  } else if (type->isSignedIntegerType()) {
+    return "int";
+  }
+
+  if (csharp_generator::is_string(type))
+    return "string";
+
+  if (csharp_generator::is_callback(type))
+    return generate_callback_type(arg, type, true);
+
+  generator::die("Cannot convert type to C++ type");
+}
+
+/* Check if "subclass_type" is a subclass of "class_type".
+ */
+bool csharp_generator::is_subclass(QualType subclass_type,
+                                   const isl_class &class_type) {
+  std::string type_str = subclass_type->getPointeeType().getAsString();
+  std::vector<std::string> superclasses;
+  std::vector<const isl_class *> parents;
+  std::vector<std::string>::iterator ci;
+
+  superclasses = generator::find_superclasses(classes[type_str].type);
+
+  for (ci = superclasses.begin(); ci < superclasses.end(); ci++)
+    parents.push_back(&classes[*ci]);
+
+  while (!parents.empty()) {
+    const isl_class *candidate = parents.back();
+
+    parents.pop_back();
+
+    if (&class_type == candidate)
+      return true;
+
+    superclasses = generator::find_superclasses(candidate->type);
+
+    for (ci = superclasses.begin(); ci < superclasses.end(); ci++)
+      parents.push_back(&classes[*ci]);
+  }
+
+  return false;
+}
+
+/* Check if "cons" is an implicit conversion constructor of class "clazz".
+ *
+ * An implicit conversion constructor is generated in case "cons" has a single
+ * parameter, where the parameter type is a subclass of the class that is
+ * currently being generated.
+ */
+bool csharp_generator::is_implicit_conversion(const CSharpMethod &cons) {
+  const auto &clazz = cons.clazz;
+  ParmVarDecl *param = cons.fd->getParamDecl(0);
+  QualType type = param->getOriginalType();
+
+  int num_params = cons.fd->getNumParams();
+  if (num_params != 1)
+    return false;
+
+  if (is_isl_type(type) && !is_isl_ctx(type) && is_subclass(type, clazz))
+    return true;
+
+  return false;
+}
+
+/* Construct a list combiner for printing a list.
+ */
+CSharpMethod::csharp_list_combiner
+CSharpMethod::print_combiner(std::ostream &os) {
+  return {[&]() { os << "("; }, [&]() { os << ", "; }, [&]() { os << ")"; }};
+}
+
+/* Construct a list combiner for simply iterating over a list.
+ */
+CSharpMethod::csharp_list_combiner CSharpMethod::empty_combiner() {
+  return {[&]() {}, [&]() {}, [&]() {}};
+}
+
+/* Get kind of "method" in "clazz".
+ *
+ * Given the declaration of a static or member method, returns its kind.
+ */
+static CSharpMethod::Kind get_kind(const isl_class &clazz,
+                                   FunctionDecl *method) {
+  if (generator::is_constructor(method))
+    return CSharpMethod::Kind::constructor;
+  else if (generator::is_static(clazz, method))
+    return CSharpMethod::Kind::static_method;
+  else
+    return CSharpMethod::Kind::member_method;
+}
+
+/* Return the callback arguments of "fd".
+ */
+static std::vector<ParmVarDecl *> find_callback_args(FunctionDecl *fd) {
+  std::vector<ParmVarDecl *> callbacks;
+  int num_params = fd->getNumParams();
+
+  for (int i = 0; i < num_params; ++i) {
+    ParmVarDecl *param = fd->getParamDecl(i);
+    if (generator::is_callback(param->getType()))
+      callbacks.emplace_back(param);
+  }
+
+  return callbacks;
+}
+
+/* Construct a C++ method object from the class to which is belongs,
+ * the isl function from which it is derived and the method name.
+ *
+ * Perform any renaming of the method that may be required and
+ * determine the type of the method.
+ */
+CSharpMethod::CSharpMethod(const isl_class &clazz, FunctionDecl *fd,
+                           const std::string &name)
+    : clazz(clazz), fd(fd), name(rename_method(name)),
+      kind(get_kind(clazz, fd)), callbacks(find_callback_args(fd)) {}
+
+/* Construct a C++ method object from the class to which is belongs and
+ * the isl function from which it is derived.
+ *
+ * Obtain the default method name and continue
+ * with the generic constructor.
+ */
+CSharpMethod::CSharpMethod(const isl_class &clazz, FunctionDecl *fd)
+    : CSharpMethod(clazz, fd, clazz.method_name(fd)) {}
+
+/* Return the number of parameters of the corresponding C function.
+ *
+ * This number includes any possible user pointers that follow callback
+ * arguments.  These are skipped by Method::print_fd_arg_list
+ * during the actual argument printing.
+ */
+int CSharpMethod::c_num_params() const { return fd->getNumParams(); }
+
+/* Return the number of parameters of the method
+ * (including the implicit "this").
+ *
+ * By default, it is the same as the number of parameters
+ * of the corresponding C function.
+ */
+int CSharpMethod::num_params() const { return c_num_params(); }
+
+/* Call "on_arg_skip_next" on the arguments from "start" (inclusive)
+ * to "end" (exclusive), calling the methods of "combiner"
+ * before, between and after the arguments.
+ * If "on_arg_skip_next" returns true then the next argument is skipped.
+ */
+void CSharpMethod::on_arg_list(
+    int start, int end, const CSharpMethod::csharp_list_combiner &combiner,
+    const std::function<bool(int i)> &on_arg_skip_next) {
+  combiner.before();
+  for (int i = start; i < end; ++i) {
+    if (i != start)
+      combiner.between();
+    if (on_arg_skip_next(i))
+      ++i;
+  }
+  combiner.after();
+}
+
+/* Print the arguments from "start" (inclusive) to "end" (exclusive)
+ * as arguments to a method of C function call, using "print_arg_skip_next"
+ * to print each individual argument.  If this callback return true
+ * then the next argument is skipped.
+ */
+void CSharpMethod::print_arg_list(
+    std::ostream &os, int start, int end,
+    const std::function<bool(int i)> &print_arg_skip_next) {
+  on_arg_list(start, end, print_combiner(os),
+              [&](int i) { return print_arg_skip_next(i); });
+}
+
+/* Call "on_arg" on the arguments from "start" (inclusive) to "end" (exclusive),
+ * calling the methods of "combiner" before, between and after the arguments.
+ * The first argument to "on_arg" is the position of the argument
+ * in this->fd.
+ * The second argument is the (first) position in the list of arguments
+ * with all callback arguments spliced in.
+ *
+ * Call on_arg_list to do the actual iteration over the arguments, skipping
+ * the user argument that comes after every callback argument.
+ * On the C++ side no user pointer is needed, as arguments can be forwarded
+ * as part of the std::function argument which specifies the callback function.
+ * The user pointer is also removed from the number of parameters
+ * of the C function because the pair of callback and user pointer
+ * is considered as a single argument that is printed as a whole
+ * by Method::print_param_use.
+ *
+ * In case of a callback argument, the second argument to "print_arg"
+ * is also adjusted to account for the spliced-in arguments of the callback.
+ * The return value takes the place of the callback itself,
+ * while the arguments (excluding the final user pointer)
+ * take the following positions.
+ */
+void CSharpMethod::on_fd_arg_list(
+    int start, int end, const CSharpMethod::csharp_list_combiner &combiner,
+    const std::function<void(int i, int arg)> &on_arg) const {
+  int arg = start;
+
+  on_arg_list(start, end, combiner, [this, &on_arg, &arg](int i) {
+    auto type = fd->getParamDecl(i)->getType();
+
+    on_arg(i, arg++);
+    if (!generator::is_callback(type))
+      return false;
+    arg += generator::prototype_n_args(type) - 1;
+    return true;
+  });
+}
+
+/* Print the arguments from "start" (inclusive) to "end" (exclusive)
+ * as arguments to a method of C function call, using "print_arg"
+ * to print each individual argument.
+ * The first argument to this callback is the position of the argument
+ * in this->fd.
+ * The second argument is the (first) position in the list of arguments
+ * with all callback arguments spliced in.
+ */
+void CSharpMethod::print_fd_arg_list(
+    std::ostream &os, int start, int end,
+    const std::function<void(int i, int arg)> &print_arg) const {
+  on_fd_arg_list(start, end, print_combiner(os), print_arg);
+}
+
+/* Call "on_arg" on the arguments to the method call,
+ * calling the methods of "combiner" before, between and after the arguments.
+ * The first argument to "on_arg" is the position of the argument
+ * in this->fd.
+ * The second argument is the (first) position in the list of arguments
+ * with all callback arguments spliced in.
+ */
+void CSharpMethod::on_csharp_arg_list(
+    const CSharpMethod::csharp_list_combiner &combiner,
+    const std::function<void(int i, int arg)> &on_arg) const {
+  int first_param = kind == member_method ? 1 : 0;
+  on_fd_arg_list(first_param, num_params(), combiner, on_arg);
+}
+
+/* Call "on_arg" on the arguments to the method call.
+ * The first argument to "on_arg" is the position of the argument
+ * in this->fd.
+ * The second argument is the (first) position in the list of arguments
+ * with all callback arguments spliced in.
+ */
+void CSharpMethod::on_csharp_arg_list(
+    const std::function<void(int i, int arg)> &on_arg) const {
+  on_csharp_arg_list(empty_combiner(), on_arg);
+}
+
+/* Print the arguments to the method call, using "print_arg"
+ * to print each individual argument.
+ * The first argument to this callback is the position of the argument
+ * in this->fd.
+ * The second argument is the (first) position in the list of arguments
+ * with all callback arguments spliced in.
+ */
+void CSharpMethod::print_csharp_arg_list(
+    std::ostream &os,
+    const std::function<void(int i, int arg)> &print_arg) const {
+  on_csharp_arg_list(print_combiner(os), print_arg);
+}
+
+/* Should the parameter at position "pos" be a copy (rather than
+ * a const reference)?
+ *
+ * Strictly speaking, a copy is only needed on isl types that are
+ * not marked __isl_keep, since those will be release()'d
+ * by code printed by Method::print_param_use.
+ *
+ * However, there may be other arguments such as integer types
+ * that are more naturally passed as a copy.
+ * The default is therefore to require a copy, except for
+ * arguments marked __isl_keep, string arguments or callback arguments.
+ */
+bool CSharpMethod::param_needs_copy(int pos) const {
+  ParmVarDecl *param = get_param(pos);
+  QualType type = param->getOriginalType();
+
+  if (generator::keeps(param))
+    return false;
+  if (generator::is_string(type) || generator::is_callback(type))
+    return false;
+  return true;
+}
+
+/* Return the method argument at position "pos".
+ */
+clang::ParmVarDecl *CSharpMethod::get_param(int pos) const {
+  return fd->getParamDecl(pos);
+}
+
+/* Construct a method that performs one or more conversions
+ * from the original Method (without conversions),
+ * the name of the type to which "this" should be converted and
+ * a function for determining the arguments of the constructed method.
+ */
+CSharpConversionMethod::CSharpConversionMethod(
+    const CSharpMethod &method, const std::string &this_type,
+    const std::function<clang::ParmVarDecl *(int pos)> &get_param)
+    : CSharpNoCopyMethod(method), this_type(this_type),
+      get_param_fn(get_param) {}
+
+/* Construct a method that only performs a conversion on "this"
+ * from the original Method (without conversions) and
+ * the name of the type to which "this" should be converted.
+ *
+ * Call the generic constructor with
+ * a function for determining the arguments of the constructed method
+ * that performs no conversion.
+ */
+CSharpConversionMethod::CSharpConversionMethod(const CSharpMethod &method,
+                                               const std::string &this_type)
+    : CSharpConversionMethod(method, this_type, [this](int pos) {
+        return CSharpMethod::get_param(pos);
+      }) {}
+
+/* Construct a method that performs one or more argument conversions
+ * from the original Method (without conversions) and
+ * a function for determining the arguments of the constructed method.
+ *
+ * Call the generic constructor with method.clazz.name as "this" type,
+ * indicating that "this" should not be converted.
+ */
+CSharpConversionMethod::CSharpConversionMethod(
+    const CSharpMethod &method,
+    const std::function<clang::ParmVarDecl *(int pos)> &get_param)
+    : CSharpConversionMethod(method, method.clazz.name, get_param) {}
+
+/* Should the parameter at position "pos" be a copy (rather than
+ * a const reference)?
+ *
+ * Parameters of isl type do not need to be a copy.
+ * For other types, use the same defaults as Method.
+ */
+bool CSharpNoCopyMethod::param_needs_copy(int pos) const {
+  ParmVarDecl *param = get_param(pos);
+  QualType type = param->getOriginalType();
+
+  if (generator::is_isl_type(type))
+    return false;
+
+  return CSharpMethod::param_needs_copy(pos);
+}
+
+/* Return the method argument at position "pos".
+ *
+ * Call get_param_fn to determine this argument.
+ */
+clang::ParmVarDecl *CSharpConversionMethod::get_param(int pos) const {
+  return get_param_fn(pos);
+}
+
+/* Print a call to the method (without the arguments),
+ * with "ns" the namespace of the generated C++ bindings.
+ *
+ * If "this_type" is different from the name of the class of the method,
+ * then "this" needs to be converted to that type before
+ * the call is performed.
+ */
+void CSharpConversionMethod::print_call(std::ostream &os,
+                                        const std::string &ns) const {
+  if (clazz.name == this_type) {
+    os << "this.";
+  } else {
+    auto csharp_type = ns + csharp_generator::type2csharp(this_type);
+    os << "new " << csharp_type << "(get()).";
+  }
+  os << name;
+}
+
+/* Construct an object representing a C++ method for setting an enum
+ * from the class to which is belongs,
+ * the isl function from which it is derived and the method and enum names.
+ */
+CSharpEnumMethod::CSharpEnumMethod(const isl_class &clazz, FunctionDecl *fd,
+                                   const std::string &method_name,
+                                   const std::string &enum_name)
+    : CSharpMethod(clazz, fd, method_name), enum_name(enum_name) {}
+
+/* Print the use of the argument at position "pos" to "os".
+ *
+ * If the position is beyond the number of method arguments,
+ * then it corresponds to the enum value corresponding to this EnumMethod.
+ * Otherwise, delegate to Method::print_param_use.
+ */
+void CSharpEnumMethod::print_param_use(ostream &os, int pos) const {
+  if (pos == num_params())
+    os << enum_name;
+  else
+    CSharpMethod::print_param_use(os, pos);
+}
+
+/* Return the number of parameters of the method
+ * (including the implicit "this").
+ *
+ * The last argument of the C function does not appear in the method call,
+ * because it is replaced by a break-up into several methods.
+ */
+int CSharpEnumMethod::num_params() const {
+  return CSharpMethod::num_params() - 1;
+}
+
+/* Initialize a class method printer from the stream onto which the methods
+ * are printed, the class method description and the C++ interface generator.
+ */
+csharp_generator::class_printer::class_printer(std::ostream &os,
+                                               const isl_class &clazz,
+                                               csharp_generator &generator,
+                                               bool declarations)
+    : os(os), clazz(clazz), csharpstring(type2csharp(clazz)),
+      generator(generator), declarations(declarations) {}
