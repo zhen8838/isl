@@ -818,11 +818,24 @@ csharp_type_printer::qualified(int arg, const std::string &csharp_type) const {
   return isl_namespace() + csharp_type;
 }
 
+std::string csharp_type_printer::isl_enum_type(int arg, QualType type) const {
+  if (!type->isEnumeralType()) {
+    abort();
+  }
+  auto name = type.getAsString();
+  name = name.substr(5);
+  return qualified(arg, name.substr(4));
+}
+
 /* Return the C++ counterpart to the given isl type appearing
  * in argument position "arg" (-1 for return type).
  */
 std::string csharp_type_printer::isl_type(int arg, QualType type) const {
-  auto name = type->getPointeeType().getAsString();
+  auto pointee = type->getPointeeType();
+  auto name = pointee.getAsString();
+  if (pointee.isConstQualified()) {
+    name = name.substr(6);
+  }
   return qualified(arg, csharp_generator::type2csharp(name));
 }
 
@@ -845,6 +858,10 @@ std::string csharp_type_printer::param(int arg, QualType type,
   if (csharp_generator::is_isl_size(type))
     return isl_size();
 
+  if (type->isEnumeralType()) {
+    return csharp ? isl_enum_type(arg, type) : type.getAsString().substr(5);
+  }
+
   if (csharp_generator::is_long(type)) {
     return "long";
   } else if (type->isUnsignedIntegerType()) {
@@ -858,6 +875,10 @@ std::string csharp_type_printer::param(int arg, QualType type,
 
   if (csharp_generator::is_callback(type))
     return generate_callback_type(arg, type, true);
+
+  if (type->isVoidType()) {
+    return "void";
+  }
 
   generator::die("Cannot convert type to C++ type");
 }

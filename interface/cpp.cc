@@ -45,32 +45,30 @@
  * an isl type and add those types, along with the corresponding
  * constructor argument.
  */
-void cpp_generator::set_class_construction_types(isl_class &clazz)
-{
-	for (const auto &cons : clazz.constructors) {
-		ParmVarDecl *param;
-		QualType type;
-		std::string arg_type;
+void cpp_generator::set_class_construction_types(isl_class &clazz) {
+  for (const auto &cons : clazz.constructors) {
+    ParmVarDecl *param;
+    QualType type;
+    std::string arg_type;
 
-		if (!is_implicit_conversion(Method(clazz, cons)))
-			continue;
+    if (!is_implicit_conversion(Method(clazz, cons)))
+      continue;
 
-		param = cons->getParamDecl(0);
-		type = param->getOriginalType();
-		arg_type = extract_type(type);
-		clazz.construction_types.emplace(arg_type, param);
-	}
+    param = cons->getParamDecl(0);
+    type = param->getOriginalType();
+    arg_type = extract_type(type);
+    clazz.construction_types.emplace(arg_type, param);
+  }
 }
 
 /* Determine the isl types from which any (proper) class can be constructed
  * using a unary constructor.
  */
-void cpp_generator::set_construction_types()
-{
-	for (auto &kvp : classes) {
-		auto &clazz = kvp.second;
-		set_class_construction_types(clazz);
-	}
+void cpp_generator::set_construction_types() {
+  for (auto &kvp : classes) {
+    auto &clazz = kvp.second;
+    set_class_construction_types(clazz);
+  }
 }
 
 /* Construct a generator for C++ bindings.
@@ -84,12 +82,12 @@ void cpp_generator::set_construction_types()
  * to that class.
  */
 cpp_generator::cpp_generator(SourceManager &SM,
-	set<RecordDecl *> &exported_types,
-	set<FunctionDecl *> exported_functions, set<FunctionDecl *> functions) :
-		generator(SM, exported_types, exported_functions, functions)
-{
-	set_construction_types();
-	copy_super_methods();
+                             set<RecordDecl *> &exported_types,
+                             set<FunctionDecl *> exported_functions,
+                             set<FunctionDecl *> functions)
+    : generator(SM, exported_types, exported_functions, functions) {
+  set_construction_types();
+  copy_super_methods();
 }
 
 /* Copy the method called "name" described by "fd" from "super" to "clazz"
@@ -99,34 +97,32 @@ cpp_generator::cpp_generator(SourceManager &SM,
  * from which it was copied and the distance to the original ancestor.
  */
 static void copy_method(isl_class &clazz, const isl_class &super,
-	const std::string &name, FunctionDecl *fd, int depth)
-{
-	clazz.methods[name].insert(fd);
-	clazz.copied_from.emplace(fd, super);
-	clazz.copy_depth.emplace(fd, depth);
+                        const std::string &name, FunctionDecl *fd, int depth) {
+  clazz.methods[name].insert(fd);
+  clazz.copied_from.emplace(fd, super);
+  clazz.copy_depth.emplace(fd, depth);
 }
 
 /* Do "fd1" and "fd2" have the same signature (ignoring the first argument
  * which represents the object class on which the corresponding method
  * gets called).
  */
-static bool same_signature(FunctionDecl *fd1, FunctionDecl *fd2)
-{
-	int n1 = fd1->getNumParams();
-	int n2 = fd2->getNumParams();
+static bool same_signature(FunctionDecl *fd1, FunctionDecl *fd2) {
+  int n1 = fd1->getNumParams();
+  int n2 = fd2->getNumParams();
 
-	if (n1 != n2)
-		return false;
+  if (n1 != n2)
+    return false;
 
-	for (int i = 1; i < n1; ++i) {
-		ParmVarDecl *p1 = fd1->getParamDecl(i);
-		ParmVarDecl *p2 = fd2->getParamDecl(i);
+  for (int i = 1; i < n1; ++i) {
+    ParmVarDecl *p1 = fd1->getParamDecl(i);
+    ParmVarDecl *p2 = fd2->getParamDecl(i);
 
-		if (p1->getOriginalType() != p2->getOriginalType())
-			return false;
-	}
+    if (p1->getOriginalType() != p2->getOriginalType())
+      return false;
+  }
 
-	return true;
+  return true;
 }
 
 /* Return the distance between "clazz" and the ancestor
@@ -134,11 +130,10 @@ static bool same_signature(FunctionDecl *fd1, FunctionDecl *fd2)
  * If no distance was recorded, then the method has not been copied
  * but appears in "clazz" itself and so the distance is zero.
  */
-static int copy_depth(const isl_class &clazz, FunctionDecl *fd)
-{
-	if (clazz.copy_depth.count(fd) == 0)
-		return 0;
-	return clazz.copy_depth.at(fd);
+static int copy_depth(const isl_class &clazz, FunctionDecl *fd) {
+  if (clazz.copy_depth.count(fd) == 0)
+    return 0;
+  return clazz.copy_depth.at(fd);
 }
 
 /* Is the method derived from "fd", with method name "name" and
@@ -157,20 +152,19 @@ static int copy_depth(const isl_class &clazz, FunctionDecl *fd)
  * then this method is removed since it is overridden by "fd".
  */
 static bool is_overridden(FunctionDecl *fd, isl_class &clazz,
-	const std::string &name, int depth)
-{
-	if (clazz.methods.count(name) == 0)
-		return false;
+                          const std::string &name, int depth) {
+  if (clazz.methods.count(name) == 0)
+    return false;
 
-	for (const auto &m : clazz.methods.at(name)) {
-		if (!same_signature(fd, m))
-			continue;
-		if (copy_depth(clazz, m) <= depth)
-			return true;
-		clazz.methods[name].erase(m);
-		return false;
-	}
-	return false;
+  for (const auto &m : clazz.methods.at(name)) {
+    if (!same_signature(fd, m))
+      continue;
+    if (copy_depth(clazz, m) <= depth)
+      return true;
+    clazz.methods[name].erase(m);
+    return false;
+  }
+  return false;
 }
 
 /* Add the methods "methods" with method name "name" from "super" to "clazz"
@@ -179,18 +173,18 @@ static bool is_overridden(FunctionDecl *fd, isl_class &clazz,
  * Methods that are static in their original class are not copied.
  */
 void cpp_generator::copy_methods(isl_class &clazz, const std::string &name,
-	const isl_class &super, const function_set &methods)
-{
-	for (auto fd : methods) {
-		int depth;
+                                 const isl_class &super,
+                                 const function_set &methods) {
+  for (auto fd : methods) {
+    int depth;
 
-		if (method2class(fd)->is_static(fd))
-			continue;
-		depth = copy_depth(super, fd) + 1;
-		if (is_overridden(fd, clazz, name, depth))
-			continue;
-		copy_method(clazz, super, name, fd, depth);
-	}
+    if (method2class(fd)->is_static(fd))
+      continue;
+    depth = copy_depth(super, fd) + 1;
+    if (is_overridden(fd, clazz, name, depth))
+      continue;
+    copy_method(clazz, super, name, fd, depth);
+  }
 }
 
 /* Add all methods from "super" to "clazz" that have not been overridden
@@ -198,14 +192,14 @@ void cpp_generator::copy_methods(isl_class &clazz, const std::string &name,
  *
  * Look through all groups of methods with the same name.
  */
-void cpp_generator::copy_super_methods(isl_class &clazz, const isl_class &super)
-{
-	for (const auto &kvp : super.methods) {
-		const auto &name = kvp.first;
-		const auto &methods = kvp.second;
+void cpp_generator::copy_super_methods(isl_class &clazz,
+                                       const isl_class &super) {
+  for (const auto &kvp : super.methods) {
+    const auto &name = kvp.first;
+    const auto &methods = kvp.second;
 
-		copy_methods(clazz, name, super, methods);
-	}
+    copy_methods(clazz, name, super, methods);
+  }
 }
 
 /* Copy methods from the superclasses of "clazz"
@@ -218,22 +212,21 @@ void cpp_generator::copy_super_methods(isl_class &clazz, const isl_class &super)
  *
  * Consider the superclass that appears closest to the subclass first.
  */
-void cpp_generator::copy_super_methods(isl_class &clazz, set<string> &done)
-{
-	auto supers = find_superclasses(clazz.type);
+void cpp_generator::copy_super_methods(isl_class &clazz, set<string> &done) {
+  auto supers = find_superclasses(clazz.type);
 
-	for (const auto &super : supers)
-		if (done.count(super) == 0)
-			copy_super_methods(classes[super], done);
-	done.insert(clazz.name);
+  for (const auto &super : supers)
+    if (done.count(super) == 0)
+      copy_super_methods(classes[super], done);
+  done.insert(clazz.name);
 
-	for (const auto &super_name : supers) {
-		const auto &super = classes[super_name];
+  for (const auto &super_name : supers) {
+    const auto &super = classes[super_name];
 
-		if (super.construction_types.count(clazz.name) == 0)
-			continue;
-		copy_super_methods(clazz, super);
-	}
+    if (super.construction_types.count(clazz.name) == 0)
+      continue;
+    copy_super_methods(clazz, super);
+  }
 }
 
 /* For each (proper) class, copy methods from its superclasses,
@@ -247,19 +240,18 @@ void cpp_generator::copy_super_methods(isl_class &clazz, set<string> &done)
  * from their superclasses,
  * unless they have already been determined by a recursive call.
  */
-void cpp_generator::copy_super_methods()
-{
-	set<string> done;
+void cpp_generator::copy_super_methods() {
+  set<string> done;
 
-	for (auto &kvp : classes) {
-		auto &clazz = kvp.second;
+  for (auto &kvp : classes) {
+    auto &clazz = kvp.second;
 
-		if (clazz.is_type_subclass())
-			continue;
-		if (done.count(clazz.name) != 0)
-			continue;
-		copy_super_methods(clazz, done);
-	}
+    if (clazz.is_type_subclass())
+      continue;
+    if (done.count(clazz.name) != 0)
+      continue;
+    copy_super_methods(clazz, done);
+  }
 }
 
 /* Print declarations or implementations of constructors.
@@ -274,18 +266,16 @@ void cpp_generator::copy_super_methods()
  * 	inline explicit val(ctx ctx, long i);
  * 	inline explicit val(ctx ctx, const std::string &str);
  */
-void cpp_generator::class_printer::print_constructors()
-{
-	for (const auto &cons : clazz.constructors)
-		print_method(Method(clazz, cons));
+void cpp_generator::class_printer::print_constructors() {
+  for (const auto &cons : clazz.constructors)
+    print_method(Method(clazz, cons));
 }
 
 /* Print declarations or definitions for methods in the class.
  */
-void cpp_generator::class_printer::print_methods()
-{
-	for (const auto &kvp : clazz.methods)
-		print_method_group(kvp.second, kvp.first);
+void cpp_generator::class_printer::print_methods() {
+  for (const auto &kvp : clazz.methods)
+    print_method_group(kvp.second, kvp.first);
 }
 
 /* Print declarations or implementations for the methods derived from "fd",
@@ -294,22 +284,20 @@ void cpp_generator::class_printer::print_methods()
  * A method is generated for each value in the enum, setting
  * the enum to that value.
  */
-void cpp_generator::class_printer::print_set_enums(FunctionDecl *fd)
-{
-	for (const auto &set : clazz.set_enums.at(fd)) {
-		EnumMethod method(clazz, fd, set.method_name, set.name);
+void cpp_generator::class_printer::print_set_enums(FunctionDecl *fd) {
+  for (const auto &set : clazz.set_enums.at(fd)) {
+    EnumMethod method(clazz, fd, set.method_name, set.name);
 
-		print_method(method);
-	}
+    print_method(method);
+  }
 }
 
 /* Print declarations or implementations for methods derived from functions
  * that set an enum.
  */
-void cpp_generator::class_printer::print_set_enums()
-{
-	for (const auto &kvp : clazz.set_enums)
-		print_set_enums(kvp.first);
+void cpp_generator::class_printer::print_set_enums() {
+  for (const auto &kvp : clazz.set_enums)
+    print_set_enums(kvp.first);
 }
 
 /* Update "convert" to reflect the next combination of automatic conversions
@@ -329,25 +317,24 @@ void cpp_generator::class_printer::print_set_enums()
  * from which the isl_ctx used in the conversion is extracted.
  */
 bool cpp_generator::class_printer::next_variant(FunctionDecl *fd,
-	std::vector<bool> &convert)
-{
-	size_t n = convert.size();
+                                                std::vector<bool> &convert) {
+  size_t n = convert.size();
 
-	for (int i = n - 1; i >= 1; --i) {
-		ParmVarDecl *param = fd->getParamDecl(i);
-		const Type *type = param->getOriginalType().getTypePtr();
+  for (int i = n - 1; i >= 1; --i) {
+    ParmVarDecl *param = fd->getParamDecl(i);
+    const Type *type = param->getOriginalType().getTypePtr();
 
-		if (generator.conversions.count(type) == 0)
-			continue;
-		if (convert[i])
-			continue;
-		convert[i] = true;
-		for (size_t j = i + 1; j < n; ++j)
-			convert[j] = false;
-		return true;
-	}
+    if (generator.conversions.count(type) == 0)
+      continue;
+    if (convert[i])
+      continue;
+    convert[i] = true;
+    for (size_t j = i + 1; j < n; ++j)
+      convert[j] = false;
+    return true;
+  }
 
-	return false;
+  return false;
 }
 
 /* Print a declaration or definition for a method called "name"
@@ -372,27 +359,25 @@ bool cpp_generator::class_printer::next_variant(FunctionDecl *fd,
  * call the corresponding method in this class, which
  * in turn will call the method in the superclass.
  */
-void cpp_generator::class_printer::print_method_variants(FunctionDecl *fd,
-	const std::string &name)
-{
-	Method method(clazz, fd, name);
-	std::vector<bool> convert(method.num_params());
+void cpp_generator::class_printer::print_method_variants(
+    FunctionDecl *fd, const std::string &name) {
+  Method method(clazz, fd, name);
+  std::vector<bool> convert(method.num_params());
 
-	if (method.clazz.copied_from.count(method.fd) == 0) {
-		print_method(method);
-		if (clazz.is_get_method(fd))
-			print_get_method(fd);
-	} else {
-		auto super = method.clazz.copied_from.at(method.fd);
-		print_method(ConversionMethod(method, super.name));
-	}
-	if (method.kind != Method::Kind::member_method)
-		return;
-	while (next_variant(fd, convert)) {
-		print_method(ConversionMethod(method, [&] (int pos) {
-			return get_param(fd, pos, convert);
-		}));
-	}
+  if (method.clazz.copied_from.count(method.fd) == 0) {
+    print_method(method);
+    if (clazz.is_get_method(fd))
+      print_get_method(fd);
+  } else {
+    auto super = method.clazz.copied_from.at(method.fd);
+    print_method(ConversionMethod(method, super.name));
+  }
+  if (method.kind != Method::Kind::member_method)
+    return;
+  while (next_variant(fd, convert)) {
+    print_method(ConversionMethod(
+        method, [&](int pos) { return get_param(fd, pos, convert); }));
+  }
 }
 
 /* Given a function declaration representing a method,
@@ -400,15 +385,14 @@ void cpp_generator::class_printer::print_method_variants(FunctionDecl *fd,
  * on which the method is called) that corresponds to
  * an isl object?
  */
-static bool has_single_isl_argument(FunctionDecl *fd)
-{
-	ParmVarDecl *param;
+static bool has_single_isl_argument(FunctionDecl *fd) {
+  ParmVarDecl *param;
 
-	if (fd->getNumParams() != 2)
-		return false;
+  if (fd->getNumParams() != 2)
+    return false;
 
-	param = fd->getParamDecl(1);
-	return generator::is_isl_type(param->getOriginalType());
+  param = fd->getParamDecl(1);
+  return generator::is_isl_type(param->getOriginalType());
 }
 
 /* Does the set "methods" contain exactly one function declaration
@@ -416,19 +400,18 @@ static bool has_single_isl_argument(FunctionDecl *fd)
  * was not copied from an ancestor)?
  */
 static FunctionDecl *single_local(const isl_class &clazz,
-	const function_set &methods)
-{
-	int count = 0;
-	FunctionDecl *local;
+                                  const function_set &methods) {
+  int count = 0;
+  FunctionDecl *local;
 
-	for (const auto &fn : methods) {
-		if (!clazz.first_arg_matches_class(fn))
-			continue;
-		++count;
-		local = fn;
-	}
+  for (const auto &fn : methods) {
+    if (!clazz.first_arg_matches_class(fn))
+      continue;
+    ++count;
+    local = fn;
+  }
 
-	return count == 1 ? local : NULL;
+  return count == 1 ? local : NULL;
 }
 
 /* Given a function declaration "fd" for a method called "name"
@@ -439,19 +422,16 @@ static FunctionDecl *single_local(const isl_class &clazz,
  * In particular, generate methods for converting this argument.
  */
 void cpp_generator::class_printer::print_descendent_overloads(
-	FunctionDecl *fd, const std::string &name)
-{
-	Method method(clazz, fd, name);
-	ParmVarDecl *param = fd->getParamDecl(1);
-	QualType type = param->getOriginalType();
-	std::string arg = type->getPointeeType().getAsString();
+    FunctionDecl *fd, const std::string &name) {
+  Method method(clazz, fd, name);
+  ParmVarDecl *param = fd->getParamDecl(1);
+  QualType type = param->getOriginalType();
+  std::string arg = type->getPointeeType().getAsString();
 
-	for (const auto &kvp : generator.classes[arg].construction_types) {
-		const auto sub = kvp.second;
-		print_method(ConversionMethod(method, [&] (int pos) {
-			return sub;
-		}));
-	}
+  for (const auto &kvp : generator.classes[arg].construction_types) {
+    const auto sub = kvp.second;
+    print_method(ConversionMethod(method, [&](int pos) { return sub; }));
+  }
 }
 
 /* Print declarations or definitions for methods called "name"
@@ -464,20 +444,19 @@ void cpp_generator::class_printer::print_descendent_overloads(
  * Only do this for methods with a single (isl object) argument.
  */
 void cpp_generator::class_printer::print_method_group(
-	const function_set &methods, const std::string &name)
-{
-	FunctionDecl *local;
+    const function_set &methods, const std::string &name) {
+  FunctionDecl *local;
 
-	for (const auto &fd : methods)
-		print_method_variants(fd, name);
-	if (!want_descendent_overloads(methods))
-		return;
-	local = single_local(clazz, methods);
-	if (!local)
-		return;
-	if (!has_single_isl_argument(local))
-		return;
-	print_descendent_overloads(local, name);
+  for (const auto &fd : methods)
+    print_method_variants(fd, name);
+  if (!want_descendent_overloads(methods))
+    return;
+  local = single_local(clazz, methods);
+  if (!local)
+    return;
+  if (!has_single_isl_argument(local))
+    return;
+  print_descendent_overloads(local, name);
 }
 
 /* Print the use of the argument at position "pos" to "os".
@@ -501,48 +480,46 @@ void cpp_generator::class_printer::print_method_group(
  * in a structure called <name>_data.
  * The caller of this function must ensure that these variables exist.
  */
-void Method::print_param_use(ostream &os, int pos) const
-{
-	ParmVarDecl *param = fd->getParamDecl(pos);
-	bool load_from_this_ptr = pos == 0 && kind == member_method;
-	string name = param->getName().str();
-	QualType type = param->getOriginalType();
+void Method::print_param_use(ostream &os, int pos) const {
+  ParmVarDecl *param = fd->getParamDecl(pos);
+  bool load_from_this_ptr = pos == 0 && kind == member_method;
+  string name = param->getName().str();
+  QualType type = param->getOriginalType();
 
-	if (type->isIntegerType()) {
-		os << name;
-		return;
-	}
+  if (type->isIntegerType()) {
+    os << name;
+    return;
+  }
 
-	if (generator::is_string(type)) {
-		os << name << ".c_str()";
-		return;
-	}
+  if (generator::is_string(type)) {
+    os << name << ".c_str()";
+    return;
+  }
 
-	if (generator::is_callback(type)) {
-		os << name << "_lambda, ";
-		os << "&" << name << "_data";
-		return;
-	}
+  if (generator::is_callback(type)) {
+    os << name << "_lambda, ";
+    os << "&" << name << "_data";
+    return;
+  }
 
-	if (!load_from_this_ptr)
-		os << name << ".";
+  if (!load_from_this_ptr)
+    os << name << ".";
 
-	if (generator::keeps(param)) {
-		os << "get()";
-	} else {
-		if (load_from_this_ptr)
-			os << "copy()";
-		else
-			os << "release()";
-	}
+  if (generator::keeps(param)) {
+    os << "get()";
+  } else {
+    if (load_from_this_ptr)
+      os << "copy()";
+    else
+      os << "release()";
+  }
 }
 
 /* Does the isl function from which this method is derived
  * modify an object of a subclass based on a type function?
  */
-bool Method::is_subclass_mutator() const
-{
-	return clazz.is_type_subclass() && generator::is_mutator(clazz, fd);
+bool Method::is_subclass_mutator() const {
+  return clazz.is_type_subclass() && generator::is_mutator(clazz, fd);
 }
 
 /* Return the C++ return type of the method "method".
@@ -551,12 +528,11 @@ bool Method::is_subclass_mutator() const
  * the type of this subclass.
  * Otherwise, return the C++ counterpart of the actual return type.
  */
-std::string cpp_type_printer::return_type(const Method &method) const
-{
-	if (method.is_subclass_mutator())
-		return cpp_generator::type2cpp(method.clazz);
-	else
-		return param(-1, method.fd->getReturnType());
+std::string cpp_type_printer::return_type(const Method &method) const {
+  if (method.is_subclass_mutator())
+    return cpp_generator::type2cpp(method.clazz);
+  else
+    return param(-1, method.fd->getReturnType());
 }
 
 /* Return the formal parameter at position "pos" of "fd".
@@ -564,14 +540,14 @@ std::string cpp_type_printer::return_type(const Method &method) const
  * by "convert", then return the second formal parameter
  * of the conversion function instead.
  */
-ParmVarDecl *cpp_generator::class_printer::get_param(FunctionDecl *fd,
-	int pos, const std::vector<bool> &convert)
-{
-	ParmVarDecl *param = fd->getParamDecl(pos);
+ParmVarDecl *
+cpp_generator::class_printer::get_param(FunctionDecl *fd, int pos,
+                                        const std::vector<bool> &convert) {
+  ParmVarDecl *param = fd->getParamDecl(pos);
 
-	if (!convert[pos])
-		return param;
-	return generator.conversions[param->getOriginalType().getTypePtr()];
+  if (!convert[pos])
+    return param;
+  return generator.conversions[param->getOriginalType().getTypePtr()];
 }
 
 /* Print the header for "method", without newline or semicolon,
@@ -618,51 +594,50 @@ ParmVarDecl *cpp_generator::class_printer::get_param(FunctionDecl *fd,
  * function argument.
  */
 void cpp_generator::class_printer::print_method_header(
-	const Method &method, const cpp_type_printer &type_printer)
-{
-	string rettype_str = type_printer.return_type(method);
+    const Method &method, const cpp_type_printer &type_printer) {
+  string rettype_str = type_printer.return_type(method);
 
-	if (declarations) {
-		os << "  ";
+  if (declarations) {
+    os << "  ";
 
-		if (method.kind == Method::Kind::static_method)
-			os << "static ";
+    if (method.kind == Method::Kind::static_method)
+      os << "static ";
 
-		os << "inline ";
+    os << "inline ";
 
-		if (method.kind == Method::Kind::constructor) {
-			if (generator.is_implicit_conversion(method))
-				os << "/* implicit */ ";
-			else
-				os << "explicit ";
-		}
-	}
+    if (method.kind == Method::Kind::constructor) {
+      if (generator.is_implicit_conversion(method))
+        os << "/* implicit */ ";
+      else
+        os << "explicit ";
+    }
+  }
 
-	if (method.kind != Method::Kind::constructor)
-		os << rettype_str << " ";
+  if (method.kind != Method::Kind::constructor)
+    os << rettype_str << " ";
 
-	if (!declarations)
-		os << type_printer.class_type(cppstring) << "::";
+  if (!declarations)
+    os << type_printer.class_type(cppstring) << "::";
 
-	if (method.kind != Method::Kind::constructor)
-		os << method.name;
-	else
-		os << cppstring;
+  if (method.kind != Method::Kind::constructor)
+    os << method.name;
+  else
+    os << cppstring;
 
-	method.print_cpp_arg_list(os, [&] (int i, int arg) {
-		std::string name = method.fd->getParamDecl(i)->getName().str();
-		ParmVarDecl *param = method.get_param(i);
-		QualType type = param->getOriginalType();
-		string cpptype = type_printer.param(arg, type);
+  method.print_cpp_arg_list(os, [&](int i, int arg) {
+    std::string name = method.fd->getParamDecl(i)->getName().str();
+    ParmVarDecl *param = method.get_param(i);
+    QualType type = param->getOriginalType();
+    string cpptype = type_printer.param(arg, type);
 
-		if (!method.param_needs_copy(i))
-			os << "const " << cpptype << " &" << name;
-		else
-			os << cpptype << " " << name;
-	});
+    if (!method.param_needs_copy(i))
+      os << "const " << cpptype << " &" << name;
+    else
+      os << cpptype << " " << name;
+  });
 
-	if (method.kind == Method::Kind::member_method)
-		os << " const";
+  if (method.kind == Method::Kind::member_method)
+    os << " const";
 }
 
 /* Generate the list of argument types for a callback function of
@@ -682,33 +657,32 @@ void cpp_generator::class_printer::print_method_header(
  * after the position of the callback itself.
  */
 std::string cpp_type_printer::generate_callback_args(int arg, QualType type,
-	bool cpp) const
-{
-	std::string type_str;
-	const FunctionProtoType *callback;
-	int num_params;
+                                                     bool cpp) const {
+  std::string type_str;
+  const FunctionProtoType *callback;
+  int num_params;
 
-	callback = generator::extract_prototype(type);
-	num_params = callback->getNumArgs();
-	if (cpp)
-		num_params--;
+  callback = generator::extract_prototype(type);
+  num_params = callback->getNumArgs();
+  if (cpp)
+    num_params--;
 
-	for (long i = 0; i < num_params; i++) {
-		QualType type = callback->getArgType(i);
+  for (long i = 0; i < num_params; i++) {
+    QualType type = callback->getArgType(i);
 
-		if (cpp)
-			type_str += param(arg + 1 + i, type);
-		else
-			type_str += type.getAsString();
+    if (cpp)
+      type_str += param(arg + 1 + i, type);
+    else
+      type_str += type.getAsString();
 
-		if (!cpp)
-			type_str += "arg_" + ::to_string(i);
+    if (!cpp)
+      type_str += "arg_" + ::to_string(i);
 
-		if (i != num_params - 1)
-			type_str += ", ";
-	}
+    if (i != num_params - 1)
+      type_str += ", ";
+  }
 
-	return type_str;
+  return type_str;
 }
 
 /* Generate the full cpp type of a callback function of type "type",
@@ -722,21 +696,20 @@ std::string cpp_type_printer::generate_callback_args(int arg, QualType type,
  *
  *      std::function<stat(map)>
  */
-std::string cpp_type_printer::generate_callback_type(int arg, QualType type)
-	const
-{
-	std::string type_str;
-	const FunctionProtoType *callback = generator::extract_prototype(type);
-	QualType return_type = callback->getReturnType();
-	string rettype_str = param(arg, return_type);
+std::string cpp_type_printer::generate_callback_type(int arg,
+                                                     QualType type) const {
+  std::string type_str;
+  const FunctionProtoType *callback = generator::extract_prototype(type);
+  QualType return_type = callback->getReturnType();
+  string rettype_str = param(arg, return_type);
 
-	type_str = "std::function<";
-	type_str += rettype_str;
-	type_str += "(";
-	type_str += generate_callback_args(arg, type, true);
-	type_str += ")>";
+  type_str = "std::function<";
+  type_str += rettype_str;
+  type_str += "(";
+  type_str += generate_callback_args(arg, type, true);
+  type_str += ")>";
 
-	return type_str;
+  return type_str;
 }
 
 /* An array listing functions that must be renamed and the function name they
@@ -744,83 +717,65 @@ std::string cpp_type_printer::generate_callback_type(int arg, QualType type)
  * match a reserved C++ keyword, which is not allowed in C++.
  */
 static const char *rename_map[][2] = {
-	{ "union", "unite" },
+    {"union", "unite"},
 };
 
 /* Rename method "name" in case the method name in the C++ bindings should not
  * match the name in the C bindings. We do this for example to avoid
  * C++ keywords.
  */
-static std::string rename_method(std::string name)
-{
-	for (size_t i = 0; i < sizeof(rename_map) / sizeof(rename_map[0]); i++)
-		if (name.compare(rename_map[i][0]) == 0)
-			return rename_map[i][1];
+static std::string rename_method(std::string name) {
+  for (size_t i = 0; i < sizeof(rename_map) / sizeof(rename_map[0]); i++)
+    if (name.compare(rename_map[i][0]) == 0)
+      return rename_map[i][1];
 
-	return name;
+  return name;
 }
 
 /* Translate isl class "clazz" to its corresponding C++ type.
  * Use the name of the type based subclass, if any.
  */
-string cpp_generator::type2cpp(const isl_class &clazz)
-{
-	return type2cpp(clazz.subclass_name);
+string cpp_generator::type2cpp(const isl_class &clazz) {
+  return type2cpp(clazz.subclass_name);
 }
 
 /* Translate type string "type_str" to its C++ name counterpart.
-*/
-string cpp_generator::type2cpp(string type_str)
-{
-	return type_str.substr(4);
-}
+ */
+string cpp_generator::type2cpp(string type_str) { return type_str.substr(4); }
 
 /* Return the C++ counterpart to the isl_bool type.
  *
  * By default, this is simply "bool" since
  * the exceptional case is handled through exceptions.
  */
-std::string cpp_type_printer::isl_bool() const
-{
-	return "bool";
-}
+std::string cpp_type_printer::isl_bool() const { return "bool"; }
 
 /* Return the C++ counterpart to the isl_stat type.
  *
  * By default, this is simply "void" since
  * the exceptional case is handled through exceptions.
  */
-string cpp_type_printer::isl_stat() const
-{
-	return "void";
-}
+string cpp_type_printer::isl_stat() const { return "void"; }
 
 /* Return the C++ counterpart to the isl_size type.
  *
  * By default, this is simply "unsigned" since
  * the exceptional case is handled through exceptions.
  */
-string cpp_type_printer::isl_size() const
-{
-	return "unsigned";
-}
+string cpp_type_printer::isl_size() const { return "unsigned"; }
 
 /* Return the namespace of the generated C++ bindings.
  *
  * By default, this is "isl::".
  */
-std::string cpp_type_printer::isl_namespace() const
-{
-	return "isl::";
-}
+std::string cpp_type_printer::isl_namespace() const { return "isl::"; }
 
 /* Return the class type given the C++ name.
  *
  * By default, directly use the C++ name.
  */
-std::string cpp_type_printer::class_type(const std::string &cpp_name) const
-{
-	return cpp_name;
+std::string cpp_type_printer::class_type(const std::string &cpp_name) const {
+  return cpp_name;
 }
 
 /* Return the qualified form of the given C++ isl type name appearing
@@ -828,19 +783,21 @@ std::string cpp_type_printer::class_type(const std::string &cpp_name) const
  *
  * By default, the argument position is ignored.
  */
-std::string cpp_type_printer::qualified(int arg, const std::string &cpp_type)
-	const
-{
-	return isl_namespace() + cpp_type;
+std::string cpp_type_printer::qualified(int arg,
+                                        const std::string &cpp_type) const {
+  return isl_namespace() + cpp_type;
 }
 
 /* Return the C++ counterpart to the given isl type appearing
  * in argument position "arg" (-1 for return type).
  */
-std::string cpp_type_printer::isl_type(int arg, QualType type) const
-{
-	auto name = type->getPointeeType().getAsString();
-	return qualified(arg, cpp_generator::type2cpp(name));
+std::string cpp_type_printer::isl_type(int arg, QualType type) const {
+  auto pointee = type->getPointeeType();
+  if (pointee.isConstQualified()) {
+    pointee = pointee.getUnqualifiedType();
+  }
+  auto name = pointee.getAsString();
+  return qualified(arg, cpp_generator::type2cpp(name));
 }
 
 /* Translate parameter or return type "type" to its C++ name counterpart.
@@ -848,62 +805,60 @@ std::string cpp_type_printer::isl_type(int arg, QualType type) const
  * If any callback is involved, then the return type and arguments types
  * of the callback are considered to start at the position of the callback.
  */
-std::string cpp_type_printer::param(int arg, QualType type) const
-{
-	if (cpp_generator::is_isl_type(type))
-		return isl_type(arg, type);
+std::string cpp_type_printer::param(int arg, QualType type) const {
+  if (cpp_generator::is_isl_type(type))
+    return isl_type(arg, type);
 
-	if (cpp_generator::is_isl_bool(type))
-		return isl_bool();
+  if (cpp_generator::is_isl_bool(type))
+    return isl_bool();
 
-	if (cpp_generator::is_isl_stat(type))
-		return isl_stat();
+  if (cpp_generator::is_isl_stat(type))
+    return isl_stat();
 
-	if (cpp_generator::is_isl_size(type))
-		return isl_size();
+  if (cpp_generator::is_isl_size(type))
+    return isl_size();
 
-	if (type->isIntegerType())
-		return type.getAsString();
+  if (type->isIntegerType())
+    return type.getAsString();
 
-	if (cpp_generator::is_string(type))
-		return "std::string";
+  if (cpp_generator::is_string(type))
+    return "std::string";
 
-	if (cpp_generator::is_callback(type))
-		return generate_callback_type(arg, type);
+  if (cpp_generator::is_callback(type))
+    return generate_callback_type(arg, type);
 
-	generator::die("Cannot convert type to C++ type");
+  generator::die("Cannot convert type to C++ type");
 }
 
 /* Check if "subclass_type" is a subclass of "class_type".
  */
 bool cpp_generator::is_subclass(QualType subclass_type,
-	const isl_class &class_type)
-{
-	std::string type_str = subclass_type->getPointeeType().getAsString();
-	std::vector<std::string> superclasses;
-	std::vector<const isl_class *> parents;
-	std::vector<std::string>::iterator ci;
+                                const isl_class &class_type) {
+  std::string type_str = subclass_type->getPointeeType().getAsString();
+  std::vector<std::string> superclasses;
+  std::vector<const isl_class *> parents;
+  std::vector<std::string>::iterator ci;
 
-	superclasses = generator::find_superclasses(classes[type_str].type);
+  superclasses = generator::find_superclasses(classes[type_str].type);
 
-	for (ci = superclasses.begin(); ci < superclasses.end(); ci++)
-		parents.push_back(&classes[*ci]);
+  for (ci = superclasses.begin(); ci < superclasses.end(); ci++)
+    parents.push_back(&classes[*ci]);
 
-	while (!parents.empty()) {
-		const isl_class *candidate = parents.back();
+  while (!parents.empty()) {
+    const isl_class *candidate = parents.back();
 
-		parents.pop_back();
+    parents.pop_back();
 
-		if (&class_type == candidate)
-			return true;
+    if (&class_type == candidate)
+      return true;
 
-		superclasses = generator::find_superclasses(candidate->type);
+    superclasses = generator::find_superclasses(candidate->type);
 
-		for (ci = superclasses.begin(); ci < superclasses.end(); ci++)
-			parents.push_back(&classes[*ci]);
-	}
+    for (ci = superclasses.begin(); ci < superclasses.end(); ci++)
+      parents.push_back(&classes[*ci]);
+  }
 
-	return false;
+  return false;
 }
 
 /* Check if "cons" is an implicit conversion constructor of class "clazz".
@@ -912,68 +867,59 @@ bool cpp_generator::is_subclass(QualType subclass_type,
  * parameter, where the parameter type is a subclass of the class that is
  * currently being generated.
  */
-bool cpp_generator::is_implicit_conversion(const Method &cons)
-{
-	const auto &clazz = cons.clazz;
-	ParmVarDecl *param = cons.fd->getParamDecl(0);
-	QualType type = param->getOriginalType();
+bool cpp_generator::is_implicit_conversion(const Method &cons) {
+  const auto &clazz = cons.clazz;
+  ParmVarDecl *param = cons.fd->getParamDecl(0);
+  QualType type = param->getOriginalType();
 
-	int num_params = cons.fd->getNumParams();
-	if (num_params != 1)
-		return false;
+  int num_params = cons.fd->getNumParams();
+  if (num_params != 1)
+    return false;
 
-	if (is_isl_type(type) && !is_isl_ctx(type) && is_subclass(type, clazz))
-		return true;
+  if (is_isl_type(type) && !is_isl_ctx(type) && is_subclass(type, clazz))
+    return true;
 
-	return false;
+  return false;
 }
 
 /* Construct a list combiner for printing a list.
  */
-Method::list_combiner Method::print_combiner(std::ostream &os)
-{
-	return {
-		[&] () { os << "("; },
-		[&] () { os << ", "; },
-		[&] () { os << ")"; }
-	};
+Method::list_combiner Method::print_combiner(std::ostream &os) {
+  return {[&]() { os << "("; }, [&]() { os << ", "; }, [&]() { os << ")"; }};
 }
 
 /* Construct a list combiner for simply iterating over a list.
  */
-Method::list_combiner Method::empty_combiner()
-{
-	return { [&] () { }, [&] () { }, [&] () { } };
+Method::list_combiner Method::empty_combiner() {
+  return {[&]() {}, [&]() {}, [&]() {}};
 }
 
 /* Get kind of "method" in "clazz".
  *
  * Given the declaration of a static or member method, returns its kind.
  */
-static Method::Kind get_kind(const isl_class &clazz, FunctionDecl *method)
-{
-	if (generator::is_constructor(method))
-		return Method::Kind::constructor;
-	else if (generator::is_static(clazz, method))
-		return Method::Kind::static_method;
-	else
-		return Method::Kind::member_method;
+static Method::Kind get_kind(const isl_class &clazz, FunctionDecl *method) {
+  if (generator::is_constructor(method))
+    return Method::Kind::constructor;
+  else if (generator::is_static(clazz, method))
+    return Method::Kind::static_method;
+  else
+    return Method::Kind::member_method;
 }
 
 /* Return the callback arguments of "fd".
  */
-static std::vector<ParmVarDecl *> find_callback_args(FunctionDecl *fd)
-{
-	std::vector<ParmVarDecl *> callbacks;
-	int num_params = fd->getNumParams();
+static std::vector<ParmVarDecl *> find_callback_args(FunctionDecl *fd) {
+  std::vector<ParmVarDecl *> callbacks;
+  int num_params = fd->getNumParams();
 
-	for (int i = 0; i < num_params; ++i) {
-		ParmVarDecl *param = fd->getParamDecl(i);
-		if (generator::is_callback(param->getType()))
-			callbacks.emplace_back(param);
-	}
+  for (int i = 0; i < num_params; ++i) {
+    ParmVarDecl *param = fd->getParamDecl(i);
+    if (generator::is_callback(param->getType()))
+      callbacks.emplace_back(param);
+  }
 
-	return callbacks;
+  return callbacks;
 }
 
 /* Construct a C++ method object from the class to which is belongs,
@@ -983,12 +929,9 @@ static std::vector<ParmVarDecl *> find_callback_args(FunctionDecl *fd)
  * determine the type of the method.
  */
 Method::Method(const isl_class &clazz, FunctionDecl *fd,
-	const std::string &name) :
-		clazz(clazz), fd(fd), name(rename_method(name)),
-		kind(get_kind(clazz, fd)),
-		callbacks(find_callback_args(fd))
-{
-}
+               const std::string &name)
+    : clazz(clazz), fd(fd), name(rename_method(name)),
+      kind(get_kind(clazz, fd)), callbacks(find_callback_args(fd)) {}
 
 /* Construct a C++ method object from the class to which is belongs and
  * the isl function from which it is derived.
@@ -996,10 +939,8 @@ Method::Method(const isl_class &clazz, FunctionDecl *fd,
  * Obtain the default method name and continue
  * with the generic constructor.
  */
-Method::Method(const isl_class &clazz, FunctionDecl *fd) :
-	Method(clazz, fd, clazz.method_name(fd))
-{
-}
+Method::Method(const isl_class &clazz, FunctionDecl *fd)
+    : Method(clazz, fd, clazz.method_name(fd)) {}
 
 /* Return the number of parameters of the corresponding C function.
  *
@@ -1007,10 +948,7 @@ Method::Method(const isl_class &clazz, FunctionDecl *fd) :
  * arguments.  These are skipped by Method::print_fd_arg_list
  * during the actual argument printing.
  */
-int Method::c_num_params() const
-{
-	return fd->getNumParams();
-}
+int Method::c_num_params() const { return fd->getNumParams(); }
 
 /* Return the number of parameters of the method
  * (including the implicit "this").
@@ -1018,10 +956,7 @@ int Method::c_num_params() const
  * By default, it is the same as the number of parameters
  * of the corresponding C function.
  */
-int Method::num_params() const
-{
-	return c_num_params();
-}
+int Method::num_params() const { return c_num_params(); }
 
 /* Call "on_arg_skip_next" on the arguments from "start" (inclusive)
  * to "end" (exclusive), calling the methods of "combiner"
@@ -1029,17 +964,16 @@ int Method::num_params() const
  * If "on_arg_skip_next" returns true then the next argument is skipped.
  */
 void Method::on_arg_list(int start, int end,
-	const Method::list_combiner &combiner,
-	const std::function<bool(int i)> &on_arg_skip_next)
-{
-	combiner.before();
-	for (int i = start; i < end; ++i) {
-		if (i != start)
-			combiner.between();
-		if (on_arg_skip_next(i))
-			++i;
-	}
-	combiner.after();
+                         const Method::list_combiner &combiner,
+                         const std::function<bool(int i)> &on_arg_skip_next) {
+  combiner.before();
+  for (int i = start; i < end; ++i) {
+    if (i != start)
+      combiner.between();
+    if (on_arg_skip_next(i))
+      ++i;
+  }
+  combiner.after();
 }
 
 /* Print the arguments from "start" (inclusive) to "end" (exclusive)
@@ -1047,12 +981,11 @@ void Method::on_arg_list(int start, int end,
  * to print each individual argument.  If this callback return true
  * then the next argument is skipped.
  */
-void Method::print_arg_list(std::ostream &os, int start, int end,
-	const std::function<bool(int i)> &print_arg_skip_next)
-{
-	on_arg_list(start, end, print_combiner(os), [&] (int i) {
-		return print_arg_skip_next(i);
-	});
+void Method::print_arg_list(
+    std::ostream &os, int start, int end,
+    const std::function<bool(int i)> &print_arg_skip_next) {
+  on_arg_list(start, end, print_combiner(os),
+              [&](int i) { return print_arg_skip_next(i); });
 }
 
 /* Call "on_arg" on the arguments from "start" (inclusive) to "end" (exclusive),
@@ -1077,21 +1010,20 @@ void Method::print_arg_list(std::ostream &os, int start, int end,
  * while the arguments (excluding the final user pointer)
  * take the following positions.
  */
-void Method::on_fd_arg_list(int start, int end,
-	const Method::list_combiner &combiner,
-	const std::function<void(int i, int arg)> &on_arg) const
-{
-	int arg = start;
+void Method::on_fd_arg_list(
+    int start, int end, const Method::list_combiner &combiner,
+    const std::function<void(int i, int arg)> &on_arg) const {
+  int arg = start;
 
-	on_arg_list(start, end, combiner, [this, &on_arg, &arg] (int i) {
-		auto type = fd->getParamDecl(i)->getType();
+  on_arg_list(start, end, combiner, [this, &on_arg, &arg](int i) {
+    auto type = fd->getParamDecl(i)->getType();
 
-		on_arg(i, arg++);
-		if (!generator::is_callback(type))
-			return false;
-		arg += generator::prototype_n_args(type) - 1;
-		return true;
-	});
+    on_arg(i, arg++);
+    if (!generator::is_callback(type))
+      return false;
+    arg += generator::prototype_n_args(type) - 1;
+    return true;
+  });
 }
 
 /* Print the arguments from "start" (inclusive) to "end" (exclusive)
@@ -1102,10 +1034,10 @@ void Method::on_fd_arg_list(int start, int end,
  * The second argument is the (first) position in the list of arguments
  * with all callback arguments spliced in.
  */
-void Method::print_fd_arg_list(std::ostream &os, int start, int end,
-	const std::function<void(int i, int arg)> &print_arg) const
-{
-	on_fd_arg_list(start, end, print_combiner(os), print_arg);
+void Method::print_fd_arg_list(
+    std::ostream &os, int start, int end,
+    const std::function<void(int i, int arg)> &print_arg) const {
+  on_fd_arg_list(start, end, print_combiner(os), print_arg);
 }
 
 /* Call "on_arg" on the arguments to the method call,
@@ -1115,11 +1047,11 @@ void Method::print_fd_arg_list(std::ostream &os, int start, int end,
  * The second argument is the (first) position in the list of arguments
  * with all callback arguments spliced in.
  */
-void Method::on_cpp_arg_list(const Method::list_combiner &combiner,
-	const std::function<void(int i, int arg)> &on_arg) const
-{
-	int first_param = kind == member_method ? 1 : 0;
-	on_fd_arg_list(first_param, num_params(), combiner, on_arg);
+void Method::on_cpp_arg_list(
+    const Method::list_combiner &combiner,
+    const std::function<void(int i, int arg)> &on_arg) const {
+  int first_param = kind == member_method ? 1 : 0;
+  on_fd_arg_list(first_param, num_params(), combiner, on_arg);
 }
 
 /* Call "on_arg" on the arguments to the method call.
@@ -1129,9 +1061,8 @@ void Method::on_cpp_arg_list(const Method::list_combiner &combiner,
  * with all callback arguments spliced in.
  */
 void Method::on_cpp_arg_list(
-	const std::function<void(int i, int arg)> &on_arg) const
-{
-	on_cpp_arg_list(empty_combiner(), on_arg);
+    const std::function<void(int i, int arg)> &on_arg) const {
+  on_cpp_arg_list(empty_combiner(), on_arg);
 }
 
 /* Print the arguments to the method call, using "print_arg"
@@ -1141,10 +1072,10 @@ void Method::on_cpp_arg_list(
  * The second argument is the (first) position in the list of arguments
  * with all callback arguments spliced in.
  */
-void Method::print_cpp_arg_list(std::ostream &os,
-	const std::function<void(int i, int arg)> &print_arg) const
-{
-	on_cpp_arg_list(print_combiner(os), print_arg);
+void Method::print_cpp_arg_list(
+    std::ostream &os,
+    const std::function<void(int i, int arg)> &print_arg) const {
+  on_cpp_arg_list(print_combiner(os), print_arg);
 }
 
 /* Should the parameter at position "pos" be a copy (rather than
@@ -1159,23 +1090,21 @@ void Method::print_cpp_arg_list(std::ostream &os,
  * The default is therefore to require a copy, except for
  * arguments marked __isl_keep, string arguments or callback arguments.
  */
-bool Method::param_needs_copy(int pos) const
-{
-	ParmVarDecl *param = get_param(pos);
-	QualType type = param->getOriginalType();
+bool Method::param_needs_copy(int pos) const {
+  ParmVarDecl *param = get_param(pos);
+  QualType type = param->getOriginalType();
 
-	if (generator::keeps(param))
-		return false;
-	if (generator::is_string(type) || generator::is_callback(type))
-		return false;
-	return true;
+  if (generator::keeps(param))
+    return false;
+  if (generator::is_string(type) || generator::is_callback(type))
+    return false;
+  return true;
 }
 
 /* Return the method argument at position "pos".
  */
-clang::ParmVarDecl *Method::get_param(int pos) const
-{
-	return fd->getParamDecl(pos);
+clang::ParmVarDecl *Method::get_param(int pos) const {
+  return fd->getParamDecl(pos);
 }
 
 /* Construct a method that performs one or more conversions
@@ -1183,13 +1112,10 @@ clang::ParmVarDecl *Method::get_param(int pos) const
  * the name of the type to which "this" should be converted and
  * a function for determining the arguments of the constructed method.
  */
-ConversionMethod::ConversionMethod(const Method &method,
-	const std::string &this_type,
-	const std::function<clang::ParmVarDecl *(int pos)> &get_param) :
-		NoCopyMethod(method), this_type(this_type),
-		get_param_fn(get_param)
-{
-}
+ConversionMethod::ConversionMethod(
+    const Method &method, const std::string &this_type,
+    const std::function<clang::ParmVarDecl *(int pos)> &get_param)
+    : NoCopyMethod(method), this_type(this_type), get_param_fn(get_param) {}
 
 /* Construct a method that only performs a conversion on "this"
  * from the original Method (without conversions) and
@@ -1200,12 +1126,9 @@ ConversionMethod::ConversionMethod(const Method &method,
  * that performs no conversion.
  */
 ConversionMethod::ConversionMethod(const Method &method,
-	const std::string &this_type) :
-		ConversionMethod(method, this_type, [this] (int pos) {
-			return Method::get_param(pos);
-		})
-{
-}
+                                   const std::string &this_type)
+    : ConversionMethod(method, this_type,
+                       [this](int pos) { return Method::get_param(pos); }) {}
 
 /* Construct a method that performs one or more argument conversions
  * from the original Method (without conversions) and
@@ -1214,11 +1137,10 @@ ConversionMethod::ConversionMethod(const Method &method,
  * Call the generic constructor with method.clazz.name as "this" type,
  * indicating that "this" should not be converted.
  */
-ConversionMethod::ConversionMethod(const Method &method,
-	const std::function<clang::ParmVarDecl *(int pos)> &get_param) :
-		ConversionMethod(method, method.clazz.name, get_param)
-{
-}
+ConversionMethod::ConversionMethod(
+    const Method &method,
+    const std::function<clang::ParmVarDecl *(int pos)> &get_param)
+    : ConversionMethod(method, method.clazz.name, get_param) {}
 
 /* Should the parameter at position "pos" be a copy (rather than
  * a const reference)?
@@ -1226,24 +1148,22 @@ ConversionMethod::ConversionMethod(const Method &method,
  * Parameters of isl type do not need to be a copy.
  * For other types, use the same defaults as Method.
  */
-bool NoCopyMethod::param_needs_copy(int pos) const
-{
-	ParmVarDecl *param = get_param(pos);
-	QualType type = param->getOriginalType();
+bool NoCopyMethod::param_needs_copy(int pos) const {
+  ParmVarDecl *param = get_param(pos);
+  QualType type = param->getOriginalType();
 
-	if (generator::is_isl_type(type))
-		return false;
+  if (generator::is_isl_type(type))
+    return false;
 
-	return Method::param_needs_copy(pos);
+  return Method::param_needs_copy(pos);
 }
 
 /* Return the method argument at position "pos".
  *
  * Call get_param_fn to determine this argument.
  */
-clang::ParmVarDecl *ConversionMethod::get_param(int pos) const
-{
-	return get_param_fn(pos);
+clang::ParmVarDecl *ConversionMethod::get_param(int pos) const {
+  return get_param_fn(pos);
 }
 
 /* Print a call to the method (without the arguments),
@@ -1253,15 +1173,15 @@ clang::ParmVarDecl *ConversionMethod::get_param(int pos) const
  * then "this" needs to be converted to that type before
  * the call is performed.
  */
-void ConversionMethod::print_call(std::ostream &os, const std::string &ns) const
-{
-	if (clazz.name == this_type) {
-		os << "this->";
-	} else {
-		auto cpp_type = ns + cpp_generator::type2cpp(this_type);
-		os << cpp_type << "(*this).";
-	}
-	os << name;
+void ConversionMethod::print_call(std::ostream &os,
+                                  const std::string &ns) const {
+  if (clazz.name == this_type) {
+    os << "this->";
+  } else {
+    auto cpp_type = ns + cpp_generator::type2cpp(this_type);
+    os << cpp_type << "(*this).";
+  }
+  os << name;
 }
 
 /* Construct an object representing a C++ method for setting an enum
@@ -1269,10 +1189,9 @@ void ConversionMethod::print_call(std::ostream &os, const std::string &ns) const
  * the isl function from which it is derived and the method and enum names.
  */
 EnumMethod::EnumMethod(const isl_class &clazz, FunctionDecl *fd,
-	const std::string &method_name, const std::string &enum_name) :
-		Method(clazz, fd, method_name), enum_name(enum_name)
-{
-}
+                       const std::string &method_name,
+                       const std::string &enum_name)
+    : Method(clazz, fd, method_name), enum_name(enum_name) {}
 
 /* Print the use of the argument at position "pos" to "os".
  *
@@ -1280,12 +1199,11 @@ EnumMethod::EnumMethod(const isl_class &clazz, FunctionDecl *fd,
  * then it corresponds to the enum value corresponding to this EnumMethod.
  * Otherwise, delegate to Method::print_param_use.
  */
-void EnumMethod::print_param_use(ostream &os, int pos) const
-{
-	if (pos == num_params())
-		os << enum_name;
-	else
-		Method::print_param_use(os, pos);
+void EnumMethod::print_param_use(ostream &os, int pos) const {
+  if (pos == num_params())
+    os << enum_name;
+  else
+    Method::print_param_use(os, pos);
 }
 
 /* Return the number of parameters of the method
@@ -1294,18 +1212,14 @@ void EnumMethod::print_param_use(ostream &os, int pos) const
  * The last argument of the C function does not appear in the method call,
  * because it is replaced by a break-up into several methods.
  */
-int EnumMethod::num_params() const
-{
-	return Method::num_params() - 1;
-}
+int EnumMethod::num_params() const { return Method::num_params() - 1; }
 
 /* Initialize a class method printer from the stream onto which the methods
  * are printed, the class method description and the C++ interface generator.
  */
 cpp_generator::class_printer::class_printer(std::ostream &os,
-		const isl_class &clazz, cpp_generator &generator,
-		bool declarations) :
-	os(os), clazz(clazz), cppstring(type2cpp(clazz)), generator(generator),
-	declarations(declarations)
-{
-}
+                                            const isl_class &clazz,
+                                            cpp_generator &generator,
+                                            bool declarations)
+    : os(os), clazz(clazz), cppstring(type2cpp(clazz)), generator(generator),
+      declarations(declarations) {}

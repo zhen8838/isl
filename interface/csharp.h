@@ -138,6 +138,7 @@ struct csharp_type_printer {
 	virtual std::string class_type(const std::string &csharp_name) const;
 	virtual std::string qualified(int arg, const std::string &csharp_type)
 		const;
+  std::string isl_enum_type(int arg, QualType type) const;
 	std::string isl_type(int arg, QualType type) const;
 	std::string generate_callback_args(int arg, QualType type, bool csharp, bool with_arg)
 		const;

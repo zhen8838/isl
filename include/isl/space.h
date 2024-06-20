@@ -93,42 +93,59 @@ __isl_keep const char *isl_space_get_dim_name(__isl_keep isl_space *space,
 ISL_DEPRECATED
 __isl_give isl_space *isl_space_extend(__isl_take isl_space *space,
 			unsigned nparam, unsigned n_in, unsigned n_out);
+__isl_export
 __isl_give isl_space *isl_space_add_dims(__isl_take isl_space *space,
 	enum isl_dim_type type, unsigned n);
+__isl_export
 __isl_give isl_space *isl_space_move_dims(__isl_take isl_space *space,
 	enum isl_dim_type dst_type, unsigned dst_pos,
 	enum isl_dim_type src_type, unsigned src_pos, unsigned n);
+__isl_export
 __isl_give isl_space *isl_space_insert_dims(__isl_take isl_space *space,
 	enum isl_dim_type type, unsigned pos, unsigned n);
+__isl_export
 __isl_give isl_space *isl_space_join(__isl_take isl_space *left,
 	__isl_take isl_space *right);
 __isl_export
 __isl_give isl_space *isl_space_product(__isl_take isl_space *left,
 	__isl_take isl_space *right);
+__isl_export
 __isl_give isl_space *isl_space_domain_product(__isl_take isl_space *left,
 	__isl_take isl_space *right);
+__isl_export
 __isl_give isl_space *isl_space_range_product(__isl_take isl_space *left,
 	__isl_take isl_space *right);
+__isl_export
 __isl_give isl_space *isl_space_factor_domain(__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_factor_range(__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_domain_factor_domain(
 	__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_domain_factor_range(
 	__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_range_factor_domain(
 	__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_range_factor_range(
 	__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_domain_wrapped_domain(
 	__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_domain_wrapped_range(
 	__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_range_wrapped_domain(
 	__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_range_wrapped_range(
 	__isl_take isl_space *space);
 __isl_export
 __isl_give isl_space *isl_space_map_from_set(__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_map_from_domain_and_range(
 	__isl_take isl_space *domain, __isl_take isl_space *range);
 __isl_export
@@ -139,6 +156,7 @@ __isl_export
 __isl_give isl_space *isl_space_domain_reverse(__isl_take isl_space *space);
 __isl_export
 __isl_give isl_space *isl_space_range_reverse(__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_drop_dims(__isl_take isl_space *space,
 	enum isl_dim_type type, unsigned first, unsigned num);
 ISL_DEPRECATED
@@ -151,11 +169,15 @@ __isl_export
 __isl_give isl_space *isl_space_drop_all_params(__isl_take isl_space *space);
 __isl_export
 __isl_give isl_space *isl_space_domain(__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_from_domain(__isl_take isl_space *space);
 __isl_export
 __isl_give isl_space *isl_space_range(__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_from_range(__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_domain_map(__isl_take isl_space *space);
+__isl_export
 __isl_give isl_space *isl_space_range_map(__isl_take isl_space *space);
 __isl_export
 __isl_give isl_space *isl_space_params(__isl_take isl_space *space);
