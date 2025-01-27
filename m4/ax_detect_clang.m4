@@ -49,11 +49,11 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]], [[]])],
 	[found_header=yes])
 AC_MSG_RESULT([$found_header])
 if test "x$found_header" != "xyes"; then
-	AC_CHECK_PROG(XCODE_SELECT, xcode-select, xcode-select, [])
-	if test -z "$XCODE_SELECT"; then
-		AC_MSG_ERROR([Cannot find xcode-select])
+	AC_CHECK_PROG(XCRUN, xcrun, xcrun, [])
+	if test -z "$XCRUN"; then
+		AC_MSG_ERROR([Cannot find xcrun])
 	fi
-	sysroot=`$XCODE_SELECT -p`/SDKs/MacOSX.sdk
+	sysroot=`$XCRUN --show-sdk-path`
 	SAVE_CPPFLAGS="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS -isysroot $sysroot"
 	AC_MSG_CHECKING(

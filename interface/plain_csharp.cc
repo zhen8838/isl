@@ -1694,7 +1694,7 @@ void plain_csharp_generator::impl_printer::print_method_return(
       osprintf(os, "copy_callbacks(this)");
     osprintf(os, ";\n");
   } else if (is_isl_stat(return_type)) {
-    osprintf(os, "  return;\n");w
+    osprintf(os, "  return;\n");
   } else if (is_isl_bool(return_type)) {
     osprintf(os, "  return res == isl_bool.True;\n");
   } else if (is_string(return_type)) {

@@ -1,0 +1,66 @@
+name: build isl
+
+on: 
+  push: 
+    branches: [ "main" ]
+
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
+
+jobs:
+  build-native:
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      matrix:
+        config:
+          - { name: osx-arm64, os: macos-14 }
+          - { name: osx-x64, os: macos-latest }
+          - { name: linux-x64, os: ubuntu-latest }
+          - { name: windows-x64, os: windows-latest}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up build environment (Windows, Visual Studio)
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: 'x64'
+      if: runner.os == 'Windows'
+
+    - name: Set up build environment (Linux)
+      run: |
+        echo "CC=gcc-14" >> $GITHUB_ENV
+        echo "CXX=g++-14" >> $GITHUB_ENV
+      if: runner.os == 'Linux'
+    
+    - name: Set up build environment (MacOs)
+      run: |
+        brew install readline
+        brew install automake
+        brew install autogen
+        uname -m
+      if: runner.os == 'macOS'
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+    
+    - name: Build and Install
+      run: |
+        ./autogen.sh
+        ./configure --prefix=`pwd`/install --with-clang=no --with-int=imath
+        make install -j
+      shell: bash
+
+    - name: Upload Native Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: isl-native-${{matrix.config.name}}
+        path: ${{github.workspace}}/install
+        if-no-files-found: error

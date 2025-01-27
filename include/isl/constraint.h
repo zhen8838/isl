@@ -55,6 +55,7 @@ __isl_give isl_constraint_list *isl_basic_map_get_constraint_list(
 __isl_export
 __isl_give isl_constraint_list *isl_basic_set_get_constraint_list(
 	__isl_keep isl_basic_set *bset);
+__isl_export
 int isl_constraint_is_equal(__isl_keep isl_constraint *constraint1,
 			    __isl_keep isl_constraint *constraint2);
 __isl_export
