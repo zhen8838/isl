@@ -204,6 +204,7 @@ inline size manage(isl_size val)
 #include <isl/val.h>
 #include <isl/aff.h>
 #include <isl/set.h>
+#include <isl/mat.h>
 #include <isl/map.h>
 #include <isl/ilp.h>
 #include <isl/union_set.h>
@@ -213,7 +214,9 @@ inline size manage(isl_size val)
 #include <isl/schedule_node.h>
 #include <isl/ast_build.h>
 #include <isl/fixed_box.h>
-
+#include <isl/constraint.h>
+#include <isl/local_space.h>
+#include <isl/vertices.h>
 namespace isl {
 
 namespace checked {
@@ -260,14 +263,20 @@ class ast_node_list;
 class ast_node_mark;
 class ast_node_user;
 class basic_map;
+class basic_map_list;
 class basic_set;
+class basic_set_list;
+class constraint;
+class constraint_list;
 class fixed_box;
 class id;
 class id_list;
 class id_to_ast_expr;
 class id_to_id;
+class local_space;
 class map;
 class map_list;
+class mat;
 class multi_aff;
 class multi_id;
 class multi_pw_aff;
@@ -1422,7 +1431,10 @@ class basic_map {
   inline bool is_null() const;
   inline isl::checked::ctx ctx() const;
 
+  inline isl::checked::basic_map add_constraint(isl::checked::constraint constraint) const;
+  inline isl::checked::basic_map add_dims(enum isl_dim_type type, unsigned int n) const;
   inline isl::checked::basic_map affine_hull() const;
+  inline isl::checked::basic_map align_params(isl::checked::space model) const;
   inline isl::checked::basic_map apply_domain(isl::checked::basic_map bmap2) const;
   inline isl::checked::map apply_domain(const isl::checked::map &map2) const;
   inline isl::checked::union_map apply_domain(const isl::checked::union_map &umap2) const;
@@ -1435,45 +1447,102 @@ class basic_map {
   inline isl::checked::union_pw_multi_aff as_union_pw_multi_aff() const;
   inline isl::checked::set bind_domain(const isl::checked::multi_id &tuple) const;
   inline isl::checked::set bind_range(const isl::checked::multi_id &tuple) const;
+  inline boolean can_curry() const;
+  inline boolean can_range_curry() const;
+  inline boolean can_uncurry() const;
+  inline boolean can_zip() const;
   inline isl::checked::map coalesce() const;
   inline isl::checked::map complement() const;
-  inline isl::checked::union_map compute_divs() const;
-  inline isl::checked::map curry() const;
+  inline isl::checked::map compute_divs() const;
+  inline isl::checked::constraint_list constraint_list() const;
+  inline isl::checked::constraint_list get_constraint_list() const;
+  inline isl::checked::basic_map convex_hull() const;
+  inline isl::checked::basic_map curry() const;
   inline isl::checked::basic_set deltas() const;
+  inline isl::checked::basic_map deltas_map() const;
   inline isl::checked::basic_map detect_equalities() const;
-  inline isl::checked::set domain() const;
+  inline class size dim(enum isl_dim_type type) const;
+  inline isl::checked::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::pw_aff dim_max(int pos) const;
+  inline isl::checked::pw_aff dim_min(int pos) const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::aff div(int pos) const;
+  inline isl::checked::aff get_div(int pos) const;
+  inline isl::checked::basic_set domain() const;
   inline isl::checked::map domain_factor_domain() const;
   inline isl::checked::map domain_factor_range() const;
-  inline isl::checked::union_map domain_map() const;
+  inline boolean domain_is_wrapping() const;
+  inline isl::checked::basic_map domain_map() const;
   inline isl::checked::union_pw_multi_aff domain_map_union_pw_multi_aff() const;
   inline isl::checked::map domain_product(const isl::checked::map &map2) const;
   inline isl::checked::union_map domain_product(const isl::checked::union_map &umap2) const;
   inline isl::checked::map domain_reverse() const;
   inline class size domain_tuple_dim() const;
   inline isl::checked::id domain_tuple_id() const;
-  inline isl::checked::map drop_unused_params() const;
+  inline isl::checked::basic_map drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_map drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_map drop_unused_params() const;
+  inline isl::checked::basic_map eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  static inline isl::checked::basic_map empty(isl::checked::space space);
   inline isl::checked::map eq_at(const isl::checked::multi_pw_aff &mpa) const;
   inline isl::checked::union_map eq_at(const isl::checked::multi_union_pw_aff &mupa) const;
+  inline isl::checked::mat equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5) const;
+  inline isl::checked::basic_map equate(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
   inline boolean every_map(const std::function<boolean(isl::checked::map)> &test) const;
   inline isl::checked::map extract_map(const isl::checked::space &space) const;
   inline isl::checked::map factor_domain() const;
   inline isl::checked::map factor_range() const;
+  inline int find_dim_by_id(enum isl_dim_type type, const isl::checked::id &id) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const std::string &id) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::checked::map fix_input_si(unsigned int input, int value) const;
+  inline isl::checked::basic_map fix_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::basic_map fix_val(enum isl_dim_type type, unsigned int pos, isl::checked::val v) const;
+  inline isl::checked::basic_map fix_val(enum isl_dim_type type, unsigned int pos, long v) const;
   inline isl::checked::map fixed_power(const isl::checked::val &exp) const;
   inline isl::checked::map fixed_power(long exp) const;
+  inline isl::checked::map flat_domain_product(const isl::checked::map &map2) const;
+  inline isl::checked::basic_map flat_product(isl::checked::basic_map bmap2) const;
+  inline isl::checked::map flat_product(const isl::checked::map &map2) const;
+  inline isl::checked::basic_map flat_range_product(isl::checked::basic_map bmap2) const;
+  inline isl::checked::map flat_range_product(const isl::checked::map &map2) const;
   inline isl::checked::basic_map flatten() const;
   inline isl::checked::basic_map flatten_domain() const;
   inline isl::checked::basic_map flatten_range() const;
+  inline isl::checked::map floordiv_val(const isl::checked::val &d) const;
+  inline isl::checked::map floordiv_val(long d) const;
   inline stat foreach_basic_map(const std::function<stat(isl::checked::basic_map)> &fn) const;
+  inline stat foreach_constraint(const std::function<stat(isl::checked::constraint)> &fn) const;
   inline stat foreach_map(const std::function<stat(isl::checked::map)> &fn) const;
+  static inline isl::checked::basic_map from_aff(isl::checked::aff aff);
+  static inline isl::checked::basic_map from_aff_list(isl::checked::space domain_space, isl::checked::aff_list list);
+  static inline isl::checked::basic_map from_constraint(isl::checked::constraint constraint);
+  static inline isl::checked::basic_map from_constraint_matrices(isl::checked::space space, isl::checked::mat eq, isl::checked::mat ineq, enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5);
+  static inline isl::checked::basic_map from_domain(isl::checked::basic_set bset);
+  static inline isl::checked::basic_map from_domain_and_range(isl::checked::basic_set domain, isl::checked::basic_set range);
+  static inline isl::checked::basic_map from_multi_aff(isl::checked::multi_aff maff);
+  static inline isl::checked::basic_map from_range(isl::checked::basic_set bset);
   inline isl::checked::basic_map gist(isl::checked::basic_map context) const;
   inline isl::checked::map gist(const isl::checked::map &context) const;
   inline isl::checked::union_map gist(const isl::checked::union_map &context) const;
+  inline isl::checked::map gist_basic_map(const isl::checked::basic_map &context) const;
+  inline isl::checked::basic_map gist_domain(isl::checked::basic_set context) const;
   inline isl::checked::map gist_domain(const isl::checked::set &context) const;
   inline isl::checked::union_map gist_domain(const isl::checked::union_set &uset) const;
+  inline isl::checked::basic_map gist_domain(const isl::checked::point &context) const;
   inline isl::checked::map gist_params(const isl::checked::set &context) const;
   inline isl::checked::union_map gist_range(const isl::checked::union_set &uset) const;
+  inline boolean has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean has_dim_name(enum isl_dim_type type, unsigned int pos) const;
   inline boolean has_domain_tuple_id() const;
+  inline boolean has_equal_space(const isl::checked::map &map2) const;
   inline boolean has_range_tuple_id() const;
+  inline boolean has_tuple_name(enum isl_dim_type type) const;
+  static inline isl::checked::basic_map identity(isl::checked::space space);
+  inline boolean image_is_bounded() const;
+  inline isl::checked::mat inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5) const;
+  inline isl::checked::basic_map insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline isl::checked::basic_map intersect(isl::checked::basic_map bmap2) const;
   inline isl::checked::map intersect(const isl::checked::map &map2) const;
   inline isl::checked::union_map intersect(const isl::checked::union_map &umap2) const;
@@ -1502,35 +1571,68 @@ class basic_map {
   inline isl::checked::union_map intersect_range_factor_range(const isl::checked::union_map &factor) const;
   inline isl::checked::map intersect_range_wrapped_domain(const isl::checked::set &domain) const;
   inline isl::checked::union_map intersect_range_wrapped_domain(const isl::checked::union_set &domain) const;
+  inline boolean involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline boolean is_bijective() const;
+  inline boolean is_disjoint(const isl::checked::basic_map &bmap2) const;
   inline boolean is_disjoint(const isl::checked::map &map2) const;
   inline boolean is_disjoint(const isl::checked::union_map &umap2) const;
   inline boolean is_empty() const;
   inline boolean is_equal(const isl::checked::basic_map &bmap2) const;
   inline boolean is_equal(const isl::checked::map &map2) const;
   inline boolean is_equal(const isl::checked::union_map &umap2) const;
+  inline boolean is_identity() const;
   inline boolean is_injective() const;
+  inline boolean is_product() const;
+  inline boolean is_rational() const;
   inline boolean is_single_valued() const;
+  inline boolean is_strict_subset(const isl::checked::basic_map &bmap2) const;
   inline boolean is_strict_subset(const isl::checked::map &map2) const;
   inline boolean is_strict_subset(const isl::checked::union_map &umap2) const;
   inline boolean is_subset(const isl::checked::basic_map &bmap2) const;
   inline boolean is_subset(const isl::checked::map &map2) const;
   inline boolean is_subset(const isl::checked::union_map &umap2) const;
+  inline int is_translation() const;
+  inline boolean is_universe() const;
   inline boolean isa_map() const;
+  static inline isl::checked::basic_map less_at(isl::checked::space space, unsigned int pos);
   inline isl::checked::map lex_ge_at(const isl::checked::multi_pw_aff &mpa) const;
+  inline isl::checked::map lex_ge_map(const isl::checked::map &map2) const;
   inline isl::checked::map lex_gt_at(const isl::checked::multi_pw_aff &mpa) const;
+  inline isl::checked::map lex_gt_map(const isl::checked::map &map2) const;
   inline isl::checked::map lex_le_at(const isl::checked::multi_pw_aff &mpa) const;
+  inline isl::checked::map lex_le_map(const isl::checked::map &map2) const;
   inline isl::checked::map lex_lt_at(const isl::checked::multi_pw_aff &mpa) const;
+  inline isl::checked::map lex_lt_map(const isl::checked::map &map2) const;
   inline isl::checked::map lexmax() const;
   inline isl::checked::pw_multi_aff lexmax_pw_multi_aff() const;
   inline isl::checked::map lexmin() const;
   inline isl::checked::pw_multi_aff lexmin_pw_multi_aff() const;
   inline isl::checked::map lower_bound(const isl::checked::multi_pw_aff &lower) const;
+  inline isl::checked::basic_map lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::map lower_bound_val(enum isl_dim_type type, unsigned int pos, const isl::checked::val &value) const;
+  inline isl::checked::map lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::checked::map make_disjoint() const;
   inline isl::checked::map_list map_list() const;
   inline isl::checked::multi_pw_aff max_multi_pw_aff() const;
   inline isl::checked::multi_pw_aff min_multi_pw_aff() const;
+  static inline isl::checked::basic_map more_at(isl::checked::space space, unsigned int pos);
+  inline isl::checked::basic_map move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline class size n_basic_map() const;
+  inline class size n_constraint() const;
+  static inline isl::checked::basic_map nat_universe(isl::checked::space space);
+  inline isl::checked::basic_map neg() const;
+  inline isl::checked::map oppose(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::checked::basic_map order_ge(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::checked::basic_map order_gt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::checked::map order_le(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::checked::map order_lt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
   inline isl::checked::set params() const;
+  inline isl::checked::val plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean plain_is_empty() const;
+  inline boolean plain_is_injective() const;
+  inline boolean plain_is_single_valued() const;
+  inline boolean plain_is_universe() const;
+  inline isl::checked::basic_map plain_unshifted_simple_hull() const;
   inline isl::checked::basic_map polyhedral_hull() const;
   inline isl::checked::map preimage_domain(const isl::checked::multi_aff &ma) const;
   inline isl::checked::map preimage_domain(const isl::checked::multi_pw_aff &mpa) const;
@@ -1541,42 +1643,99 @@ class basic_map {
   inline isl::checked::union_map preimage_range(const isl::checked::union_pw_multi_aff &upma) const;
   inline isl::checked::map product(const isl::checked::map &map2) const;
   inline isl::checked::union_map product(const isl::checked::union_map &umap2) const;
+  inline isl::checked::basic_map project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::checked::map project_out_all_params() const;
   inline isl::checked::map project_out_param(const isl::checked::id &id) const;
   inline isl::checked::map project_out_param(const std::string &id) const;
   inline isl::checked::map project_out_param(const isl::checked::id_list &list) const;
-  inline isl::checked::set range() const;
+  inline isl::checked::basic_set range() const;
+  inline isl::checked::map range_curry() const;
   inline isl::checked::map range_factor_domain() const;
   inline isl::checked::map range_factor_range() const;
+  inline boolean range_is_wrapping() const;
   inline isl::checked::fixed_box range_lattice_tile() const;
-  inline isl::checked::union_map range_map() const;
+  inline isl::checked::basic_map range_map() const;
   inline isl::checked::map range_product(const isl::checked::map &map2) const;
   inline isl::checked::union_map range_product(const isl::checked::union_map &umap2) const;
   inline isl::checked::map range_reverse() const;
   inline isl::checked::fixed_box range_simple_fixed_box_hull() const;
   inline class size range_tuple_dim() const;
   inline isl::checked::id range_tuple_id() const;
+  inline isl::checked::basic_map remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_map remove_divs() const;
+  inline isl::checked::basic_map remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::map remove_inputs(unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_map remove_redundancies() const;
+  inline isl::checked::map remove_unknown_divs() const;
   inline isl::checked::basic_map reverse() const;
   inline isl::checked::basic_map sample() const;
+  inline isl::checked::map set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::checked::id &id) const;
+  inline isl::checked::map set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::checked::basic_map set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
   inline isl::checked::map set_domain_tuple(const isl::checked::id &id) const;
   inline isl::checked::map set_domain_tuple(const std::string &id) const;
   inline isl::checked::map set_range_tuple(const isl::checked::id &id) const;
   inline isl::checked::map set_range_tuple(const std::string &id) const;
+  inline isl::checked::basic_map set_tuple_id(enum isl_dim_type type, isl::checked::id id) const;
+  inline isl::checked::basic_map set_tuple_id(enum isl_dim_type type, const std::string &id) const;
+  inline isl::checked::basic_map set_tuple_name(enum isl_dim_type type, const std::string &s) const;
+  inline isl::checked::basic_map simple_hull() const;
   inline isl::checked::space space() const;
+  inline isl::checked::space get_space() const;
   inline isl::checked::map subtract(const isl::checked::map &map2) const;
   inline isl::checked::union_map subtract(const isl::checked::union_map &umap2) const;
+  inline isl::checked::map subtract_domain(const isl::checked::set &dom) const;
   inline isl::checked::union_map subtract_domain(const isl::checked::union_set &dom) const;
+  inline isl::checked::map subtract_range(const isl::checked::set &dom) const;
   inline isl::checked::union_map subtract_range(const isl::checked::union_set &dom) const;
+  inline isl::checked::basic_map sum(isl::checked::basic_map bmap2) const;
+  inline isl::checked::map sum(const isl::checked::map &map2) const;
   inline isl::checked::map_list to_list() const;
   inline isl::checked::union_map to_union_map() const;
-  inline isl::checked::map uncurry() const;
+  static inline class size total_dim(const isl::checked::basic_map &bmap);
+  inline std::string tuple_name(enum isl_dim_type type) const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const;
+  inline isl::checked::basic_map uncurry() const;
   inline isl::checked::map unite(isl::checked::basic_map bmap2) const;
   inline isl::checked::map unite(const isl::checked::map &map2) const;
   inline isl::checked::union_map unite(const isl::checked::union_map &umap2) const;
+  inline isl::checked::map union_disjoint(const isl::checked::map &map2) const;
+  static inline isl::checked::basic_map universe(isl::checked::space space);
   inline isl::checked::basic_map unshifted_simple_hull() const;
+  inline isl::checked::basic_map unshifted_simple_hull_from_map_list(const isl::checked::map_list &list) const;
   inline isl::checked::map upper_bound(const isl::checked::multi_pw_aff &upper) const;
+  inline isl::checked::basic_map upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::map upper_bound_val(enum isl_dim_type type, unsigned int pos, const isl::checked::val &value) const;
+  inline isl::checked::map upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
   inline isl::checked::set wrap() const;
-  inline isl::checked::map zip() const;
+  inline isl::checked::basic_map zip() const;
+};
+
+// declarations for isl::basic_map_list
+inline basic_map_list manage(__isl_take isl_basic_map_list *ptr);
+inline basic_map_list manage_copy(__isl_keep isl_basic_map_list *ptr);
+
+class basic_map_list {
+  friend inline basic_map_list manage(__isl_take isl_basic_map_list *ptr);
+  friend inline basic_map_list manage_copy(__isl_keep isl_basic_map_list *ptr);
+
+ protected:
+  isl_basic_map_list *ptr = nullptr;
+
+  inline explicit basic_map_list(__isl_take isl_basic_map_list *ptr);
+
+ public:
+  inline /* implicit */ basic_map_list();
+  inline /* implicit */ basic_map_list(const basic_map_list &obj);
+  inline basic_map_list &operator=(basic_map_list obj);
+  inline ~basic_map_list();
+  inline __isl_give isl_basic_map_list *copy() const &;
+  inline __isl_give isl_basic_map_list *copy() && = delete;
+  inline __isl_keep isl_basic_map_list *get() const;
+  inline __isl_give isl_basic_map_list *release();
+  inline bool is_null() const;
+  inline isl::checked::ctx ctx() const;
+
 };
 
 // declarations for isl::basic_set
@@ -1606,33 +1765,82 @@ class basic_set {
   inline bool is_null() const;
   inline isl::checked::ctx ctx() const;
 
+  inline isl::checked::basic_set add_constraint(isl::checked::constraint constraint) const;
+  inline isl::checked::basic_set add_dims(enum isl_dim_type type, unsigned int n) const;
   inline isl::checked::basic_set affine_hull() const;
+  inline isl::checked::basic_set align_params(isl::checked::space model) const;
   inline isl::checked::basic_set apply(isl::checked::basic_map bmap) const;
   inline isl::checked::set apply(const isl::checked::map &map) const;
   inline isl::checked::union_set apply(const isl::checked::union_map &umap) const;
   inline isl::checked::pw_multi_aff as_pw_multi_aff() const;
   inline isl::checked::set as_set() const;
+  inline isl::checked::basic_set_list basic_set_list() const;
   inline isl::checked::set bind(const isl::checked::multi_id &tuple) const;
+  static inline isl::checked::basic_set box_from_points(isl::checked::point pnt1, isl::checked::point pnt2);
   inline isl::checked::set coalesce() const;
+  inline isl::checked::basic_set coefficients() const;
   inline isl::checked::set complement() const;
-  inline isl::checked::union_set compute_divs() const;
+  inline isl::checked::set compute_divs() const;
+  inline isl::checked::constraint_list constraint_list() const;
+  inline isl::checked::constraint_list get_constraint_list() const;
+  inline isl::checked::val count_val() const;
   inline isl::checked::basic_set detect_equalities() const;
+  inline class size dim(enum isl_dim_type type) const;
+  inline boolean dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::id get_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_is_bounded(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::pw_aff dim_max(int pos) const;
   inline isl::checked::val dim_max_val(int pos) const;
+  inline isl::checked::pw_aff dim_min(int pos) const;
   inline isl::checked::val dim_min_val(int pos) const;
-  inline isl::checked::set drop_unused_params() const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::aff div(int pos) const;
+  inline isl::checked::aff get_div(int pos) const;
+  inline isl::checked::basic_set drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_set drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_set drop_unused_params() const;
+  inline isl::checked::basic_set eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::set eliminate_dims(unsigned int first, unsigned int n) const;
+  inline isl::checked::mat equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const;
   inline boolean every_set(const std::function<boolean(isl::checked::set)> &test) const;
   inline isl::checked::set extract_set(const isl::checked::space &space) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const isl::checked::id &id) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const std::string &id) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::checked::set fix_dim_si(unsigned int dim, int value) const;
+  inline isl::checked::basic_set fix_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::basic_set fix_val(enum isl_dim_type type, unsigned int pos, isl::checked::val v) const;
+  inline isl::checked::basic_set fix_val(enum isl_dim_type type, unsigned int pos, long v) const;
   inline isl::checked::basic_set flatten() const;
+  inline isl::checked::map flatten_map() const;
   inline stat foreach_basic_set(const std::function<stat(isl::checked::basic_set)> &fn) const;
+  inline stat foreach_bound_pair(enum isl_dim_type type, unsigned int pos, const std::function<stat(isl::checked::constraint, isl::checked::constraint, isl::checked::basic_set)> &fn) const;
+  inline stat foreach_constraint(const std::function<stat(isl::checked::constraint)> &fn) const;
   inline stat foreach_point(const std::function<stat(isl::checked::point)> &fn) const;
   inline stat foreach_set(const std::function<stat(isl::checked::set)> &fn) const;
+  static inline isl::checked::basic_set from_constraint(isl::checked::constraint constraint);
+  static inline isl::checked::basic_set from_constraint_matrices(isl::checked::space space, isl::checked::mat eq, isl::checked::mat ineq, enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4);
+  static inline isl::checked::basic_set from_multi_aff(isl::checked::multi_aff ma);
   inline isl::checked::basic_set gist(isl::checked::basic_set context) const;
   inline isl::checked::set gist(const isl::checked::set &context) const;
   inline isl::checked::union_set gist(const isl::checked::union_set &context) const;
   inline isl::checked::basic_set gist(const isl::checked::point &context) const;
+  inline isl::checked::set gist_basic_set(const isl::checked::basic_set &context) const;
   inline isl::checked::set gist_params(const isl::checked::set &context) const;
+  inline boolean has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean has_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean has_equal_space(const isl::checked::set &set2) const;
+  inline boolean has_tuple_id() const;
+  inline boolean has_tuple_name() const;
   inline isl::checked::map identity() const;
   inline isl::checked::pw_aff indicator_function() const;
+  inline isl::checked::mat inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const;
+  inline isl::checked::basic_set insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline isl::checked::map insert_domain(const isl::checked::space &domain) const;
   inline isl::checked::basic_set intersect(isl::checked::basic_set bset2) const;
   inline isl::checked::set intersect(const isl::checked::set &set2) const;
@@ -1641,7 +1849,10 @@ class basic_set {
   inline isl::checked::basic_set intersect_params(isl::checked::basic_set bset2) const;
   inline isl::checked::set intersect_params(const isl::checked::set &params) const;
   inline isl::checked::basic_set intersect_params(const isl::checked::point &bset2) const;
+  inline boolean involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline boolean involves_locals() const;
+  inline boolean is_bounded() const;
+  inline boolean is_box() const;
   inline boolean is_disjoint(const isl::checked::set &set2) const;
   inline boolean is_disjoint(const isl::checked::union_set &uset2) const;
   inline boolean is_empty() const;
@@ -1649,6 +1860,8 @@ class basic_set {
   inline boolean is_equal(const isl::checked::set &set2) const;
   inline boolean is_equal(const isl::checked::union_set &uset2) const;
   inline boolean is_equal(const isl::checked::point &bset2) const;
+  inline boolean is_params() const;
+  inline int is_rational() const;
   inline boolean is_singleton() const;
   inline boolean is_strict_subset(const isl::checked::set &set2) const;
   inline boolean is_strict_subset(const isl::checked::union_set &uset2) const;
@@ -1659,27 +1872,52 @@ class basic_set {
   inline boolean is_wrapping() const;
   inline boolean isa_set() const;
   inline isl::checked::fixed_box lattice_tile() const;
+  inline isl::checked::map lex_ge_set(const isl::checked::set &set2) const;
+  inline isl::checked::map lex_gt_set(const isl::checked::set &set2) const;
+  inline isl::checked::map lex_le_set(const isl::checked::set &set2) const;
+  inline isl::checked::map lex_lt_set(const isl::checked::set &set2) const;
   inline isl::checked::set lexmax() const;
   inline isl::checked::pw_multi_aff lexmax_pw_multi_aff() const;
   inline isl::checked::set lexmin() const;
   inline isl::checked::pw_multi_aff lexmin_pw_multi_aff() const;
+  inline isl::checked::basic_set lift() const;
+  inline isl::checked::local_space local_space() const;
+  inline isl::checked::local_space get_local_space() const;
   inline isl::checked::set lower_bound(const isl::checked::multi_pw_aff &lower) const;
   inline isl::checked::set lower_bound(const isl::checked::multi_val &lower) const;
+  inline isl::checked::set lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::basic_set lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const;
+  inline isl::checked::basic_set lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::checked::set make_disjoint() const;
   inline isl::checked::multi_pw_aff max_multi_pw_aff() const;
   inline isl::checked::val max_val(const isl::checked::aff &obj) const;
   inline isl::checked::multi_pw_aff min_multi_pw_aff() const;
   inline isl::checked::val min_val(const isl::checked::aff &obj) const;
+  inline isl::checked::basic_set move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline class size n_basic_set() const;
+  inline class size n_constraint() const;
+  inline class size n_dim() const;
+  inline class size n_param() const;
+  static inline isl::checked::basic_set nat_universe(isl::checked::space space);
+  inline isl::checked::basic_set neg() const;
   inline isl::checked::pw_aff param_pw_aff_on_domain(const isl::checked::id &id) const;
   inline isl::checked::pw_aff param_pw_aff_on_domain(const std::string &id) const;
   inline isl::checked::basic_set params() const;
+  inline isl::checked::val plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean plain_is_disjoint(const isl::checked::set &set2) const;
+  inline boolean plain_is_empty() const;
+  inline boolean plain_is_universe() const;
   inline isl::checked::multi_val plain_multi_val_if_fixed() const;
   inline isl::checked::basic_set polyhedral_hull() const;
+  static inline isl::checked::basic_set positive_orthant(isl::checked::space space);
   inline isl::checked::set preimage(const isl::checked::multi_aff &ma) const;
   inline isl::checked::set preimage(const isl::checked::multi_pw_aff &mpa) const;
   inline isl::checked::set preimage(const isl::checked::pw_multi_aff &pma) const;
   inline isl::checked::union_set preimage(const isl::checked::union_pw_multi_aff &upma) const;
+  inline isl::checked::basic_set preimage_multi_aff(isl::checked::multi_aff ma) const;
   inline isl::checked::set product(const isl::checked::set &set2) const;
+  inline isl::checked::map project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_set project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::checked::set project_out_all_params() const;
   inline isl::checked::set project_out_param(const isl::checked::id &id) const;
   inline isl::checked::set project_out_param(const std::string &id) const;
@@ -1687,30 +1925,200 @@ class basic_set {
   inline isl::checked::pw_aff pw_aff_on_domain(const isl::checked::val &v) const;
   inline isl::checked::pw_aff pw_aff_on_domain(long v) const;
   inline isl::checked::pw_multi_aff pw_multi_aff_on_domain(const isl::checked::multi_val &mv) const;
+  inline isl::checked::mat reduced_basis() const;
+  inline isl::checked::basic_set remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_set remove_divs() const;
+  inline isl::checked::basic_set remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_set remove_redundancies() const;
+  inline isl::checked::basic_set remove_unknown_divs() const;
+  inline isl::checked::set reset_space(const isl::checked::space &space) const;
+  inline isl::checked::set reset_tuple_id() const;
+  inline isl::checked::set reset_user() const;
   inline isl::checked::basic_set sample() const;
   inline isl::checked::point sample_point() const;
+  inline isl::checked::set set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::checked::id &id) const;
+  inline isl::checked::set set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::checked::basic_set set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
   inline isl::checked::set_list set_list() const;
+  inline isl::checked::basic_set set_tuple_id(isl::checked::id id) const;
+  inline isl::checked::basic_set set_tuple_id(const std::string &id) const;
+  inline isl::checked::basic_set set_tuple_name(const std::string &s) const;
   inline isl::checked::fixed_box simple_fixed_box_hull() const;
+  inline int size() const;
+  inline isl::checked::basic_set solutions() const;
   inline isl::checked::space space() const;
+  inline isl::checked::space get_space() const;
+  inline isl::checked::set split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::checked::val stride(int pos) const;
   inline isl::checked::set subtract(const isl::checked::set &set2) const;
   inline isl::checked::union_set subtract(const isl::checked::union_set &uset2) const;
-  inline isl::checked::set_list to_list() const;
+  inline isl::checked::set sum(const isl::checked::set &set2) const;
+  inline isl::checked::basic_set_list to_list() const;
   inline isl::checked::set to_set() const;
   inline isl::checked::union_set to_union_set() const;
+  static inline class size total_dim(const isl::checked::basic_set &bset);
   inline isl::checked::map translation() const;
   inline class size tuple_dim() const;
+  inline isl::checked::id tuple_id() const;
+  inline std::string tuple_name() const;
+  inline std::string get_tuple_name() const;
   inline isl::checked::set unbind_params(const isl::checked::multi_id &tuple) const;
   inline isl::checked::map unbind_params_insert_domain(const isl::checked::multi_id &domain) const;
   inline isl::checked::set unite(isl::checked::basic_set bset2) const;
   inline isl::checked::set unite(const isl::checked::set &set2) const;
   inline isl::checked::union_set unite(const isl::checked::union_set &uset2) const;
   inline isl::checked::set unite(const isl::checked::point &bset2) const;
+  static inline isl::checked::basic_set universe(isl::checked::space space);
   inline isl::checked::basic_set unshifted_simple_hull() const;
-  inline isl::checked::map unwrap() const;
+  inline isl::checked::basic_map unwrap() const;
   inline isl::checked::set upper_bound(const isl::checked::multi_pw_aff &upper) const;
   inline isl::checked::set upper_bound(const isl::checked::multi_val &upper) const;
+  inline isl::checked::set upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::basic_set upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const;
+  inline isl::checked::basic_set upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::checked::map wrapped_domain_map() const;
   inline isl::checked::set wrapped_reverse() const;
+};
+
+// declarations for isl::basic_set_list
+inline basic_set_list manage(__isl_take isl_basic_set_list *ptr);
+inline basic_set_list manage_copy(__isl_keep isl_basic_set_list *ptr);
+
+class basic_set_list {
+  friend inline basic_set_list manage(__isl_take isl_basic_set_list *ptr);
+  friend inline basic_set_list manage_copy(__isl_keep isl_basic_set_list *ptr);
+
+ protected:
+  isl_basic_set_list *ptr = nullptr;
+
+  inline explicit basic_set_list(__isl_take isl_basic_set_list *ptr);
+
+ public:
+  inline /* implicit */ basic_set_list();
+  inline /* implicit */ basic_set_list(const basic_set_list &obj);
+  inline explicit basic_set_list(isl::checked::ctx ctx, int n);
+  inline explicit basic_set_list(isl::checked::basic_set el);
+  inline basic_set_list &operator=(basic_set_list obj);
+  inline ~basic_set_list();
+  inline __isl_give isl_basic_set_list *copy() const &;
+  inline __isl_give isl_basic_set_list *copy() && = delete;
+  inline __isl_keep isl_basic_set_list *get() const;
+  inline __isl_give isl_basic_set_list *release();
+  inline bool is_null() const;
+  inline isl::checked::ctx ctx() const;
+
+  inline isl::checked::basic_set_list add(isl::checked::basic_set el) const;
+  inline isl::checked::basic_set at(int index) const;
+  inline isl::checked::basic_set get_at(int index) const;
+  inline isl::checked::basic_set_list clear() const;
+  inline isl::checked::basic_set_list coefficients() const;
+  inline isl::checked::basic_set_list concat(isl::checked::basic_set_list list2) const;
+  inline isl::checked::basic_set_list drop(unsigned int first, unsigned int n) const;
+  inline stat foreach(const std::function<stat(isl::checked::basic_set)> &fn) const;
+  inline stat foreach_scc(const std::function<boolean(isl::checked::basic_set, isl::checked::basic_set)> &follows, const std::function<stat(isl::checked::basic_set_list)> &fn) const;
+  inline isl::checked::basic_set_list insert(unsigned int pos, isl::checked::basic_set el) const;
+  inline isl::checked::basic_set_list set_at(int index, isl::checked::basic_set el) const;
+  inline class size size() const;
+};
+
+// declarations for isl::constraint
+inline constraint manage(__isl_take isl_constraint *ptr);
+inline constraint manage_copy(__isl_keep isl_constraint *ptr);
+
+class constraint {
+  friend inline constraint manage(__isl_take isl_constraint *ptr);
+  friend inline constraint manage_copy(__isl_keep isl_constraint *ptr);
+
+ protected:
+  isl_constraint *ptr = nullptr;
+
+  inline explicit constraint(__isl_take isl_constraint *ptr);
+
+ public:
+  inline /* implicit */ constraint();
+  inline /* implicit */ constraint(const constraint &obj);
+  inline constraint &operator=(constraint obj);
+  inline ~constraint();
+  inline __isl_give isl_constraint *copy() const &;
+  inline __isl_give isl_constraint *copy() && = delete;
+  inline __isl_keep isl_constraint *get() const;
+  inline __isl_give isl_constraint *release();
+  inline bool is_null() const;
+  inline isl::checked::ctx ctx() const;
+
+  inline isl::checked::aff aff() const;
+  inline isl::checked::aff get_aff() const;
+  static inline isl::checked::constraint alloc_equality(isl::checked::local_space ls);
+  static inline isl::checked::constraint alloc_inequality(isl::checked::local_space ls);
+  inline isl::checked::aff bound(enum isl_dim_type type, int pos) const;
+  inline isl::checked::aff get_bound(enum isl_dim_type type, int pos) const;
+  inline int cmp_last_non_zero(const isl::checked::constraint &c2) const;
+  inline isl::checked::val coefficient_val(enum isl_dim_type type, int pos) const;
+  inline isl::checked::val get_coefficient_val(enum isl_dim_type type, int pos) const;
+  inline isl::checked::val constant_val() const;
+  inline isl::checked::val get_constant_val() const;
+  inline class size dim(enum isl_dim_type type) const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::aff div(int pos) const;
+  inline isl::checked::aff get_div(int pos) const;
+  inline boolean involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline boolean is_div_constraint() const;
+  inline boolean is_equality() const;
+  inline boolean is_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean is_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::local_space local_space() const;
+  inline isl::checked::local_space get_local_space() const;
+  inline isl::checked::constraint negate() const;
+  inline isl::checked::constraint set_coefficient_si(enum isl_dim_type type, int pos, int v) const;
+  inline isl::checked::constraint set_coefficient_val(enum isl_dim_type type, int pos, isl::checked::val v) const;
+  inline isl::checked::constraint set_coefficient_val(enum isl_dim_type type, int pos, long v) const;
+  inline isl::checked::constraint set_constant_si(int v) const;
+  inline isl::checked::constraint set_constant_val(isl::checked::val v) const;
+  inline isl::checked::constraint set_constant_val(long v) const;
+  inline isl::checked::space space() const;
+  inline isl::checked::space get_space() const;
+  inline isl::checked::constraint_list to_list() const;
+};
+
+// declarations for isl::constraint_list
+inline constraint_list manage(__isl_take isl_constraint_list *ptr);
+inline constraint_list manage_copy(__isl_keep isl_constraint_list *ptr);
+
+class constraint_list {
+  friend inline constraint_list manage(__isl_take isl_constraint_list *ptr);
+  friend inline constraint_list manage_copy(__isl_keep isl_constraint_list *ptr);
+
+ protected:
+  isl_constraint_list *ptr = nullptr;
+
+  inline explicit constraint_list(__isl_take isl_constraint_list *ptr);
+
+ public:
+  inline /* implicit */ constraint_list();
+  inline /* implicit */ constraint_list(const constraint_list &obj);
+  inline explicit constraint_list(isl::checked::ctx ctx, int n);
+  inline explicit constraint_list(isl::checked::constraint el);
+  inline constraint_list &operator=(constraint_list obj);
+  inline ~constraint_list();
+  inline __isl_give isl_constraint_list *copy() const &;
+  inline __isl_give isl_constraint_list *copy() && = delete;
+  inline __isl_keep isl_constraint_list *get() const;
+  inline __isl_give isl_constraint_list *release();
+  inline bool is_null() const;
+  inline isl::checked::ctx ctx() const;
+
+  inline isl::checked::constraint_list add(isl::checked::constraint el) const;
+  inline isl::checked::constraint at(int index) const;
+  inline isl::checked::constraint get_at(int index) const;
+  inline isl::checked::constraint_list clear() const;
+  inline isl::checked::constraint_list concat(isl::checked::constraint_list list2) const;
+  inline isl::checked::constraint_list drop(unsigned int first, unsigned int n) const;
+  inline stat foreach(const std::function<stat(isl::checked::constraint)> &fn) const;
+  inline stat foreach_scc(const std::function<boolean(isl::checked::constraint, isl::checked::constraint)> &follows, const std::function<stat(isl::checked::constraint_list)> &fn) const;
+  inline isl::checked::constraint_list insert(unsigned int pos, isl::checked::constraint el) const;
+  inline isl::checked::constraint_list set_at(int index, isl::checked::constraint el) const;
+  inline class size size() const;
 };
 
 // declarations for isl::fixed_box
@@ -1897,6 +2305,65 @@ class id_to_id {
   inline isl::checked::id_to_id set(const std::string &key, const std::string &val) const;
 };
 
+// declarations for isl::local_space
+inline local_space manage(__isl_take isl_local_space *ptr);
+inline local_space manage_copy(__isl_keep isl_local_space *ptr);
+
+class local_space {
+  friend inline local_space manage(__isl_take isl_local_space *ptr);
+  friend inline local_space manage_copy(__isl_keep isl_local_space *ptr);
+
+ protected:
+  isl_local_space *ptr = nullptr;
+
+  inline explicit local_space(__isl_take isl_local_space *ptr);
+
+ public:
+  inline /* implicit */ local_space();
+  inline /* implicit */ local_space(const local_space &obj);
+  inline local_space &operator=(local_space obj);
+  inline ~local_space();
+  inline __isl_give isl_local_space *copy() const &;
+  inline __isl_give isl_local_space *copy() && = delete;
+  inline __isl_keep isl_local_space *get() const;
+  inline __isl_give isl_local_space *release();
+  inline bool is_null() const;
+  inline isl::checked::ctx ctx() const;
+
+  inline isl::checked::local_space add_dims(enum isl_dim_type type, unsigned int n) const;
+  inline class size dim(enum isl_dim_type type) const;
+  inline isl::checked::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::id get_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::aff div(int pos) const;
+  inline isl::checked::aff get_div(int pos) const;
+  inline isl::checked::local_space domain() const;
+  inline isl::checked::local_space drop_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::checked::local_space flatten_domain() const;
+  inline isl::checked::local_space flatten_range() const;
+  inline isl::checked::local_space from_domain() const;
+  static inline isl::checked::local_space from_space(isl::checked::space space);
+  inline boolean has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean has_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::local_space insert_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::local_space intersect(isl::checked::local_space ls2) const;
+  inline boolean is_params() const;
+  inline boolean is_set() const;
+  inline isl::checked::basic_map lifting() const;
+  inline isl::checked::local_space range() const;
+  inline isl::checked::local_space set_dim_id(enum isl_dim_type type, unsigned int pos, isl::checked::id id) const;
+  inline isl::checked::local_space set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::checked::local_space set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
+  inline isl::checked::local_space set_from_params() const;
+  inline isl::checked::local_space set_tuple_id(enum isl_dim_type type, isl::checked::id id) const;
+  inline isl::checked::local_space set_tuple_id(enum isl_dim_type type, const std::string &id) const;
+  inline isl::checked::space space() const;
+  inline isl::checked::space get_space() const;
+  inline isl::checked::local_space wrap() const;
+};
+
 // declarations for isl::map
 inline map manage(__isl_take isl_map *ptr);
 inline map manage_copy(__isl_keep isl_map *ptr);
@@ -1924,7 +2391,10 @@ class map {
   inline bool is_null() const;
   inline isl::checked::ctx ctx() const;
 
+  inline isl::checked::map add_constraint(isl::checked::constraint constraint) const;
+  inline isl::checked::map add_dims(enum isl_dim_type type, unsigned int n) const;
   inline isl::checked::basic_map affine_hull() const;
+  inline isl::checked::map align_params(isl::checked::space model) const;
   inline isl::checked::map apply_domain(isl::checked::map map2) const;
   inline isl::checked::union_map apply_domain(const isl::checked::union_map &umap2) const;
   inline isl::checked::map apply_domain(const isl::checked::basic_map &map2) const;
@@ -1937,16 +2407,30 @@ class map {
   inline isl::checked::union_pw_multi_aff as_union_pw_multi_aff() const;
   inline isl::checked::set bind_domain(isl::checked::multi_id tuple) const;
   inline isl::checked::set bind_range(isl::checked::multi_id tuple) const;
+  inline boolean can_curry() const;
+  inline boolean can_range_curry() const;
+  inline boolean can_uncurry() const;
+  inline boolean can_zip() const;
   inline isl::checked::map coalesce() const;
   inline isl::checked::map complement() const;
-  inline isl::checked::union_map compute_divs() const;
+  inline isl::checked::map compute_divs() const;
+  inline isl::checked::basic_map convex_hull() const;
   inline isl::checked::map curry() const;
   inline isl::checked::set deltas() const;
+  inline isl::checked::map deltas_map() const;
   inline isl::checked::map detect_equalities() const;
+  inline class size dim(enum isl_dim_type type) const;
+  inline isl::checked::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::id get_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::pw_aff dim_max(int pos) const;
+  inline isl::checked::pw_aff dim_min(int pos) const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
   inline isl::checked::set domain() const;
   inline isl::checked::map domain_factor_domain() const;
   inline isl::checked::map domain_factor_range() const;
-  inline isl::checked::union_map domain_map() const;
+  inline boolean domain_is_wrapping() const;
+  inline isl::checked::map domain_map() const;
   inline isl::checked::union_pw_multi_aff domain_map_union_pw_multi_aff() const;
   inline isl::checked::map domain_product(isl::checked::map map2) const;
   inline isl::checked::union_map domain_product(const isl::checked::union_map &umap2) const;
@@ -1955,7 +2439,10 @@ class map {
   inline class size domain_tuple_dim() const;
   inline isl::checked::id domain_tuple_id() const;
   inline isl::checked::id get_domain_tuple_id() const;
+  inline isl::checked::map drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::map drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::checked::map drop_unused_params() const;
+  inline isl::checked::map eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   static inline isl::checked::map empty(isl::checked::space space);
   inline isl::checked::map eq_at(isl::checked::multi_pw_aff mpa) const;
   inline isl::checked::union_map eq_at(const isl::checked::multi_union_pw_aff &mupa) const;
@@ -1963,28 +2450,53 @@ class map {
   inline isl::checked::map eq_at(const isl::checked::multi_aff &mpa) const;
   inline isl::checked::map eq_at(const isl::checked::pw_aff &mpa) const;
   inline isl::checked::map eq_at(const isl::checked::pw_multi_aff &mpa) const;
+  inline isl::checked::map equate(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
   inline boolean every_map(const std::function<boolean(isl::checked::map)> &test) const;
   inline isl::checked::map extract_map(const isl::checked::space &space) const;
   inline isl::checked::map factor_domain() const;
   inline isl::checked::map factor_range() const;
+  inline int find_dim_by_id(enum isl_dim_type type, const isl::checked::id &id) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const std::string &id) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::checked::map fix_input_si(unsigned int input, int value) const;
+  inline isl::checked::map fix_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::map fix_val(enum isl_dim_type type, unsigned int pos, isl::checked::val v) const;
+  inline isl::checked::map fix_val(enum isl_dim_type type, unsigned int pos, long v) const;
   inline isl::checked::map fixed_power(isl::checked::val exp) const;
   inline isl::checked::map fixed_power(long exp) const;
+  inline isl::checked::map flat_domain_product(isl::checked::map map2) const;
+  inline isl::checked::map flat_product(isl::checked::map map2) const;
+  inline isl::checked::map flat_range_product(isl::checked::map map2) const;
   inline isl::checked::map flatten() const;
   inline isl::checked::map flatten_domain() const;
   inline isl::checked::map flatten_range() const;
+  inline isl::checked::map floordiv_val(isl::checked::val d) const;
+  inline isl::checked::map floordiv_val(long d) const;
   inline stat foreach_basic_map(const std::function<stat(isl::checked::basic_map)> &fn) const;
   inline stat foreach_map(const std::function<stat(isl::checked::map)> &fn) const;
+  static inline isl::checked::map from_aff(isl::checked::aff aff);
+  static inline isl::checked::map from_domain(isl::checked::set set);
+  static inline isl::checked::map from_domain_and_range(isl::checked::set domain, isl::checked::set range);
+  static inline isl::checked::map from_multi_aff(isl::checked::multi_aff maff);
+  static inline isl::checked::map from_range(isl::checked::set set);
   inline isl::checked::map gist(isl::checked::map context) const;
   inline isl::checked::union_map gist(const isl::checked::union_map &context) const;
   inline isl::checked::map gist(const isl::checked::basic_map &context) const;
+  inline isl::checked::map gist_basic_map(isl::checked::basic_map context) const;
   inline isl::checked::map gist_domain(isl::checked::set context) const;
   inline isl::checked::union_map gist_domain(const isl::checked::union_set &uset) const;
   inline isl::checked::map gist_domain(const isl::checked::basic_set &context) const;
   inline isl::checked::map gist_domain(const isl::checked::point &context) const;
   inline isl::checked::map gist_params(isl::checked::set context) const;
   inline isl::checked::union_map gist_range(const isl::checked::union_set &uset) const;
+  inline boolean has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean has_dim_name(enum isl_dim_type type, unsigned int pos) const;
   inline boolean has_domain_tuple_id() const;
+  inline boolean has_equal_space(const isl::checked::map &map2) const;
   inline boolean has_range_tuple_id() const;
+  inline boolean has_tuple_name(enum isl_dim_type type) const;
+  static inline isl::checked::map identity(isl::checked::space space);
+  inline isl::checked::map insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline isl::checked::map intersect(isl::checked::map map2) const;
   inline isl::checked::union_map intersect(const isl::checked::union_map &umap2) const;
   inline isl::checked::map intersect(const isl::checked::basic_map &map2) const;
@@ -2019,6 +2531,7 @@ class map {
   inline isl::checked::union_map intersect_range_wrapped_domain(const isl::checked::union_set &domain) const;
   inline isl::checked::map intersect_range_wrapped_domain(const isl::checked::basic_set &domain) const;
   inline isl::checked::map intersect_range_wrapped_domain(const isl::checked::point &domain) const;
+  inline boolean involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline boolean is_bijective() const;
   inline boolean is_disjoint(const isl::checked::map &map2) const;
   inline boolean is_disjoint(const isl::checked::union_map &umap2) const;
@@ -2027,7 +2540,9 @@ class map {
   inline boolean is_equal(const isl::checked::map &map2) const;
   inline boolean is_equal(const isl::checked::union_map &umap2) const;
   inline boolean is_equal(const isl::checked::basic_map &map2) const;
+  inline boolean is_identity() const;
   inline boolean is_injective() const;
+  inline boolean is_product() const;
   inline boolean is_single_valued() const;
   inline boolean is_strict_subset(const isl::checked::map &map2) const;
   inline boolean is_strict_subset(const isl::checked::union_map &umap2) const;
@@ -2035,21 +2550,52 @@ class map {
   inline boolean is_subset(const isl::checked::map &map2) const;
   inline boolean is_subset(const isl::checked::union_map &umap2) const;
   inline boolean is_subset(const isl::checked::basic_map &map2) const;
+  inline int is_translation() const;
   inline boolean isa_map() const;
+  static inline isl::checked::map lex_ge(isl::checked::space set_space);
   inline isl::checked::map lex_ge_at(isl::checked::multi_pw_aff mpa) const;
+  static inline isl::checked::map lex_ge_first(isl::checked::space space, unsigned int n);
+  inline isl::checked::map lex_ge_map(isl::checked::map map2) const;
+  static inline isl::checked::map lex_gt(isl::checked::space set_space);
   inline isl::checked::map lex_gt_at(isl::checked::multi_pw_aff mpa) const;
+  static inline isl::checked::map lex_gt_first(isl::checked::space space, unsigned int n);
+  inline isl::checked::map lex_gt_map(isl::checked::map map2) const;
+  static inline isl::checked::map lex_le(isl::checked::space set_space);
   inline isl::checked::map lex_le_at(isl::checked::multi_pw_aff mpa) const;
+  static inline isl::checked::map lex_le_first(isl::checked::space space, unsigned int n);
+  inline isl::checked::map lex_le_map(isl::checked::map map2) const;
+  static inline isl::checked::map lex_lt(isl::checked::space set_space);
   inline isl::checked::map lex_lt_at(isl::checked::multi_pw_aff mpa) const;
+  static inline isl::checked::map lex_lt_first(isl::checked::space space, unsigned int n);
+  inline isl::checked::map lex_lt_map(isl::checked::map map2) const;
   inline isl::checked::map lexmax() const;
   inline isl::checked::pw_multi_aff lexmax_pw_multi_aff() const;
   inline isl::checked::map lexmin() const;
   inline isl::checked::pw_multi_aff lexmin_pw_multi_aff() const;
   inline isl::checked::map lower_bound(isl::checked::multi_pw_aff lower) const;
+  inline isl::checked::map lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::map lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const;
+  inline isl::checked::map lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::checked::map make_disjoint() const;
   inline isl::checked::map_list map_list() const;
   inline isl::checked::multi_pw_aff max_multi_pw_aff() const;
   inline isl::checked::multi_pw_aff min_multi_pw_aff() const;
+  inline isl::checked::map move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline class size n_basic_map() const;
+  static inline isl::checked::map nat_universe(isl::checked::space space);
+  inline isl::checked::map neg() const;
+  inline isl::checked::map oppose(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::checked::map order_ge(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::checked::map order_gt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::checked::map order_le(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::checked::map order_lt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
   inline isl::checked::set params() const;
+  inline isl::checked::val plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean plain_is_empty() const;
+  inline boolean plain_is_injective() const;
+  inline boolean plain_is_single_valued() const;
+  inline boolean plain_is_universe() const;
+  inline isl::checked::basic_map plain_unshifted_simple_hull() const;
   inline isl::checked::basic_map polyhedral_hull() const;
   inline isl::checked::map preimage_domain(isl::checked::multi_aff ma) const;
   inline isl::checked::map preimage_domain(isl::checked::multi_pw_aff mpa) const;
@@ -2061,16 +2607,19 @@ class map {
   inline isl::checked::map product(isl::checked::map map2) const;
   inline isl::checked::union_map product(const isl::checked::union_map &umap2) const;
   inline isl::checked::map product(const isl::checked::basic_map &map2) const;
+  inline isl::checked::map project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::checked::map project_out_all_params() const;
   inline isl::checked::map project_out_param(isl::checked::id id) const;
   inline isl::checked::map project_out_param(const std::string &id) const;
   inline isl::checked::map project_out_param(isl::checked::id_list list) const;
   inline isl::checked::set range() const;
+  inline isl::checked::map range_curry() const;
   inline isl::checked::map range_factor_domain() const;
   inline isl::checked::map range_factor_range() const;
+  inline boolean range_is_wrapping() const;
   inline isl::checked::fixed_box range_lattice_tile() const;
   inline isl::checked::fixed_box get_range_lattice_tile() const;
-  inline isl::checked::union_map range_map() const;
+  inline isl::checked::map range_map() const;
   inline isl::checked::map range_product(isl::checked::map map2) const;
   inline isl::checked::union_map range_product(const isl::checked::union_map &umap2) const;
   inline isl::checked::map range_product(const isl::checked::basic_map &map2) const;
@@ -2080,28 +2629,55 @@ class map {
   inline class size range_tuple_dim() const;
   inline isl::checked::id range_tuple_id() const;
   inline isl::checked::id get_range_tuple_id() const;
+  inline isl::checked::map remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::map remove_divs() const;
+  inline isl::checked::map remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::map remove_inputs(unsigned int first, unsigned int n) const;
+  inline isl::checked::map remove_redundancies() const;
+  inline isl::checked::map remove_unknown_divs() const;
   inline isl::checked::map reverse() const;
   inline isl::checked::basic_map sample() const;
+  inline isl::checked::map set_dim_id(enum isl_dim_type type, unsigned int pos, isl::checked::id id) const;
+  inline isl::checked::map set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::checked::map set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
   inline isl::checked::map set_domain_tuple(isl::checked::id id) const;
   inline isl::checked::map set_domain_tuple(const std::string &id) const;
   inline isl::checked::map set_range_tuple(isl::checked::id id) const;
   inline isl::checked::map set_range_tuple(const std::string &id) const;
+  inline isl::checked::map set_tuple_id(enum isl_dim_type type, isl::checked::id id) const;
+  inline isl::checked::map set_tuple_id(enum isl_dim_type type, const std::string &id) const;
+  inline isl::checked::map set_tuple_name(enum isl_dim_type type, const std::string &s) const;
+  inline isl::checked::basic_map simple_hull() const;
   inline isl::checked::space space() const;
   inline isl::checked::space get_space() const;
   inline isl::checked::map subtract(isl::checked::map map2) const;
   inline isl::checked::union_map subtract(const isl::checked::union_map &umap2) const;
   inline isl::checked::map subtract(const isl::checked::basic_map &map2) const;
+  inline isl::checked::map subtract_domain(isl::checked::set dom) const;
   inline isl::checked::union_map subtract_domain(const isl::checked::union_set &dom) const;
+  inline isl::checked::map subtract_domain(const isl::checked::basic_set &dom) const;
+  inline isl::checked::map subtract_domain(const isl::checked::point &dom) const;
+  inline isl::checked::map subtract_range(isl::checked::set dom) const;
   inline isl::checked::union_map subtract_range(const isl::checked::union_set &dom) const;
+  inline isl::checked::map subtract_range(const isl::checked::basic_set &dom) const;
+  inline isl::checked::map subtract_range(const isl::checked::point &dom) const;
+  inline isl::checked::map sum(isl::checked::map map2) const;
   inline isl::checked::map_list to_list() const;
   inline isl::checked::union_map to_union_map() const;
+  inline std::string tuple_name(enum isl_dim_type type) const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const;
   inline isl::checked::map uncurry() const;
   inline isl::checked::map unite(isl::checked::map map2) const;
   inline isl::checked::union_map unite(const isl::checked::union_map &umap2) const;
   inline isl::checked::map unite(const isl::checked::basic_map &map2) const;
+  inline isl::checked::map union_disjoint(isl::checked::map map2) const;
   static inline isl::checked::map universe(isl::checked::space space);
   inline isl::checked::basic_map unshifted_simple_hull() const;
+  inline isl::checked::basic_map unshifted_simple_hull_from_map_list(isl::checked::map_list list) const;
   inline isl::checked::map upper_bound(isl::checked::multi_pw_aff upper) const;
+  inline isl::checked::map upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::map upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const;
+  inline isl::checked::map upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
   inline isl::checked::set wrap() const;
   inline isl::checked::map zip() const;
 };
@@ -2145,6 +2721,69 @@ class map_list {
   inline isl::checked::map_list insert(unsigned int pos, isl::checked::map el) const;
   inline isl::checked::map_list set_at(int index, isl::checked::map el) const;
   inline class size size() const;
+};
+
+// declarations for isl::mat
+inline mat manage(__isl_take isl_mat *ptr);
+inline mat manage_copy(__isl_keep isl_mat *ptr);
+
+class mat {
+  friend inline mat manage(__isl_take isl_mat *ptr);
+  friend inline mat manage_copy(__isl_keep isl_mat *ptr);
+
+ protected:
+  isl_mat *ptr = nullptr;
+
+  inline explicit mat(__isl_take isl_mat *ptr);
+
+ public:
+  inline /* implicit */ mat();
+  inline /* implicit */ mat(const mat &obj);
+  inline mat &operator=(mat obj);
+  inline ~mat();
+  inline __isl_give isl_mat *copy() const &;
+  inline __isl_give isl_mat *copy() && = delete;
+  inline __isl_keep isl_mat *get() const;
+  inline __isl_give isl_mat *release();
+  inline bool is_null() const;
+  inline isl::checked::ctx ctx() const;
+
+  inline isl::checked::mat add_rows(unsigned int n) const;
+  inline isl::checked::mat add_zero_cols(unsigned int n) const;
+  inline isl::checked::mat add_zero_rows(unsigned int n) const;
+  inline isl::checked::mat aff_direct_sum(isl::checked::mat right) const;
+  inline class size cols() const;
+  inline isl::checked::mat concat(isl::checked::mat bot) const;
+  inline isl::checked::mat diagonal(isl::checked::mat mat2) const;
+  inline isl::checked::mat drop_cols(unsigned int col, unsigned int n) const;
+  inline isl::checked::mat drop_rows(unsigned int row, unsigned int n) const;
+  inline isl::checked::val element_val(int row, int col) const;
+  inline isl::checked::val get_element_val(int row, int col) const;
+  inline boolean has_linearly_independent_rows(const isl::checked::mat &mat2) const;
+  inline int initial_non_zero_cols() const;
+  inline isl::checked::mat insert_cols(unsigned int col, unsigned int n) const;
+  inline isl::checked::mat insert_rows(unsigned int row, unsigned int n) const;
+  inline isl::checked::mat insert_zero_cols(unsigned int first, unsigned int n) const;
+  inline isl::checked::mat insert_zero_rows(unsigned int row, unsigned int n) const;
+  inline isl::checked::mat inverse_product(isl::checked::mat right) const;
+  inline isl::checked::mat lin_to_aff() const;
+  inline isl::checked::mat move_cols(unsigned int dst_col, unsigned int src_col, unsigned int n) const;
+  inline isl::checked::mat normalize() const;
+  inline isl::checked::mat normalize_row(int row) const;
+  inline isl::checked::mat product(isl::checked::mat right) const;
+  inline class size rank() const;
+  inline isl::checked::mat right_inverse() const;
+  inline isl::checked::mat right_kernel() const;
+  inline isl::checked::mat row_basis() const;
+  inline isl::checked::mat row_basis_extension(isl::checked::mat mat2) const;
+  inline class size rows() const;
+  inline isl::checked::mat set_element_si(int row, int col, int v) const;
+  inline isl::checked::mat set_element_val(int row, int col, isl::checked::val v) const;
+  inline isl::checked::mat set_element_val(int row, int col, long v) const;
+  inline isl::checked::mat swap_cols(unsigned int i, unsigned int j) const;
+  inline isl::checked::mat swap_rows(unsigned int i, unsigned int j) const;
+  inline isl::checked::mat transpose() const;
+  inline isl::checked::mat unimodular_complete(int row) const;
 };
 
 // declarations for isl::multi_aff
@@ -2639,45 +3278,94 @@ class point {
   inline bool is_null() const;
   inline isl::checked::ctx ctx() const;
 
+  inline isl::checked::basic_set add_constraint(const isl::checked::constraint &constraint) const;
+  inline isl::checked::basic_set add_dims(enum isl_dim_type type, unsigned int n) const;
+  inline isl::checked::point add_ui(enum isl_dim_type type, int pos, unsigned int val) const;
   inline isl::checked::basic_set affine_hull() const;
+  inline isl::checked::basic_set align_params(const isl::checked::space &model) const;
   inline isl::checked::basic_set apply(const isl::checked::basic_map &bmap) const;
   inline isl::checked::set apply(const isl::checked::map &map) const;
   inline isl::checked::union_set apply(const isl::checked::union_map &umap) const;
   inline isl::checked::pw_multi_aff as_pw_multi_aff() const;
   inline isl::checked::set as_set() const;
+  inline isl::checked::basic_set_list basic_set_list() const;
   inline isl::checked::set bind(const isl::checked::multi_id &tuple) const;
   inline isl::checked::set coalesce() const;
+  inline isl::checked::basic_set coefficients() const;
   inline isl::checked::set complement() const;
-  inline isl::checked::union_set compute_divs() const;
+  inline isl::checked::set compute_divs() const;
+  inline isl::checked::constraint_list constraint_list() const;
+  inline isl::checked::val coordinate_val(enum isl_dim_type type, int pos) const;
+  inline isl::checked::val get_coordinate_val(enum isl_dim_type type, int pos) const;
+  inline isl::checked::val count_val() const;
   inline isl::checked::basic_set detect_equalities() const;
+  inline class size dim(enum isl_dim_type type) const;
+  inline boolean dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_is_bounded(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::pw_aff dim_max(int pos) const;
   inline isl::checked::val dim_max_val(int pos) const;
+  inline isl::checked::pw_aff dim_min(int pos) const;
   inline isl::checked::val dim_min_val(int pos) const;
-  inline isl::checked::set drop_unused_params() const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::aff div(int pos) const;
+  inline isl::checked::basic_set drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_set drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_set drop_unused_params() const;
+  inline isl::checked::basic_set eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::set eliminate_dims(unsigned int first, unsigned int n) const;
+  inline isl::checked::mat equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const;
   inline boolean every_set(const std::function<boolean(isl::checked::set)> &test) const;
   inline isl::checked::set extract_set(const isl::checked::space &space) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const isl::checked::id &id) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const std::string &id) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::checked::set fix_dim_si(unsigned int dim, int value) const;
+  inline isl::checked::basic_set fix_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::basic_set fix_val(enum isl_dim_type type, unsigned int pos, const isl::checked::val &v) const;
+  inline isl::checked::basic_set fix_val(enum isl_dim_type type, unsigned int pos, long v) const;
   inline isl::checked::basic_set flatten() const;
+  inline isl::checked::map flatten_map() const;
   inline stat foreach_basic_set(const std::function<stat(isl::checked::basic_set)> &fn) const;
+  inline stat foreach_bound_pair(enum isl_dim_type type, unsigned int pos, const std::function<stat(isl::checked::constraint, isl::checked::constraint, isl::checked::basic_set)> &fn) const;
+  inline stat foreach_constraint(const std::function<stat(isl::checked::constraint)> &fn) const;
   inline stat foreach_point(const std::function<stat(isl::checked::point)> &fn) const;
   inline stat foreach_set(const std::function<stat(isl::checked::set)> &fn) const;
   inline isl::checked::basic_set gist(const isl::checked::basic_set &context) const;
   inline isl::checked::set gist(const isl::checked::set &context) const;
   inline isl::checked::union_set gist(const isl::checked::union_set &context) const;
+  inline isl::checked::set gist_basic_set(const isl::checked::basic_set &context) const;
   inline isl::checked::set gist_params(const isl::checked::set &context) const;
+  inline boolean has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean has_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean has_equal_space(const isl::checked::set &set2) const;
+  inline boolean has_tuple_id() const;
+  inline boolean has_tuple_name() const;
   inline isl::checked::map identity() const;
   inline isl::checked::pw_aff indicator_function() const;
+  inline isl::checked::mat inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const;
+  inline isl::checked::basic_set insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline isl::checked::map insert_domain(const isl::checked::space &domain) const;
   inline isl::checked::basic_set intersect(const isl::checked::basic_set &bset2) const;
   inline isl::checked::set intersect(const isl::checked::set &set2) const;
   inline isl::checked::union_set intersect(const isl::checked::union_set &uset2) const;
   inline isl::checked::basic_set intersect_params(const isl::checked::basic_set &bset2) const;
   inline isl::checked::set intersect_params(const isl::checked::set &params) const;
+  inline boolean involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline boolean involves_locals() const;
+  inline boolean is_bounded() const;
+  inline boolean is_box() const;
   inline boolean is_disjoint(const isl::checked::set &set2) const;
   inline boolean is_disjoint(const isl::checked::union_set &uset2) const;
   inline boolean is_empty() const;
   inline boolean is_equal(const isl::checked::basic_set &bset2) const;
   inline boolean is_equal(const isl::checked::set &set2) const;
   inline boolean is_equal(const isl::checked::union_set &uset2) const;
+  inline boolean is_params() const;
+  inline int is_rational() const;
   inline boolean is_singleton() const;
   inline boolean is_strict_subset(const isl::checked::set &set2) const;
   inline boolean is_strict_subset(const isl::checked::union_set &uset2) const;
@@ -2687,29 +3375,51 @@ class point {
   inline boolean is_wrapping() const;
   inline boolean isa_set() const;
   inline isl::checked::fixed_box lattice_tile() const;
+  inline isl::checked::map lex_ge_set(const isl::checked::set &set2) const;
+  inline isl::checked::map lex_gt_set(const isl::checked::set &set2) const;
+  inline isl::checked::map lex_le_set(const isl::checked::set &set2) const;
+  inline isl::checked::map lex_lt_set(const isl::checked::set &set2) const;
   inline isl::checked::set lexmax() const;
   inline isl::checked::pw_multi_aff lexmax_pw_multi_aff() const;
   inline isl::checked::set lexmin() const;
   inline isl::checked::pw_multi_aff lexmin_pw_multi_aff() const;
+  inline isl::checked::basic_set lift() const;
+  inline isl::checked::local_space local_space() const;
   inline isl::checked::set lower_bound(const isl::checked::multi_pw_aff &lower) const;
   inline isl::checked::set lower_bound(const isl::checked::multi_val &lower) const;
+  inline isl::checked::set lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::basic_set lower_bound_val(enum isl_dim_type type, unsigned int pos, const isl::checked::val &value) const;
+  inline isl::checked::basic_set lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::checked::set make_disjoint() const;
   inline isl::checked::multi_pw_aff max_multi_pw_aff() const;
   inline isl::checked::val max_val(const isl::checked::aff &obj) const;
   inline isl::checked::multi_pw_aff min_multi_pw_aff() const;
   inline isl::checked::val min_val(const isl::checked::aff &obj) const;
+  inline isl::checked::basic_set move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline isl::checked::multi_val multi_val() const;
   inline isl::checked::multi_val get_multi_val() const;
   inline class size n_basic_set() const;
+  inline class size n_constraint() const;
+  inline class size n_dim() const;
+  inline class size n_param() const;
+  inline isl::checked::basic_set neg() const;
   inline isl::checked::pw_aff param_pw_aff_on_domain(const isl::checked::id &id) const;
   inline isl::checked::pw_aff param_pw_aff_on_domain(const std::string &id) const;
   inline isl::checked::basic_set params() const;
+  inline isl::checked::val plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean plain_is_disjoint(const isl::checked::set &set2) const;
+  inline boolean plain_is_empty() const;
+  inline boolean plain_is_universe() const;
   inline isl::checked::multi_val plain_multi_val_if_fixed() const;
   inline isl::checked::basic_set polyhedral_hull() const;
   inline isl::checked::set preimage(const isl::checked::multi_aff &ma) const;
   inline isl::checked::set preimage(const isl::checked::multi_pw_aff &mpa) const;
   inline isl::checked::set preimage(const isl::checked::pw_multi_aff &pma) const;
   inline isl::checked::union_set preimage(const isl::checked::union_pw_multi_aff &upma) const;
+  inline isl::checked::basic_set preimage_multi_aff(const isl::checked::multi_aff &ma) const;
   inline isl::checked::set product(const isl::checked::set &set2) const;
+  inline isl::checked::map project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_set project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::checked::set project_out_all_params() const;
   inline isl::checked::set project_out_param(const isl::checked::id &id) const;
   inline isl::checked::set project_out_param(const std::string &id) const;
@@ -2717,28 +3427,56 @@ class point {
   inline isl::checked::pw_aff pw_aff_on_domain(const isl::checked::val &v) const;
   inline isl::checked::pw_aff pw_aff_on_domain(long v) const;
   inline isl::checked::pw_multi_aff pw_multi_aff_on_domain(const isl::checked::multi_val &mv) const;
+  inline isl::checked::mat reduced_basis() const;
+  inline isl::checked::basic_set remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_set remove_divs() const;
+  inline isl::checked::basic_set remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::basic_set remove_redundancies() const;
+  inline isl::checked::basic_set remove_unknown_divs() const;
+  inline isl::checked::set reset_space(const isl::checked::space &space) const;
+  inline isl::checked::set reset_tuple_id() const;
+  inline isl::checked::set reset_user() const;
   inline isl::checked::basic_set sample() const;
   inline isl::checked::point sample_point() const;
+  inline isl::checked::point set_coordinate_val(enum isl_dim_type type, int pos, isl::checked::val v) const;
+  inline isl::checked::point set_coordinate_val(enum isl_dim_type type, int pos, long v) const;
+  inline isl::checked::set set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::checked::id &id) const;
+  inline isl::checked::set set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::checked::basic_set set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
   inline isl::checked::set_list set_list() const;
+  inline isl::checked::basic_set set_tuple_id(const isl::checked::id &id) const;
+  inline isl::checked::basic_set set_tuple_id(const std::string &id) const;
+  inline isl::checked::basic_set set_tuple_name(const std::string &s) const;
   inline isl::checked::fixed_box simple_fixed_box_hull() const;
+  inline int size() const;
+  inline isl::checked::basic_set solutions() const;
   inline isl::checked::space space() const;
+  inline isl::checked::set split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::checked::val stride(int pos) const;
+  inline isl::checked::point sub_ui(enum isl_dim_type type, int pos, unsigned int val) const;
   inline isl::checked::set subtract(const isl::checked::set &set2) const;
   inline isl::checked::union_set subtract(const isl::checked::union_set &uset2) const;
-  inline isl::checked::set_list to_list() const;
+  inline isl::checked::set sum(const isl::checked::set &set2) const;
+  inline isl::checked::basic_set_list to_list() const;
   inline isl::checked::set to_set() const;
   inline isl::checked::union_set to_union_set() const;
   inline isl::checked::map translation() const;
   inline class size tuple_dim() const;
+  inline isl::checked::id tuple_id() const;
+  inline std::string tuple_name() const;
   inline isl::checked::set unbind_params(const isl::checked::multi_id &tuple) const;
   inline isl::checked::map unbind_params_insert_domain(const isl::checked::multi_id &domain) const;
   inline isl::checked::set unite(const isl::checked::basic_set &bset2) const;
   inline isl::checked::set unite(const isl::checked::set &set2) const;
   inline isl::checked::union_set unite(const isl::checked::union_set &uset2) const;
   inline isl::checked::basic_set unshifted_simple_hull() const;
-  inline isl::checked::map unwrap() const;
+  inline isl::checked::basic_map unwrap() const;
   inline isl::checked::set upper_bound(const isl::checked::multi_pw_aff &upper) const;
   inline isl::checked::set upper_bound(const isl::checked::multi_val &upper) const;
+  inline isl::checked::set upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::basic_set upper_bound_val(enum isl_dim_type type, unsigned int pos, const isl::checked::val &value) const;
+  inline isl::checked::basic_set upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::checked::map wrapped_domain_map() const;
   inline isl::checked::set wrapped_reverse() const;
 };
 
@@ -3610,41 +4348,84 @@ class set {
   inline bool is_null() const;
   inline isl::checked::ctx ctx() const;
 
+  inline isl::checked::set add_constraint(isl::checked::constraint constraint) const;
+  inline isl::checked::set add_dims(enum isl_dim_type type, unsigned int n) const;
   inline isl::checked::basic_set affine_hull() const;
+  inline isl::checked::set align_params(isl::checked::space model) const;
   inline isl::checked::set apply(isl::checked::map map) const;
   inline isl::checked::union_set apply(const isl::checked::union_map &umap) const;
   inline isl::checked::set apply(const isl::checked::basic_map &map) const;
   inline isl::checked::pw_multi_aff as_pw_multi_aff() const;
   inline isl::checked::set as_set() const;
+  inline isl::checked::basic_set_list basic_set_list() const;
+  inline isl::checked::basic_set_list get_basic_set_list() const;
   inline isl::checked::set bind(isl::checked::multi_id tuple) const;
+  static inline isl::checked::set box_from_points(isl::checked::point pnt1, isl::checked::point pnt2);
   inline isl::checked::set coalesce() const;
+  inline isl::checked::basic_set coefficients() const;
   inline isl::checked::set complement() const;
-  inline isl::checked::union_set compute_divs() const;
+  inline isl::checked::set compute_divs() const;
+  inline isl::checked::val count_val() const;
   inline isl::checked::set detect_equalities() const;
+  inline class size dim(enum isl_dim_type type) const;
+  inline boolean dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::id get_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean dim_is_bounded(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::pw_aff dim_max(int pos) const;
   inline isl::checked::val dim_max_val(int pos) const;
+  inline isl::checked::pw_aff dim_min(int pos) const;
   inline isl::checked::val dim_min_val(int pos) const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::checked::set drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::set drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::checked::set drop_unused_params() const;
+  inline isl::checked::set eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::set eliminate_dims(unsigned int first, unsigned int n) const;
   static inline isl::checked::set empty(isl::checked::space space);
   inline boolean every_set(const std::function<boolean(isl::checked::set)> &test) const;
   inline isl::checked::set extract_set(const isl::checked::space &space) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const isl::checked::id &id) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const std::string &id) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::checked::set fix_dim_si(unsigned int dim, int value) const;
+  inline isl::checked::set fix_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::set fix_val(enum isl_dim_type type, unsigned int pos, isl::checked::val v) const;
+  inline isl::checked::set fix_val(enum isl_dim_type type, unsigned int pos, long v) const;
   inline isl::checked::set flatten() const;
+  inline isl::checked::map flatten_map() const;
   inline stat foreach_basic_set(const std::function<stat(isl::checked::basic_set)> &fn) const;
   inline stat foreach_point(const std::function<stat(isl::checked::point)> &fn) const;
   inline stat foreach_set(const std::function<stat(isl::checked::set)> &fn) const;
+  static inline isl::checked::set from_multi_aff(isl::checked::multi_aff ma);
   inline isl::checked::set gist(isl::checked::set context) const;
   inline isl::checked::union_set gist(const isl::checked::union_set &context) const;
   inline isl::checked::set gist(const isl::checked::basic_set &context) const;
   inline isl::checked::set gist(const isl::checked::point &context) const;
+  inline isl::checked::set gist_basic_set(isl::checked::basic_set context) const;
   inline isl::checked::set gist_params(isl::checked::set context) const;
+  inline boolean has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean has_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean has_equal_space(const isl::checked::set &set2) const;
+  inline boolean has_tuple_id() const;
+  inline boolean has_tuple_name() const;
   inline isl::checked::map identity() const;
   inline isl::checked::pw_aff indicator_function() const;
+  inline isl::checked::set insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline isl::checked::map insert_domain(isl::checked::space domain) const;
   inline isl::checked::set intersect(isl::checked::set set2) const;
   inline isl::checked::union_set intersect(const isl::checked::union_set &uset2) const;
   inline isl::checked::set intersect(const isl::checked::basic_set &set2) const;
   inline isl::checked::set intersect(const isl::checked::point &set2) const;
   inline isl::checked::set intersect_params(isl::checked::set params) const;
+  inline boolean involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline boolean involves_locals() const;
+  inline boolean is_bounded() const;
+  inline boolean is_box() const;
   inline boolean is_disjoint(const isl::checked::set &set2) const;
   inline boolean is_disjoint(const isl::checked::union_set &uset2) const;
   inline boolean is_disjoint(const isl::checked::basic_set &set2) const;
@@ -3654,6 +4435,7 @@ class set {
   inline boolean is_equal(const isl::checked::union_set &uset2) const;
   inline boolean is_equal(const isl::checked::basic_set &set2) const;
   inline boolean is_equal(const isl::checked::point &set2) const;
+  inline boolean is_params() const;
   inline boolean is_singleton() const;
   inline boolean is_strict_subset(const isl::checked::set &set2) const;
   inline boolean is_strict_subset(const isl::checked::union_set &uset2) const;
@@ -3667,20 +4449,37 @@ class set {
   inline boolean isa_set() const;
   inline isl::checked::fixed_box lattice_tile() const;
   inline isl::checked::fixed_box get_lattice_tile() const;
+  inline isl::checked::map lex_ge_set(isl::checked::set set2) const;
+  inline isl::checked::map lex_gt_set(isl::checked::set set2) const;
+  inline isl::checked::map lex_le_set(isl::checked::set set2) const;
+  inline isl::checked::map lex_lt_set(isl::checked::set set2) const;
   inline isl::checked::set lexmax() const;
   inline isl::checked::pw_multi_aff lexmax_pw_multi_aff() const;
   inline isl::checked::set lexmin() const;
   inline isl::checked::pw_multi_aff lexmin_pw_multi_aff() const;
+  inline isl::checked::set lift() const;
   inline isl::checked::set lower_bound(isl::checked::multi_pw_aff lower) const;
   inline isl::checked::set lower_bound(isl::checked::multi_val lower) const;
+  inline isl::checked::set lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::set lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const;
+  inline isl::checked::set lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::checked::set make_disjoint() const;
   inline isl::checked::multi_pw_aff max_multi_pw_aff() const;
   inline isl::checked::val max_val(const isl::checked::aff &obj) const;
   inline isl::checked::multi_pw_aff min_multi_pw_aff() const;
   inline isl::checked::val min_val(const isl::checked::aff &obj) const;
+  inline isl::checked::set move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline class size n_basic_set() const;
+  inline class size n_dim() const;
+  inline class size n_param() const;
+  inline isl::checked::set neg() const;
   inline isl::checked::pw_aff param_pw_aff_on_domain(isl::checked::id id) const;
   inline isl::checked::pw_aff param_pw_aff_on_domain(const std::string &id) const;
   inline isl::checked::set params() const;
+  inline isl::checked::val plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const;
+  inline boolean plain_is_disjoint(const isl::checked::set &set2) const;
+  inline boolean plain_is_empty() const;
+  inline boolean plain_is_universe() const;
   inline isl::checked::multi_val plain_multi_val_if_fixed() const;
   inline isl::checked::multi_val get_plain_multi_val_if_fixed() const;
   inline isl::checked::basic_set polyhedral_hull() const;
@@ -3689,6 +4488,8 @@ class set {
   inline isl::checked::set preimage(isl::checked::pw_multi_aff pma) const;
   inline isl::checked::union_set preimage(const isl::checked::union_pw_multi_aff &upma) const;
   inline isl::checked::set product(isl::checked::set set2) const;
+  inline isl::checked::map project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::set project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::checked::set project_out_all_params() const;
   inline isl::checked::set project_out_param(isl::checked::id id) const;
   inline isl::checked::set project_out_param(const std::string &id) const;
@@ -3696,23 +4497,45 @@ class set {
   inline isl::checked::pw_aff pw_aff_on_domain(isl::checked::val v) const;
   inline isl::checked::pw_aff pw_aff_on_domain(long v) const;
   inline isl::checked::pw_multi_aff pw_multi_aff_on_domain(isl::checked::multi_val mv) const;
+  inline isl::checked::set remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::set remove_divs() const;
+  inline isl::checked::set remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::checked::set remove_redundancies() const;
+  inline isl::checked::set remove_unknown_divs() const;
+  inline isl::checked::set reset_space(isl::checked::space space) const;
+  inline isl::checked::set reset_tuple_id() const;
+  inline isl::checked::set reset_user() const;
   inline isl::checked::basic_set sample() const;
   inline isl::checked::point sample_point() const;
+  inline isl::checked::set set_dim_id(enum isl_dim_type type, unsigned int pos, isl::checked::id id) const;
+  inline isl::checked::set set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::checked::set set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
   inline isl::checked::set_list set_list() const;
+  inline isl::checked::set set_tuple_id(isl::checked::id id) const;
+  inline isl::checked::set set_tuple_id(const std::string &id) const;
+  inline isl::checked::set set_tuple_name(const std::string &s) const;
   inline isl::checked::fixed_box simple_fixed_box_hull() const;
   inline isl::checked::fixed_box get_simple_fixed_box_hull() const;
+  inline int size() const;
+  inline isl::checked::basic_set solutions() const;
   inline isl::checked::space space() const;
   inline isl::checked::space get_space() const;
+  inline isl::checked::set split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::checked::val stride(int pos) const;
   inline isl::checked::val get_stride(int pos) const;
   inline isl::checked::set subtract(isl::checked::set set2) const;
   inline isl::checked::union_set subtract(const isl::checked::union_set &uset2) const;
   inline isl::checked::set subtract(const isl::checked::basic_set &set2) const;
   inline isl::checked::set subtract(const isl::checked::point &set2) const;
+  inline isl::checked::set sum(isl::checked::set set2) const;
   inline isl::checked::set_list to_list() const;
   inline isl::checked::union_set to_union_set() const;
   inline isl::checked::map translation() const;
   inline class size tuple_dim() const;
+  inline isl::checked::id tuple_id() const;
+  inline isl::checked::id get_tuple_id() const;
+  inline std::string tuple_name() const;
+  inline std::string get_tuple_name() const;
   inline isl::checked::set unbind_params(isl::checked::multi_id tuple) const;
   inline isl::checked::map unbind_params_insert_domain(isl::checked::multi_id domain) const;
   inline isl::checked::set unite(isl::checked::set set2) const;
@@ -3724,6 +4547,10 @@ class set {
   inline isl::checked::map unwrap() const;
   inline isl::checked::set upper_bound(isl::checked::multi_pw_aff upper) const;
   inline isl::checked::set upper_bound(isl::checked::multi_val upper) const;
+  inline isl::checked::set upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::checked::set upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const;
+  inline isl::checked::set upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::checked::map wrapped_domain_map() const;
   inline isl::checked::set wrapped_reverse() const;
 };
 
@@ -3766,6 +4593,7 @@ class set_list {
   inline isl::checked::set_list insert(unsigned int pos, isl::checked::set el) const;
   inline isl::checked::set_list set_at(int index, isl::checked::set el) const;
   inline class size size() const;
+  inline isl::checked::set unite() const;
 };
 
 // declarations for isl::space
@@ -3794,6 +4622,7 @@ class space {
   inline bool is_null() const;
   inline isl::checked::ctx ctx() const;
 
+  inline isl::checked::space add_dims(enum isl_dim_type type, unsigned int n) const;
   inline isl::checked::space add_named_tuple(isl::checked::id tuple_id, unsigned int dim) const;
   inline isl::checked::space add_named_tuple(const std::string &tuple_id, unsigned int dim) const;
   inline isl::checked::space add_param(isl::checked::id id) const;
@@ -3801,22 +4630,37 @@ class space {
   inline isl::checked::space add_unnamed_tuple(unsigned int dim) const;
   inline isl::checked::space curry() const;
   inline isl::checked::space domain() const;
+  inline isl::checked::space domain_factor_domain() const;
+  inline isl::checked::space domain_factor_range() const;
+  inline isl::checked::space domain_map() const;
   inline isl::checked::multi_aff domain_map_multi_aff() const;
   inline isl::checked::pw_multi_aff domain_map_pw_multi_aff() const;
+  inline isl::checked::space domain_product(isl::checked::space right) const;
   inline isl::checked::space domain_reverse() const;
   inline isl::checked::id domain_tuple_id() const;
   inline isl::checked::id get_domain_tuple_id() const;
+  inline isl::checked::space domain_wrapped_domain() const;
+  inline isl::checked::space domain_wrapped_range() const;
   inline isl::checked::space drop_all_params() const;
+  inline isl::checked::space drop_dims(enum isl_dim_type type, unsigned int first, unsigned int num) const;
+  inline isl::checked::space factor_domain() const;
+  inline isl::checked::space factor_range() const;
   inline isl::checked::space flatten_domain() const;
   inline isl::checked::space flatten_range() const;
+  inline isl::checked::space from_domain() const;
+  inline isl::checked::space from_range() const;
   inline boolean has_domain_tuple_id() const;
   inline boolean has_range_tuple_id() const;
   inline isl::checked::multi_aff identity_multi_aff_on_domain() const;
   inline isl::checked::multi_pw_aff identity_multi_pw_aff_on_domain() const;
   inline isl::checked::pw_multi_aff identity_pw_multi_aff_on_domain() const;
+  inline isl::checked::space insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline boolean is_equal(const isl::checked::space &space2) const;
   inline boolean is_wrapping() const;
+  inline isl::checked::space join(isl::checked::space right) const;
+  inline isl::checked::space map_from_domain_and_range(isl::checked::space range) const;
   inline isl::checked::space map_from_set() const;
+  inline isl::checked::space move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline isl::checked::multi_aff multi_aff(isl::checked::aff_list list) const;
   inline isl::checked::multi_aff multi_aff_on_domain(isl::checked::multi_val mv) const;
   inline isl::checked::multi_id multi_id(isl::checked::id_list list) const;
@@ -3828,11 +4672,17 @@ class space {
   inline isl::checked::space params() const;
   inline isl::checked::space product(isl::checked::space right) const;
   inline isl::checked::space range() const;
+  inline isl::checked::space range_factor_domain() const;
+  inline isl::checked::space range_factor_range() const;
+  inline isl::checked::space range_map() const;
   inline isl::checked::multi_aff range_map_multi_aff() const;
   inline isl::checked::pw_multi_aff range_map_pw_multi_aff() const;
+  inline isl::checked::space range_product(isl::checked::space right) const;
   inline isl::checked::space range_reverse() const;
   inline isl::checked::id range_tuple_id() const;
   inline isl::checked::id get_range_tuple_id() const;
+  inline isl::checked::space range_wrapped_domain() const;
+  inline isl::checked::space range_wrapped_range() const;
   inline isl::checked::space reverse() const;
   inline isl::checked::space set_domain_tuple(isl::checked::id id) const;
   inline isl::checked::space set_domain_tuple(const std::string &id) const;
@@ -7532,9 +8382,27 @@ isl::checked::ctx basic_map::ctx() const {
   return isl::checked::ctx(isl_basic_map_get_ctx(ptr));
 }
 
+isl::checked::basic_map basic_map::add_constraint(isl::checked::constraint constraint) const
+{
+  auto res = isl_basic_map_add_constraint(copy(), constraint.release());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  auto res = isl_basic_map_add_dims(copy(), type, n);
+  return manage(res);
+}
+
 isl::checked::basic_map basic_map::affine_hull() const
 {
   auto res = isl_basic_map_affine_hull(copy());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::align_params(isl::checked::space model) const
+{
+  auto res = isl_basic_map_align_params(copy(), model.release());
   return manage(res);
 }
 
@@ -7600,6 +8468,29 @@ isl::checked::set basic_map::bind_range(const isl::checked::multi_id &tuple) con
   return isl::checked::map(*this).bind_range(tuple);
 }
 
+boolean basic_map::can_curry() const
+{
+  auto res = isl_basic_map_can_curry(get());
+  return manage(res);
+}
+
+boolean basic_map::can_range_curry() const
+{
+  return isl::checked::map(*this).can_range_curry();
+}
+
+boolean basic_map::can_uncurry() const
+{
+  auto res = isl_basic_map_can_uncurry(get());
+  return manage(res);
+}
+
+boolean basic_map::can_zip() const
+{
+  auto res = isl_basic_map_can_zip(get());
+  return manage(res);
+}
+
 isl::checked::map basic_map::coalesce() const
 {
   return isl::checked::map(*this).coalesce();
@@ -7610,19 +8501,43 @@ isl::checked::map basic_map::complement() const
   return isl::checked::map(*this).complement();
 }
 
-isl::checked::union_map basic_map::compute_divs() const
+isl::checked::map basic_map::compute_divs() const
 {
-  return isl::checked::map(*this).compute_divs();
+  auto res = isl_basic_map_compute_divs(copy());
+  return manage(res);
 }
 
-isl::checked::map basic_map::curry() const
+isl::checked::constraint_list basic_map::constraint_list() const
 {
-  return isl::checked::map(*this).curry();
+  auto res = isl_basic_map_get_constraint_list(get());
+  return manage(res);
+}
+
+isl::checked::constraint_list basic_map::get_constraint_list() const
+{
+  return constraint_list();
+}
+
+isl::checked::basic_map basic_map::convex_hull() const
+{
+  return isl::checked::map(*this).convex_hull();
+}
+
+isl::checked::basic_map basic_map::curry() const
+{
+  auto res = isl_basic_map_curry(copy());
+  return manage(res);
 }
 
 isl::checked::basic_set basic_map::deltas() const
 {
   auto res = isl_basic_map_deltas(copy());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::deltas_map() const
+{
+  auto res = isl_basic_map_deltas_map(copy());
   return manage(res);
 }
 
@@ -7632,9 +8547,54 @@ isl::checked::basic_map basic_map::detect_equalities() const
   return manage(res);
 }
 
-isl::checked::set basic_map::domain() const
+class size basic_map::dim(enum isl_dim_type type) const
 {
-  return isl::checked::map(*this).domain();
+  auto res = isl_basic_map_dim(get(), type);
+  return manage(res);
+}
+
+isl::checked::id basic_map::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::map(*this).dim_id(type, pos);
+}
+
+isl::checked::pw_aff basic_map::dim_max(int pos) const
+{
+  return isl::checked::map(*this).dim_max(pos);
+}
+
+isl::checked::pw_aff basic_map::dim_min(int pos) const
+{
+  return isl::checked::map(*this).dim_min(pos);
+}
+
+std::string basic_map::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_basic_map_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string basic_map::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
+}
+
+isl::checked::aff basic_map::div(int pos) const
+{
+  auto res = isl_basic_map_get_div(get(), pos);
+  return manage(res);
+}
+
+isl::checked::aff basic_map::get_div(int pos) const
+{
+  return div(pos);
+}
+
+isl::checked::basic_set basic_map::domain() const
+{
+  auto res = isl_basic_map_domain(copy());
+  return manage(res);
 }
 
 isl::checked::map basic_map::domain_factor_domain() const
@@ -7647,9 +8607,15 @@ isl::checked::map basic_map::domain_factor_range() const
   return isl::checked::map(*this).domain_factor_range();
 }
 
-isl::checked::union_map basic_map::domain_map() const
+boolean basic_map::domain_is_wrapping() const
 {
-  return isl::checked::map(*this).domain_map();
+  return isl::checked::map(*this).domain_is_wrapping();
+}
+
+isl::checked::basic_map basic_map::domain_map() const
+{
+  auto res = isl_basic_map_domain_map(copy());
+  return manage(res);
 }
 
 isl::checked::union_pw_multi_aff basic_map::domain_map_union_pw_multi_aff() const
@@ -7682,9 +8648,34 @@ isl::checked::id basic_map::domain_tuple_id() const
   return isl::checked::map(*this).domain_tuple_id();
 }
 
-isl::checked::map basic_map::drop_unused_params() const
+isl::checked::basic_map basic_map::drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
 {
-  return isl::checked::map(*this).drop_unused_params();
+  auto res = isl_basic_map_drop_constraints_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_map_drop_constraints_not_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::drop_unused_params() const
+{
+  auto res = isl_basic_map_drop_unused_params(copy());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_map_eliminate(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::empty(isl::checked::space space)
+{
+  auto res = isl_basic_map_empty(space.release());
+  return manage(res);
 }
 
 isl::checked::map basic_map::eq_at(const isl::checked::multi_pw_aff &mpa) const
@@ -7695,6 +8686,18 @@ isl::checked::map basic_map::eq_at(const isl::checked::multi_pw_aff &mpa) const
 isl::checked::union_map basic_map::eq_at(const isl::checked::multi_union_pw_aff &mupa) const
 {
   return isl::checked::map(*this).eq_at(mupa);
+}
+
+isl::checked::mat basic_map::equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5) const
+{
+  auto res = isl_basic_map_equalities_matrix(get(), c1, c2, c3, c4, c5);
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::equate(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  auto res = isl_basic_map_equate(copy(), type1, pos1, type2, pos2);
+  return manage(res);
 }
 
 boolean basic_map::every_map(const std::function<boolean(isl::checked::map)> &test) const
@@ -7717,6 +8720,44 @@ isl::checked::map basic_map::factor_range() const
   return isl::checked::map(*this).factor_range();
 }
 
+int basic_map::find_dim_by_id(enum isl_dim_type type, const isl::checked::id &id) const
+{
+  return isl::checked::map(*this).find_dim_by_id(type, id);
+}
+
+int basic_map::find_dim_by_id(enum isl_dim_type type, const std::string &id) const
+{
+  return this->find_dim_by_id(type, isl::checked::id(ctx(), id));
+}
+
+int basic_map::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  auto res = isl_basic_map_find_dim_by_name(get(), type, name.c_str());
+  return res;
+}
+
+isl::checked::map basic_map::fix_input_si(unsigned int input, int value) const
+{
+  return isl::checked::map(*this).fix_input_si(input, value);
+}
+
+isl::checked::basic_map basic_map::fix_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  auto res = isl_basic_map_fix_si(copy(), type, pos, value);
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::fix_val(enum isl_dim_type type, unsigned int pos, isl::checked::val v) const
+{
+  auto res = isl_basic_map_fix_val(copy(), type, pos, v.release());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::fix_val(enum isl_dim_type type, unsigned int pos, long v) const
+{
+  return this->fix_val(type, pos, isl::checked::val(ctx(), v));
+}
+
 isl::checked::map basic_map::fixed_power(const isl::checked::val &exp) const
 {
   return isl::checked::map(*this).fixed_power(exp);
@@ -7725,6 +8766,33 @@ isl::checked::map basic_map::fixed_power(const isl::checked::val &exp) const
 isl::checked::map basic_map::fixed_power(long exp) const
 {
   return this->fixed_power(isl::checked::val(ctx(), exp));
+}
+
+isl::checked::map basic_map::flat_domain_product(const isl::checked::map &map2) const
+{
+  return isl::checked::map(*this).flat_domain_product(map2);
+}
+
+isl::checked::basic_map basic_map::flat_product(isl::checked::basic_map bmap2) const
+{
+  auto res = isl_basic_map_flat_product(copy(), bmap2.release());
+  return manage(res);
+}
+
+isl::checked::map basic_map::flat_product(const isl::checked::map &map2) const
+{
+  return isl::checked::map(*this).flat_product(map2);
+}
+
+isl::checked::basic_map basic_map::flat_range_product(isl::checked::basic_map bmap2) const
+{
+  auto res = isl_basic_map_flat_range_product(copy(), bmap2.release());
+  return manage(res);
+}
+
+isl::checked::map basic_map::flat_range_product(const isl::checked::map &map2) const
+{
+  return isl::checked::map(*this).flat_range_product(map2);
 }
 
 isl::checked::basic_map basic_map::flatten() const
@@ -7745,14 +8813,86 @@ isl::checked::basic_map basic_map::flatten_range() const
   return manage(res);
 }
 
+isl::checked::map basic_map::floordiv_val(const isl::checked::val &d) const
+{
+  return isl::checked::map(*this).floordiv_val(d);
+}
+
+isl::checked::map basic_map::floordiv_val(long d) const
+{
+  return this->floordiv_val(isl::checked::val(ctx(), d));
+}
+
 stat basic_map::foreach_basic_map(const std::function<stat(isl::checked::basic_map)> &fn) const
 {
   return isl::checked::map(*this).foreach_basic_map(fn);
 }
 
+stat basic_map::foreach_constraint(const std::function<stat(isl::checked::constraint)> &fn) const
+{
+  struct fn_data {
+    std::function<stat(isl::checked::constraint)> func;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_constraint *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    auto ret = (data->func)(manage(arg_0));
+    return ret.release();
+  };
+  auto res = isl_basic_map_foreach_constraint(get(), fn_lambda, &fn_data);
+  return manage(res);
+}
+
 stat basic_map::foreach_map(const std::function<stat(isl::checked::map)> &fn) const
 {
   return isl::checked::map(*this).foreach_map(fn);
+}
+
+isl::checked::basic_map basic_map::from_aff(isl::checked::aff aff)
+{
+  auto res = isl_basic_map_from_aff(aff.release());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::from_aff_list(isl::checked::space domain_space, isl::checked::aff_list list)
+{
+  auto res = isl_basic_map_from_aff_list(domain_space.release(), list.release());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::from_constraint(isl::checked::constraint constraint)
+{
+  auto res = isl_basic_map_from_constraint(constraint.release());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::from_constraint_matrices(isl::checked::space space, isl::checked::mat eq, isl::checked::mat ineq, enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5)
+{
+  auto res = isl_basic_map_from_constraint_matrices(space.release(), eq.release(), ineq.release(), c1, c2, c3, c4, c5);
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::from_domain(isl::checked::basic_set bset)
+{
+  auto res = isl_basic_map_from_domain(bset.release());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::from_domain_and_range(isl::checked::basic_set domain, isl::checked::basic_set range)
+{
+  auto res = isl_basic_map_from_domain_and_range(domain.release(), range.release());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::from_multi_aff(isl::checked::multi_aff maff)
+{
+  auto res = isl_basic_map_from_multi_aff(maff.release());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::from_range(isl::checked::basic_set bset)
+{
+  auto res = isl_basic_map_from_range(bset.release());
+  return manage(res);
 }
 
 isl::checked::basic_map basic_map::gist(isl::checked::basic_map context) const
@@ -7771,6 +8911,17 @@ isl::checked::union_map basic_map::gist(const isl::checked::union_map &context) 
   return isl::checked::map(*this).gist(context);
 }
 
+isl::checked::map basic_map::gist_basic_map(const isl::checked::basic_map &context) const
+{
+  return isl::checked::map(*this).gist_basic_map(context);
+}
+
+isl::checked::basic_map basic_map::gist_domain(isl::checked::basic_set context) const
+{
+  auto res = isl_basic_map_gist_domain(copy(), context.release());
+  return manage(res);
+}
+
 isl::checked::map basic_map::gist_domain(const isl::checked::set &context) const
 {
   return isl::checked::map(*this).gist_domain(context);
@@ -7779,6 +8930,11 @@ isl::checked::map basic_map::gist_domain(const isl::checked::set &context) const
 isl::checked::union_map basic_map::gist_domain(const isl::checked::union_set &uset) const
 {
   return isl::checked::map(*this).gist_domain(uset);
+}
+
+isl::checked::basic_map basic_map::gist_domain(const isl::checked::point &context) const
+{
+  return this->gist_domain(isl::checked::basic_set(context));
 }
 
 isl::checked::map basic_map::gist_params(const isl::checked::set &context) const
@@ -7791,14 +8947,59 @@ isl::checked::union_map basic_map::gist_range(const isl::checked::union_set &use
   return isl::checked::map(*this).gist_range(uset);
 }
 
+boolean basic_map::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_basic_map_has_dim_id(get(), type, pos);
+  return manage(res);
+}
+
+boolean basic_map::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::map(*this).has_dim_name(type, pos);
+}
+
 boolean basic_map::has_domain_tuple_id() const
 {
   return isl::checked::map(*this).has_domain_tuple_id();
 }
 
+boolean basic_map::has_equal_space(const isl::checked::map &map2) const
+{
+  return isl::checked::map(*this).has_equal_space(map2);
+}
+
 boolean basic_map::has_range_tuple_id() const
 {
   return isl::checked::map(*this).has_range_tuple_id();
+}
+
+boolean basic_map::has_tuple_name(enum isl_dim_type type) const
+{
+  return isl::checked::map(*this).has_tuple_name(type);
+}
+
+isl::checked::basic_map basic_map::identity(isl::checked::space space)
+{
+  auto res = isl_basic_map_identity(space.release());
+  return manage(res);
+}
+
+boolean basic_map::image_is_bounded() const
+{
+  auto res = isl_basic_map_image_is_bounded(get());
+  return manage(res);
+}
+
+isl::checked::mat basic_map::inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5) const
+{
+  auto res = isl_basic_map_inequalities_matrix(get(), c1, c2, c3, c4, c5);
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  auto res = isl_basic_map_insert_dims(copy(), type, pos, n);
+  return manage(res);
 }
 
 isl::checked::basic_map basic_map::intersect(isl::checked::basic_map bmap2) const
@@ -7945,9 +9146,21 @@ isl::checked::union_map basic_map::intersect_range_wrapped_domain(const isl::che
   return isl::checked::map(*this).intersect_range_wrapped_domain(domain);
 }
 
+boolean basic_map::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_map_involves_dims(get(), type, first, n);
+  return manage(res);
+}
+
 boolean basic_map::is_bijective() const
 {
   return isl::checked::map(*this).is_bijective();
+}
+
+boolean basic_map::is_disjoint(const isl::checked::basic_map &bmap2) const
+{
+  auto res = isl_basic_map_is_disjoint(get(), bmap2.get());
+  return manage(res);
 }
 
 boolean basic_map::is_disjoint(const isl::checked::map &map2) const
@@ -7982,14 +9195,37 @@ boolean basic_map::is_equal(const isl::checked::union_map &umap2) const
   return isl::checked::map(*this).is_equal(umap2);
 }
 
+boolean basic_map::is_identity() const
+{
+  return isl::checked::map(*this).is_identity();
+}
+
 boolean basic_map::is_injective() const
 {
   return isl::checked::map(*this).is_injective();
 }
 
+boolean basic_map::is_product() const
+{
+  return isl::checked::map(*this).is_product();
+}
+
+boolean basic_map::is_rational() const
+{
+  auto res = isl_basic_map_is_rational(get());
+  return manage(res);
+}
+
 boolean basic_map::is_single_valued() const
 {
-  return isl::checked::map(*this).is_single_valued();
+  auto res = isl_basic_map_is_single_valued(get());
+  return manage(res);
+}
+
+boolean basic_map::is_strict_subset(const isl::checked::basic_map &bmap2) const
+{
+  auto res = isl_basic_map_is_strict_subset(get(), bmap2.get());
+  return manage(res);
 }
 
 boolean basic_map::is_strict_subset(const isl::checked::map &map2) const
@@ -8018,9 +9254,26 @@ boolean basic_map::is_subset(const isl::checked::union_map &umap2) const
   return isl::checked::map(*this).is_subset(umap2);
 }
 
+int basic_map::is_translation() const
+{
+  return isl::checked::map(*this).is_translation();
+}
+
+boolean basic_map::is_universe() const
+{
+  auto res = isl_basic_map_is_universe(get());
+  return manage(res);
+}
+
 boolean basic_map::isa_map() const
 {
   return isl::checked::map(*this).isa_map();
+}
+
+isl::checked::basic_map basic_map::less_at(isl::checked::space space, unsigned int pos)
+{
+  auto res = isl_basic_map_less_at(space.release(), pos);
+  return manage(res);
 }
 
 isl::checked::map basic_map::lex_ge_at(const isl::checked::multi_pw_aff &mpa) const
@@ -8028,9 +9281,19 @@ isl::checked::map basic_map::lex_ge_at(const isl::checked::multi_pw_aff &mpa) co
   return isl::checked::map(*this).lex_ge_at(mpa);
 }
 
+isl::checked::map basic_map::lex_ge_map(const isl::checked::map &map2) const
+{
+  return isl::checked::map(*this).lex_ge_map(map2);
+}
+
 isl::checked::map basic_map::lex_gt_at(const isl::checked::multi_pw_aff &mpa) const
 {
   return isl::checked::map(*this).lex_gt_at(mpa);
+}
+
+isl::checked::map basic_map::lex_gt_map(const isl::checked::map &map2) const
+{
+  return isl::checked::map(*this).lex_gt_map(map2);
 }
 
 isl::checked::map basic_map::lex_le_at(const isl::checked::multi_pw_aff &mpa) const
@@ -8038,9 +9301,19 @@ isl::checked::map basic_map::lex_le_at(const isl::checked::multi_pw_aff &mpa) co
   return isl::checked::map(*this).lex_le_at(mpa);
 }
 
+isl::checked::map basic_map::lex_le_map(const isl::checked::map &map2) const
+{
+  return isl::checked::map(*this).lex_le_map(map2);
+}
+
 isl::checked::map basic_map::lex_lt_at(const isl::checked::multi_pw_aff &mpa) const
 {
   return isl::checked::map(*this).lex_lt_at(mpa);
+}
+
+isl::checked::map basic_map::lex_lt_map(const isl::checked::map &map2) const
+{
+  return isl::checked::map(*this).lex_lt_map(map2);
 }
 
 isl::checked::map basic_map::lexmax() const
@@ -8070,6 +9343,27 @@ isl::checked::map basic_map::lower_bound(const isl::checked::multi_pw_aff &lower
   return isl::checked::map(*this).lower_bound(lower);
 }
 
+isl::checked::basic_map basic_map::lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  auto res = isl_basic_map_lower_bound_si(copy(), type, pos, value);
+  return manage(res);
+}
+
+isl::checked::map basic_map::lower_bound_val(enum isl_dim_type type, unsigned int pos, const isl::checked::val &value) const
+{
+  return isl::checked::map(*this).lower_bound_val(type, pos, value);
+}
+
+isl::checked::map basic_map::lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  return this->lower_bound_val(type, pos, isl::checked::val(ctx(), value));
+}
+
+isl::checked::map basic_map::make_disjoint() const
+{
+  return isl::checked::map(*this).make_disjoint();
+}
+
 isl::checked::map_list basic_map::map_list() const
 {
   return isl::checked::map(*this).map_list();
@@ -8085,14 +9379,103 @@ isl::checked::multi_pw_aff basic_map::min_multi_pw_aff() const
   return isl::checked::map(*this).min_multi_pw_aff();
 }
 
+isl::checked::basic_map basic_map::more_at(isl::checked::space space, unsigned int pos)
+{
+  auto res = isl_basic_map_more_at(space.release(), pos);
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  auto res = isl_basic_map_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  return manage(res);
+}
+
 class size basic_map::n_basic_map() const
 {
   return isl::checked::map(*this).n_basic_map();
 }
 
+class size basic_map::n_constraint() const
+{
+  auto res = isl_basic_map_n_constraint(get());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::nat_universe(isl::checked::space space)
+{
+  auto res = isl_basic_map_nat_universe(space.release());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::neg() const
+{
+  auto res = isl_basic_map_neg(copy());
+  return manage(res);
+}
+
+isl::checked::map basic_map::oppose(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  return isl::checked::map(*this).oppose(type1, pos1, type2, pos2);
+}
+
+isl::checked::basic_map basic_map::order_ge(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  auto res = isl_basic_map_order_ge(copy(), type1, pos1, type2, pos2);
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::order_gt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  auto res = isl_basic_map_order_gt(copy(), type1, pos1, type2, pos2);
+  return manage(res);
+}
+
+isl::checked::map basic_map::order_le(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  return isl::checked::map(*this).order_le(type1, pos1, type2, pos2);
+}
+
+isl::checked::map basic_map::order_lt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  return isl::checked::map(*this).order_lt(type1, pos1, type2, pos2);
+}
+
 isl::checked::set basic_map::params() const
 {
   return isl::checked::map(*this).params();
+}
+
+isl::checked::val basic_map::plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::map(*this).plain_get_val_if_fixed(type, pos);
+}
+
+boolean basic_map::plain_is_empty() const
+{
+  auto res = isl_basic_map_plain_is_empty(get());
+  return manage(res);
+}
+
+boolean basic_map::plain_is_injective() const
+{
+  return isl::checked::map(*this).plain_is_injective();
+}
+
+boolean basic_map::plain_is_single_valued() const
+{
+  return isl::checked::map(*this).plain_is_single_valued();
+}
+
+boolean basic_map::plain_is_universe() const
+{
+  auto res = isl_basic_map_plain_is_universe(get());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::plain_unshifted_simple_hull() const
+{
+  return isl::checked::map(*this).plain_unshifted_simple_hull();
 }
 
 isl::checked::basic_map basic_map::polyhedral_hull() const
@@ -8145,6 +9528,12 @@ isl::checked::union_map basic_map::product(const isl::checked::union_map &umap2)
   return isl::checked::map(*this).product(umap2);
 }
 
+isl::checked::basic_map basic_map::project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_map_project_out(copy(), type, first, n);
+  return manage(res);
+}
+
 isl::checked::map basic_map::project_out_all_params() const
 {
   return isl::checked::map(*this).project_out_all_params();
@@ -8165,9 +9554,15 @@ isl::checked::map basic_map::project_out_param(const isl::checked::id_list &list
   return isl::checked::map(*this).project_out_param(list);
 }
 
-isl::checked::set basic_map::range() const
+isl::checked::basic_set basic_map::range() const
 {
-  return isl::checked::map(*this).range();
+  auto res = isl_basic_map_range(copy());
+  return manage(res);
+}
+
+isl::checked::map basic_map::range_curry() const
+{
+  return isl::checked::map(*this).range_curry();
 }
 
 isl::checked::map basic_map::range_factor_domain() const
@@ -8180,14 +9575,20 @@ isl::checked::map basic_map::range_factor_range() const
   return isl::checked::map(*this).range_factor_range();
 }
 
+boolean basic_map::range_is_wrapping() const
+{
+  return isl::checked::map(*this).range_is_wrapping();
+}
+
 isl::checked::fixed_box basic_map::range_lattice_tile() const
 {
   return isl::checked::map(*this).range_lattice_tile();
 }
 
-isl::checked::union_map basic_map::range_map() const
+isl::checked::basic_map basic_map::range_map() const
 {
-  return isl::checked::map(*this).range_map();
+  auto res = isl_basic_map_range_map(copy());
+  return manage(res);
 }
 
 isl::checked::map basic_map::range_product(const isl::checked::map &map2) const
@@ -8220,6 +9621,40 @@ isl::checked::id basic_map::range_tuple_id() const
   return isl::checked::map(*this).range_tuple_id();
 }
 
+isl::checked::basic_map basic_map::remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_map_remove_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::remove_divs() const
+{
+  auto res = isl_basic_map_remove_divs(copy());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_map_remove_divs_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::map basic_map::remove_inputs(unsigned int first, unsigned int n) const
+{
+  return isl::checked::map(*this).remove_inputs(first, n);
+}
+
+isl::checked::basic_map basic_map::remove_redundancies() const
+{
+  auto res = isl_basic_map_remove_redundancies(copy());
+  return manage(res);
+}
+
+isl::checked::map basic_map::remove_unknown_divs() const
+{
+  return isl::checked::map(*this).remove_unknown_divs();
+}
+
 isl::checked::basic_map basic_map::reverse() const
 {
   auto res = isl_basic_map_reverse(copy());
@@ -8229,6 +9664,22 @@ isl::checked::basic_map basic_map::reverse() const
 isl::checked::basic_map basic_map::sample() const
 {
   auto res = isl_basic_map_sample(copy());
+  return manage(res);
+}
+
+isl::checked::map basic_map::set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::checked::id &id) const
+{
+  return isl::checked::map(*this).set_dim_id(type, pos, id);
+}
+
+isl::checked::map basic_map::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  return this->set_dim_id(type, pos, isl::checked::id(ctx(), id));
+}
+
+isl::checked::basic_map basic_map::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  auto res = isl_basic_map_set_dim_name(copy(), type, pos, s.c_str());
   return manage(res);
 }
 
@@ -8252,9 +9703,37 @@ isl::checked::map basic_map::set_range_tuple(const std::string &id) const
   return this->set_range_tuple(isl::checked::id(ctx(), id));
 }
 
+isl::checked::basic_map basic_map::set_tuple_id(enum isl_dim_type type, isl::checked::id id) const
+{
+  auto res = isl_basic_map_set_tuple_id(copy(), type, id.release());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::set_tuple_id(enum isl_dim_type type, const std::string &id) const
+{
+  return this->set_tuple_id(type, isl::checked::id(ctx(), id));
+}
+
+isl::checked::basic_map basic_map::set_tuple_name(enum isl_dim_type type, const std::string &s) const
+{
+  auto res = isl_basic_map_set_tuple_name(copy(), type, s.c_str());
+  return manage(res);
+}
+
+isl::checked::basic_map basic_map::simple_hull() const
+{
+  return isl::checked::map(*this).simple_hull();
+}
+
 isl::checked::space basic_map::space() const
 {
-  return isl::checked::map(*this).space();
+  auto res = isl_basic_map_get_space(get());
+  return manage(res);
+}
+
+isl::checked::space basic_map::get_space() const
+{
+  return space();
 }
 
 isl::checked::map basic_map::subtract(const isl::checked::map &map2) const
@@ -8267,14 +9746,35 @@ isl::checked::union_map basic_map::subtract(const isl::checked::union_map &umap2
   return isl::checked::map(*this).subtract(umap2);
 }
 
+isl::checked::map basic_map::subtract_domain(const isl::checked::set &dom) const
+{
+  return isl::checked::map(*this).subtract_domain(dom);
+}
+
 isl::checked::union_map basic_map::subtract_domain(const isl::checked::union_set &dom) const
 {
   return isl::checked::map(*this).subtract_domain(dom);
 }
 
+isl::checked::map basic_map::subtract_range(const isl::checked::set &dom) const
+{
+  return isl::checked::map(*this).subtract_range(dom);
+}
+
 isl::checked::union_map basic_map::subtract_range(const isl::checked::union_set &dom) const
 {
   return isl::checked::map(*this).subtract_range(dom);
+}
+
+isl::checked::basic_map basic_map::sum(isl::checked::basic_map bmap2) const
+{
+  auto res = isl_basic_map_sum(copy(), bmap2.release());
+  return manage(res);
+}
+
+isl::checked::map basic_map::sum(const isl::checked::map &map2) const
+{
+  return isl::checked::map(*this).sum(map2);
 }
 
 isl::checked::map_list basic_map::to_list() const
@@ -8287,9 +9787,28 @@ isl::checked::union_map basic_map::to_union_map() const
   return isl::checked::map(*this).to_union_map();
 }
 
-isl::checked::map basic_map::uncurry() const
+class size basic_map::total_dim(const isl::checked::basic_map &bmap)
 {
-  return isl::checked::map(*this).uncurry();
+  auto res = isl_basic_map_total_dim(bmap.get());
+  return manage(res);
+}
+
+std::string basic_map::tuple_name(enum isl_dim_type type) const
+{
+  auto res = isl_basic_map_get_tuple_name(get(), type);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string basic_map::get_tuple_name(enum isl_dim_type type) const
+{
+  return tuple_name(type);
+}
+
+isl::checked::basic_map basic_map::uncurry() const
+{
+  auto res = isl_basic_map_uncurry(copy());
+  return manage(res);
 }
 
 isl::checked::map basic_map::unite(isl::checked::basic_map bmap2) const
@@ -8308,9 +9827,25 @@ isl::checked::union_map basic_map::unite(const isl::checked::union_map &umap2) c
   return isl::checked::map(*this).unite(umap2);
 }
 
+isl::checked::map basic_map::union_disjoint(const isl::checked::map &map2) const
+{
+  return isl::checked::map(*this).union_disjoint(map2);
+}
+
+isl::checked::basic_map basic_map::universe(isl::checked::space space)
+{
+  auto res = isl_basic_map_universe(space.release());
+  return manage(res);
+}
+
 isl::checked::basic_map basic_map::unshifted_simple_hull() const
 {
   return isl::checked::map(*this).unshifted_simple_hull();
+}
+
+isl::checked::basic_map basic_map::unshifted_simple_hull_from_map_list(const isl::checked::map_list &list) const
+{
+  return isl::checked::map(*this).unshifted_simple_hull_from_map_list(list);
 }
 
 isl::checked::map basic_map::upper_bound(const isl::checked::multi_pw_aff &upper) const
@@ -8318,19 +9853,101 @@ isl::checked::map basic_map::upper_bound(const isl::checked::multi_pw_aff &upper
   return isl::checked::map(*this).upper_bound(upper);
 }
 
+isl::checked::basic_map basic_map::upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  auto res = isl_basic_map_upper_bound_si(copy(), type, pos, value);
+  return manage(res);
+}
+
+isl::checked::map basic_map::upper_bound_val(enum isl_dim_type type, unsigned int pos, const isl::checked::val &value) const
+{
+  return isl::checked::map(*this).upper_bound_val(type, pos, value);
+}
+
+isl::checked::map basic_map::upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  return this->upper_bound_val(type, pos, isl::checked::val(ctx(), value));
+}
+
 isl::checked::set basic_map::wrap() const
 {
   return isl::checked::map(*this).wrap();
 }
 
-isl::checked::map basic_map::zip() const
+isl::checked::basic_map basic_map::zip() const
 {
-  return isl::checked::map(*this).zip();
+  auto res = isl_basic_map_zip(copy());
+  return manage(res);
 }
 
 inline std::ostream &operator<<(std::ostream &os, const basic_map &obj)
 {
   char *str = isl_basic_map_to_str(obj.get());
+  if (!str) {
+    os.setstate(std::ios_base::badbit);
+    return os;
+  }
+  os << str;
+  free(str);
+  return os;
+}
+
+// implementations for isl::basic_map_list
+basic_map_list manage(__isl_take isl_basic_map_list *ptr) {
+  return basic_map_list(ptr);
+}
+basic_map_list manage_copy(__isl_keep isl_basic_map_list *ptr) {
+  ptr = isl_basic_map_list_copy(ptr);
+  return basic_map_list(ptr);
+}
+
+basic_map_list::basic_map_list(__isl_take isl_basic_map_list *ptr)
+    : ptr(ptr) {}
+
+basic_map_list::basic_map_list()
+    : ptr(nullptr) {}
+
+basic_map_list::basic_map_list(const basic_map_list &obj)
+    : ptr(nullptr)
+{
+  ptr = obj.copy();
+}
+
+basic_map_list &basic_map_list::operator=(basic_map_list obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+basic_map_list::~basic_map_list() {
+  if (ptr)
+    isl_basic_map_list_free(ptr);
+}
+
+__isl_give isl_basic_map_list *basic_map_list::copy() const & {
+  return isl_basic_map_list_copy(ptr);
+}
+
+__isl_keep isl_basic_map_list *basic_map_list::get() const {
+  return ptr;
+}
+
+__isl_give isl_basic_map_list *basic_map_list::release() {
+  isl_basic_map_list *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool basic_map_list::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::checked::ctx basic_map_list::ctx() const {
+  return isl::checked::ctx(isl_basic_map_list_get_ctx(ptr));
+}
+
+inline std::ostream &operator<<(std::ostream &os, const basic_map_list &obj)
+{
+  char *str = isl_basic_map_list_to_str(obj.get());
   if (!str) {
     os.setstate(std::ios_base::badbit);
     return os;
@@ -8405,9 +10022,27 @@ isl::checked::ctx basic_set::ctx() const {
   return isl::checked::ctx(isl_basic_set_get_ctx(ptr));
 }
 
+isl::checked::basic_set basic_set::add_constraint(isl::checked::constraint constraint) const
+{
+  auto res = isl_basic_set_add_constraint(copy(), constraint.release());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  auto res = isl_basic_set_add_dims(copy(), type, n);
+  return manage(res);
+}
+
 isl::checked::basic_set basic_set::affine_hull() const
 {
   auto res = isl_basic_set_affine_hull(copy());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::align_params(isl::checked::space model) const
+{
+  auto res = isl_basic_set_align_params(copy(), model.release());
   return manage(res);
 }
 
@@ -8437,9 +10072,20 @@ isl::checked::set basic_set::as_set() const
   return isl::checked::set(*this).as_set();
 }
 
+isl::checked::basic_set_list basic_set::basic_set_list() const
+{
+  return isl::checked::set(*this).basic_set_list();
+}
+
 isl::checked::set basic_set::bind(const isl::checked::multi_id &tuple) const
 {
   return isl::checked::set(*this).bind(tuple);
+}
+
+isl::checked::basic_set basic_set::box_from_points(isl::checked::point pnt1, isl::checked::point pnt2)
+{
+  auto res = isl_basic_set_box_from_points(pnt1.release(), pnt2.release());
+  return manage(res);
 }
 
 isl::checked::set basic_set::coalesce() const
@@ -8447,14 +10093,37 @@ isl::checked::set basic_set::coalesce() const
   return isl::checked::set(*this).coalesce();
 }
 
+isl::checked::basic_set basic_set::coefficients() const
+{
+  auto res = isl_basic_set_coefficients(copy());
+  return manage(res);
+}
+
 isl::checked::set basic_set::complement() const
 {
   return isl::checked::set(*this).complement();
 }
 
-isl::checked::union_set basic_set::compute_divs() const
+isl::checked::set basic_set::compute_divs() const
 {
-  return isl::checked::set(*this).compute_divs();
+  auto res = isl_basic_set_compute_divs(copy());
+  return manage(res);
+}
+
+isl::checked::constraint_list basic_set::constraint_list() const
+{
+  auto res = isl_basic_set_get_constraint_list(get());
+  return manage(res);
+}
+
+isl::checked::constraint_list basic_set::get_constraint_list() const
+{
+  return constraint_list();
+}
+
+isl::checked::val basic_set::count_val() const
+{
+  return isl::checked::set(*this).count_val();
 }
 
 isl::checked::basic_set basic_set::detect_equalities() const
@@ -8463,10 +10132,62 @@ isl::checked::basic_set basic_set::detect_equalities() const
   return manage(res);
 }
 
+class size basic_set::dim(enum isl_dim_type type) const
+{
+  auto res = isl_basic_set_dim(get(), type);
+  return manage(res);
+}
+
+boolean basic_set::dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::set(*this).dim_has_any_lower_bound(type, pos);
+}
+
+boolean basic_set::dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::set(*this).dim_has_any_upper_bound(type, pos);
+}
+
+boolean basic_set::dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::set(*this).dim_has_lower_bound(type, pos);
+}
+
+boolean basic_set::dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::set(*this).dim_has_upper_bound(type, pos);
+}
+
+isl::checked::id basic_set::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_basic_set_get_dim_id(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::id basic_set::get_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_id(type, pos);
+}
+
+boolean basic_set::dim_is_bounded(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::set(*this).dim_is_bounded(type, pos);
+}
+
+isl::checked::pw_aff basic_set::dim_max(int pos) const
+{
+  return isl::checked::set(*this).dim_max(pos);
+}
+
 isl::checked::val basic_set::dim_max_val(int pos) const
 {
   auto res = isl_basic_set_dim_max_val(copy(), pos);
   return manage(res);
+}
+
+isl::checked::pw_aff basic_set::dim_min(int pos) const
+{
+  return isl::checked::set(*this).dim_min(pos);
 }
 
 isl::checked::val basic_set::dim_min_val(int pos) const
@@ -8474,9 +10195,62 @@ isl::checked::val basic_set::dim_min_val(int pos) const
   return isl::checked::set(*this).dim_min_val(pos);
 }
 
-isl::checked::set basic_set::drop_unused_params() const
+std::string basic_set::dim_name(enum isl_dim_type type, unsigned int pos) const
 {
-  return isl::checked::set(*this).drop_unused_params();
+  auto res = isl_basic_set_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string basic_set::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
+}
+
+isl::checked::aff basic_set::div(int pos) const
+{
+  auto res = isl_basic_set_get_div(get(), pos);
+  return manage(res);
+}
+
+isl::checked::aff basic_set::get_div(int pos) const
+{
+  return div(pos);
+}
+
+isl::checked::basic_set basic_set::drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_set_drop_constraints_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_set_drop_constraints_not_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::drop_unused_params() const
+{
+  auto res = isl_basic_set_drop_unused_params(copy());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_set_eliminate(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::set basic_set::eliminate_dims(unsigned int first, unsigned int n) const
+{
+  return isl::checked::set(*this).eliminate_dims(first, n);
+}
+
+isl::checked::mat basic_set::equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const
+{
+  auto res = isl_basic_set_equalities_matrix(get(), c1, c2, c3, c4);
+  return manage(res);
 }
 
 boolean basic_set::every_set(const std::function<boolean(isl::checked::set)> &test) const
@@ -8489,15 +10263,85 @@ isl::checked::set basic_set::extract_set(const isl::checked::space &space) const
   return isl::checked::set(*this).extract_set(space);
 }
 
+int basic_set::find_dim_by_id(enum isl_dim_type type, const isl::checked::id &id) const
+{
+  return isl::checked::set(*this).find_dim_by_id(type, id);
+}
+
+int basic_set::find_dim_by_id(enum isl_dim_type type, const std::string &id) const
+{
+  return this->find_dim_by_id(type, isl::checked::id(ctx(), id));
+}
+
+int basic_set::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  return isl::checked::set(*this).find_dim_by_name(type, name);
+}
+
+isl::checked::set basic_set::fix_dim_si(unsigned int dim, int value) const
+{
+  return isl::checked::set(*this).fix_dim_si(dim, value);
+}
+
+isl::checked::basic_set basic_set::fix_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  auto res = isl_basic_set_fix_si(copy(), type, pos, value);
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::fix_val(enum isl_dim_type type, unsigned int pos, isl::checked::val v) const
+{
+  auto res = isl_basic_set_fix_val(copy(), type, pos, v.release());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::fix_val(enum isl_dim_type type, unsigned int pos, long v) const
+{
+  return this->fix_val(type, pos, isl::checked::val(ctx(), v));
+}
+
 isl::checked::basic_set basic_set::flatten() const
 {
   auto res = isl_basic_set_flatten(copy());
   return manage(res);
 }
 
+isl::checked::map basic_set::flatten_map() const
+{
+  return isl::checked::set(*this).flatten_map();
+}
+
 stat basic_set::foreach_basic_set(const std::function<stat(isl::checked::basic_set)> &fn) const
 {
   return isl::checked::set(*this).foreach_basic_set(fn);
+}
+
+stat basic_set::foreach_bound_pair(enum isl_dim_type type, unsigned int pos, const std::function<stat(isl::checked::constraint, isl::checked::constraint, isl::checked::basic_set)> &fn) const
+{
+  struct fn_data {
+    std::function<stat(isl::checked::constraint, isl::checked::constraint, isl::checked::basic_set)> func;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_constraint *arg_0, isl_constraint *arg_1, isl_basic_set *arg_2, void *arg_3) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_3);
+    auto ret = (data->func)(manage(arg_0), manage(arg_1), manage(arg_2));
+    return ret.release();
+  };
+  auto res = isl_basic_set_foreach_bound_pair(get(), type, pos, fn_lambda, &fn_data);
+  return manage(res);
+}
+
+stat basic_set::foreach_constraint(const std::function<stat(isl::checked::constraint)> &fn) const
+{
+  struct fn_data {
+    std::function<stat(isl::checked::constraint)> func;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_constraint *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    auto ret = (data->func)(manage(arg_0));
+    return ret.release();
+  };
+  auto res = isl_basic_set_foreach_constraint(get(), fn_lambda, &fn_data);
+  return manage(res);
 }
 
 stat basic_set::foreach_point(const std::function<stat(isl::checked::point)> &fn) const
@@ -8508,6 +10352,24 @@ stat basic_set::foreach_point(const std::function<stat(isl::checked::point)> &fn
 stat basic_set::foreach_set(const std::function<stat(isl::checked::set)> &fn) const
 {
   return isl::checked::set(*this).foreach_set(fn);
+}
+
+isl::checked::basic_set basic_set::from_constraint(isl::checked::constraint constraint)
+{
+  auto res = isl_basic_set_from_constraint(constraint.release());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::from_constraint_matrices(isl::checked::space space, isl::checked::mat eq, isl::checked::mat ineq, enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4)
+{
+  auto res = isl_basic_set_from_constraint_matrices(space.release(), eq.release(), ineq.release(), c1, c2, c3, c4);
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::from_multi_aff(isl::checked::multi_aff ma)
+{
+  auto res = isl_basic_set_from_multi_aff(ma.release());
+  return manage(res);
 }
 
 isl::checked::basic_set basic_set::gist(isl::checked::basic_set context) const
@@ -8531,9 +10393,39 @@ isl::checked::basic_set basic_set::gist(const isl::checked::point &context) cons
   return this->gist(isl::checked::basic_set(context));
 }
 
+isl::checked::set basic_set::gist_basic_set(const isl::checked::basic_set &context) const
+{
+  return isl::checked::set(*this).gist_basic_set(context);
+}
+
 isl::checked::set basic_set::gist_params(const isl::checked::set &context) const
 {
   return isl::checked::set(*this).gist_params(context);
+}
+
+boolean basic_set::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::set(*this).has_dim_id(type, pos);
+}
+
+boolean basic_set::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::set(*this).has_dim_name(type, pos);
+}
+
+boolean basic_set::has_equal_space(const isl::checked::set &set2) const
+{
+  return isl::checked::set(*this).has_equal_space(set2);
+}
+
+boolean basic_set::has_tuple_id() const
+{
+  return isl::checked::set(*this).has_tuple_id();
+}
+
+boolean basic_set::has_tuple_name() const
+{
+  return isl::checked::set(*this).has_tuple_name();
 }
 
 isl::checked::map basic_set::identity() const
@@ -8544,6 +10436,18 @@ isl::checked::map basic_set::identity() const
 isl::checked::pw_aff basic_set::indicator_function() const
 {
   return isl::checked::set(*this).indicator_function();
+}
+
+isl::checked::mat basic_set::inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const
+{
+  auto res = isl_basic_set_inequalities_matrix(get(), c1, c2, c3, c4);
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  auto res = isl_basic_set_insert_dims(copy(), type, pos, n);
+  return manage(res);
 }
 
 isl::checked::map basic_set::insert_domain(const isl::checked::space &domain) const
@@ -8588,9 +10492,25 @@ isl::checked::basic_set basic_set::intersect_params(const isl::checked::point &b
   return this->intersect_params(isl::checked::basic_set(bset2));
 }
 
+boolean basic_set::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_set_involves_dims(get(), type, first, n);
+  return manage(res);
+}
+
 boolean basic_set::involves_locals() const
 {
   return isl::checked::set(*this).involves_locals();
+}
+
+boolean basic_set::is_bounded() const
+{
+  return isl::checked::set(*this).is_bounded();
+}
+
+boolean basic_set::is_box() const
+{
+  return isl::checked::set(*this).is_box();
 }
 
 boolean basic_set::is_disjoint(const isl::checked::set &set2) const
@@ -8628,6 +10548,17 @@ boolean basic_set::is_equal(const isl::checked::union_set &uset2) const
 boolean basic_set::is_equal(const isl::checked::point &bset2) const
 {
   return this->is_equal(isl::checked::basic_set(bset2));
+}
+
+boolean basic_set::is_params() const
+{
+  return isl::checked::set(*this).is_params();
+}
+
+int basic_set::is_rational() const
+{
+  auto res = isl_basic_set_is_rational(get());
+  return res;
 }
 
 boolean basic_set::is_singleton() const
@@ -8682,6 +10613,26 @@ isl::checked::fixed_box basic_set::lattice_tile() const
   return isl::checked::set(*this).lattice_tile();
 }
 
+isl::checked::map basic_set::lex_ge_set(const isl::checked::set &set2) const
+{
+  return isl::checked::set(*this).lex_ge_set(set2);
+}
+
+isl::checked::map basic_set::lex_gt_set(const isl::checked::set &set2) const
+{
+  return isl::checked::set(*this).lex_gt_set(set2);
+}
+
+isl::checked::map basic_set::lex_le_set(const isl::checked::set &set2) const
+{
+  return isl::checked::set(*this).lex_le_set(set2);
+}
+
+isl::checked::map basic_set::lex_lt_set(const isl::checked::set &set2) const
+{
+  return isl::checked::set(*this).lex_lt_set(set2);
+}
+
 isl::checked::set basic_set::lexmax() const
 {
   auto res = isl_basic_set_lexmax(copy());
@@ -8704,6 +10655,23 @@ isl::checked::pw_multi_aff basic_set::lexmin_pw_multi_aff() const
   return isl::checked::set(*this).lexmin_pw_multi_aff();
 }
 
+isl::checked::basic_set basic_set::lift() const
+{
+  auto res = isl_basic_set_lift(copy());
+  return manage(res);
+}
+
+isl::checked::local_space basic_set::local_space() const
+{
+  auto res = isl_basic_set_get_local_space(get());
+  return manage(res);
+}
+
+isl::checked::local_space basic_set::get_local_space() const
+{
+  return local_space();
+}
+
 isl::checked::set basic_set::lower_bound(const isl::checked::multi_pw_aff &lower) const
 {
   return isl::checked::set(*this).lower_bound(lower);
@@ -8712,6 +10680,27 @@ isl::checked::set basic_set::lower_bound(const isl::checked::multi_pw_aff &lower
 isl::checked::set basic_set::lower_bound(const isl::checked::multi_val &lower) const
 {
   return isl::checked::set(*this).lower_bound(lower);
+}
+
+isl::checked::set basic_set::lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  return isl::checked::set(*this).lower_bound_si(type, pos, value);
+}
+
+isl::checked::basic_set basic_set::lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const
+{
+  auto res = isl_basic_set_lower_bound_val(copy(), type, pos, value.release());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  return this->lower_bound_val(type, pos, isl::checked::val(ctx(), value));
+}
+
+isl::checked::set basic_set::make_disjoint() const
+{
+  return isl::checked::set(*this).make_disjoint();
 }
 
 isl::checked::multi_pw_aff basic_set::max_multi_pw_aff() const
@@ -8734,9 +10723,45 @@ isl::checked::val basic_set::min_val(const isl::checked::aff &obj) const
   return isl::checked::set(*this).min_val(obj);
 }
 
+isl::checked::basic_set basic_set::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  auto res = isl_basic_set_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  return manage(res);
+}
+
 class size basic_set::n_basic_set() const
 {
   return isl::checked::set(*this).n_basic_set();
+}
+
+class size basic_set::n_constraint() const
+{
+  auto res = isl_basic_set_n_constraint(get());
+  return manage(res);
+}
+
+class size basic_set::n_dim() const
+{
+  auto res = isl_basic_set_n_dim(get());
+  return manage(res);
+}
+
+class size basic_set::n_param() const
+{
+  auto res = isl_basic_set_n_param(get());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::nat_universe(isl::checked::space space)
+{
+  auto res = isl_basic_set_nat_universe(space.release());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::neg() const
+{
+  auto res = isl_basic_set_neg(copy());
+  return manage(res);
 }
 
 isl::checked::pw_aff basic_set::param_pw_aff_on_domain(const isl::checked::id &id) const
@@ -8755,6 +10780,26 @@ isl::checked::basic_set basic_set::params() const
   return manage(res);
 }
 
+isl::checked::val basic_set::plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::set(*this).plain_get_val_if_fixed(type, pos);
+}
+
+boolean basic_set::plain_is_disjoint(const isl::checked::set &set2) const
+{
+  return isl::checked::set(*this).plain_is_disjoint(set2);
+}
+
+boolean basic_set::plain_is_empty() const
+{
+  return isl::checked::set(*this).plain_is_empty();
+}
+
+boolean basic_set::plain_is_universe() const
+{
+  return isl::checked::set(*this).plain_is_universe();
+}
+
 isl::checked::multi_val basic_set::plain_multi_val_if_fixed() const
 {
   return isl::checked::set(*this).plain_multi_val_if_fixed();
@@ -8763,6 +10808,12 @@ isl::checked::multi_val basic_set::plain_multi_val_if_fixed() const
 isl::checked::basic_set basic_set::polyhedral_hull() const
 {
   return isl::checked::set(*this).polyhedral_hull();
+}
+
+isl::checked::basic_set basic_set::positive_orthant(isl::checked::space space)
+{
+  auto res = isl_basic_set_positive_orthant(space.release());
+  return manage(res);
 }
 
 isl::checked::set basic_set::preimage(const isl::checked::multi_aff &ma) const
@@ -8785,9 +10836,26 @@ isl::checked::union_set basic_set::preimage(const isl::checked::union_pw_multi_a
   return isl::checked::set(*this).preimage(upma);
 }
 
+isl::checked::basic_set basic_set::preimage_multi_aff(isl::checked::multi_aff ma) const
+{
+  auto res = isl_basic_set_preimage_multi_aff(copy(), ma.release());
+  return manage(res);
+}
+
 isl::checked::set basic_set::product(const isl::checked::set &set2) const
 {
   return isl::checked::set(*this).product(set2);
+}
+
+isl::checked::map basic_set::project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::set(*this).project_onto_map(type, first, n);
+}
+
+isl::checked::basic_set basic_set::project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_set_project_out(copy(), type, first, n);
+  return manage(res);
 }
 
 isl::checked::set basic_set::project_out_all_params() const
@@ -8825,6 +10893,57 @@ isl::checked::pw_multi_aff basic_set::pw_multi_aff_on_domain(const isl::checked:
   return isl::checked::set(*this).pw_multi_aff_on_domain(mv);
 }
 
+isl::checked::mat basic_set::reduced_basis() const
+{
+  auto res = isl_basic_set_reduced_basis(get());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_set_remove_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::remove_divs() const
+{
+  auto res = isl_basic_set_remove_divs(copy());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_set_remove_divs_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::remove_redundancies() const
+{
+  auto res = isl_basic_set_remove_redundancies(copy());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::remove_unknown_divs() const
+{
+  auto res = isl_basic_set_remove_unknown_divs(copy());
+  return manage(res);
+}
+
+isl::checked::set basic_set::reset_space(const isl::checked::space &space) const
+{
+  return isl::checked::set(*this).reset_space(space);
+}
+
+isl::checked::set basic_set::reset_tuple_id() const
+{
+  return isl::checked::set(*this).reset_tuple_id();
+}
+
+isl::checked::set basic_set::reset_user() const
+{
+  return isl::checked::set(*this).reset_user();
+}
+
 isl::checked::basic_set basic_set::sample() const
 {
   auto res = isl_basic_set_sample(copy());
@@ -8837,9 +10956,42 @@ isl::checked::point basic_set::sample_point() const
   return manage(res);
 }
 
+isl::checked::set basic_set::set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::checked::id &id) const
+{
+  return isl::checked::set(*this).set_dim_id(type, pos, id);
+}
+
+isl::checked::set basic_set::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  return this->set_dim_id(type, pos, isl::checked::id(ctx(), id));
+}
+
+isl::checked::basic_set basic_set::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  auto res = isl_basic_set_set_dim_name(copy(), type, pos, s.c_str());
+  return manage(res);
+}
+
 isl::checked::set_list basic_set::set_list() const
 {
   return isl::checked::set(*this).set_list();
+}
+
+isl::checked::basic_set basic_set::set_tuple_id(isl::checked::id id) const
+{
+  auto res = isl_basic_set_set_tuple_id(copy(), id.release());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::set_tuple_id(const std::string &id) const
+{
+  return this->set_tuple_id(isl::checked::id(ctx(), id));
+}
+
+isl::checked::basic_set basic_set::set_tuple_name(const std::string &s) const
+{
+  auto res = isl_basic_set_set_tuple_name(copy(), s.c_str());
+  return manage(res);
 }
 
 isl::checked::fixed_box basic_set::simple_fixed_box_hull() const
@@ -8847,9 +10999,31 @@ isl::checked::fixed_box basic_set::simple_fixed_box_hull() const
   return isl::checked::set(*this).simple_fixed_box_hull();
 }
 
+int basic_set::size() const
+{
+  return isl::checked::set(*this).size();
+}
+
+isl::checked::basic_set basic_set::solutions() const
+{
+  auto res = isl_basic_set_solutions(copy());
+  return manage(res);
+}
+
 isl::checked::space basic_set::space() const
 {
-  return isl::checked::set(*this).space();
+  auto res = isl_basic_set_get_space(get());
+  return manage(res);
+}
+
+isl::checked::space basic_set::get_space() const
+{
+  return space();
+}
+
+isl::checked::set basic_set::split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::set(*this).split_dims(type, first, n);
 }
 
 isl::checked::val basic_set::stride(int pos) const
@@ -8867,9 +11041,15 @@ isl::checked::union_set basic_set::subtract(const isl::checked::union_set &uset2
   return isl::checked::set(*this).subtract(uset2);
 }
 
-isl::checked::set_list basic_set::to_list() const
+isl::checked::set basic_set::sum(const isl::checked::set &set2) const
 {
-  return isl::checked::set(*this).to_list();
+  return isl::checked::set(*this).sum(set2);
+}
+
+isl::checked::basic_set_list basic_set::to_list() const
+{
+  auto res = isl_basic_set_to_list(copy());
+  return manage(res);
 }
 
 isl::checked::set basic_set::to_set() const
@@ -8883,6 +11063,12 @@ isl::checked::union_set basic_set::to_union_set() const
   return isl::checked::set(*this).to_union_set();
 }
 
+class size basic_set::total_dim(const isl::checked::basic_set &bset)
+{
+  auto res = isl_basic_set_total_dim(bset.get());
+  return manage(res);
+}
+
 isl::checked::map basic_set::translation() const
 {
   return isl::checked::set(*this).translation();
@@ -8891,6 +11077,23 @@ isl::checked::map basic_set::translation() const
 class size basic_set::tuple_dim() const
 {
   return isl::checked::set(*this).tuple_dim();
+}
+
+isl::checked::id basic_set::tuple_id() const
+{
+  return isl::checked::set(*this).tuple_id();
+}
+
+std::string basic_set::tuple_name() const
+{
+  auto res = isl_basic_set_get_tuple_name(get());
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string basic_set::get_tuple_name() const
+{
+  return tuple_name();
 }
 
 isl::checked::set basic_set::unbind_params(const isl::checked::multi_id &tuple) const
@@ -8924,14 +11127,21 @@ isl::checked::set basic_set::unite(const isl::checked::point &bset2) const
   return this->unite(isl::checked::basic_set(bset2));
 }
 
+isl::checked::basic_set basic_set::universe(isl::checked::space space)
+{
+  auto res = isl_basic_set_universe(space.release());
+  return manage(res);
+}
+
 isl::checked::basic_set basic_set::unshifted_simple_hull() const
 {
   return isl::checked::set(*this).unshifted_simple_hull();
 }
 
-isl::checked::map basic_set::unwrap() const
+isl::checked::basic_map basic_set::unwrap() const
 {
-  return isl::checked::set(*this).unwrap();
+  auto res = isl_basic_set_unwrap(copy());
+  return manage(res);
 }
 
 isl::checked::set basic_set::upper_bound(const isl::checked::multi_pw_aff &upper) const
@@ -8944,6 +11154,27 @@ isl::checked::set basic_set::upper_bound(const isl::checked::multi_val &upper) c
   return isl::checked::set(*this).upper_bound(upper);
 }
 
+isl::checked::set basic_set::upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  return isl::checked::set(*this).upper_bound_si(type, pos, value);
+}
+
+isl::checked::basic_set basic_set::upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const
+{
+  auto res = isl_basic_set_upper_bound_val(copy(), type, pos, value.release());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set::upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  return this->upper_bound_val(type, pos, isl::checked::val(ctx(), value));
+}
+
+isl::checked::map basic_set::wrapped_domain_map() const
+{
+  return isl::checked::set(*this).wrapped_domain_map();
+}
+
 isl::checked::set basic_set::wrapped_reverse() const
 {
   return isl::checked::set(*this).wrapped_reverse();
@@ -8952,6 +11183,598 @@ isl::checked::set basic_set::wrapped_reverse() const
 inline std::ostream &operator<<(std::ostream &os, const basic_set &obj)
 {
   char *str = isl_basic_set_to_str(obj.get());
+  if (!str) {
+    os.setstate(std::ios_base::badbit);
+    return os;
+  }
+  os << str;
+  free(str);
+  return os;
+}
+
+// implementations for isl::basic_set_list
+basic_set_list manage(__isl_take isl_basic_set_list *ptr) {
+  return basic_set_list(ptr);
+}
+basic_set_list manage_copy(__isl_keep isl_basic_set_list *ptr) {
+  ptr = isl_basic_set_list_copy(ptr);
+  return basic_set_list(ptr);
+}
+
+basic_set_list::basic_set_list(__isl_take isl_basic_set_list *ptr)
+    : ptr(ptr) {}
+
+basic_set_list::basic_set_list()
+    : ptr(nullptr) {}
+
+basic_set_list::basic_set_list(const basic_set_list &obj)
+    : ptr(nullptr)
+{
+  ptr = obj.copy();
+}
+
+basic_set_list::basic_set_list(isl::checked::ctx ctx, int n)
+{
+  auto res = isl_basic_set_list_alloc(ctx.release(), n);
+  ptr = res;
+}
+
+basic_set_list::basic_set_list(isl::checked::basic_set el)
+{
+  auto res = isl_basic_set_list_from_basic_set(el.release());
+  ptr = res;
+}
+
+basic_set_list &basic_set_list::operator=(basic_set_list obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+basic_set_list::~basic_set_list() {
+  if (ptr)
+    isl_basic_set_list_free(ptr);
+}
+
+__isl_give isl_basic_set_list *basic_set_list::copy() const & {
+  return isl_basic_set_list_copy(ptr);
+}
+
+__isl_keep isl_basic_set_list *basic_set_list::get() const {
+  return ptr;
+}
+
+__isl_give isl_basic_set_list *basic_set_list::release() {
+  isl_basic_set_list *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool basic_set_list::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::checked::ctx basic_set_list::ctx() const {
+  return isl::checked::ctx(isl_basic_set_list_get_ctx(ptr));
+}
+
+isl::checked::basic_set_list basic_set_list::add(isl::checked::basic_set el) const
+{
+  auto res = isl_basic_set_list_add(copy(), el.release());
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set_list::at(int index) const
+{
+  auto res = isl_basic_set_list_get_at(get(), index);
+  return manage(res);
+}
+
+isl::checked::basic_set basic_set_list::get_at(int index) const
+{
+  return at(index);
+}
+
+isl::checked::basic_set_list basic_set_list::clear() const
+{
+  auto res = isl_basic_set_list_clear(copy());
+  return manage(res);
+}
+
+isl::checked::basic_set_list basic_set_list::coefficients() const
+{
+  auto res = isl_basic_set_list_coefficients(copy());
+  return manage(res);
+}
+
+isl::checked::basic_set_list basic_set_list::concat(isl::checked::basic_set_list list2) const
+{
+  auto res = isl_basic_set_list_concat(copy(), list2.release());
+  return manage(res);
+}
+
+isl::checked::basic_set_list basic_set_list::drop(unsigned int first, unsigned int n) const
+{
+  auto res = isl_basic_set_list_drop(copy(), first, n);
+  return manage(res);
+}
+
+stat basic_set_list::foreach(const std::function<stat(isl::checked::basic_set)> &fn) const
+{
+  struct fn_data {
+    std::function<stat(isl::checked::basic_set)> func;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_basic_set *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    auto ret = (data->func)(manage(arg_0));
+    return ret.release();
+  };
+  auto res = isl_basic_set_list_foreach(get(), fn_lambda, &fn_data);
+  return manage(res);
+}
+
+stat basic_set_list::foreach_scc(const std::function<boolean(isl::checked::basic_set, isl::checked::basic_set)> &follows, const std::function<stat(isl::checked::basic_set_list)> &fn) const
+{
+  struct follows_data {
+    std::function<boolean(isl::checked::basic_set, isl::checked::basic_set)> func;
+  } follows_data = { follows };
+  auto follows_lambda = [](isl_basic_set *arg_0, isl_basic_set *arg_1, void *arg_2) -> isl_bool {
+    auto *data = static_cast<struct follows_data *>(arg_2);
+    auto ret = (data->func)(manage_copy(arg_0), manage_copy(arg_1));
+    return ret.release();
+  };
+  struct fn_data {
+    std::function<stat(isl::checked::basic_set_list)> func;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_basic_set_list *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    auto ret = (data->func)(manage(arg_0));
+    return ret.release();
+  };
+  auto res = isl_basic_set_list_foreach_scc(get(), follows_lambda, &follows_data, fn_lambda, &fn_data);
+  return manage(res);
+}
+
+isl::checked::basic_set_list basic_set_list::insert(unsigned int pos, isl::checked::basic_set el) const
+{
+  auto res = isl_basic_set_list_insert(copy(), pos, el.release());
+  return manage(res);
+}
+
+isl::checked::basic_set_list basic_set_list::set_at(int index, isl::checked::basic_set el) const
+{
+  auto res = isl_basic_set_list_set_at(copy(), index, el.release());
+  return manage(res);
+}
+
+class size basic_set_list::size() const
+{
+  auto res = isl_basic_set_list_size(get());
+  return manage(res);
+}
+
+inline std::ostream &operator<<(std::ostream &os, const basic_set_list &obj)
+{
+  char *str = isl_basic_set_list_to_str(obj.get());
+  if (!str) {
+    os.setstate(std::ios_base::badbit);
+    return os;
+  }
+  os << str;
+  free(str);
+  return os;
+}
+
+// implementations for isl::constraint
+constraint manage(__isl_take isl_constraint *ptr) {
+  return constraint(ptr);
+}
+constraint manage_copy(__isl_keep isl_constraint *ptr) {
+  ptr = isl_constraint_copy(ptr);
+  return constraint(ptr);
+}
+
+constraint::constraint(__isl_take isl_constraint *ptr)
+    : ptr(ptr) {}
+
+constraint::constraint()
+    : ptr(nullptr) {}
+
+constraint::constraint(const constraint &obj)
+    : ptr(nullptr)
+{
+  ptr = obj.copy();
+}
+
+constraint &constraint::operator=(constraint obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+constraint::~constraint() {
+  if (ptr)
+    isl_constraint_free(ptr);
+}
+
+__isl_give isl_constraint *constraint::copy() const & {
+  return isl_constraint_copy(ptr);
+}
+
+__isl_keep isl_constraint *constraint::get() const {
+  return ptr;
+}
+
+__isl_give isl_constraint *constraint::release() {
+  isl_constraint *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool constraint::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::checked::ctx constraint::ctx() const {
+  return isl::checked::ctx(isl_constraint_get_ctx(ptr));
+}
+
+isl::checked::aff constraint::aff() const
+{
+  auto res = isl_constraint_get_aff(get());
+  return manage(res);
+}
+
+isl::checked::aff constraint::get_aff() const
+{
+  return aff();
+}
+
+isl::checked::constraint constraint::alloc_equality(isl::checked::local_space ls)
+{
+  auto res = isl_constraint_alloc_equality(ls.release());
+  return manage(res);
+}
+
+isl::checked::constraint constraint::alloc_inequality(isl::checked::local_space ls)
+{
+  auto res = isl_constraint_alloc_inequality(ls.release());
+  return manage(res);
+}
+
+isl::checked::aff constraint::bound(enum isl_dim_type type, int pos) const
+{
+  auto res = isl_constraint_get_bound(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::aff constraint::get_bound(enum isl_dim_type type, int pos) const
+{
+  return bound(type, pos);
+}
+
+int constraint::cmp_last_non_zero(const isl::checked::constraint &c2) const
+{
+  auto res = isl_constraint_cmp_last_non_zero(get(), c2.get());
+  return res;
+}
+
+isl::checked::val constraint::coefficient_val(enum isl_dim_type type, int pos) const
+{
+  auto res = isl_constraint_get_coefficient_val(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::val constraint::get_coefficient_val(enum isl_dim_type type, int pos) const
+{
+  return coefficient_val(type, pos);
+}
+
+isl::checked::val constraint::constant_val() const
+{
+  auto res = isl_constraint_get_constant_val(get());
+  return manage(res);
+}
+
+isl::checked::val constraint::get_constant_val() const
+{
+  return constant_val();
+}
+
+class size constraint::dim(enum isl_dim_type type) const
+{
+  auto res = isl_constraint_dim(get(), type);
+  return manage(res);
+}
+
+std::string constraint::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_constraint_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string constraint::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
+}
+
+isl::checked::aff constraint::div(int pos) const
+{
+  auto res = isl_constraint_get_div(get(), pos);
+  return manage(res);
+}
+
+isl::checked::aff constraint::get_div(int pos) const
+{
+  return div(pos);
+}
+
+boolean constraint::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_constraint_involves_dims(get(), type, first, n);
+  return manage(res);
+}
+
+boolean constraint::is_div_constraint() const
+{
+  auto res = isl_constraint_is_div_constraint(get());
+  return manage(res);
+}
+
+boolean constraint::is_equality() const
+{
+  auto res = isl_constraint_is_equality(get());
+  return manage(res);
+}
+
+boolean constraint::is_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_constraint_is_lower_bound(get(), type, pos);
+  return manage(res);
+}
+
+boolean constraint::is_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_constraint_is_upper_bound(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::local_space constraint::local_space() const
+{
+  auto res = isl_constraint_get_local_space(get());
+  return manage(res);
+}
+
+isl::checked::local_space constraint::get_local_space() const
+{
+  return local_space();
+}
+
+isl::checked::constraint constraint::negate() const
+{
+  auto res = isl_constraint_negate(copy());
+  return manage(res);
+}
+
+isl::checked::constraint constraint::set_coefficient_si(enum isl_dim_type type, int pos, int v) const
+{
+  auto res = isl_constraint_set_coefficient_si(copy(), type, pos, v);
+  return manage(res);
+}
+
+isl::checked::constraint constraint::set_coefficient_val(enum isl_dim_type type, int pos, isl::checked::val v) const
+{
+  auto res = isl_constraint_set_coefficient_val(copy(), type, pos, v.release());
+  return manage(res);
+}
+
+isl::checked::constraint constraint::set_coefficient_val(enum isl_dim_type type, int pos, long v) const
+{
+  return this->set_coefficient_val(type, pos, isl::checked::val(ctx(), v));
+}
+
+isl::checked::constraint constraint::set_constant_si(int v) const
+{
+  auto res = isl_constraint_set_constant_si(copy(), v);
+  return manage(res);
+}
+
+isl::checked::constraint constraint::set_constant_val(isl::checked::val v) const
+{
+  auto res = isl_constraint_set_constant_val(copy(), v.release());
+  return manage(res);
+}
+
+isl::checked::constraint constraint::set_constant_val(long v) const
+{
+  return this->set_constant_val(isl::checked::val(ctx(), v));
+}
+
+isl::checked::space constraint::space() const
+{
+  auto res = isl_constraint_get_space(get());
+  return manage(res);
+}
+
+isl::checked::space constraint::get_space() const
+{
+  return space();
+}
+
+isl::checked::constraint_list constraint::to_list() const
+{
+  auto res = isl_constraint_to_list(copy());
+  return manage(res);
+}
+
+inline std::ostream &operator<<(std::ostream &os, const constraint &obj)
+{
+  char *str = isl_constraint_to_str(obj.get());
+  if (!str) {
+    os.setstate(std::ios_base::badbit);
+    return os;
+  }
+  os << str;
+  free(str);
+  return os;
+}
+
+// implementations for isl::constraint_list
+constraint_list manage(__isl_take isl_constraint_list *ptr) {
+  return constraint_list(ptr);
+}
+constraint_list manage_copy(__isl_keep isl_constraint_list *ptr) {
+  ptr = isl_constraint_list_copy(ptr);
+  return constraint_list(ptr);
+}
+
+constraint_list::constraint_list(__isl_take isl_constraint_list *ptr)
+    : ptr(ptr) {}
+
+constraint_list::constraint_list()
+    : ptr(nullptr) {}
+
+constraint_list::constraint_list(const constraint_list &obj)
+    : ptr(nullptr)
+{
+  ptr = obj.copy();
+}
+
+constraint_list::constraint_list(isl::checked::ctx ctx, int n)
+{
+  auto res = isl_constraint_list_alloc(ctx.release(), n);
+  ptr = res;
+}
+
+constraint_list::constraint_list(isl::checked::constraint el)
+{
+  auto res = isl_constraint_list_from_constraint(el.release());
+  ptr = res;
+}
+
+constraint_list &constraint_list::operator=(constraint_list obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+constraint_list::~constraint_list() {
+  if (ptr)
+    isl_constraint_list_free(ptr);
+}
+
+__isl_give isl_constraint_list *constraint_list::copy() const & {
+  return isl_constraint_list_copy(ptr);
+}
+
+__isl_keep isl_constraint_list *constraint_list::get() const {
+  return ptr;
+}
+
+__isl_give isl_constraint_list *constraint_list::release() {
+  isl_constraint_list *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool constraint_list::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::checked::ctx constraint_list::ctx() const {
+  return isl::checked::ctx(isl_constraint_list_get_ctx(ptr));
+}
+
+isl::checked::constraint_list constraint_list::add(isl::checked::constraint el) const
+{
+  auto res = isl_constraint_list_add(copy(), el.release());
+  return manage(res);
+}
+
+isl::checked::constraint constraint_list::at(int index) const
+{
+  auto res = isl_constraint_list_get_at(get(), index);
+  return manage(res);
+}
+
+isl::checked::constraint constraint_list::get_at(int index) const
+{
+  return at(index);
+}
+
+isl::checked::constraint_list constraint_list::clear() const
+{
+  auto res = isl_constraint_list_clear(copy());
+  return manage(res);
+}
+
+isl::checked::constraint_list constraint_list::concat(isl::checked::constraint_list list2) const
+{
+  auto res = isl_constraint_list_concat(copy(), list2.release());
+  return manage(res);
+}
+
+isl::checked::constraint_list constraint_list::drop(unsigned int first, unsigned int n) const
+{
+  auto res = isl_constraint_list_drop(copy(), first, n);
+  return manage(res);
+}
+
+stat constraint_list::foreach(const std::function<stat(isl::checked::constraint)> &fn) const
+{
+  struct fn_data {
+    std::function<stat(isl::checked::constraint)> func;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_constraint *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    auto ret = (data->func)(manage(arg_0));
+    return ret.release();
+  };
+  auto res = isl_constraint_list_foreach(get(), fn_lambda, &fn_data);
+  return manage(res);
+}
+
+stat constraint_list::foreach_scc(const std::function<boolean(isl::checked::constraint, isl::checked::constraint)> &follows, const std::function<stat(isl::checked::constraint_list)> &fn) const
+{
+  struct follows_data {
+    std::function<boolean(isl::checked::constraint, isl::checked::constraint)> func;
+  } follows_data = { follows };
+  auto follows_lambda = [](isl_constraint *arg_0, isl_constraint *arg_1, void *arg_2) -> isl_bool {
+    auto *data = static_cast<struct follows_data *>(arg_2);
+    auto ret = (data->func)(manage_copy(arg_0), manage_copy(arg_1));
+    return ret.release();
+  };
+  struct fn_data {
+    std::function<stat(isl::checked::constraint_list)> func;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_constraint_list *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    auto ret = (data->func)(manage(arg_0));
+    return ret.release();
+  };
+  auto res = isl_constraint_list_foreach_scc(get(), follows_lambda, &follows_data, fn_lambda, &fn_data);
+  return manage(res);
+}
+
+isl::checked::constraint_list constraint_list::insert(unsigned int pos, isl::checked::constraint el) const
+{
+  auto res = isl_constraint_list_insert(copy(), pos, el.release());
+  return manage(res);
+}
+
+isl::checked::constraint_list constraint_list::set_at(int index, isl::checked::constraint el) const
+{
+  auto res = isl_constraint_list_set_at(copy(), index, el.release());
+  return manage(res);
+}
+
+class size constraint_list::size() const
+{
+  auto res = isl_constraint_list_size(get());
+  return manage(res);
+}
+
+inline std::ostream &operator<<(std::ostream &os, const constraint_list &obj)
+{
+  char *str = isl_constraint_list_to_str(obj.get());
   if (!str) {
     os.setstate(std::ios_base::badbit);
     return os;
@@ -9586,6 +12409,258 @@ inline std::ostream &operator<<(std::ostream &os, const id_to_id &obj)
   return os;
 }
 
+// implementations for isl::local_space
+local_space manage(__isl_take isl_local_space *ptr) {
+  return local_space(ptr);
+}
+local_space manage_copy(__isl_keep isl_local_space *ptr) {
+  ptr = isl_local_space_copy(ptr);
+  return local_space(ptr);
+}
+
+local_space::local_space(__isl_take isl_local_space *ptr)
+    : ptr(ptr) {}
+
+local_space::local_space()
+    : ptr(nullptr) {}
+
+local_space::local_space(const local_space &obj)
+    : ptr(nullptr)
+{
+  ptr = obj.copy();
+}
+
+local_space &local_space::operator=(local_space obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+local_space::~local_space() {
+  if (ptr)
+    isl_local_space_free(ptr);
+}
+
+__isl_give isl_local_space *local_space::copy() const & {
+  return isl_local_space_copy(ptr);
+}
+
+__isl_keep isl_local_space *local_space::get() const {
+  return ptr;
+}
+
+__isl_give isl_local_space *local_space::release() {
+  isl_local_space *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool local_space::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::checked::ctx local_space::ctx() const {
+  return isl::checked::ctx(isl_local_space_get_ctx(ptr));
+}
+
+isl::checked::local_space local_space::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  auto res = isl_local_space_add_dims(copy(), type, n);
+  return manage(res);
+}
+
+class size local_space::dim(enum isl_dim_type type) const
+{
+  auto res = isl_local_space_dim(get(), type);
+  return manage(res);
+}
+
+isl::checked::id local_space::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_local_space_get_dim_id(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::id local_space::get_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_id(type, pos);
+}
+
+std::string local_space::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_local_space_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string local_space::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
+}
+
+isl::checked::aff local_space::div(int pos) const
+{
+  auto res = isl_local_space_get_div(get(), pos);
+  return manage(res);
+}
+
+isl::checked::aff local_space::get_div(int pos) const
+{
+  return div(pos);
+}
+
+isl::checked::local_space local_space::domain() const
+{
+  auto res = isl_local_space_domain(copy());
+  return manage(res);
+}
+
+isl::checked::local_space local_space::drop_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_local_space_drop_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+int local_space::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  auto res = isl_local_space_find_dim_by_name(get(), type, name.c_str());
+  return res;
+}
+
+isl::checked::local_space local_space::flatten_domain() const
+{
+  auto res = isl_local_space_flatten_domain(copy());
+  return manage(res);
+}
+
+isl::checked::local_space local_space::flatten_range() const
+{
+  auto res = isl_local_space_flatten_range(copy());
+  return manage(res);
+}
+
+isl::checked::local_space local_space::from_domain() const
+{
+  auto res = isl_local_space_from_domain(copy());
+  return manage(res);
+}
+
+isl::checked::local_space local_space::from_space(isl::checked::space space)
+{
+  auto res = isl_local_space_from_space(space.release());
+  return manage(res);
+}
+
+boolean local_space::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_local_space_has_dim_id(get(), type, pos);
+  return manage(res);
+}
+
+boolean local_space::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_local_space_has_dim_name(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::local_space local_space::insert_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_local_space_insert_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::local_space local_space::intersect(isl::checked::local_space ls2) const
+{
+  auto res = isl_local_space_intersect(copy(), ls2.release());
+  return manage(res);
+}
+
+boolean local_space::is_params() const
+{
+  auto res = isl_local_space_is_params(get());
+  return manage(res);
+}
+
+boolean local_space::is_set() const
+{
+  auto res = isl_local_space_is_set(get());
+  return manage(res);
+}
+
+isl::checked::basic_map local_space::lifting() const
+{
+  auto res = isl_local_space_lifting(copy());
+  return manage(res);
+}
+
+isl::checked::local_space local_space::range() const
+{
+  auto res = isl_local_space_range(copy());
+  return manage(res);
+}
+
+isl::checked::local_space local_space::set_dim_id(enum isl_dim_type type, unsigned int pos, isl::checked::id id) const
+{
+  auto res = isl_local_space_set_dim_id(copy(), type, pos, id.release());
+  return manage(res);
+}
+
+isl::checked::local_space local_space::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  return this->set_dim_id(type, pos, isl::checked::id(ctx(), id));
+}
+
+isl::checked::local_space local_space::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  auto res = isl_local_space_set_dim_name(copy(), type, pos, s.c_str());
+  return manage(res);
+}
+
+isl::checked::local_space local_space::set_from_params() const
+{
+  auto res = isl_local_space_set_from_params(copy());
+  return manage(res);
+}
+
+isl::checked::local_space local_space::set_tuple_id(enum isl_dim_type type, isl::checked::id id) const
+{
+  auto res = isl_local_space_set_tuple_id(copy(), type, id.release());
+  return manage(res);
+}
+
+isl::checked::local_space local_space::set_tuple_id(enum isl_dim_type type, const std::string &id) const
+{
+  return this->set_tuple_id(type, isl::checked::id(ctx(), id));
+}
+
+isl::checked::space local_space::space() const
+{
+  auto res = isl_local_space_get_space(get());
+  return manage(res);
+}
+
+isl::checked::space local_space::get_space() const
+{
+  return space();
+}
+
+isl::checked::local_space local_space::wrap() const
+{
+  auto res = isl_local_space_wrap(copy());
+  return manage(res);
+}
+
+inline std::ostream &operator<<(std::ostream &os, const local_space &obj)
+{
+  char *str = isl_local_space_to_str(obj.get());
+  if (!str) {
+    os.setstate(std::ios_base::badbit);
+    return os;
+  }
+  os << str;
+  free(str);
+  return os;
+}
+
 // implementations for isl::map
 map manage(__isl_take isl_map *ptr) {
   return map(ptr);
@@ -9651,9 +12726,27 @@ isl::checked::ctx map::ctx() const {
   return isl::checked::ctx(isl_map_get_ctx(ptr));
 }
 
+isl::checked::map map::add_constraint(isl::checked::constraint constraint) const
+{
+  auto res = isl_map_add_constraint(copy(), constraint.release());
+  return manage(res);
+}
+
+isl::checked::map map::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  auto res = isl_map_add_dims(copy(), type, n);
+  return manage(res);
+}
+
 isl::checked::basic_map map::affine_hull() const
 {
   auto res = isl_map_affine_hull(copy());
+  return manage(res);
+}
+
+isl::checked::map map::align_params(isl::checked::space model) const
+{
+  auto res = isl_map_align_params(copy(), model.release());
   return manage(res);
 }
 
@@ -9722,6 +12815,30 @@ isl::checked::set map::bind_range(isl::checked::multi_id tuple) const
   return manage(res);
 }
 
+boolean map::can_curry() const
+{
+  auto res = isl_map_can_curry(get());
+  return manage(res);
+}
+
+boolean map::can_range_curry() const
+{
+  auto res = isl_map_can_range_curry(get());
+  return manage(res);
+}
+
+boolean map::can_uncurry() const
+{
+  auto res = isl_map_can_uncurry(get());
+  return manage(res);
+}
+
+boolean map::can_zip() const
+{
+  auto res = isl_map_can_zip(get());
+  return manage(res);
+}
+
 isl::checked::map map::coalesce() const
 {
   auto res = isl_map_coalesce(copy());
@@ -9734,9 +12851,16 @@ isl::checked::map map::complement() const
   return manage(res);
 }
 
-isl::checked::union_map map::compute_divs() const
+isl::checked::map map::compute_divs() const
 {
-  return isl::checked::union_map(*this).compute_divs();
+  auto res = isl_map_compute_divs(copy());
+  return manage(res);
+}
+
+isl::checked::basic_map map::convex_hull() const
+{
+  auto res = isl_map_convex_hull(copy());
+  return manage(res);
 }
 
 isl::checked::map map::curry() const
@@ -9751,10 +12875,57 @@ isl::checked::set map::deltas() const
   return manage(res);
 }
 
+isl::checked::map map::deltas_map() const
+{
+  auto res = isl_map_deltas_map(copy());
+  return manage(res);
+}
+
 isl::checked::map map::detect_equalities() const
 {
   auto res = isl_map_detect_equalities(copy());
   return manage(res);
+}
+
+class size map::dim(enum isl_dim_type type) const
+{
+  auto res = isl_map_dim(get(), type);
+  return manage(res);
+}
+
+isl::checked::id map::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_map_get_dim_id(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::id map::get_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_id(type, pos);
+}
+
+isl::checked::pw_aff map::dim_max(int pos) const
+{
+  auto res = isl_map_dim_max(copy(), pos);
+  return manage(res);
+}
+
+isl::checked::pw_aff map::dim_min(int pos) const
+{
+  auto res = isl_map_dim_min(copy(), pos);
+  return manage(res);
+}
+
+std::string map::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_map_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string map::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
 }
 
 isl::checked::set map::domain() const
@@ -9775,9 +12946,16 @@ isl::checked::map map::domain_factor_range() const
   return manage(res);
 }
 
-isl::checked::union_map map::domain_map() const
+boolean map::domain_is_wrapping() const
 {
-  return isl::checked::union_map(*this).domain_map();
+  auto res = isl_map_domain_is_wrapping(get());
+  return manage(res);
+}
+
+isl::checked::map map::domain_map() const
+{
+  auto res = isl_map_domain_map(copy());
+  return manage(res);
 }
 
 isl::checked::union_pw_multi_aff map::domain_map_union_pw_multi_aff() const
@@ -9824,9 +13002,27 @@ isl::checked::id map::get_domain_tuple_id() const
   return domain_tuple_id();
 }
 
+isl::checked::map map::drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_map_drop_constraints_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::map map::drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_map_drop_constraints_not_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
 isl::checked::map map::drop_unused_params() const
 {
   auto res = isl_map_drop_unused_params(copy());
+  return manage(res);
+}
+
+isl::checked::map map::eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_map_eliminate(copy(), type, first, n);
   return manage(res);
 }
 
@@ -9867,6 +13063,12 @@ isl::checked::map map::eq_at(const isl::checked::pw_multi_aff &mpa) const
   return this->eq_at(isl::checked::multi_pw_aff(mpa));
 }
 
+isl::checked::map map::equate(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  auto res = isl_map_equate(copy(), type1, pos1, type2, pos2);
+  return manage(res);
+}
+
 boolean map::every_map(const std::function<boolean(isl::checked::map)> &test) const
 {
   return isl::checked::union_map(*this).every_map(test);
@@ -9889,6 +13091,46 @@ isl::checked::map map::factor_range() const
   return manage(res);
 }
 
+int map::find_dim_by_id(enum isl_dim_type type, const isl::checked::id &id) const
+{
+  auto res = isl_map_find_dim_by_id(get(), type, id.get());
+  return res;
+}
+
+int map::find_dim_by_id(enum isl_dim_type type, const std::string &id) const
+{
+  return this->find_dim_by_id(type, isl::checked::id(ctx(), id));
+}
+
+int map::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  auto res = isl_map_find_dim_by_name(get(), type, name.c_str());
+  return res;
+}
+
+isl::checked::map map::fix_input_si(unsigned int input, int value) const
+{
+  auto res = isl_map_fix_input_si(copy(), input, value);
+  return manage(res);
+}
+
+isl::checked::map map::fix_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  auto res = isl_map_fix_si(copy(), type, pos, value);
+  return manage(res);
+}
+
+isl::checked::map map::fix_val(enum isl_dim_type type, unsigned int pos, isl::checked::val v) const
+{
+  auto res = isl_map_fix_val(copy(), type, pos, v.release());
+  return manage(res);
+}
+
+isl::checked::map map::fix_val(enum isl_dim_type type, unsigned int pos, long v) const
+{
+  return this->fix_val(type, pos, isl::checked::val(ctx(), v));
+}
+
 isl::checked::map map::fixed_power(isl::checked::val exp) const
 {
   auto res = isl_map_fixed_power_val(copy(), exp.release());
@@ -9898,6 +13140,24 @@ isl::checked::map map::fixed_power(isl::checked::val exp) const
 isl::checked::map map::fixed_power(long exp) const
 {
   return this->fixed_power(isl::checked::val(ctx(), exp));
+}
+
+isl::checked::map map::flat_domain_product(isl::checked::map map2) const
+{
+  auto res = isl_map_flat_domain_product(copy(), map2.release());
+  return manage(res);
+}
+
+isl::checked::map map::flat_product(isl::checked::map map2) const
+{
+  auto res = isl_map_flat_product(copy(), map2.release());
+  return manage(res);
+}
+
+isl::checked::map map::flat_range_product(isl::checked::map map2) const
+{
+  auto res = isl_map_flat_range_product(copy(), map2.release());
+  return manage(res);
 }
 
 isl::checked::map map::flatten() const
@@ -9916,6 +13176,17 @@ isl::checked::map map::flatten_range() const
 {
   auto res = isl_map_flatten_range(copy());
   return manage(res);
+}
+
+isl::checked::map map::floordiv_val(isl::checked::val d) const
+{
+  auto res = isl_map_floordiv_val(copy(), d.release());
+  return manage(res);
+}
+
+isl::checked::map map::floordiv_val(long d) const
+{
+  return this->floordiv_val(isl::checked::val(ctx(), d));
 }
 
 stat map::foreach_basic_map(const std::function<stat(isl::checked::basic_map)> &fn) const
@@ -9937,6 +13208,36 @@ stat map::foreach_map(const std::function<stat(isl::checked::map)> &fn) const
   return isl::checked::union_map(*this).foreach_map(fn);
 }
 
+isl::checked::map map::from_aff(isl::checked::aff aff)
+{
+  auto res = isl_map_from_aff(aff.release());
+  return manage(res);
+}
+
+isl::checked::map map::from_domain(isl::checked::set set)
+{
+  auto res = isl_map_from_domain(set.release());
+  return manage(res);
+}
+
+isl::checked::map map::from_domain_and_range(isl::checked::set domain, isl::checked::set range)
+{
+  auto res = isl_map_from_domain_and_range(domain.release(), range.release());
+  return manage(res);
+}
+
+isl::checked::map map::from_multi_aff(isl::checked::multi_aff maff)
+{
+  auto res = isl_map_from_multi_aff(maff.release());
+  return manage(res);
+}
+
+isl::checked::map map::from_range(isl::checked::set set)
+{
+  auto res = isl_map_from_range(set.release());
+  return manage(res);
+}
+
 isl::checked::map map::gist(isl::checked::map context) const
 {
   auto res = isl_map_gist(copy(), context.release());
@@ -9951,6 +13252,12 @@ isl::checked::union_map map::gist(const isl::checked::union_map &context) const
 isl::checked::map map::gist(const isl::checked::basic_map &context) const
 {
   return this->gist(isl::checked::map(context));
+}
+
+isl::checked::map map::gist_basic_map(isl::checked::basic_map context) const
+{
+  auto res = isl_map_gist_basic_map(copy(), context.release());
+  return manage(res);
 }
 
 isl::checked::map map::gist_domain(isl::checked::set context) const
@@ -9985,15 +13292,51 @@ isl::checked::union_map map::gist_range(const isl::checked::union_set &uset) con
   return isl::checked::union_map(*this).gist_range(uset);
 }
 
+boolean map::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_map_has_dim_id(get(), type, pos);
+  return manage(res);
+}
+
+boolean map::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_map_has_dim_name(get(), type, pos);
+  return manage(res);
+}
+
 boolean map::has_domain_tuple_id() const
 {
   auto res = isl_map_has_domain_tuple_id(get());
   return manage(res);
 }
 
+boolean map::has_equal_space(const isl::checked::map &map2) const
+{
+  auto res = isl_map_has_equal_space(get(), map2.get());
+  return manage(res);
+}
+
 boolean map::has_range_tuple_id() const
 {
   auto res = isl_map_has_range_tuple_id(get());
+  return manage(res);
+}
+
+boolean map::has_tuple_name(enum isl_dim_type type) const
+{
+  auto res = isl_map_has_tuple_name(get(), type);
+  return manage(res);
+}
+
+isl::checked::map map::identity(isl::checked::space space)
+{
+  auto res = isl_map_identity(space.release());
+  return manage(res);
+}
+
+isl::checked::map map::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  auto res = isl_map_insert_dims(copy(), type, pos, n);
   return manage(res);
 }
 
@@ -10177,6 +13520,12 @@ isl::checked::map map::intersect_range_wrapped_domain(const isl::checked::point 
   return this->intersect_range_wrapped_domain(isl::checked::set(domain));
 }
 
+boolean map::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_map_involves_dims(get(), type, first, n);
+  return manage(res);
+}
+
 boolean map::is_bijective() const
 {
   auto res = isl_map_is_bijective(get());
@@ -10221,9 +13570,21 @@ boolean map::is_equal(const isl::checked::basic_map &map2) const
   return this->is_equal(isl::checked::map(map2));
 }
 
+boolean map::is_identity() const
+{
+  auto res = isl_map_is_identity(get());
+  return manage(res);
+}
+
 boolean map::is_injective() const
 {
   auto res = isl_map_is_injective(get());
+  return manage(res);
+}
+
+boolean map::is_product() const
+{
+  auto res = isl_map_is_product(get());
   return manage(res);
 }
 
@@ -10265,14 +13626,44 @@ boolean map::is_subset(const isl::checked::basic_map &map2) const
   return this->is_subset(isl::checked::map(map2));
 }
 
+int map::is_translation() const
+{
+  auto res = isl_map_is_translation(get());
+  return res;
+}
+
 boolean map::isa_map() const
 {
   return isl::checked::union_map(*this).isa_map();
 }
 
+isl::checked::map map::lex_ge(isl::checked::space set_space)
+{
+  auto res = isl_map_lex_ge(set_space.release());
+  return manage(res);
+}
+
 isl::checked::map map::lex_ge_at(isl::checked::multi_pw_aff mpa) const
 {
   auto res = isl_map_lex_ge_at_multi_pw_aff(copy(), mpa.release());
+  return manage(res);
+}
+
+isl::checked::map map::lex_ge_first(isl::checked::space space, unsigned int n)
+{
+  auto res = isl_map_lex_ge_first(space.release(), n);
+  return manage(res);
+}
+
+isl::checked::map map::lex_ge_map(isl::checked::map map2) const
+{
+  auto res = isl_map_lex_ge_map(copy(), map2.release());
+  return manage(res);
+}
+
+isl::checked::map map::lex_gt(isl::checked::space set_space)
+{
+  auto res = isl_map_lex_gt(set_space.release());
   return manage(res);
 }
 
@@ -10282,15 +13673,63 @@ isl::checked::map map::lex_gt_at(isl::checked::multi_pw_aff mpa) const
   return manage(res);
 }
 
+isl::checked::map map::lex_gt_first(isl::checked::space space, unsigned int n)
+{
+  auto res = isl_map_lex_gt_first(space.release(), n);
+  return manage(res);
+}
+
+isl::checked::map map::lex_gt_map(isl::checked::map map2) const
+{
+  auto res = isl_map_lex_gt_map(copy(), map2.release());
+  return manage(res);
+}
+
+isl::checked::map map::lex_le(isl::checked::space set_space)
+{
+  auto res = isl_map_lex_le(set_space.release());
+  return manage(res);
+}
+
 isl::checked::map map::lex_le_at(isl::checked::multi_pw_aff mpa) const
 {
   auto res = isl_map_lex_le_at_multi_pw_aff(copy(), mpa.release());
   return manage(res);
 }
 
+isl::checked::map map::lex_le_first(isl::checked::space space, unsigned int n)
+{
+  auto res = isl_map_lex_le_first(space.release(), n);
+  return manage(res);
+}
+
+isl::checked::map map::lex_le_map(isl::checked::map map2) const
+{
+  auto res = isl_map_lex_le_map(copy(), map2.release());
+  return manage(res);
+}
+
+isl::checked::map map::lex_lt(isl::checked::space set_space)
+{
+  auto res = isl_map_lex_lt(set_space.release());
+  return manage(res);
+}
+
 isl::checked::map map::lex_lt_at(isl::checked::multi_pw_aff mpa) const
 {
   auto res = isl_map_lex_lt_at_multi_pw_aff(copy(), mpa.release());
+  return manage(res);
+}
+
+isl::checked::map map::lex_lt_first(isl::checked::space space, unsigned int n)
+{
+  auto res = isl_map_lex_lt_first(space.release(), n);
+  return manage(res);
+}
+
+isl::checked::map map::lex_lt_map(isl::checked::map map2) const
+{
+  auto res = isl_map_lex_lt_map(copy(), map2.release());
   return manage(res);
 }
 
@@ -10324,6 +13763,29 @@ isl::checked::map map::lower_bound(isl::checked::multi_pw_aff lower) const
   return manage(res);
 }
 
+isl::checked::map map::lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  auto res = isl_map_lower_bound_si(copy(), type, pos, value);
+  return manage(res);
+}
+
+isl::checked::map map::lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const
+{
+  auto res = isl_map_lower_bound_val(copy(), type, pos, value.release());
+  return manage(res);
+}
+
+isl::checked::map map::lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  return this->lower_bound_val(type, pos, isl::checked::val(ctx(), value));
+}
+
+isl::checked::map map::make_disjoint() const
+{
+  auto res = isl_map_make_disjoint(copy());
+  return manage(res);
+}
+
 isl::checked::map_list map::map_list() const
 {
   return isl::checked::union_map(*this).map_list();
@@ -10341,15 +13803,99 @@ isl::checked::multi_pw_aff map::min_multi_pw_aff() const
   return manage(res);
 }
 
+isl::checked::map map::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  auto res = isl_map_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  return manage(res);
+}
+
 class size map::n_basic_map() const
 {
   auto res = isl_map_n_basic_map(get());
   return manage(res);
 }
 
+isl::checked::map map::nat_universe(isl::checked::space space)
+{
+  auto res = isl_map_nat_universe(space.release());
+  return manage(res);
+}
+
+isl::checked::map map::neg() const
+{
+  auto res = isl_map_neg(copy());
+  return manage(res);
+}
+
+isl::checked::map map::oppose(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  auto res = isl_map_oppose(copy(), type1, pos1, type2, pos2);
+  return manage(res);
+}
+
+isl::checked::map map::order_ge(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  auto res = isl_map_order_ge(copy(), type1, pos1, type2, pos2);
+  return manage(res);
+}
+
+isl::checked::map map::order_gt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  auto res = isl_map_order_gt(copy(), type1, pos1, type2, pos2);
+  return manage(res);
+}
+
+isl::checked::map map::order_le(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  auto res = isl_map_order_le(copy(), type1, pos1, type2, pos2);
+  return manage(res);
+}
+
+isl::checked::map map::order_lt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  auto res = isl_map_order_lt(copy(), type1, pos1, type2, pos2);
+  return manage(res);
+}
+
 isl::checked::set map::params() const
 {
   auto res = isl_map_params(copy());
+  return manage(res);
+}
+
+isl::checked::val map::plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_map_plain_get_val_if_fixed(get(), type, pos);
+  return manage(res);
+}
+
+boolean map::plain_is_empty() const
+{
+  auto res = isl_map_plain_is_empty(get());
+  return manage(res);
+}
+
+boolean map::plain_is_injective() const
+{
+  auto res = isl_map_plain_is_injective(get());
+  return manage(res);
+}
+
+boolean map::plain_is_single_valued() const
+{
+  auto res = isl_map_plain_is_single_valued(get());
+  return manage(res);
+}
+
+boolean map::plain_is_universe() const
+{
+  auto res = isl_map_plain_is_universe(get());
+  return manage(res);
+}
+
+isl::checked::basic_map map::plain_unshifted_simple_hull() const
+{
+  auto res = isl_map_plain_unshifted_simple_hull(copy());
   return manage(res);
 }
 
@@ -10415,6 +13961,12 @@ isl::checked::map map::product(const isl::checked::basic_map &map2) const
   return this->product(isl::checked::map(map2));
 }
 
+isl::checked::map map::project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_map_project_out(copy(), type, first, n);
+  return manage(res);
+}
+
 isl::checked::map map::project_out_all_params() const
 {
   auto res = isl_map_project_out_all_params(copy());
@@ -10444,6 +13996,12 @@ isl::checked::set map::range() const
   return manage(res);
 }
 
+isl::checked::map map::range_curry() const
+{
+  auto res = isl_map_range_curry(copy());
+  return manage(res);
+}
+
 isl::checked::map map::range_factor_domain() const
 {
   auto res = isl_map_range_factor_domain(copy());
@@ -10453,6 +14011,12 @@ isl::checked::map map::range_factor_domain() const
 isl::checked::map map::range_factor_range() const
 {
   auto res = isl_map_range_factor_range(copy());
+  return manage(res);
+}
+
+boolean map::range_is_wrapping() const
+{
+  auto res = isl_map_range_is_wrapping(get());
   return manage(res);
 }
 
@@ -10467,9 +14031,10 @@ isl::checked::fixed_box map::get_range_lattice_tile() const
   return range_lattice_tile();
 }
 
-isl::checked::union_map map::range_map() const
+isl::checked::map map::range_map() const
 {
-  return isl::checked::union_map(*this).range_map();
+  auto res = isl_map_range_map(copy());
+  return manage(res);
 }
 
 isl::checked::map map::range_product(isl::checked::map map2) const
@@ -10522,6 +14087,42 @@ isl::checked::id map::get_range_tuple_id() const
   return range_tuple_id();
 }
 
+isl::checked::map map::remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_map_remove_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::map map::remove_divs() const
+{
+  auto res = isl_map_remove_divs(copy());
+  return manage(res);
+}
+
+isl::checked::map map::remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_map_remove_divs_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::map map::remove_inputs(unsigned int first, unsigned int n) const
+{
+  auto res = isl_map_remove_inputs(copy(), first, n);
+  return manage(res);
+}
+
+isl::checked::map map::remove_redundancies() const
+{
+  auto res = isl_map_remove_redundancies(copy());
+  return manage(res);
+}
+
+isl::checked::map map::remove_unknown_divs() const
+{
+  auto res = isl_map_remove_unknown_divs(copy());
+  return manage(res);
+}
+
 isl::checked::map map::reverse() const
 {
   auto res = isl_map_reverse(copy());
@@ -10531,6 +14132,23 @@ isl::checked::map map::reverse() const
 isl::checked::basic_map map::sample() const
 {
   auto res = isl_map_sample(copy());
+  return manage(res);
+}
+
+isl::checked::map map::set_dim_id(enum isl_dim_type type, unsigned int pos, isl::checked::id id) const
+{
+  auto res = isl_map_set_dim_id(copy(), type, pos, id.release());
+  return manage(res);
+}
+
+isl::checked::map map::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  return this->set_dim_id(type, pos, isl::checked::id(ctx(), id));
+}
+
+isl::checked::map map::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  auto res = isl_map_set_dim_name(copy(), type, pos, s.c_str());
   return manage(res);
 }
 
@@ -10554,6 +14172,29 @@ isl::checked::map map::set_range_tuple(isl::checked::id id) const
 isl::checked::map map::set_range_tuple(const std::string &id) const
 {
   return this->set_range_tuple(isl::checked::id(ctx(), id));
+}
+
+isl::checked::map map::set_tuple_id(enum isl_dim_type type, isl::checked::id id) const
+{
+  auto res = isl_map_set_tuple_id(copy(), type, id.release());
+  return manage(res);
+}
+
+isl::checked::map map::set_tuple_id(enum isl_dim_type type, const std::string &id) const
+{
+  return this->set_tuple_id(type, isl::checked::id(ctx(), id));
+}
+
+isl::checked::map map::set_tuple_name(enum isl_dim_type type, const std::string &s) const
+{
+  auto res = isl_map_set_tuple_name(copy(), type, s.c_str());
+  return manage(res);
+}
+
+isl::checked::basic_map map::simple_hull() const
+{
+  auto res = isl_map_simple_hull(copy());
+  return manage(res);
 }
 
 isl::checked::space map::space() const
@@ -10583,14 +14224,52 @@ isl::checked::map map::subtract(const isl::checked::basic_map &map2) const
   return this->subtract(isl::checked::map(map2));
 }
 
+isl::checked::map map::subtract_domain(isl::checked::set dom) const
+{
+  auto res = isl_map_subtract_domain(copy(), dom.release());
+  return manage(res);
+}
+
 isl::checked::union_map map::subtract_domain(const isl::checked::union_set &dom) const
 {
   return isl::checked::union_map(*this).subtract_domain(dom);
 }
 
+isl::checked::map map::subtract_domain(const isl::checked::basic_set &dom) const
+{
+  return this->subtract_domain(isl::checked::set(dom));
+}
+
+isl::checked::map map::subtract_domain(const isl::checked::point &dom) const
+{
+  return this->subtract_domain(isl::checked::set(dom));
+}
+
+isl::checked::map map::subtract_range(isl::checked::set dom) const
+{
+  auto res = isl_map_subtract_range(copy(), dom.release());
+  return manage(res);
+}
+
 isl::checked::union_map map::subtract_range(const isl::checked::union_set &dom) const
 {
   return isl::checked::union_map(*this).subtract_range(dom);
+}
+
+isl::checked::map map::subtract_range(const isl::checked::basic_set &dom) const
+{
+  return this->subtract_range(isl::checked::set(dom));
+}
+
+isl::checked::map map::subtract_range(const isl::checked::point &dom) const
+{
+  return this->subtract_range(isl::checked::set(dom));
+}
+
+isl::checked::map map::sum(isl::checked::map map2) const
+{
+  auto res = isl_map_sum(copy(), map2.release());
+  return manage(res);
 }
 
 isl::checked::map_list map::to_list() const
@@ -10603,6 +14282,18 @@ isl::checked::union_map map::to_union_map() const
 {
   auto res = isl_map_to_union_map(copy());
   return manage(res);
+}
+
+std::string map::tuple_name(enum isl_dim_type type) const
+{
+  auto res = isl_map_get_tuple_name(get(), type);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string map::get_tuple_name(enum isl_dim_type type) const
+{
+  return tuple_name(type);
 }
 
 isl::checked::map map::uncurry() const
@@ -10627,6 +14318,12 @@ isl::checked::map map::unite(const isl::checked::basic_map &map2) const
   return this->unite(isl::checked::map(map2));
 }
 
+isl::checked::map map::union_disjoint(isl::checked::map map2) const
+{
+  auto res = isl_map_union_disjoint(copy(), map2.release());
+  return manage(res);
+}
+
 isl::checked::map map::universe(isl::checked::space space)
 {
   auto res = isl_map_universe(space.release());
@@ -10639,10 +14336,33 @@ isl::checked::basic_map map::unshifted_simple_hull() const
   return manage(res);
 }
 
+isl::checked::basic_map map::unshifted_simple_hull_from_map_list(isl::checked::map_list list) const
+{
+  auto res = isl_map_unshifted_simple_hull_from_map_list(copy(), list.release());
+  return manage(res);
+}
+
 isl::checked::map map::upper_bound(isl::checked::multi_pw_aff upper) const
 {
   auto res = isl_map_upper_bound_multi_pw_aff(copy(), upper.release());
   return manage(res);
+}
+
+isl::checked::map map::upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  auto res = isl_map_upper_bound_si(copy(), type, pos, value);
+  return manage(res);
+}
+
+isl::checked::map map::upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const
+{
+  auto res = isl_map_upper_bound_val(copy(), type, pos, value.release());
+  return manage(res);
+}
+
+isl::checked::map map::upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  return this->upper_bound_val(type, pos, isl::checked::val(ctx(), value));
 }
 
 isl::checked::set map::wrap() const
@@ -10839,6 +14559,273 @@ inline std::ostream &operator<<(std::ostream &os, const map_list &obj)
   os << str;
   free(str);
   return os;
+}
+
+// implementations for isl::mat
+mat manage(__isl_take isl_mat *ptr) {
+  return mat(ptr);
+}
+mat manage_copy(__isl_keep isl_mat *ptr) {
+  ptr = isl_mat_copy(ptr);
+  return mat(ptr);
+}
+
+mat::mat(__isl_take isl_mat *ptr)
+    : ptr(ptr) {}
+
+mat::mat()
+    : ptr(nullptr) {}
+
+mat::mat(const mat &obj)
+    : ptr(nullptr)
+{
+  ptr = obj.copy();
+}
+
+mat &mat::operator=(mat obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+mat::~mat() {
+  if (ptr)
+    isl_mat_free(ptr);
+}
+
+__isl_give isl_mat *mat::copy() const & {
+  return isl_mat_copy(ptr);
+}
+
+__isl_keep isl_mat *mat::get() const {
+  return ptr;
+}
+
+__isl_give isl_mat *mat::release() {
+  isl_mat *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool mat::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::checked::ctx mat::ctx() const {
+  return isl::checked::ctx(isl_mat_get_ctx(ptr));
+}
+
+isl::checked::mat mat::add_rows(unsigned int n) const
+{
+  auto res = isl_mat_add_rows(copy(), n);
+  return manage(res);
+}
+
+isl::checked::mat mat::add_zero_cols(unsigned int n) const
+{
+  auto res = isl_mat_add_zero_cols(copy(), n);
+  return manage(res);
+}
+
+isl::checked::mat mat::add_zero_rows(unsigned int n) const
+{
+  auto res = isl_mat_add_zero_rows(copy(), n);
+  return manage(res);
+}
+
+isl::checked::mat mat::aff_direct_sum(isl::checked::mat right) const
+{
+  auto res = isl_mat_aff_direct_sum(copy(), right.release());
+  return manage(res);
+}
+
+class size mat::cols() const
+{
+  auto res = isl_mat_cols(get());
+  return manage(res);
+}
+
+isl::checked::mat mat::concat(isl::checked::mat bot) const
+{
+  auto res = isl_mat_concat(copy(), bot.release());
+  return manage(res);
+}
+
+isl::checked::mat mat::diagonal(isl::checked::mat mat2) const
+{
+  auto res = isl_mat_diagonal(copy(), mat2.release());
+  return manage(res);
+}
+
+isl::checked::mat mat::drop_cols(unsigned int col, unsigned int n) const
+{
+  auto res = isl_mat_drop_cols(copy(), col, n);
+  return manage(res);
+}
+
+isl::checked::mat mat::drop_rows(unsigned int row, unsigned int n) const
+{
+  auto res = isl_mat_drop_rows(copy(), row, n);
+  return manage(res);
+}
+
+isl::checked::val mat::element_val(int row, int col) const
+{
+  auto res = isl_mat_get_element_val(get(), row, col);
+  return manage(res);
+}
+
+isl::checked::val mat::get_element_val(int row, int col) const
+{
+  return element_val(row, col);
+}
+
+boolean mat::has_linearly_independent_rows(const isl::checked::mat &mat2) const
+{
+  auto res = isl_mat_has_linearly_independent_rows(get(), mat2.get());
+  return manage(res);
+}
+
+int mat::initial_non_zero_cols() const
+{
+  auto res = isl_mat_initial_non_zero_cols(get());
+  return res;
+}
+
+isl::checked::mat mat::insert_cols(unsigned int col, unsigned int n) const
+{
+  auto res = isl_mat_insert_cols(copy(), col, n);
+  return manage(res);
+}
+
+isl::checked::mat mat::insert_rows(unsigned int row, unsigned int n) const
+{
+  auto res = isl_mat_insert_rows(copy(), row, n);
+  return manage(res);
+}
+
+isl::checked::mat mat::insert_zero_cols(unsigned int first, unsigned int n) const
+{
+  auto res = isl_mat_insert_zero_cols(copy(), first, n);
+  return manage(res);
+}
+
+isl::checked::mat mat::insert_zero_rows(unsigned int row, unsigned int n) const
+{
+  auto res = isl_mat_insert_zero_rows(copy(), row, n);
+  return manage(res);
+}
+
+isl::checked::mat mat::inverse_product(isl::checked::mat right) const
+{
+  auto res = isl_mat_inverse_product(copy(), right.release());
+  return manage(res);
+}
+
+isl::checked::mat mat::lin_to_aff() const
+{
+  auto res = isl_mat_lin_to_aff(copy());
+  return manage(res);
+}
+
+isl::checked::mat mat::move_cols(unsigned int dst_col, unsigned int src_col, unsigned int n) const
+{
+  auto res = isl_mat_move_cols(copy(), dst_col, src_col, n);
+  return manage(res);
+}
+
+isl::checked::mat mat::normalize() const
+{
+  auto res = isl_mat_normalize(copy());
+  return manage(res);
+}
+
+isl::checked::mat mat::normalize_row(int row) const
+{
+  auto res = isl_mat_normalize_row(copy(), row);
+  return manage(res);
+}
+
+isl::checked::mat mat::product(isl::checked::mat right) const
+{
+  auto res = isl_mat_product(copy(), right.release());
+  return manage(res);
+}
+
+class size mat::rank() const
+{
+  auto res = isl_mat_rank(get());
+  return manage(res);
+}
+
+isl::checked::mat mat::right_inverse() const
+{
+  auto res = isl_mat_right_inverse(copy());
+  return manage(res);
+}
+
+isl::checked::mat mat::right_kernel() const
+{
+  auto res = isl_mat_right_kernel(copy());
+  return manage(res);
+}
+
+isl::checked::mat mat::row_basis() const
+{
+  auto res = isl_mat_row_basis(copy());
+  return manage(res);
+}
+
+isl::checked::mat mat::row_basis_extension(isl::checked::mat mat2) const
+{
+  auto res = isl_mat_row_basis_extension(copy(), mat2.release());
+  return manage(res);
+}
+
+class size mat::rows() const
+{
+  auto res = isl_mat_rows(get());
+  return manage(res);
+}
+
+isl::checked::mat mat::set_element_si(int row, int col, int v) const
+{
+  auto res = isl_mat_set_element_si(copy(), row, col, v);
+  return manage(res);
+}
+
+isl::checked::mat mat::set_element_val(int row, int col, isl::checked::val v) const
+{
+  auto res = isl_mat_set_element_val(copy(), row, col, v.release());
+  return manage(res);
+}
+
+isl::checked::mat mat::set_element_val(int row, int col, long v) const
+{
+  return this->set_element_val(row, col, isl::checked::val(ctx(), v));
+}
+
+isl::checked::mat mat::swap_cols(unsigned int i, unsigned int j) const
+{
+  auto res = isl_mat_swap_cols(copy(), i, j);
+  return manage(res);
+}
+
+isl::checked::mat mat::swap_rows(unsigned int i, unsigned int j) const
+{
+  auto res = isl_mat_swap_rows(copy(), i, j);
+  return manage(res);
+}
+
+isl::checked::mat mat::transpose() const
+{
+  auto res = isl_mat_transpose(copy());
+  return manage(res);
+}
+
+isl::checked::mat mat::unimodular_complete(int row) const
+{
+  auto res = isl_mat_unimodular_complete(copy(), row);
+  return manage(res);
 }
 
 // implementations for isl::multi_aff
@@ -13057,9 +17044,30 @@ isl::checked::ctx point::ctx() const {
   return isl::checked::ctx(isl_point_get_ctx(ptr));
 }
 
+isl::checked::basic_set point::add_constraint(const isl::checked::constraint &constraint) const
+{
+  return isl::checked::basic_set(*this).add_constraint(constraint);
+}
+
+isl::checked::basic_set point::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).add_dims(type, n);
+}
+
+isl::checked::point point::add_ui(enum isl_dim_type type, int pos, unsigned int val) const
+{
+  auto res = isl_point_add_ui(copy(), type, pos, val);
+  return manage(res);
+}
+
 isl::checked::basic_set point::affine_hull() const
 {
   return isl::checked::basic_set(*this).affine_hull();
+}
+
+isl::checked::basic_set point::align_params(const isl::checked::space &model) const
+{
+  return isl::checked::basic_set(*this).align_params(model);
 }
 
 isl::checked::basic_set point::apply(const isl::checked::basic_map &bmap) const
@@ -13087,6 +17095,11 @@ isl::checked::set point::as_set() const
   return isl::checked::basic_set(*this).as_set();
 }
 
+isl::checked::basic_set_list point::basic_set_list() const
+{
+  return isl::checked::basic_set(*this).basic_set_list();
+}
+
 isl::checked::set point::bind(const isl::checked::multi_id &tuple) const
 {
   return isl::checked::basic_set(*this).bind(tuple);
@@ -13097,14 +17110,40 @@ isl::checked::set point::coalesce() const
   return isl::checked::basic_set(*this).coalesce();
 }
 
+isl::checked::basic_set point::coefficients() const
+{
+  return isl::checked::basic_set(*this).coefficients();
+}
+
 isl::checked::set point::complement() const
 {
   return isl::checked::basic_set(*this).complement();
 }
 
-isl::checked::union_set point::compute_divs() const
+isl::checked::set point::compute_divs() const
 {
   return isl::checked::basic_set(*this).compute_divs();
+}
+
+isl::checked::constraint_list point::constraint_list() const
+{
+  return isl::checked::basic_set(*this).constraint_list();
+}
+
+isl::checked::val point::coordinate_val(enum isl_dim_type type, int pos) const
+{
+  auto res = isl_point_get_coordinate_val(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::val point::get_coordinate_val(enum isl_dim_type type, int pos) const
+{
+  return coordinate_val(type, pos);
+}
+
+isl::checked::val point::count_val() const
+{
+  return isl::checked::basic_set(*this).count_val();
 }
 
 isl::checked::basic_set point::detect_equalities() const
@@ -13112,9 +17151,54 @@ isl::checked::basic_set point::detect_equalities() const
   return isl::checked::basic_set(*this).detect_equalities();
 }
 
+class size point::dim(enum isl_dim_type type) const
+{
+  return isl::checked::basic_set(*this).dim(type);
+}
+
+boolean point::dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::basic_set(*this).dim_has_any_lower_bound(type, pos);
+}
+
+boolean point::dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::basic_set(*this).dim_has_any_upper_bound(type, pos);
+}
+
+boolean point::dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::basic_set(*this).dim_has_lower_bound(type, pos);
+}
+
+boolean point::dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::basic_set(*this).dim_has_upper_bound(type, pos);
+}
+
+isl::checked::id point::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::basic_set(*this).dim_id(type, pos);
+}
+
+boolean point::dim_is_bounded(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::basic_set(*this).dim_is_bounded(type, pos);
+}
+
+isl::checked::pw_aff point::dim_max(int pos) const
+{
+  return isl::checked::basic_set(*this).dim_max(pos);
+}
+
 isl::checked::val point::dim_max_val(int pos) const
 {
   return isl::checked::basic_set(*this).dim_max_val(pos);
+}
+
+isl::checked::pw_aff point::dim_min(int pos) const
+{
+  return isl::checked::basic_set(*this).dim_min(pos);
 }
 
 isl::checked::val point::dim_min_val(int pos) const
@@ -13122,9 +17206,44 @@ isl::checked::val point::dim_min_val(int pos) const
   return isl::checked::basic_set(*this).dim_min_val(pos);
 }
 
-isl::checked::set point::drop_unused_params() const
+std::string point::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::basic_set(*this).dim_name(type, pos);
+}
+
+isl::checked::aff point::div(int pos) const
+{
+  return isl::checked::basic_set(*this).div(pos);
+}
+
+isl::checked::basic_set point::drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).drop_constraints_involving_dims(type, first, n);
+}
+
+isl::checked::basic_set point::drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).drop_constraints_not_involving_dims(type, first, n);
+}
+
+isl::checked::basic_set point::drop_unused_params() const
 {
   return isl::checked::basic_set(*this).drop_unused_params();
+}
+
+isl::checked::basic_set point::eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).eliminate(type, first, n);
+}
+
+isl::checked::set point::eliminate_dims(unsigned int first, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).eliminate_dims(first, n);
+}
+
+isl::checked::mat point::equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const
+{
+  return isl::checked::basic_set(*this).equalities_matrix(c1, c2, c3, c4);
 }
 
 boolean point::every_set(const std::function<boolean(isl::checked::set)> &test) const
@@ -13137,14 +17256,64 @@ isl::checked::set point::extract_set(const isl::checked::space &space) const
   return isl::checked::basic_set(*this).extract_set(space);
 }
 
+int point::find_dim_by_id(enum isl_dim_type type, const isl::checked::id &id) const
+{
+  return isl::checked::basic_set(*this).find_dim_by_id(type, id);
+}
+
+int point::find_dim_by_id(enum isl_dim_type type, const std::string &id) const
+{
+  return this->find_dim_by_id(type, isl::checked::id(ctx(), id));
+}
+
+int point::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  return isl::checked::basic_set(*this).find_dim_by_name(type, name);
+}
+
+isl::checked::set point::fix_dim_si(unsigned int dim, int value) const
+{
+  return isl::checked::basic_set(*this).fix_dim_si(dim, value);
+}
+
+isl::checked::basic_set point::fix_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  return isl::checked::basic_set(*this).fix_si(type, pos, value);
+}
+
+isl::checked::basic_set point::fix_val(enum isl_dim_type type, unsigned int pos, const isl::checked::val &v) const
+{
+  return isl::checked::basic_set(*this).fix_val(type, pos, v);
+}
+
+isl::checked::basic_set point::fix_val(enum isl_dim_type type, unsigned int pos, long v) const
+{
+  return this->fix_val(type, pos, isl::checked::val(ctx(), v));
+}
+
 isl::checked::basic_set point::flatten() const
 {
   return isl::checked::basic_set(*this).flatten();
 }
 
+isl::checked::map point::flatten_map() const
+{
+  return isl::checked::basic_set(*this).flatten_map();
+}
+
 stat point::foreach_basic_set(const std::function<stat(isl::checked::basic_set)> &fn) const
 {
   return isl::checked::basic_set(*this).foreach_basic_set(fn);
+}
+
+stat point::foreach_bound_pair(enum isl_dim_type type, unsigned int pos, const std::function<stat(isl::checked::constraint, isl::checked::constraint, isl::checked::basic_set)> &fn) const
+{
+  return isl::checked::basic_set(*this).foreach_bound_pair(type, pos, fn);
+}
+
+stat point::foreach_constraint(const std::function<stat(isl::checked::constraint)> &fn) const
+{
+  return isl::checked::basic_set(*this).foreach_constraint(fn);
 }
 
 stat point::foreach_point(const std::function<stat(isl::checked::point)> &fn) const
@@ -13172,9 +17341,39 @@ isl::checked::union_set point::gist(const isl::checked::union_set &context) cons
   return isl::checked::basic_set(*this).gist(context);
 }
 
+isl::checked::set point::gist_basic_set(const isl::checked::basic_set &context) const
+{
+  return isl::checked::basic_set(*this).gist_basic_set(context);
+}
+
 isl::checked::set point::gist_params(const isl::checked::set &context) const
 {
   return isl::checked::basic_set(*this).gist_params(context);
+}
+
+boolean point::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::basic_set(*this).has_dim_id(type, pos);
+}
+
+boolean point::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::basic_set(*this).has_dim_name(type, pos);
+}
+
+boolean point::has_equal_space(const isl::checked::set &set2) const
+{
+  return isl::checked::basic_set(*this).has_equal_space(set2);
+}
+
+boolean point::has_tuple_id() const
+{
+  return isl::checked::basic_set(*this).has_tuple_id();
+}
+
+boolean point::has_tuple_name() const
+{
+  return isl::checked::basic_set(*this).has_tuple_name();
 }
 
 isl::checked::map point::identity() const
@@ -13185,6 +17384,16 @@ isl::checked::map point::identity() const
 isl::checked::pw_aff point::indicator_function() const
 {
   return isl::checked::basic_set(*this).indicator_function();
+}
+
+isl::checked::mat point::inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const
+{
+  return isl::checked::basic_set(*this).inequalities_matrix(c1, c2, c3, c4);
+}
+
+isl::checked::basic_set point::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).insert_dims(type, pos, n);
 }
 
 isl::checked::map point::insert_domain(const isl::checked::space &domain) const
@@ -13217,9 +17426,24 @@ isl::checked::set point::intersect_params(const isl::checked::set &params) const
   return isl::checked::basic_set(*this).intersect_params(params);
 }
 
+boolean point::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).involves_dims(type, first, n);
+}
+
 boolean point::involves_locals() const
 {
   return isl::checked::basic_set(*this).involves_locals();
+}
+
+boolean point::is_bounded() const
+{
+  return isl::checked::basic_set(*this).is_bounded();
+}
+
+boolean point::is_box() const
+{
+  return isl::checked::basic_set(*this).is_box();
 }
 
 boolean point::is_disjoint(const isl::checked::set &set2) const
@@ -13250,6 +17474,16 @@ boolean point::is_equal(const isl::checked::set &set2) const
 boolean point::is_equal(const isl::checked::union_set &uset2) const
 {
   return isl::checked::basic_set(*this).is_equal(uset2);
+}
+
+boolean point::is_params() const
+{
+  return isl::checked::basic_set(*this).is_params();
+}
+
+int point::is_rational() const
+{
+  return isl::checked::basic_set(*this).is_rational();
 }
 
 boolean point::is_singleton() const
@@ -13297,6 +17531,26 @@ isl::checked::fixed_box point::lattice_tile() const
   return isl::checked::basic_set(*this).lattice_tile();
 }
 
+isl::checked::map point::lex_ge_set(const isl::checked::set &set2) const
+{
+  return isl::checked::basic_set(*this).lex_ge_set(set2);
+}
+
+isl::checked::map point::lex_gt_set(const isl::checked::set &set2) const
+{
+  return isl::checked::basic_set(*this).lex_gt_set(set2);
+}
+
+isl::checked::map point::lex_le_set(const isl::checked::set &set2) const
+{
+  return isl::checked::basic_set(*this).lex_le_set(set2);
+}
+
+isl::checked::map point::lex_lt_set(const isl::checked::set &set2) const
+{
+  return isl::checked::basic_set(*this).lex_lt_set(set2);
+}
+
 isl::checked::set point::lexmax() const
 {
   return isl::checked::basic_set(*this).lexmax();
@@ -13317,6 +17571,16 @@ isl::checked::pw_multi_aff point::lexmin_pw_multi_aff() const
   return isl::checked::basic_set(*this).lexmin_pw_multi_aff();
 }
 
+isl::checked::basic_set point::lift() const
+{
+  return isl::checked::basic_set(*this).lift();
+}
+
+isl::checked::local_space point::local_space() const
+{
+  return isl::checked::basic_set(*this).local_space();
+}
+
 isl::checked::set point::lower_bound(const isl::checked::multi_pw_aff &lower) const
 {
   return isl::checked::basic_set(*this).lower_bound(lower);
@@ -13325,6 +17589,26 @@ isl::checked::set point::lower_bound(const isl::checked::multi_pw_aff &lower) co
 isl::checked::set point::lower_bound(const isl::checked::multi_val &lower) const
 {
   return isl::checked::basic_set(*this).lower_bound(lower);
+}
+
+isl::checked::set point::lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  return isl::checked::basic_set(*this).lower_bound_si(type, pos, value);
+}
+
+isl::checked::basic_set point::lower_bound_val(enum isl_dim_type type, unsigned int pos, const isl::checked::val &value) const
+{
+  return isl::checked::basic_set(*this).lower_bound_val(type, pos, value);
+}
+
+isl::checked::basic_set point::lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  return this->lower_bound_val(type, pos, isl::checked::val(ctx(), value));
+}
+
+isl::checked::set point::make_disjoint() const
+{
+  return isl::checked::basic_set(*this).make_disjoint();
 }
 
 isl::checked::multi_pw_aff point::max_multi_pw_aff() const
@@ -13347,6 +17631,11 @@ isl::checked::val point::min_val(const isl::checked::aff &obj) const
   return isl::checked::basic_set(*this).min_val(obj);
 }
 
+isl::checked::basic_set point::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).move_dims(dst_type, dst_pos, src_type, src_pos, n);
+}
+
 isl::checked::multi_val point::multi_val() const
 {
   auto res = isl_point_get_multi_val(get());
@@ -13363,6 +17652,26 @@ class size point::n_basic_set() const
   return isl::checked::basic_set(*this).n_basic_set();
 }
 
+class size point::n_constraint() const
+{
+  return isl::checked::basic_set(*this).n_constraint();
+}
+
+class size point::n_dim() const
+{
+  return isl::checked::basic_set(*this).n_dim();
+}
+
+class size point::n_param() const
+{
+  return isl::checked::basic_set(*this).n_param();
+}
+
+isl::checked::basic_set point::neg() const
+{
+  return isl::checked::basic_set(*this).neg();
+}
+
 isl::checked::pw_aff point::param_pw_aff_on_domain(const isl::checked::id &id) const
 {
   return isl::checked::basic_set(*this).param_pw_aff_on_domain(id);
@@ -13376,6 +17685,26 @@ isl::checked::pw_aff point::param_pw_aff_on_domain(const std::string &id) const
 isl::checked::basic_set point::params() const
 {
   return isl::checked::basic_set(*this).params();
+}
+
+isl::checked::val point::plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const
+{
+  return isl::checked::basic_set(*this).plain_get_val_if_fixed(type, pos);
+}
+
+boolean point::plain_is_disjoint(const isl::checked::set &set2) const
+{
+  return isl::checked::basic_set(*this).plain_is_disjoint(set2);
+}
+
+boolean point::plain_is_empty() const
+{
+  return isl::checked::basic_set(*this).plain_is_empty();
+}
+
+boolean point::plain_is_universe() const
+{
+  return isl::checked::basic_set(*this).plain_is_universe();
 }
 
 isl::checked::multi_val point::plain_multi_val_if_fixed() const
@@ -13408,9 +17737,24 @@ isl::checked::union_set point::preimage(const isl::checked::union_pw_multi_aff &
   return isl::checked::basic_set(*this).preimage(upma);
 }
 
+isl::checked::basic_set point::preimage_multi_aff(const isl::checked::multi_aff &ma) const
+{
+  return isl::checked::basic_set(*this).preimage_multi_aff(ma);
+}
+
 isl::checked::set point::product(const isl::checked::set &set2) const
 {
   return isl::checked::basic_set(*this).product(set2);
+}
+
+isl::checked::map point::project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).project_onto_map(type, first, n);
+}
+
+isl::checked::basic_set point::project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).project_out(type, first, n);
 }
 
 isl::checked::set point::project_out_all_params() const
@@ -13448,6 +17792,51 @@ isl::checked::pw_multi_aff point::pw_multi_aff_on_domain(const isl::checked::mul
   return isl::checked::basic_set(*this).pw_multi_aff_on_domain(mv);
 }
 
+isl::checked::mat point::reduced_basis() const
+{
+  return isl::checked::basic_set(*this).reduced_basis();
+}
+
+isl::checked::basic_set point::remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).remove_dims(type, first, n);
+}
+
+isl::checked::basic_set point::remove_divs() const
+{
+  return isl::checked::basic_set(*this).remove_divs();
+}
+
+isl::checked::basic_set point::remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).remove_divs_involving_dims(type, first, n);
+}
+
+isl::checked::basic_set point::remove_redundancies() const
+{
+  return isl::checked::basic_set(*this).remove_redundancies();
+}
+
+isl::checked::basic_set point::remove_unknown_divs() const
+{
+  return isl::checked::basic_set(*this).remove_unknown_divs();
+}
+
+isl::checked::set point::reset_space(const isl::checked::space &space) const
+{
+  return isl::checked::basic_set(*this).reset_space(space);
+}
+
+isl::checked::set point::reset_tuple_id() const
+{
+  return isl::checked::basic_set(*this).reset_tuple_id();
+}
+
+isl::checked::set point::reset_user() const
+{
+  return isl::checked::basic_set(*this).reset_user();
+}
+
 isl::checked::basic_set point::sample() const
 {
   return isl::checked::basic_set(*this).sample();
@@ -13458,9 +17847,50 @@ isl::checked::point point::sample_point() const
   return isl::checked::basic_set(*this).sample_point();
 }
 
+isl::checked::point point::set_coordinate_val(enum isl_dim_type type, int pos, isl::checked::val v) const
+{
+  auto res = isl_point_set_coordinate_val(copy(), type, pos, v.release());
+  return manage(res);
+}
+
+isl::checked::point point::set_coordinate_val(enum isl_dim_type type, int pos, long v) const
+{
+  return this->set_coordinate_val(type, pos, isl::checked::val(ctx(), v));
+}
+
+isl::checked::set point::set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::checked::id &id) const
+{
+  return isl::checked::basic_set(*this).set_dim_id(type, pos, id);
+}
+
+isl::checked::set point::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  return this->set_dim_id(type, pos, isl::checked::id(ctx(), id));
+}
+
+isl::checked::basic_set point::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  return isl::checked::basic_set(*this).set_dim_name(type, pos, s);
+}
+
 isl::checked::set_list point::set_list() const
 {
   return isl::checked::basic_set(*this).set_list();
+}
+
+isl::checked::basic_set point::set_tuple_id(const isl::checked::id &id) const
+{
+  return isl::checked::basic_set(*this).set_tuple_id(id);
+}
+
+isl::checked::basic_set point::set_tuple_id(const std::string &id) const
+{
+  return this->set_tuple_id(isl::checked::id(ctx(), id));
+}
+
+isl::checked::basic_set point::set_tuple_name(const std::string &s) const
+{
+  return isl::checked::basic_set(*this).set_tuple_name(s);
 }
 
 isl::checked::fixed_box point::simple_fixed_box_hull() const
@@ -13468,14 +17898,35 @@ isl::checked::fixed_box point::simple_fixed_box_hull() const
   return isl::checked::basic_set(*this).simple_fixed_box_hull();
 }
 
+int point::size() const
+{
+  return isl::checked::basic_set(*this).size();
+}
+
+isl::checked::basic_set point::solutions() const
+{
+  return isl::checked::basic_set(*this).solutions();
+}
+
 isl::checked::space point::space() const
 {
   return isl::checked::basic_set(*this).space();
 }
 
+isl::checked::set point::split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  return isl::checked::basic_set(*this).split_dims(type, first, n);
+}
+
 isl::checked::val point::stride(int pos) const
 {
   return isl::checked::basic_set(*this).stride(pos);
+}
+
+isl::checked::point point::sub_ui(enum isl_dim_type type, int pos, unsigned int val) const
+{
+  auto res = isl_point_sub_ui(copy(), type, pos, val);
+  return manage(res);
 }
 
 isl::checked::set point::subtract(const isl::checked::set &set2) const
@@ -13488,7 +17939,12 @@ isl::checked::union_set point::subtract(const isl::checked::union_set &uset2) co
   return isl::checked::basic_set(*this).subtract(uset2);
 }
 
-isl::checked::set_list point::to_list() const
+isl::checked::set point::sum(const isl::checked::set &set2) const
+{
+  return isl::checked::basic_set(*this).sum(set2);
+}
+
+isl::checked::basic_set_list point::to_list() const
 {
   return isl::checked::basic_set(*this).to_list();
 }
@@ -13512,6 +17968,16 @@ isl::checked::map point::translation() const
 class size point::tuple_dim() const
 {
   return isl::checked::basic_set(*this).tuple_dim();
+}
+
+isl::checked::id point::tuple_id() const
+{
+  return isl::checked::basic_set(*this).tuple_id();
+}
+
+std::string point::tuple_name() const
+{
+  return isl::checked::basic_set(*this).tuple_name();
 }
 
 isl::checked::set point::unbind_params(const isl::checked::multi_id &tuple) const
@@ -13544,7 +18010,7 @@ isl::checked::basic_set point::unshifted_simple_hull() const
   return isl::checked::basic_set(*this).unshifted_simple_hull();
 }
 
-isl::checked::map point::unwrap() const
+isl::checked::basic_map point::unwrap() const
 {
   return isl::checked::basic_set(*this).unwrap();
 }
@@ -13557,6 +18023,26 @@ isl::checked::set point::upper_bound(const isl::checked::multi_pw_aff &upper) co
 isl::checked::set point::upper_bound(const isl::checked::multi_val &upper) const
 {
   return isl::checked::basic_set(*this).upper_bound(upper);
+}
+
+isl::checked::set point::upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  return isl::checked::basic_set(*this).upper_bound_si(type, pos, value);
+}
+
+isl::checked::basic_set point::upper_bound_val(enum isl_dim_type type, unsigned int pos, const isl::checked::val &value) const
+{
+  return isl::checked::basic_set(*this).upper_bound_val(type, pos, value);
+}
+
+isl::checked::basic_set point::upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  return this->upper_bound_val(type, pos, isl::checked::val(ctx(), value));
+}
+
+isl::checked::map point::wrapped_domain_map() const
+{
+  return isl::checked::basic_set(*this).wrapped_domain_map();
 }
 
 isl::checked::set point::wrapped_reverse() const
@@ -16958,9 +21444,27 @@ isl::checked::ctx set::ctx() const {
   return isl::checked::ctx(isl_set_get_ctx(ptr));
 }
 
+isl::checked::set set::add_constraint(isl::checked::constraint constraint) const
+{
+  auto res = isl_set_add_constraint(copy(), constraint.release());
+  return manage(res);
+}
+
+isl::checked::set set::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  auto res = isl_set_add_dims(copy(), type, n);
+  return manage(res);
+}
+
 isl::checked::basic_set set::affine_hull() const
 {
   auto res = isl_set_affine_hull(copy());
+  return manage(res);
+}
+
+isl::checked::set set::align_params(isl::checked::space model) const
+{
+  auto res = isl_set_align_params(copy(), model.release());
   return manage(res);
 }
 
@@ -16991,9 +21495,26 @@ isl::checked::set set::as_set() const
   return isl::checked::union_set(*this).as_set();
 }
 
+isl::checked::basic_set_list set::basic_set_list() const
+{
+  auto res = isl_set_get_basic_set_list(get());
+  return manage(res);
+}
+
+isl::checked::basic_set_list set::get_basic_set_list() const
+{
+  return basic_set_list();
+}
+
 isl::checked::set set::bind(isl::checked::multi_id tuple) const
 {
   auto res = isl_set_bind(copy(), tuple.release());
+  return manage(res);
+}
+
+isl::checked::set set::box_from_points(isl::checked::point pnt1, isl::checked::point pnt2)
+{
+  auto res = isl_set_box_from_points(pnt1.release(), pnt2.release());
   return manage(res);
 }
 
@@ -17003,20 +21524,86 @@ isl::checked::set set::coalesce() const
   return manage(res);
 }
 
+isl::checked::basic_set set::coefficients() const
+{
+  auto res = isl_set_coefficients(copy());
+  return manage(res);
+}
+
 isl::checked::set set::complement() const
 {
   auto res = isl_set_complement(copy());
   return manage(res);
 }
 
-isl::checked::union_set set::compute_divs() const
+isl::checked::set set::compute_divs() const
 {
-  return isl::checked::union_set(*this).compute_divs();
+  auto res = isl_set_compute_divs(copy());
+  return manage(res);
+}
+
+isl::checked::val set::count_val() const
+{
+  auto res = isl_set_count_val(get());
+  return manage(res);
 }
 
 isl::checked::set set::detect_equalities() const
 {
   auto res = isl_set_detect_equalities(copy());
+  return manage(res);
+}
+
+class size set::dim(enum isl_dim_type type) const
+{
+  auto res = isl_set_dim(get(), type);
+  return manage(res);
+}
+
+boolean set::dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_set_dim_has_any_lower_bound(get(), type, pos);
+  return manage(res);
+}
+
+boolean set::dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_set_dim_has_any_upper_bound(get(), type, pos);
+  return manage(res);
+}
+
+boolean set::dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_set_dim_has_lower_bound(get(), type, pos);
+  return manage(res);
+}
+
+boolean set::dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_set_dim_has_upper_bound(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::id set::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_set_get_dim_id(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::id set::get_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_id(type, pos);
+}
+
+boolean set::dim_is_bounded(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_set_dim_is_bounded(get(), type, pos);
+  return manage(res);
+}
+
+isl::checked::pw_aff set::dim_max(int pos) const
+{
+  auto res = isl_set_dim_max(copy(), pos);
   return manage(res);
 }
 
@@ -17026,15 +21613,57 @@ isl::checked::val set::dim_max_val(int pos) const
   return manage(res);
 }
 
+isl::checked::pw_aff set::dim_min(int pos) const
+{
+  auto res = isl_set_dim_min(copy(), pos);
+  return manage(res);
+}
+
 isl::checked::val set::dim_min_val(int pos) const
 {
   auto res = isl_set_dim_min_val(copy(), pos);
   return manage(res);
 }
 
+std::string set::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_set_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string set::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
+}
+
+isl::checked::set set::drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_set_drop_constraints_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::set set::drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_set_drop_constraints_not_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
 isl::checked::set set::drop_unused_params() const
 {
   auto res = isl_set_drop_unused_params(copy());
+  return manage(res);
+}
+
+isl::checked::set set::eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_set_eliminate(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::set set::eliminate_dims(unsigned int first, unsigned int n) const
+{
+  auto res = isl_set_eliminate_dims(copy(), first, n);
   return manage(res);
 }
 
@@ -17054,9 +21683,55 @@ isl::checked::set set::extract_set(const isl::checked::space &space) const
   return isl::checked::union_set(*this).extract_set(space);
 }
 
+int set::find_dim_by_id(enum isl_dim_type type, const isl::checked::id &id) const
+{
+  auto res = isl_set_find_dim_by_id(get(), type, id.get());
+  return res;
+}
+
+int set::find_dim_by_id(enum isl_dim_type type, const std::string &id) const
+{
+  return this->find_dim_by_id(type, isl::checked::id(ctx(), id));
+}
+
+int set::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  auto res = isl_set_find_dim_by_name(get(), type, name.c_str());
+  return res;
+}
+
+isl::checked::set set::fix_dim_si(unsigned int dim, int value) const
+{
+  auto res = isl_set_fix_dim_si(copy(), dim, value);
+  return manage(res);
+}
+
+isl::checked::set set::fix_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  auto res = isl_set_fix_si(copy(), type, pos, value);
+  return manage(res);
+}
+
+isl::checked::set set::fix_val(enum isl_dim_type type, unsigned int pos, isl::checked::val v) const
+{
+  auto res = isl_set_fix_val(copy(), type, pos, v.release());
+  return manage(res);
+}
+
+isl::checked::set set::fix_val(enum isl_dim_type type, unsigned int pos, long v) const
+{
+  return this->fix_val(type, pos, isl::checked::val(ctx(), v));
+}
+
 isl::checked::set set::flatten() const
 {
   auto res = isl_set_flatten(copy());
+  return manage(res);
+}
+
+isl::checked::map set::flatten_map() const
+{
+  auto res = isl_set_flatten_map(copy());
   return manage(res);
 }
 
@@ -17093,6 +21768,12 @@ stat set::foreach_set(const std::function<stat(isl::checked::set)> &fn) const
   return isl::checked::union_set(*this).foreach_set(fn);
 }
 
+isl::checked::set set::from_multi_aff(isl::checked::multi_aff ma)
+{
+  auto res = isl_set_from_multi_aff(ma.release());
+  return manage(res);
+}
+
 isl::checked::set set::gist(isl::checked::set context) const
 {
   auto res = isl_set_gist(copy(), context.release());
@@ -17114,9 +21795,45 @@ isl::checked::set set::gist(const isl::checked::point &context) const
   return this->gist(isl::checked::set(context));
 }
 
+isl::checked::set set::gist_basic_set(isl::checked::basic_set context) const
+{
+  auto res = isl_set_gist_basic_set(copy(), context.release());
+  return manage(res);
+}
+
 isl::checked::set set::gist_params(isl::checked::set context) const
 {
   auto res = isl_set_gist_params(copy(), context.release());
+  return manage(res);
+}
+
+boolean set::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_set_has_dim_id(get(), type, pos);
+  return manage(res);
+}
+
+boolean set::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_set_has_dim_name(get(), type, pos);
+  return manage(res);
+}
+
+boolean set::has_equal_space(const isl::checked::set &set2) const
+{
+  auto res = isl_set_has_equal_space(get(), set2.get());
+  return manage(res);
+}
+
+boolean set::has_tuple_id() const
+{
+  auto res = isl_set_has_tuple_id(get());
+  return manage(res);
+}
+
+boolean set::has_tuple_name() const
+{
+  auto res = isl_set_has_tuple_name(get());
   return manage(res);
 }
 
@@ -17129,6 +21846,12 @@ isl::checked::map set::identity() const
 isl::checked::pw_aff set::indicator_function() const
 {
   auto res = isl_set_indicator_function(copy());
+  return manage(res);
+}
+
+isl::checked::set set::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  auto res = isl_set_insert_dims(copy(), type, pos, n);
   return manage(res);
 }
 
@@ -17165,9 +21888,27 @@ isl::checked::set set::intersect_params(isl::checked::set params) const
   return manage(res);
 }
 
+boolean set::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_set_involves_dims(get(), type, first, n);
+  return manage(res);
+}
+
 boolean set::involves_locals() const
 {
   auto res = isl_set_involves_locals(get());
+  return manage(res);
+}
+
+boolean set::is_bounded() const
+{
+  auto res = isl_set_is_bounded(get());
+  return manage(res);
+}
+
+boolean set::is_box() const
+{
+  auto res = isl_set_is_box(get());
   return manage(res);
 }
 
@@ -17217,6 +21958,12 @@ boolean set::is_equal(const isl::checked::basic_set &set2) const
 boolean set::is_equal(const isl::checked::point &set2) const
 {
   return this->is_equal(isl::checked::set(set2));
+}
+
+boolean set::is_params() const
+{
+  auto res = isl_set_is_params(get());
+  return manage(res);
 }
 
 boolean set::is_singleton() const
@@ -17289,6 +22036,30 @@ isl::checked::fixed_box set::get_lattice_tile() const
   return lattice_tile();
 }
 
+isl::checked::map set::lex_ge_set(isl::checked::set set2) const
+{
+  auto res = isl_set_lex_ge_set(copy(), set2.release());
+  return manage(res);
+}
+
+isl::checked::map set::lex_gt_set(isl::checked::set set2) const
+{
+  auto res = isl_set_lex_gt_set(copy(), set2.release());
+  return manage(res);
+}
+
+isl::checked::map set::lex_le_set(isl::checked::set set2) const
+{
+  auto res = isl_set_lex_le_set(copy(), set2.release());
+  return manage(res);
+}
+
+isl::checked::map set::lex_lt_set(isl::checked::set set2) const
+{
+  auto res = isl_set_lex_lt_set(copy(), set2.release());
+  return manage(res);
+}
+
 isl::checked::set set::lexmax() const
 {
   auto res = isl_set_lexmax(copy());
@@ -17313,6 +22084,12 @@ isl::checked::pw_multi_aff set::lexmin_pw_multi_aff() const
   return manage(res);
 }
 
+isl::checked::set set::lift() const
+{
+  auto res = isl_set_lift(copy());
+  return manage(res);
+}
+
 isl::checked::set set::lower_bound(isl::checked::multi_pw_aff lower) const
 {
   auto res = isl_set_lower_bound_multi_pw_aff(copy(), lower.release());
@@ -17322,6 +22099,29 @@ isl::checked::set set::lower_bound(isl::checked::multi_pw_aff lower) const
 isl::checked::set set::lower_bound(isl::checked::multi_val lower) const
 {
   auto res = isl_set_lower_bound_multi_val(copy(), lower.release());
+  return manage(res);
+}
+
+isl::checked::set set::lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  auto res = isl_set_lower_bound_si(copy(), type, pos, value);
+  return manage(res);
+}
+
+isl::checked::set set::lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const
+{
+  auto res = isl_set_lower_bound_val(copy(), type, pos, value.release());
+  return manage(res);
+}
+
+isl::checked::set set::lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  return this->lower_bound_val(type, pos, isl::checked::val(ctx(), value));
+}
+
+isl::checked::set set::make_disjoint() const
+{
+  auto res = isl_set_make_disjoint(copy());
   return manage(res);
 }
 
@@ -17349,9 +22149,33 @@ isl::checked::val set::min_val(const isl::checked::aff &obj) const
   return manage(res);
 }
 
+isl::checked::set set::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  auto res = isl_set_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  return manage(res);
+}
+
 class size set::n_basic_set() const
 {
   auto res = isl_set_n_basic_set(get());
+  return manage(res);
+}
+
+class size set::n_dim() const
+{
+  auto res = isl_set_n_dim(get());
+  return manage(res);
+}
+
+class size set::n_param() const
+{
+  auto res = isl_set_n_param(get());
+  return manage(res);
+}
+
+isl::checked::set set::neg() const
+{
+  auto res = isl_set_neg(copy());
   return manage(res);
 }
 
@@ -17369,6 +22193,30 @@ isl::checked::pw_aff set::param_pw_aff_on_domain(const std::string &id) const
 isl::checked::set set::params() const
 {
   auto res = isl_set_params(copy());
+  return manage(res);
+}
+
+isl::checked::val set::plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const
+{
+  auto res = isl_set_plain_get_val_if_fixed(get(), type, pos);
+  return manage(res);
+}
+
+boolean set::plain_is_disjoint(const isl::checked::set &set2) const
+{
+  auto res = isl_set_plain_is_disjoint(get(), set2.get());
+  return manage(res);
+}
+
+boolean set::plain_is_empty() const
+{
+  auto res = isl_set_plain_is_empty(get());
+  return manage(res);
+}
+
+boolean set::plain_is_universe() const
+{
+  auto res = isl_set_plain_is_universe(get());
   return manage(res);
 }
 
@@ -17418,6 +22266,18 @@ isl::checked::set set::product(isl::checked::set set2) const
   return manage(res);
 }
 
+isl::checked::map set::project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_set_project_onto_map(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::set set::project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_set_project_out(copy(), type, first, n);
+  return manage(res);
+}
+
 isl::checked::set set::project_out_all_params() const
 {
   auto res = isl_set_project_out_all_params(copy());
@@ -17458,6 +22318,54 @@ isl::checked::pw_multi_aff set::pw_multi_aff_on_domain(isl::checked::multi_val m
   return manage(res);
 }
 
+isl::checked::set set::remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_set_remove_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::set set::remove_divs() const
+{
+  auto res = isl_set_remove_divs(copy());
+  return manage(res);
+}
+
+isl::checked::set set::remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_set_remove_divs_involving_dims(copy(), type, first, n);
+  return manage(res);
+}
+
+isl::checked::set set::remove_redundancies() const
+{
+  auto res = isl_set_remove_redundancies(copy());
+  return manage(res);
+}
+
+isl::checked::set set::remove_unknown_divs() const
+{
+  auto res = isl_set_remove_unknown_divs(copy());
+  return manage(res);
+}
+
+isl::checked::set set::reset_space(isl::checked::space space) const
+{
+  auto res = isl_set_reset_space(copy(), space.release());
+  return manage(res);
+}
+
+isl::checked::set set::reset_tuple_id() const
+{
+  auto res = isl_set_reset_tuple_id(copy());
+  return manage(res);
+}
+
+isl::checked::set set::reset_user() const
+{
+  auto res = isl_set_reset_user(copy());
+  return manage(res);
+}
+
 isl::checked::basic_set set::sample() const
 {
   auto res = isl_set_sample(copy());
@@ -17470,9 +22378,43 @@ isl::checked::point set::sample_point() const
   return manage(res);
 }
 
+isl::checked::set set::set_dim_id(enum isl_dim_type type, unsigned int pos, isl::checked::id id) const
+{
+  auto res = isl_set_set_dim_id(copy(), type, pos, id.release());
+  return manage(res);
+}
+
+isl::checked::set set::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  return this->set_dim_id(type, pos, isl::checked::id(ctx(), id));
+}
+
+isl::checked::set set::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  auto res = isl_set_set_dim_name(copy(), type, pos, s.c_str());
+  return manage(res);
+}
+
 isl::checked::set_list set::set_list() const
 {
   return isl::checked::union_set(*this).set_list();
+}
+
+isl::checked::set set::set_tuple_id(isl::checked::id id) const
+{
+  auto res = isl_set_set_tuple_id(copy(), id.release());
+  return manage(res);
+}
+
+isl::checked::set set::set_tuple_id(const std::string &id) const
+{
+  return this->set_tuple_id(isl::checked::id(ctx(), id));
+}
+
+isl::checked::set set::set_tuple_name(const std::string &s) const
+{
+  auto res = isl_set_set_tuple_name(copy(), s.c_str());
+  return manage(res);
 }
 
 isl::checked::fixed_box set::simple_fixed_box_hull() const
@@ -17486,6 +22428,18 @@ isl::checked::fixed_box set::get_simple_fixed_box_hull() const
   return simple_fixed_box_hull();
 }
 
+int set::size() const
+{
+  auto res = isl_set_size(get());
+  return res;
+}
+
+isl::checked::basic_set set::solutions() const
+{
+  auto res = isl_set_solutions(copy());
+  return manage(res);
+}
+
 isl::checked::space set::space() const
 {
   auto res = isl_set_get_space(get());
@@ -17495,6 +22449,12 @@ isl::checked::space set::space() const
 isl::checked::space set::get_space() const
 {
   return space();
+}
+
+isl::checked::set set::split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  auto res = isl_set_split_dims(copy(), type, first, n);
+  return manage(res);
 }
 
 isl::checked::val set::stride(int pos) const
@@ -17529,6 +22489,12 @@ isl::checked::set set::subtract(const isl::checked::point &set2) const
   return this->subtract(isl::checked::set(set2));
 }
 
+isl::checked::set set::sum(isl::checked::set set2) const
+{
+  auto res = isl_set_sum(copy(), set2.release());
+  return manage(res);
+}
+
 isl::checked::set_list set::to_list() const
 {
   auto res = isl_set_to_list(copy());
@@ -17551,6 +22517,29 @@ class size set::tuple_dim() const
 {
   auto res = isl_set_tuple_dim(get());
   return manage(res);
+}
+
+isl::checked::id set::tuple_id() const
+{
+  auto res = isl_set_get_tuple_id(get());
+  return manage(res);
+}
+
+isl::checked::id set::get_tuple_id() const
+{
+  return tuple_id();
+}
+
+std::string set::tuple_name() const
+{
+  auto res = isl_set_get_tuple_name(get());
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string set::get_tuple_name() const
+{
+  return tuple_name();
 }
 
 isl::checked::set set::unbind_params(isl::checked::multi_id tuple) const
@@ -17613,6 +22602,29 @@ isl::checked::set set::upper_bound(isl::checked::multi_pw_aff upper) const
 isl::checked::set set::upper_bound(isl::checked::multi_val upper) const
 {
   auto res = isl_set_upper_bound_multi_val(copy(), upper.release());
+  return manage(res);
+}
+
+isl::checked::set set::upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  auto res = isl_set_upper_bound_si(copy(), type, pos, value);
+  return manage(res);
+}
+
+isl::checked::set set::upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::checked::val value) const
+{
+  auto res = isl_set_upper_bound_val(copy(), type, pos, value.release());
+  return manage(res);
+}
+
+isl::checked::set set::upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  return this->upper_bound_val(type, pos, isl::checked::val(ctx(), value));
+}
+
+isl::checked::map set::wrapped_domain_map() const
+{
+  auto res = isl_set_wrapped_domain_map(copy());
   return manage(res);
 }
 
@@ -17794,6 +22806,12 @@ class size set_list::size() const
   return manage(res);
 }
 
+isl::checked::set set_list::unite() const
+{
+  auto res = isl_set_list_union(copy());
+  return manage(res);
+}
+
 inline std::ostream &operator<<(std::ostream &os, const set_list &obj)
 {
   char *str = isl_set_list_to_str(obj.get());
@@ -17865,6 +22883,12 @@ isl::checked::ctx space::ctx() const {
   return isl::checked::ctx(isl_space_get_ctx(ptr));
 }
 
+isl::checked::space space::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  auto res = isl_space_add_dims(copy(), type, n);
+  return manage(res);
+}
+
 isl::checked::space space::add_named_tuple(isl::checked::id tuple_id, unsigned int dim) const
 {
   auto res = isl_space_add_named_tuple_id_ui(copy(), tuple_id.release(), dim);
@@ -17905,6 +22929,24 @@ isl::checked::space space::domain() const
   return manage(res);
 }
 
+isl::checked::space space::domain_factor_domain() const
+{
+  auto res = isl_space_domain_factor_domain(copy());
+  return manage(res);
+}
+
+isl::checked::space space::domain_factor_range() const
+{
+  auto res = isl_space_domain_factor_range(copy());
+  return manage(res);
+}
+
+isl::checked::space space::domain_map() const
+{
+  auto res = isl_space_domain_map(copy());
+  return manage(res);
+}
+
 isl::checked::multi_aff space::domain_map_multi_aff() const
 {
   auto res = isl_space_domain_map_multi_aff(copy());
@@ -17914,6 +22956,12 @@ isl::checked::multi_aff space::domain_map_multi_aff() const
 isl::checked::pw_multi_aff space::domain_map_pw_multi_aff() const
 {
   auto res = isl_space_domain_map_pw_multi_aff(copy());
+  return manage(res);
+}
+
+isl::checked::space space::domain_product(isl::checked::space right) const
+{
+  auto res = isl_space_domain_product(copy(), right.release());
   return manage(res);
 }
 
@@ -17934,9 +22982,39 @@ isl::checked::id space::get_domain_tuple_id() const
   return domain_tuple_id();
 }
 
+isl::checked::space space::domain_wrapped_domain() const
+{
+  auto res = isl_space_domain_wrapped_domain(copy());
+  return manage(res);
+}
+
+isl::checked::space space::domain_wrapped_range() const
+{
+  auto res = isl_space_domain_wrapped_range(copy());
+  return manage(res);
+}
+
 isl::checked::space space::drop_all_params() const
 {
   auto res = isl_space_drop_all_params(copy());
+  return manage(res);
+}
+
+isl::checked::space space::drop_dims(enum isl_dim_type type, unsigned int first, unsigned int num) const
+{
+  auto res = isl_space_drop_dims(copy(), type, first, num);
+  return manage(res);
+}
+
+isl::checked::space space::factor_domain() const
+{
+  auto res = isl_space_factor_domain(copy());
+  return manage(res);
+}
+
+isl::checked::space space::factor_range() const
+{
+  auto res = isl_space_factor_range(copy());
   return manage(res);
 }
 
@@ -17949,6 +23027,18 @@ isl::checked::space space::flatten_domain() const
 isl::checked::space space::flatten_range() const
 {
   auto res = isl_space_flatten_range(copy());
+  return manage(res);
+}
+
+isl::checked::space space::from_domain() const
+{
+  auto res = isl_space_from_domain(copy());
+  return manage(res);
+}
+
+isl::checked::space space::from_range() const
+{
+  auto res = isl_space_from_range(copy());
   return manage(res);
 }
 
@@ -17982,6 +23072,12 @@ isl::checked::pw_multi_aff space::identity_pw_multi_aff_on_domain() const
   return manage(res);
 }
 
+isl::checked::space space::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  auto res = isl_space_insert_dims(copy(), type, pos, n);
+  return manage(res);
+}
+
 boolean space::is_equal(const isl::checked::space &space2) const
 {
   auto res = isl_space_is_equal(get(), space2.get());
@@ -17994,9 +23090,27 @@ boolean space::is_wrapping() const
   return manage(res);
 }
 
+isl::checked::space space::join(isl::checked::space right) const
+{
+  auto res = isl_space_join(copy(), right.release());
+  return manage(res);
+}
+
+isl::checked::space space::map_from_domain_and_range(isl::checked::space range) const
+{
+  auto res = isl_space_map_from_domain_and_range(copy(), range.release());
+  return manage(res);
+}
+
 isl::checked::space space::map_from_set() const
 {
   auto res = isl_space_map_from_set(copy());
+  return manage(res);
+}
+
+isl::checked::space space::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  auto res = isl_space_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
   return manage(res);
 }
 
@@ -18065,6 +23179,24 @@ isl::checked::space space::range() const
   return manage(res);
 }
 
+isl::checked::space space::range_factor_domain() const
+{
+  auto res = isl_space_range_factor_domain(copy());
+  return manage(res);
+}
+
+isl::checked::space space::range_factor_range() const
+{
+  auto res = isl_space_range_factor_range(copy());
+  return manage(res);
+}
+
+isl::checked::space space::range_map() const
+{
+  auto res = isl_space_range_map(copy());
+  return manage(res);
+}
+
 isl::checked::multi_aff space::range_map_multi_aff() const
 {
   auto res = isl_space_range_map_multi_aff(copy());
@@ -18074,6 +23206,12 @@ isl::checked::multi_aff space::range_map_multi_aff() const
 isl::checked::pw_multi_aff space::range_map_pw_multi_aff() const
 {
   auto res = isl_space_range_map_pw_multi_aff(copy());
+  return manage(res);
+}
+
+isl::checked::space space::range_product(isl::checked::space right) const
+{
+  auto res = isl_space_range_product(copy(), right.release());
   return manage(res);
 }
 
@@ -18092,6 +23230,18 @@ isl::checked::id space::range_tuple_id() const
 isl::checked::id space::get_range_tuple_id() const
 {
   return range_tuple_id();
+}
+
+isl::checked::space space::range_wrapped_domain() const
+{
+  auto res = isl_space_range_wrapped_domain(copy());
+  return manage(res);
+}
+
+isl::checked::space space::range_wrapped_range() const
+{
+  auto res = isl_space_range_wrapped_range(copy());
+  return manage(res);
 }
 
 isl::checked::space space::reverse() const

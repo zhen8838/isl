@@ -37,7 +37,19 @@ template <typename...>
 struct basic_map;
 
 template <typename...>
+struct basic_map_list;
+
+template <typename...>
 struct basic_set;
+
+template <typename...>
+struct basic_set_list;
+
+template <typename...>
+struct constraint;
+
+template <typename...>
+struct constraint_list;
 
 template <typename...>
 struct fixed_box;
@@ -47,6 +59,9 @@ struct id;
 
 template <typename...>
 struct id_list;
+
+template <typename...>
+struct local_space;
 
 template <typename...>
 struct map;
@@ -138,13 +153,23 @@ struct aff<Anonymous> : public isl::aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -341,13 +366,23 @@ struct aff<Domain, Anonymous> : public isl::aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -567,13 +602,23 @@ struct aff<pair<Domain2, Range2>, Anonymous> : public isl::aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -796,13 +841,23 @@ struct aff_list<Anonymous> : public isl::aff_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -876,13 +931,23 @@ struct aff_list<Domain, Anonymous> : public isl::aff_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -966,13 +1031,23 @@ struct basic_map<Domain, Range> : public isl::basic_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -1056,20 +1131,24 @@ struct basic_map<Domain, Range> : public isl::basic_map {
   inline typed::set<Range> bind_domain(const typed::multi_id<Domain> &tuple) const;
   inline typed::set<Domain> bind_range(const typed::multi_id<Range> &tuple) const;
   inline typed::map<Domain, Range> coalesce() const;
-  inline typed::map<Domain, Range> curry() const = delete;
+  inline typed::constraint_list<Domain, Range> constraint_list() const = delete;
+  inline typed::constraint_list<Domain, Range> get_constraint_list() const = delete;
+  inline typed::basic_map<Domain, Range> curry() const = delete;
   inline typed::basic_set<Domain, Range> deltas() const = delete;
   inline typed::basic_map<Domain, Range> detect_equalities() const;
-  inline typed::set<Domain> domain() const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<Domain, Range> get_div(int pos) const = delete;
+  inline typed::basic_set<Domain> domain() const;
   inline typed::map<Domain, Range> domain_factor_domain() const = delete;
   inline typed::map<Domain, Range> domain_factor_range() const = delete;
-  inline typed::union_map<pair<Domain, Range>, Domain> domain_map() const;
+  inline typed::basic_map<pair<Domain, Range>, Domain> domain_map() const;
   inline typed::union_pw_multi_aff<pair<Domain, Range>, Domain> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<Domain, Domain2>, Range> domain_product(const typed::map<Domain2, Range> &map2) const;
   template <typename Domain2>
   inline typed::union_map<pair<Domain, Domain2>, Range> domain_product(const typed::union_map<Domain2, Range> &umap2) const;
   inline typed::map<Domain, Range> domain_reverse() const = delete;
-  inline typed::map<Domain, Range> drop_unused_params() const;
+  inline typed::basic_map<Domain, Range> drop_unused_params() const;
   inline typed::map<Domain, Range> eq_at(const typed::multi_pw_aff<> &mpa) const = delete;
   inline typed::union_map<Domain, Range> eq_at(const typed::multi_union_pw_aff<> &mupa) const = delete;
   inline bool every_map(const std::function<bool(typed::map<Domain, Range>)> &test) const;
@@ -1077,12 +1156,15 @@ struct basic_map<Domain, Range> : public isl::basic_map {
   inline typed::basic_map<Domain, Range> flatten_domain() const = delete;
   inline typed::basic_map<Domain, Range> flatten_range() const = delete;
   inline void foreach_basic_map(const std::function<void(typed::basic_map<Domain, Range>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<Domain, Range>)> &fn) const;
   inline void foreach_map(const std::function<void(typed::map<Domain, Range>)> &fn) const;
   inline typed::basic_map<Domain, Range> gist(const typed::basic_map<Domain, Range> &context) const;
   inline typed::map<Domain, Range> gist(const typed::map<Domain, Range> &context) const;
   inline typed::union_map<Domain, Range> gist(const typed::union_map<Domain, Range> &context) const;
+  inline typed::basic_map<Domain, Range> gist_domain(const typed::basic_set<Domain> &context) const;
   inline typed::map<Domain, Range> gist_domain(const typed::set<Domain> &context) const;
   inline typed::union_map<Domain, Range> gist_domain(const typed::union_set<Domain> &uset) const;
+  inline typed::basic_map<Domain, Range> gist_domain(const typed::point<Domain> &context) const;
   inline typed::map<Domain, Range> gist_params(const typed::set<> &context) const;
   inline typed::basic_map<Domain, Range> intersect(const typed::basic_map<Domain, Range> &bmap2) const;
   inline typed::map<Domain, Range> intersect(const typed::map<Domain, Range> &map2) const;
@@ -1116,6 +1198,7 @@ struct basic_map<Domain, Range> : public isl::basic_map {
   inline typed::map_list<Domain, Range> map_list() const;
   inline typed::multi_pw_aff<Domain, Range> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<Domain, Range> min_multi_pw_aff() const;
+  inline typed::basic_map<Domain, Range> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, Range> preimage_domain(const typed::multi_aff<Domain2, Domain> &ma) const;
@@ -1139,11 +1222,11 @@ struct basic_map<Domain, Range> : public isl::basic_map {
   inline typed::map<Domain, Range> project_out_param(const typed::id<Anonymous> &id) const;
   inline typed::map<Domain, Range> project_out_param(const std::string &id) const;
   inline typed::map<Domain, Range> project_out_param(const typed::id_list<Anonymous> &list) const;
-  inline typed::set<Range> range() const;
+  inline typed::basic_set<Range> range() const;
   inline typed::map<Domain, Range> range_factor_domain() const = delete;
   inline typed::map<Domain, Range> range_factor_range() const = delete;
   inline typed::fixed_box<Domain, Range> range_lattice_tile() const;
-  inline typed::union_map<pair<Domain, Range>, Range> range_map() const;
+  inline typed::basic_map<pair<Domain, Range>, Range> range_map() const;
   template <typename Range2>
   inline typed::map<Domain, pair<Range, Range2>> range_product(const typed::map<Domain, Range2> &map2) const;
   template <typename Range2>
@@ -1160,15 +1243,20 @@ struct basic_map<Domain, Range> : public isl::basic_map {
   template <typename Range2>
   inline typed::map<Domain, Range2> set_range_tuple(const std::string &id) const;
   inline typed::space<Domain, Range> space() const;
+  inline typed::space<Domain, Range> get_space() const = delete;
   inline typed::map<Domain, Range> subtract(const typed::map<Domain, Range> &map2) const;
   inline typed::union_map<Domain, Range> subtract(const typed::union_map<Domain, Range> &umap2) const;
+  inline typed::map<Domain, Range> subtract_domain(const typed::set<Domain> &dom) const;
   inline typed::union_map<Domain, Range> subtract_domain(const typed::union_set<Domain> &dom) const;
+  inline typed::map<Domain, Range> subtract_range(const typed::set<Range> &dom) const;
   inline typed::union_map<Domain, Range> subtract_range(const typed::union_set<Range> &dom) const;
   inline typed::union_map<Domain, Range> to_union_map() const;
-  inline typed::map<Domain, Range> uncurry() const = delete;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
+  inline typed::basic_map<Domain, Range> uncurry() const = delete;
   inline typed::map<Domain, Range> unite(const typed::basic_map<Domain, Range> &bmap2) const;
   inline typed::map<Domain, Range> unite(const typed::map<Domain, Range> &map2) const;
   inline typed::union_map<Domain, Range> unite(const typed::union_map<Domain, Range> &umap2) const;
+  static inline typed::basic_map<Domain, Range> universe(const typed::space<Domain, Range> &space);
   inline typed::map<Domain, Range> upper_bound(const typed::multi_pw_aff<Domain, Range> &upper) const;
   inline typed::set<pair<Domain, Range>> wrap() const;
 };
@@ -1182,13 +1270,23 @@ struct basic_map<pair<Domain, Range>, Range2> : public isl::basic_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -1273,20 +1371,24 @@ struct basic_map<pair<Domain, Range>, Range2> : public isl::basic_map {
   inline typed::set<Range2> bind_domain(const typed::multi_id<pair<Domain, Range>> &tuple) const;
   inline typed::set<pair<Domain, Range>> bind_range(const typed::multi_id<Range2> &tuple) const;
   inline typed::map<pair<Domain, Range>, Range2> coalesce() const;
-  inline typed::map<Domain, pair<Range, Range2>> curry() const;
+  inline typed::constraint_list<pair<Domain, Range>, Range2> constraint_list() const = delete;
+  inline typed::constraint_list<pair<Domain, Range>, Range2> get_constraint_list() const = delete;
+  inline typed::basic_map<Domain, pair<Range, Range2>> curry() const;
   inline typed::basic_set<pair<Domain, Range>, Range2> deltas() const = delete;
   inline typed::basic_map<pair<Domain, Range>, Range2> detect_equalities() const;
-  inline typed::set<pair<Domain, Range>> domain() const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<pair<Domain, Range>, Range2> get_div(int pos) const = delete;
+  inline typed::basic_set<pair<Domain, Range>> domain() const;
   inline typed::map<Domain, Range2> domain_factor_domain() const;
   inline typed::map<Range, Range2> domain_factor_range() const;
-  inline typed::union_map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> domain_map() const;
+  inline typed::basic_map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> domain_map() const;
   inline typed::union_pw_multi_aff<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<pair<Domain, Range>, Domain2>, Range2> domain_product(const typed::map<Domain2, Range2> &map2) const;
   template <typename Domain2>
   inline typed::union_map<pair<pair<Domain, Range>, Domain2>, Range2> domain_product(const typed::union_map<Domain2, Range2> &umap2) const;
   inline typed::map<pair<Range, Domain>, Range2> domain_reverse() const;
-  inline typed::map<pair<Domain, Range>, Range2> drop_unused_params() const;
+  inline typed::basic_map<pair<Domain, Range>, Range2> drop_unused_params() const;
   inline typed::map<pair<Domain, Range>, Range2> eq_at(const typed::multi_pw_aff<> &mpa) const = delete;
   inline typed::union_map<pair<Domain, Range>, Range2> eq_at(const typed::multi_union_pw_aff<> &mupa) const = delete;
   inline bool every_map(const std::function<bool(typed::map<pair<Domain, Range>, Range2>)> &test) const;
@@ -1294,12 +1396,15 @@ struct basic_map<pair<Domain, Range>, Range2> : public isl::basic_map {
   inline typed::basic_map<Anonymous, Range2> flatten_domain() const;
   inline typed::basic_map<pair<Domain, Range>, Range2> flatten_range() const = delete;
   inline void foreach_basic_map(const std::function<void(typed::basic_map<pair<Domain, Range>, Range2>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<pair<Domain, Range>, Range2>)> &fn) const;
   inline void foreach_map(const std::function<void(typed::map<pair<Domain, Range>, Range2>)> &fn) const;
   inline typed::basic_map<pair<Domain, Range>, Range2> gist(const typed::basic_map<pair<Domain, Range>, Range2> &context) const;
   inline typed::map<pair<Domain, Range>, Range2> gist(const typed::map<pair<Domain, Range>, Range2> &context) const;
   inline typed::union_map<pair<Domain, Range>, Range2> gist(const typed::union_map<pair<Domain, Range>, Range2> &context) const;
+  inline typed::basic_map<pair<Domain, Range>, Range2> gist_domain(const typed::basic_set<pair<Domain, Range>> &context) const;
   inline typed::map<pair<Domain, Range>, Range2> gist_domain(const typed::set<pair<Domain, Range>> &context) const;
   inline typed::union_map<pair<Domain, Range>, Range2> gist_domain(const typed::union_set<pair<Domain, Range>> &uset) const;
+  inline typed::basic_map<pair<Domain, Range>, Range2> gist_domain(const typed::point<pair<Domain, Range>> &context) const;
   inline typed::map<pair<Domain, Range>, Range2> gist_params(const typed::set<> &context) const;
   inline typed::basic_map<pair<Domain, Range>, Range2> intersect(const typed::basic_map<pair<Domain, Range>, Range2> &bmap2) const;
   inline typed::map<pair<Domain, Range>, Range2> intersect(const typed::map<pair<Domain, Range>, Range2> &map2) const;
@@ -1333,6 +1438,7 @@ struct basic_map<pair<Domain, Range>, Range2> : public isl::basic_map {
   inline typed::map_list<pair<Domain, Range>, Range2> map_list() const;
   inline typed::multi_pw_aff<pair<Domain, Range>, Range2> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<pair<Domain, Range>, Range2> min_multi_pw_aff() const;
+  inline typed::basic_map<pair<Domain, Range>, Range2> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, Range2> preimage_domain(const typed::multi_aff<Domain2, pair<Domain, Range>> &ma) const;
@@ -1356,11 +1462,11 @@ struct basic_map<pair<Domain, Range>, Range2> : public isl::basic_map {
   inline typed::map<pair<Domain, Range>, Range2> project_out_param(const typed::id<Anonymous> &id) const;
   inline typed::map<pair<Domain, Range>, Range2> project_out_param(const std::string &id) const;
   inline typed::map<pair<Domain, Range>, Range2> project_out_param(const typed::id_list<Anonymous> &list) const;
-  inline typed::set<Range2> range() const;
+  inline typed::basic_set<Range2> range() const;
   inline typed::map<pair<Domain, Range>, Range2> range_factor_domain() const = delete;
   inline typed::map<pair<Domain, Range>, Range2> range_factor_range() const = delete;
   inline typed::fixed_box<pair<Domain, Range>, Range2> range_lattice_tile() const;
-  inline typed::union_map<pair<pair<Domain, Range>, Range2>, Range2> range_map() const;
+  inline typed::basic_map<pair<pair<Domain, Range>, Range2>, Range2> range_map() const;
   template <typename Arg3>
   inline typed::map<pair<Domain, Range>, pair<Range2, Arg3>> range_product(const typed::map<pair<Domain, Range>, Arg3> &map2) const;
   template <typename Arg3>
@@ -1375,15 +1481,20 @@ struct basic_map<pair<Domain, Range>, Range2> : public isl::basic_map {
   template <typename Arg2>
   inline typed::map<pair<Domain, Range>, Arg2> set_range_tuple(const std::string &id) const;
   inline typed::space<pair<Domain, Range>, Range2> space() const;
+  inline typed::space<pair<Domain, Range>, Range2> get_space() const = delete;
   inline typed::map<pair<Domain, Range>, Range2> subtract(const typed::map<pair<Domain, Range>, Range2> &map2) const;
   inline typed::union_map<pair<Domain, Range>, Range2> subtract(const typed::union_map<pair<Domain, Range>, Range2> &umap2) const;
+  inline typed::map<pair<Domain, Range>, Range2> subtract_domain(const typed::set<pair<Domain, Range>> &dom) const;
   inline typed::union_map<pair<Domain, Range>, Range2> subtract_domain(const typed::union_set<pair<Domain, Range>> &dom) const;
+  inline typed::map<pair<Domain, Range>, Range2> subtract_range(const typed::set<Range2> &dom) const;
   inline typed::union_map<pair<Domain, Range>, Range2> subtract_range(const typed::union_set<Range2> &dom) const;
   inline typed::union_map<pair<Domain, Range>, Range2> to_union_map() const;
-  inline typed::map<pair<Domain, Range>, Range2> uncurry() const = delete;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
+  inline typed::basic_map<pair<Domain, Range>, Range2> uncurry() const = delete;
   inline typed::map<pair<Domain, Range>, Range2> unite(const typed::basic_map<pair<Domain, Range>, Range2> &bmap2) const;
   inline typed::map<pair<Domain, Range>, Range2> unite(const typed::map<pair<Domain, Range>, Range2> &map2) const;
   inline typed::union_map<pair<Domain, Range>, Range2> unite(const typed::union_map<pair<Domain, Range>, Range2> &umap2) const;
+  static inline typed::basic_map<pair<Domain, Range>, Range2> universe(const typed::space<pair<Domain, Range>, Range2> &space);
   inline typed::map<pair<Domain, Range>, Range2> upper_bound(const typed::multi_pw_aff<pair<Domain, Range>, Range2> &upper) const;
   inline typed::set<pair<pair<Domain, Range>, Range2>> wrap() const;
 };
@@ -1397,13 +1508,23 @@ struct basic_map<Domain, Domain> : public isl::basic_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -1486,20 +1607,24 @@ struct basic_map<Domain, Domain> : public isl::basic_map {
   inline typed::set<Domain> bind_domain(const typed::multi_id<Domain> &tuple) const;
   inline typed::set<Domain> bind_range(const typed::multi_id<Domain> &tuple) const;
   inline typed::map<Domain, Domain> coalesce() const;
-  inline typed::map<Domain, Domain> curry() const = delete;
+  inline typed::constraint_list<Domain, Domain> constraint_list() const = delete;
+  inline typed::constraint_list<Domain, Domain> get_constraint_list() const = delete;
+  inline typed::basic_map<Domain, Domain> curry() const = delete;
   inline typed::basic_set<Domain> deltas() const;
   inline typed::basic_map<Domain, Domain> detect_equalities() const;
-  inline typed::set<Domain> domain() const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<Domain, Domain> get_div(int pos) const = delete;
+  inline typed::basic_set<Domain> domain() const;
   inline typed::map<Domain, Domain> domain_factor_domain() const = delete;
   inline typed::map<Domain, Domain> domain_factor_range() const = delete;
-  inline typed::union_map<pair<Domain, Domain>, Domain> domain_map() const;
+  inline typed::basic_map<pair<Domain, Domain>, Domain> domain_map() const;
   inline typed::union_pw_multi_aff<pair<Domain, Domain>, Domain> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<Domain, Domain2>, Domain> domain_product(const typed::map<Domain2, Domain> &map2) const;
   template <typename Domain2>
   inline typed::union_map<pair<Domain, Domain2>, Domain> domain_product(const typed::union_map<Domain2, Domain> &umap2) const;
   inline typed::map<Domain, Domain> domain_reverse() const = delete;
-  inline typed::map<Domain, Domain> drop_unused_params() const;
+  inline typed::basic_map<Domain, Domain> drop_unused_params() const;
   template <typename Range>
   inline typed::map<Domain, Domain> eq_at(const typed::multi_pw_aff<Domain, Range> &mpa) const;
   template <typename Range>
@@ -1509,12 +1634,15 @@ struct basic_map<Domain, Domain> : public isl::basic_map {
   inline typed::basic_map<Domain, Domain> flatten_domain() const = delete;
   inline typed::basic_map<Domain, Domain> flatten_range() const = delete;
   inline void foreach_basic_map(const std::function<void(typed::basic_map<Domain, Domain>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<Domain, Domain>)> &fn) const;
   inline void foreach_map(const std::function<void(typed::map<Domain, Domain>)> &fn) const;
   inline typed::basic_map<Domain, Domain> gist(const typed::basic_map<Domain, Domain> &context) const;
   inline typed::map<Domain, Domain> gist(const typed::map<Domain, Domain> &context) const;
   inline typed::union_map<Domain, Domain> gist(const typed::union_map<Domain, Domain> &context) const;
+  inline typed::basic_map<Domain, Domain> gist_domain(const typed::basic_set<Domain> &context) const;
   inline typed::map<Domain, Domain> gist_domain(const typed::set<Domain> &context) const;
   inline typed::union_map<Domain, Domain> gist_domain(const typed::union_set<Domain> &uset) const;
+  inline typed::basic_map<Domain, Domain> gist_domain(const typed::point<Domain> &context) const;
   inline typed::map<Domain, Domain> gist_params(const typed::set<> &context) const;
   inline typed::basic_map<Domain, Domain> intersect(const typed::basic_map<Domain, Domain> &bmap2) const;
   inline typed::map<Domain, Domain> intersect(const typed::map<Domain, Domain> &map2) const;
@@ -1552,6 +1680,7 @@ struct basic_map<Domain, Domain> : public isl::basic_map {
   inline typed::map_list<Domain, Domain> map_list() const;
   inline typed::multi_pw_aff<Domain, Domain> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<Domain, Domain> min_multi_pw_aff() const;
+  inline typed::basic_map<Domain, Domain> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, Domain> preimage_domain(const typed::multi_aff<Domain2, Domain> &ma) const;
@@ -1575,11 +1704,11 @@ struct basic_map<Domain, Domain> : public isl::basic_map {
   inline typed::map<Domain, Domain> project_out_param(const typed::id<Anonymous> &id) const;
   inline typed::map<Domain, Domain> project_out_param(const std::string &id) const;
   inline typed::map<Domain, Domain> project_out_param(const typed::id_list<Anonymous> &list) const;
-  inline typed::set<Domain> range() const;
+  inline typed::basic_set<Domain> range() const;
   inline typed::map<Domain, Domain> range_factor_domain() const = delete;
   inline typed::map<Domain, Domain> range_factor_range() const = delete;
   inline typed::fixed_box<Domain, Domain> range_lattice_tile() const;
-  inline typed::union_map<pair<Domain, Domain>, Domain> range_map() const;
+  inline typed::basic_map<pair<Domain, Domain>, Domain> range_map() const;
   template <typename Range2>
   inline typed::map<Domain, pair<Domain, Range2>> range_product(const typed::map<Domain, Range2> &map2) const;
   template <typename Range2>
@@ -1596,15 +1725,20 @@ struct basic_map<Domain, Domain> : public isl::basic_map {
   template <typename Range2>
   inline typed::map<Domain, Range2> set_range_tuple(const std::string &id) const;
   inline typed::space<Domain, Domain> space() const;
+  inline typed::space<Domain, Domain> get_space() const = delete;
   inline typed::map<Domain, Domain> subtract(const typed::map<Domain, Domain> &map2) const;
   inline typed::union_map<Domain, Domain> subtract(const typed::union_map<Domain, Domain> &umap2) const;
+  inline typed::map<Domain, Domain> subtract_domain(const typed::set<Domain> &dom) const;
   inline typed::union_map<Domain, Domain> subtract_domain(const typed::union_set<Domain> &dom) const;
+  inline typed::map<Domain, Domain> subtract_range(const typed::set<Domain> &dom) const;
   inline typed::union_map<Domain, Domain> subtract_range(const typed::union_set<Domain> &dom) const;
   inline typed::union_map<Domain, Domain> to_union_map() const;
-  inline typed::map<Domain, Domain> uncurry() const = delete;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
+  inline typed::basic_map<Domain, Domain> uncurry() const = delete;
   inline typed::map<Domain, Domain> unite(const typed::basic_map<Domain, Domain> &bmap2) const;
   inline typed::map<Domain, Domain> unite(const typed::map<Domain, Domain> &map2) const;
   inline typed::union_map<Domain, Domain> unite(const typed::union_map<Domain, Domain> &umap2) const;
+  static inline typed::basic_map<Domain, Domain> universe(const typed::space<Domain, Domain> &space);
   inline typed::map<Domain, Domain> upper_bound(const typed::multi_pw_aff<Domain, Domain> &upper) const;
   inline typed::set<pair<Domain, Domain>> wrap() const;
 };
@@ -1618,13 +1752,23 @@ struct basic_map<Domain, pair<Range, Range2>> : public isl::basic_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -1709,20 +1853,24 @@ struct basic_map<Domain, pair<Range, Range2>> : public isl::basic_map {
   inline typed::set<pair<Range, Range2>> bind_domain(const typed::multi_id<Domain> &tuple) const;
   inline typed::set<Domain> bind_range(const typed::multi_id<pair<Range, Range2>> &tuple) const;
   inline typed::map<Domain, pair<Range, Range2>> coalesce() const;
-  inline typed::map<Domain, pair<Range, Range2>> curry() const = delete;
+  inline typed::constraint_list<Domain, pair<Range, Range2>> constraint_list() const = delete;
+  inline typed::constraint_list<Domain, pair<Range, Range2>> get_constraint_list() const = delete;
+  inline typed::basic_map<Domain, pair<Range, Range2>> curry() const = delete;
   inline typed::basic_set<Domain, pair<Range, Range2>> deltas() const = delete;
   inline typed::basic_map<Domain, pair<Range, Range2>> detect_equalities() const;
-  inline typed::set<Domain> domain() const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<Domain, pair<Range, Range2>> get_div(int pos) const = delete;
+  inline typed::basic_set<Domain> domain() const;
   inline typed::map<Domain, pair<Range, Range2>> domain_factor_domain() const = delete;
   inline typed::map<Domain, pair<Range, Range2>> domain_factor_range() const = delete;
-  inline typed::union_map<pair<Domain, pair<Range, Range2>>, Domain> domain_map() const;
+  inline typed::basic_map<pair<Domain, pair<Range, Range2>>, Domain> domain_map() const;
   inline typed::union_pw_multi_aff<pair<Domain, pair<Range, Range2>>, Domain> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<Domain, Domain2>, pair<Range, Range2>> domain_product(const typed::map<Domain2, pair<Range, Range2>> &map2) const;
   template <typename Domain2>
   inline typed::union_map<pair<Domain, Domain2>, pair<Range, Range2>> domain_product(const typed::union_map<Domain2, pair<Range, Range2>> &umap2) const;
   inline typed::map<Domain, pair<Range, Range2>> domain_reverse() const = delete;
-  inline typed::map<Domain, pair<Range, Range2>> drop_unused_params() const;
+  inline typed::basic_map<Domain, pair<Range, Range2>> drop_unused_params() const;
   inline typed::map<Domain, pair<Range, Range2>> eq_at(const typed::multi_pw_aff<> &mpa) const = delete;
   inline typed::union_map<Domain, pair<Range, Range2>> eq_at(const typed::multi_union_pw_aff<> &mupa) const = delete;
   inline bool every_map(const std::function<bool(typed::map<Domain, pair<Range, Range2>>)> &test) const;
@@ -1730,12 +1878,15 @@ struct basic_map<Domain, pair<Range, Range2>> : public isl::basic_map {
   inline typed::basic_map<Domain, pair<Range, Range2>> flatten_domain() const = delete;
   inline typed::basic_map<Domain, Anonymous> flatten_range() const;
   inline void foreach_basic_map(const std::function<void(typed::basic_map<Domain, pair<Range, Range2>>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<Domain, pair<Range, Range2>>)> &fn) const;
   inline void foreach_map(const std::function<void(typed::map<Domain, pair<Range, Range2>>)> &fn) const;
   inline typed::basic_map<Domain, pair<Range, Range2>> gist(const typed::basic_map<Domain, pair<Range, Range2>> &context) const;
   inline typed::map<Domain, pair<Range, Range2>> gist(const typed::map<Domain, pair<Range, Range2>> &context) const;
   inline typed::union_map<Domain, pair<Range, Range2>> gist(const typed::union_map<Domain, pair<Range, Range2>> &context) const;
+  inline typed::basic_map<Domain, pair<Range, Range2>> gist_domain(const typed::basic_set<Domain> &context) const;
   inline typed::map<Domain, pair<Range, Range2>> gist_domain(const typed::set<Domain> &context) const;
   inline typed::union_map<Domain, pair<Range, Range2>> gist_domain(const typed::union_set<Domain> &uset) const;
+  inline typed::basic_map<Domain, pair<Range, Range2>> gist_domain(const typed::point<Domain> &context) const;
   inline typed::map<Domain, pair<Range, Range2>> gist_params(const typed::set<> &context) const;
   inline typed::basic_map<Domain, pair<Range, Range2>> intersect(const typed::basic_map<Domain, pair<Range, Range2>> &bmap2) const;
   inline typed::map<Domain, pair<Range, Range2>> intersect(const typed::map<Domain, pair<Range, Range2>> &map2) const;
@@ -1769,6 +1920,7 @@ struct basic_map<Domain, pair<Range, Range2>> : public isl::basic_map {
   inline typed::map_list<Domain, pair<Range, Range2>> map_list() const;
   inline typed::multi_pw_aff<Domain, pair<Range, Range2>> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<Domain, pair<Range, Range2>> min_multi_pw_aff() const;
+  inline typed::basic_map<Domain, pair<Range, Range2>> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, pair<Range, Range2>> preimage_domain(const typed::multi_aff<Domain2, Domain> &ma) const;
@@ -1792,11 +1944,11 @@ struct basic_map<Domain, pair<Range, Range2>> : public isl::basic_map {
   inline typed::map<Domain, pair<Range, Range2>> project_out_param(const typed::id<Anonymous> &id) const;
   inline typed::map<Domain, pair<Range, Range2>> project_out_param(const std::string &id) const;
   inline typed::map<Domain, pair<Range, Range2>> project_out_param(const typed::id_list<Anonymous> &list) const;
-  inline typed::set<pair<Range, Range2>> range() const;
+  inline typed::basic_set<pair<Range, Range2>> range() const;
   inline typed::map<Domain, Range> range_factor_domain() const;
   inline typed::map<Domain, Range2> range_factor_range() const;
   inline typed::fixed_box<Domain, pair<Range, Range2>> range_lattice_tile() const;
-  inline typed::union_map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> range_map() const;
+  inline typed::basic_map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> range_map() const;
   template <typename Arg3>
   inline typed::map<Domain, pair<pair<Range, Range2>, Arg3>> range_product(const typed::map<Domain, Arg3> &map2) const;
   template <typename Arg3>
@@ -1811,15 +1963,20 @@ struct basic_map<Domain, pair<Range, Range2>> : public isl::basic_map {
   inline typed::map<Domain, pair<Range, Range2>> set_range_tuple(const typed::id<> &id) const = delete;
   inline typed::map<Domain, pair<Range, Range2>> set_range_tuple(const std::string &id) const = delete;
   inline typed::space<Domain, pair<Range, Range2>> space() const;
+  inline typed::space<Domain, pair<Range, Range2>> get_space() const = delete;
   inline typed::map<Domain, pair<Range, Range2>> subtract(const typed::map<Domain, pair<Range, Range2>> &map2) const;
   inline typed::union_map<Domain, pair<Range, Range2>> subtract(const typed::union_map<Domain, pair<Range, Range2>> &umap2) const;
+  inline typed::map<Domain, pair<Range, Range2>> subtract_domain(const typed::set<Domain> &dom) const;
   inline typed::union_map<Domain, pair<Range, Range2>> subtract_domain(const typed::union_set<Domain> &dom) const;
+  inline typed::map<Domain, pair<Range, Range2>> subtract_range(const typed::set<pair<Range, Range2>> &dom) const;
   inline typed::union_map<Domain, pair<Range, Range2>> subtract_range(const typed::union_set<pair<Range, Range2>> &dom) const;
   inline typed::union_map<Domain, pair<Range, Range2>> to_union_map() const;
-  inline typed::map<pair<Domain, Range>, Range2> uncurry() const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
+  inline typed::basic_map<pair<Domain, Range>, Range2> uncurry() const;
   inline typed::map<Domain, pair<Range, Range2>> unite(const typed::basic_map<Domain, pair<Range, Range2>> &bmap2) const;
   inline typed::map<Domain, pair<Range, Range2>> unite(const typed::map<Domain, pair<Range, Range2>> &map2) const;
   inline typed::union_map<Domain, pair<Range, Range2>> unite(const typed::union_map<Domain, pair<Range, Range2>> &umap2) const;
+  static inline typed::basic_map<Domain, pair<Range, Range2>> universe(const typed::space<Domain, pair<Range, Range2>> &space);
   inline typed::map<Domain, pair<Range, Range2>> upper_bound(const typed::multi_pw_aff<Domain, pair<Range, Range2>> &upper) const;
   inline typed::set<pair<Domain, pair<Range, Range2>>> wrap() const;
 };
@@ -1833,13 +1990,23 @@ struct basic_map<pair<T1, T2>, pair<T1, T2>> : public isl::basic_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -1923,20 +2090,24 @@ struct basic_map<pair<T1, T2>, pair<T1, T2>> : public isl::basic_map {
   inline typed::set<pair<T1, T2>> bind_domain(const typed::multi_id<pair<T1, T2>> &tuple) const;
   inline typed::set<pair<T1, T2>> bind_range(const typed::multi_id<pair<T1, T2>> &tuple) const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> coalesce() const;
-  inline typed::map<T1, pair<T2, pair<T1, T2>>> curry() const;
+  inline typed::constraint_list<pair<T1, T2>, pair<T1, T2>> constraint_list() const = delete;
+  inline typed::constraint_list<pair<T1, T2>, pair<T1, T2>> get_constraint_list() const = delete;
+  inline typed::basic_map<T1, pair<T2, pair<T1, T2>>> curry() const;
   inline typed::basic_set<pair<T1, T2>> deltas() const;
   inline typed::basic_map<pair<T1, T2>, pair<T1, T2>> detect_equalities() const;
-  inline typed::set<pair<T1, T2>> domain() const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<pair<T1, T2>, pair<T1, T2>> get_div(int pos) const = delete;
+  inline typed::basic_set<pair<T1, T2>> domain() const;
   inline typed::map<T1, pair<T1, T2>> domain_factor_domain() const;
   inline typed::map<T2, pair<T1, T2>> domain_factor_range() const;
-  inline typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> domain_map() const;
+  inline typed::basic_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> domain_map() const;
   inline typed::union_pw_multi_aff<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<pair<T1, T2>, Domain2>, pair<T1, T2>> domain_product(const typed::map<Domain2, pair<T1, T2>> &map2) const;
   template <typename Domain2>
   inline typed::union_map<pair<pair<T1, T2>, Domain2>, pair<T1, T2>> domain_product(const typed::union_map<Domain2, pair<T1, T2>> &umap2) const;
   inline typed::map<pair<T2, T1>, pair<T1, T2>> domain_reverse() const;
-  inline typed::map<pair<T1, T2>, pair<T1, T2>> drop_unused_params() const;
+  inline typed::basic_map<pair<T1, T2>, pair<T1, T2>> drop_unused_params() const;
   template <typename Range>
   inline typed::map<pair<T1, T2>, pair<T1, T2>> eq_at(const typed::multi_pw_aff<pair<T1, T2>, Range> &mpa) const;
   template <typename Range>
@@ -1946,12 +2117,15 @@ struct basic_map<pair<T1, T2>, pair<T1, T2>> : public isl::basic_map {
   inline typed::basic_map<Anonymous, pair<T1, T2>> flatten_domain() const;
   inline typed::basic_map<pair<T1, T2>, Anonymous> flatten_range() const;
   inline void foreach_basic_map(const std::function<void(typed::basic_map<pair<T1, T2>, pair<T1, T2>>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<pair<T1, T2>, pair<T1, T2>>)> &fn) const;
   inline void foreach_map(const std::function<void(typed::map<pair<T1, T2>, pair<T1, T2>>)> &fn) const;
   inline typed::basic_map<pair<T1, T2>, pair<T1, T2>> gist(const typed::basic_map<pair<T1, T2>, pair<T1, T2>> &context) const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> gist(const typed::map<pair<T1, T2>, pair<T1, T2>> &context) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> gist(const typed::union_map<pair<T1, T2>, pair<T1, T2>> &context) const;
+  inline typed::basic_map<pair<T1, T2>, pair<T1, T2>> gist_domain(const typed::basic_set<pair<T1, T2>> &context) const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> gist_domain(const typed::set<pair<T1, T2>> &context) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> gist_domain(const typed::union_set<pair<T1, T2>> &uset) const;
+  inline typed::basic_map<pair<T1, T2>, pair<T1, T2>> gist_domain(const typed::point<pair<T1, T2>> &context) const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> gist_params(const typed::set<> &context) const;
   inline typed::basic_map<pair<T1, T2>, pair<T1, T2>> intersect(const typed::basic_map<pair<T1, T2>, pair<T1, T2>> &bmap2) const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> intersect(const typed::map<pair<T1, T2>, pair<T1, T2>> &map2) const;
@@ -1989,6 +2163,7 @@ struct basic_map<pair<T1, T2>, pair<T1, T2>> : public isl::basic_map {
   inline typed::map_list<pair<T1, T2>, pair<T1, T2>> map_list() const;
   inline typed::multi_pw_aff<pair<T1, T2>, pair<T1, T2>> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<pair<T1, T2>, pair<T1, T2>> min_multi_pw_aff() const;
+  inline typed::basic_map<pair<T1, T2>, pair<T1, T2>> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, pair<T1, T2>> preimage_domain(const typed::multi_aff<Domain2, pair<T1, T2>> &ma) const;
@@ -2012,11 +2187,11 @@ struct basic_map<pair<T1, T2>, pair<T1, T2>> : public isl::basic_map {
   inline typed::map<pair<T1, T2>, pair<T1, T2>> project_out_param(const typed::id<Anonymous> &id) const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> project_out_param(const std::string &id) const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> project_out_param(const typed::id_list<Anonymous> &list) const;
-  inline typed::set<pair<T1, T2>> range() const;
+  inline typed::basic_set<pair<T1, T2>> range() const;
   inline typed::map<pair<T1, T2>, T1> range_factor_domain() const;
   inline typed::map<pair<T1, T2>, T2> range_factor_range() const;
   inline typed::fixed_box<pair<T1, T2>, pair<T1, T2>> range_lattice_tile() const;
-  inline typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> range_map() const;
+  inline typed::basic_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> range_map() const;
   template <typename Range2>
   inline typed::map<pair<T1, T2>, pair<pair<T1, T2>, Range2>> range_product(const typed::map<pair<T1, T2>, Range2> &map2) const;
   template <typename Range2>
@@ -2029,15 +2204,20 @@ struct basic_map<pair<T1, T2>, pair<T1, T2>> : public isl::basic_map {
   inline typed::map<pair<T1, T2>, pair<T1, T2>> set_range_tuple(const typed::id<> &id) const = delete;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> set_range_tuple(const std::string &id) const = delete;
   inline typed::space<pair<T1, T2>, pair<T1, T2>> space() const;
+  inline typed::space<pair<T1, T2>, pair<T1, T2>> get_space() const = delete;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract(const typed::map<pair<T1, T2>, pair<T1, T2>> &map2) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> subtract(const typed::union_map<pair<T1, T2>, pair<T1, T2>> &umap2) const;
+  inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract_domain(const typed::set<pair<T1, T2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> subtract_domain(const typed::union_set<pair<T1, T2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract_range(const typed::set<pair<T1, T2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> subtract_range(const typed::union_set<pair<T1, T2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> to_union_map() const;
-  inline typed::map<pair<pair<T1, T2>, T1>, T2> uncurry() const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
+  inline typed::basic_map<pair<pair<T1, T2>, T1>, T2> uncurry() const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> unite(const typed::basic_map<pair<T1, T2>, pair<T1, T2>> &bmap2) const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> unite(const typed::map<pair<T1, T2>, pair<T1, T2>> &map2) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> unite(const typed::union_map<pair<T1, T2>, pair<T1, T2>> &umap2) const;
+  static inline typed::basic_map<pair<T1, T2>, pair<T1, T2>> universe(const typed::space<pair<T1, T2>, pair<T1, T2>> &space);
   inline typed::map<pair<T1, T2>, pair<T1, T2>> upper_bound(const typed::multi_pw_aff<pair<T1, T2>, pair<T1, T2>> &upper) const;
   inline typed::set<pair<pair<T1, T2>, pair<T1, T2>>> wrap() const;
 };
@@ -2051,13 +2231,23 @@ struct basic_map<pair<T1, T2>, pair<Range, Range2>> : public isl::basic_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -2143,20 +2333,24 @@ struct basic_map<pair<T1, T2>, pair<Range, Range2>> : public isl::basic_map {
   inline typed::set<pair<Range, Range2>> bind_domain(const typed::multi_id<pair<T1, T2>> &tuple) const;
   inline typed::set<pair<T1, T2>> bind_range(const typed::multi_id<pair<Range, Range2>> &tuple) const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> coalesce() const;
-  inline typed::map<T1, pair<T2, pair<Range, Range2>>> curry() const;
+  inline typed::constraint_list<pair<T1, T2>, pair<Range, Range2>> constraint_list() const = delete;
+  inline typed::constraint_list<pair<T1, T2>, pair<Range, Range2>> get_constraint_list() const = delete;
+  inline typed::basic_map<T1, pair<T2, pair<Range, Range2>>> curry() const;
   inline typed::basic_set<pair<T1, T2>, pair<Range, Range2>> deltas() const = delete;
   inline typed::basic_map<pair<T1, T2>, pair<Range, Range2>> detect_equalities() const;
-  inline typed::set<pair<T1, T2>> domain() const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<pair<T1, T2>, pair<Range, Range2>> get_div(int pos) const = delete;
+  inline typed::basic_set<pair<T1, T2>> domain() const;
   inline typed::map<T1, pair<Range, Range2>> domain_factor_domain() const;
   inline typed::map<T2, pair<Range, Range2>> domain_factor_range() const;
-  inline typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> domain_map() const;
+  inline typed::basic_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> domain_map() const;
   inline typed::union_pw_multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<pair<T1, T2>, Domain2>, pair<Range, Range2>> domain_product(const typed::map<Domain2, pair<Range, Range2>> &map2) const;
   template <typename Domain2>
   inline typed::union_map<pair<pair<T1, T2>, Domain2>, pair<Range, Range2>> domain_product(const typed::union_map<Domain2, pair<Range, Range2>> &umap2) const;
   inline typed::map<pair<T2, T1>, pair<Range, Range2>> domain_reverse() const;
-  inline typed::map<pair<T1, T2>, pair<Range, Range2>> drop_unused_params() const;
+  inline typed::basic_map<pair<T1, T2>, pair<Range, Range2>> drop_unused_params() const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> eq_at(const typed::multi_pw_aff<> &mpa) const = delete;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> eq_at(const typed::multi_union_pw_aff<> &mupa) const = delete;
   inline bool every_map(const std::function<bool(typed::map<pair<T1, T2>, pair<Range, Range2>>)> &test) const;
@@ -2164,12 +2358,15 @@ struct basic_map<pair<T1, T2>, pair<Range, Range2>> : public isl::basic_map {
   inline typed::basic_map<Anonymous, pair<Range, Range2>> flatten_domain() const;
   inline typed::basic_map<pair<T1, T2>, Anonymous> flatten_range() const;
   inline void foreach_basic_map(const std::function<void(typed::basic_map<pair<T1, T2>, pair<Range, Range2>>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<pair<T1, T2>, pair<Range, Range2>>)> &fn) const;
   inline void foreach_map(const std::function<void(typed::map<pair<T1, T2>, pair<Range, Range2>>)> &fn) const;
   inline typed::basic_map<pair<T1, T2>, pair<Range, Range2>> gist(const typed::basic_map<pair<T1, T2>, pair<Range, Range2>> &context) const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> gist(const typed::map<pair<T1, T2>, pair<Range, Range2>> &context) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> gist(const typed::union_map<pair<T1, T2>, pair<Range, Range2>> &context) const;
+  inline typed::basic_map<pair<T1, T2>, pair<Range, Range2>> gist_domain(const typed::basic_set<pair<T1, T2>> &context) const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> gist_domain(const typed::set<pair<T1, T2>> &context) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> gist_domain(const typed::union_set<pair<T1, T2>> &uset) const;
+  inline typed::basic_map<pair<T1, T2>, pair<Range, Range2>> gist_domain(const typed::point<pair<T1, T2>> &context) const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> gist_params(const typed::set<> &context) const;
   inline typed::basic_map<pair<T1, T2>, pair<Range, Range2>> intersect(const typed::basic_map<pair<T1, T2>, pair<Range, Range2>> &bmap2) const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> intersect(const typed::map<pair<T1, T2>, pair<Range, Range2>> &map2) const;
@@ -2203,6 +2400,7 @@ struct basic_map<pair<T1, T2>, pair<Range, Range2>> : public isl::basic_map {
   inline typed::map_list<pair<T1, T2>, pair<Range, Range2>> map_list() const;
   inline typed::multi_pw_aff<pair<T1, T2>, pair<Range, Range2>> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<pair<T1, T2>, pair<Range, Range2>> min_multi_pw_aff() const;
+  inline typed::basic_map<pair<T1, T2>, pair<Range, Range2>> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, pair<Range, Range2>> preimage_domain(const typed::multi_aff<Domain2, pair<T1, T2>> &ma) const;
@@ -2226,11 +2424,11 @@ struct basic_map<pair<T1, T2>, pair<Range, Range2>> : public isl::basic_map {
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> project_out_param(const typed::id<Anonymous> &id) const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> project_out_param(const std::string &id) const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> project_out_param(const typed::id_list<Anonymous> &list) const;
-  inline typed::set<pair<Range, Range2>> range() const;
+  inline typed::basic_set<pair<Range, Range2>> range() const;
   inline typed::map<pair<T1, T2>, Range> range_factor_domain() const;
   inline typed::map<pair<T1, T2>, Range2> range_factor_range() const;
   inline typed::fixed_box<pair<T1, T2>, pair<Range, Range2>> range_lattice_tile() const;
-  inline typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> range_map() const;
+  inline typed::basic_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> range_map() const;
   template <typename Arg2>
   inline typed::map<pair<T1, T2>, pair<pair<Range, Range2>, Arg2>> range_product(const typed::map<pair<T1, T2>, Arg2> &map2) const;
   template <typename Arg2>
@@ -2243,17 +2441,113 @@ struct basic_map<pair<T1, T2>, pair<Range, Range2>> : public isl::basic_map {
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> set_range_tuple(const typed::id<> &id) const = delete;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> set_range_tuple(const std::string &id) const = delete;
   inline typed::space<pair<T1, T2>, pair<Range, Range2>> space() const;
+  inline typed::space<pair<T1, T2>, pair<Range, Range2>> get_space() const = delete;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract(const typed::map<pair<T1, T2>, pair<Range, Range2>> &map2) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> subtract(const typed::union_map<pair<T1, T2>, pair<Range, Range2>> &umap2) const;
+  inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract_domain(const typed::set<pair<T1, T2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> subtract_domain(const typed::union_set<pair<T1, T2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract_range(const typed::set<pair<Range, Range2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> subtract_range(const typed::union_set<pair<Range, Range2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> to_union_map() const;
-  inline typed::map<pair<pair<T1, T2>, Range>, Range2> uncurry() const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
+  inline typed::basic_map<pair<pair<T1, T2>, Range>, Range2> uncurry() const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> unite(const typed::basic_map<pair<T1, T2>, pair<Range, Range2>> &bmap2) const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> unite(const typed::map<pair<T1, T2>, pair<Range, Range2>> &map2) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> unite(const typed::union_map<pair<T1, T2>, pair<Range, Range2>> &umap2) const;
+  static inline typed::basic_map<pair<T1, T2>, pair<Range, Range2>> universe(const typed::space<pair<T1, T2>, pair<Range, Range2>> &space);
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> upper_bound(const typed::multi_pw_aff<pair<T1, T2>, pair<Range, Range2>> &upper) const;
   inline typed::set<pair<pair<T1, T2>, pair<Range, Range2>>> wrap() const;
+};
+
+template <typename Domain, typename Range>
+struct basic_map_list<Domain, Range> : public isl::basic_map_list {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  basic_map_list() = default;
+  template <typename Arg1, typename Arg2,
+            typename std::enable_if<
+              std::is_base_of<Domain, Arg1>{} &&
+              std::is_base_of<Range, Arg2>{},
+            bool>::type = true>
+  basic_map_list(const basic_map_list<Arg1, Arg2> &obj) : isl::basic_map_list(obj) {}
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::basic_map_list>{}, bool>::type = true>
+  basic_map_list(const base &obj) : isl::basic_map_list(obj) {}
+ public:
+  static basic_map_list from(const isl::basic_map_list &obj) {
+    return basic_map_list(obj);
+  }
 };
 
 template <>
@@ -2265,13 +2559,23 @@ struct basic_set<> : public isl::basic_set {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -2336,13 +2640,20 @@ struct basic_set<> : public isl::basic_set {
   inline typed::union_set<> apply(const typed::union_map<> &umap) const = delete;
   inline typed::pw_multi_aff<> as_pw_multi_aff() const = delete;
   inline typed::set<> as_set() const = delete;
+  inline typed::basic_set_list<> basic_set_list() const;
   inline typed::set<> bind(const typed::multi_id<> &tuple) const = delete;
   inline typed::set<> coalesce() const;
+  inline typed::constraint_list<> constraint_list() const;
+  inline typed::constraint_list<> get_constraint_list() const = delete;
   inline typed::basic_set<> detect_equalities() const;
-  inline typed::set<> drop_unused_params() const;
+  inline typed::id<> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<> get_div(int pos) const = delete;
+  inline typed::basic_set<> drop_unused_params() const;
   inline bool every_set(const std::function<bool(typed::set<>)> &test) const;
   inline typed::set<> extract_set(const typed::space<> &space) const;
   inline void foreach_basic_set(const std::function<void(typed::basic_set<>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<>)> &fn) const;
   inline void foreach_point(const std::function<void(typed::point<>)> &fn) const;
   inline void foreach_set(const std::function<void(typed::set<>)> &fn) const;
   inline typed::basic_set<> gist(const typed::basic_set<> &context) const;
@@ -2365,12 +2676,15 @@ struct basic_set<> : public isl::basic_set {
   inline typed::pw_multi_aff<> lexmax_pw_multi_aff() const = delete;
   inline typed::set<> lexmin() const = delete;
   inline typed::pw_multi_aff<> lexmin_pw_multi_aff() const = delete;
+  inline typed::local_space<> local_space() const;
+  inline typed::local_space<> get_local_space() const = delete;
   inline typed::set<> lower_bound(const typed::multi_pw_aff<> &lower) const = delete;
   inline typed::set<> lower_bound(const typed::multi_val<> &lower) const = delete;
   inline typed::multi_pw_aff<> max_multi_pw_aff() const = delete;
   inline typed::val<> max_val(const typed::aff<> &obj) const = delete;
   inline typed::multi_pw_aff<> min_multi_pw_aff() const = delete;
   inline typed::val<> min_val(const typed::aff<> &obj) const = delete;
+  inline typed::basic_set<> neg() const = delete;
   inline typed::pw_aff<Anonymous> param_pw_aff_on_domain(const typed::id<Anonymous> &id) const;
   inline typed::pw_aff<Anonymous> param_pw_aff_on_domain(const std::string &id) const;
   inline typed::basic_set<> params() const = delete;
@@ -2391,11 +2705,13 @@ struct basic_set<> : public isl::basic_set {
   inline typed::set_list<> set_list() const;
   inline typed::fixed_box<> simple_fixed_box_hull() const = delete;
   inline typed::space<> space() const;
+  inline typed::space<> get_space() const = delete;
   inline typed::set<> subtract(const typed::set<> &set2) const;
   inline typed::union_set<> subtract(const typed::union_set<> &uset2) const;
   inline typed::set<> to_set() const;
   inline typed::union_set<> to_union_set() const;
   inline typed::map<> translation() const = delete;
+  inline std::string get_tuple_name() const = delete;
   template <typename Domain>
   inline typed::set<Domain> unbind_params(const typed::multi_id<Domain> &tuple) const;
   inline typed::map<> unbind_params_insert_domain(const typed::multi_id<> &domain) const = delete;
@@ -2403,7 +2719,8 @@ struct basic_set<> : public isl::basic_set {
   inline typed::set<> unite(const typed::set<> &set2) const;
   inline typed::union_set<> unite(const typed::union_set<> &uset2) const;
   inline typed::set<> unite(const typed::point<> &bset2) const;
-  inline typed::map<> unwrap() const = delete;
+  static inline typed::basic_set<> universe(const typed::space<> &space);
+  inline typed::basic_map<> unwrap() const = delete;
   inline typed::set<> upper_bound(const typed::multi_pw_aff<> &upper) const = delete;
   inline typed::set<> upper_bound(const typed::multi_val<> &upper) const = delete;
   inline typed::set<> wrapped_reverse() const = delete;
@@ -2418,13 +2735,23 @@ struct basic_set<Domain> : public isl::basic_set {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -2497,13 +2824,20 @@ struct basic_set<Domain> : public isl::basic_set {
   inline typed::union_set<Range> apply(const typed::union_map<Domain, Range> &umap) const;
   inline typed::pw_multi_aff<Domain> as_pw_multi_aff() const;
   inline typed::set<Domain> as_set() const;
+  inline typed::basic_set_list<Domain> basic_set_list() const;
   inline typed::set<> bind(const typed::multi_id<Domain> &tuple) const;
   inline typed::set<Domain> coalesce() const;
+  inline typed::constraint_list<Domain> constraint_list() const = delete;
+  inline typed::constraint_list<Domain> get_constraint_list() const = delete;
   inline typed::basic_set<Domain> detect_equalities() const;
-  inline typed::set<Domain> drop_unused_params() const;
+  inline typed::id<Domain> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<Domain> get_div(int pos) const = delete;
+  inline typed::basic_set<Domain> drop_unused_params() const;
   inline bool every_set(const std::function<bool(typed::set<Domain>)> &test) const;
   inline typed::set<Domain> extract_set(const typed::space<Domain> &space) const;
   inline void foreach_basic_set(const std::function<void(typed::basic_set<Domain>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<Domain>)> &fn) const;
   inline void foreach_point(const std::function<void(typed::point<Domain>)> &fn) const;
   inline void foreach_set(const std::function<void(typed::set<Domain>)> &fn) const;
   inline typed::basic_set<Domain> gist(const typed::basic_set<Domain> &context) const;
@@ -2527,12 +2861,15 @@ struct basic_set<Domain> : public isl::basic_set {
   inline typed::pw_multi_aff<Domain> lexmax_pw_multi_aff() const;
   inline typed::set<Domain> lexmin() const;
   inline typed::pw_multi_aff<Domain> lexmin_pw_multi_aff() const;
+  inline typed::local_space<Domain> local_space() const;
+  inline typed::local_space<Domain> get_local_space() const = delete;
   inline typed::set<Domain> lower_bound(const typed::multi_pw_aff<Domain> &lower) const;
   inline typed::set<Domain> lower_bound(const typed::multi_val<Domain> &lower) const;
   inline typed::multi_pw_aff<Domain> max_multi_pw_aff() const;
   inline typed::val<Domain> max_val(const typed::aff<> &obj) const = delete;
   inline typed::multi_pw_aff<Domain> min_multi_pw_aff() const;
   inline typed::val<Domain> min_val(const typed::aff<> &obj) const = delete;
+  inline typed::basic_set<Domain> neg() const;
   inline typed::pw_aff<Domain, Anonymous> param_pw_aff_on_domain(const typed::id<Anonymous> &id) const;
   inline typed::pw_aff<Domain, Anonymous> param_pw_aff_on_domain(const std::string &id) const;
   inline typed::basic_set<> params() const;
@@ -2558,11 +2895,13 @@ struct basic_set<Domain> : public isl::basic_set {
   inline typed::set_list<Domain> set_list() const;
   inline typed::fixed_box<Domain> simple_fixed_box_hull() const;
   inline typed::space<Domain> space() const;
+  inline typed::space<Domain> get_space() const = delete;
   inline typed::set<Domain> subtract(const typed::set<Domain> &set2) const;
   inline typed::union_set<Domain> subtract(const typed::union_set<Domain> &uset2) const;
   inline typed::set<Domain> to_set() const;
   inline typed::union_set<Domain> to_union_set() const;
   inline typed::map<Domain, Domain> translation() const;
+  inline std::string get_tuple_name() const = delete;
   inline typed::set<Domain> unbind_params(const typed::multi_id<> &tuple) const = delete;
   template <typename Arg1>
   inline typed::map<Arg1, Domain> unbind_params_insert_domain(const typed::multi_id<Arg1> &domain) const;
@@ -2570,7 +2909,8 @@ struct basic_set<Domain> : public isl::basic_set {
   inline typed::set<Domain> unite(const typed::set<Domain> &set2) const;
   inline typed::union_set<Domain> unite(const typed::union_set<Domain> &uset2) const;
   inline typed::set<Domain> unite(const typed::point<Domain> &bset2) const;
-  inline typed::map<Domain> unwrap() const = delete;
+  static inline typed::basic_set<Domain> universe(const typed::space<Domain> &space);
+  inline typed::basic_map<Domain> unwrap() const = delete;
   inline typed::set<Domain> upper_bound(const typed::multi_pw_aff<Domain> &upper) const;
   inline typed::set<Domain> upper_bound(const typed::multi_val<Domain> &upper) const;
   inline typed::set<Domain> wrapped_reverse() const = delete;
@@ -2585,13 +2925,23 @@ struct basic_set<pair<Domain, Range>> : public isl::basic_set {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -2665,13 +3015,20 @@ struct basic_set<pair<Domain, Range>> : public isl::basic_set {
   inline typed::union_set<Arg2> apply(const typed::union_map<pair<Domain, Range>, Arg2> &umap) const;
   inline typed::pw_multi_aff<pair<Domain, Range>> as_pw_multi_aff() const;
   inline typed::set<pair<Domain, Range>> as_set() const;
+  inline typed::basic_set_list<pair<Domain, Range>> basic_set_list() const;
   inline typed::set<> bind(const typed::multi_id<pair<Domain, Range>> &tuple) const;
   inline typed::set<pair<Domain, Range>> coalesce() const;
+  inline typed::constraint_list<pair<Domain, Range>> constraint_list() const = delete;
+  inline typed::constraint_list<pair<Domain, Range>> get_constraint_list() const = delete;
   inline typed::basic_set<pair<Domain, Range>> detect_equalities() const;
-  inline typed::set<pair<Domain, Range>> drop_unused_params() const;
+  inline typed::id<pair<Domain, Range>> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<pair<Domain, Range>> get_div(int pos) const = delete;
+  inline typed::basic_set<pair<Domain, Range>> drop_unused_params() const;
   inline bool every_set(const std::function<bool(typed::set<pair<Domain, Range>>)> &test) const;
   inline typed::set<pair<Domain, Range>> extract_set(const typed::space<pair<Domain, Range>> &space) const;
   inline void foreach_basic_set(const std::function<void(typed::basic_set<pair<Domain, Range>>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<pair<Domain, Range>>)> &fn) const;
   inline void foreach_point(const std::function<void(typed::point<pair<Domain, Range>>)> &fn) const;
   inline void foreach_set(const std::function<void(typed::set<pair<Domain, Range>>)> &fn) const;
   inline typed::basic_set<pair<Domain, Range>> gist(const typed::basic_set<pair<Domain, Range>> &context) const;
@@ -2695,12 +3052,15 @@ struct basic_set<pair<Domain, Range>> : public isl::basic_set {
   inline typed::pw_multi_aff<pair<Domain, Range>> lexmax_pw_multi_aff() const;
   inline typed::set<pair<Domain, Range>> lexmin() const;
   inline typed::pw_multi_aff<pair<Domain, Range>> lexmin_pw_multi_aff() const;
+  inline typed::local_space<pair<Domain, Range>> local_space() const;
+  inline typed::local_space<pair<Domain, Range>> get_local_space() const = delete;
   inline typed::set<pair<Domain, Range>> lower_bound(const typed::multi_pw_aff<pair<Domain, Range>> &lower) const;
   inline typed::set<pair<Domain, Range>> lower_bound(const typed::multi_val<pair<Domain, Range>> &lower) const;
   inline typed::multi_pw_aff<pair<Domain, Range>> max_multi_pw_aff() const;
   inline typed::val<pair<Domain, Range>> max_val(const typed::aff<> &obj) const = delete;
   inline typed::multi_pw_aff<pair<Domain, Range>> min_multi_pw_aff() const;
   inline typed::val<pair<Domain, Range>> min_val(const typed::aff<> &obj) const = delete;
+  inline typed::basic_set<pair<Domain, Range>> neg() const;
   inline typed::pw_aff<pair<Domain, Range>, Anonymous> param_pw_aff_on_domain(const typed::id<Anonymous> &id) const;
   inline typed::pw_aff<pair<Domain, Range>, Anonymous> param_pw_aff_on_domain(const std::string &id) const;
   inline typed::basic_set<> params() const;
@@ -2726,11 +3086,13 @@ struct basic_set<pair<Domain, Range>> : public isl::basic_set {
   inline typed::set_list<pair<Domain, Range>> set_list() const;
   inline typed::fixed_box<pair<Domain, Range>> simple_fixed_box_hull() const;
   inline typed::space<pair<Domain, Range>> space() const;
+  inline typed::space<pair<Domain, Range>> get_space() const = delete;
   inline typed::set<pair<Domain, Range>> subtract(const typed::set<pair<Domain, Range>> &set2) const;
   inline typed::union_set<pair<Domain, Range>> subtract(const typed::union_set<pair<Domain, Range>> &uset2) const;
   inline typed::set<pair<Domain, Range>> to_set() const;
   inline typed::union_set<pair<Domain, Range>> to_union_set() const;
   inline typed::map<pair<Domain, Range>, pair<Domain, Range>> translation() const;
+  inline std::string get_tuple_name() const = delete;
   inline typed::set<pair<Domain, Range>> unbind_params(const typed::multi_id<> &tuple) const = delete;
   template <typename Arg2>
   inline typed::map<Arg2, pair<Domain, Range>> unbind_params_insert_domain(const typed::multi_id<Arg2> &domain) const;
@@ -2738,10 +3100,397 @@ struct basic_set<pair<Domain, Range>> : public isl::basic_set {
   inline typed::set<pair<Domain, Range>> unite(const typed::set<pair<Domain, Range>> &set2) const;
   inline typed::union_set<pair<Domain, Range>> unite(const typed::union_set<pair<Domain, Range>> &uset2) const;
   inline typed::set<pair<Domain, Range>> unite(const typed::point<pair<Domain, Range>> &bset2) const;
-  inline typed::map<Domain, Range> unwrap() const;
+  static inline typed::basic_set<pair<Domain, Range>> universe(const typed::space<pair<Domain, Range>> &space);
+  inline typed::basic_map<Domain, Range> unwrap() const;
   inline typed::set<pair<Domain, Range>> upper_bound(const typed::multi_pw_aff<pair<Domain, Range>> &upper) const;
   inline typed::set<pair<Domain, Range>> upper_bound(const typed::multi_val<pair<Domain, Range>> &upper) const;
   inline typed::set<pair<Range, Domain>> wrapped_reverse() const;
+};
+
+template <>
+struct basic_set_list<> : public isl::basic_set_list {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  basic_set_list() = default;
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::basic_set_list>{}, bool>::type = true>
+  basic_set_list(const base &obj) : isl::basic_set_list(obj) {}
+ public:
+  static basic_set_list from(const isl::basic_set_list &obj) {
+    return basic_set_list(obj);
+  }
+  inline explicit basic_set_list(const isl::ctx &ctx, int n);
+  inline explicit basic_set_list(const typed::basic_set<> &el);
+  inline typed::basic_set_list<> add(const typed::basic_set<> &el) const;
+  inline typed::basic_set_list<> add(const typed::point<> &el) const;
+  inline typed::basic_set<> at(int index) const = delete;
+  inline typed::basic_set<> get_at(int index) const = delete;
+  inline typed::basic_set_list<> drop(unsigned int first, unsigned int n) const;
+  inline void foreach(const std::function<void(typed::basic_set<>)> &fn) const;
+  inline void foreach_scc(const std::function<bool(typed::basic_set<>, typed::basic_set<>)> &follows, const std::function<void(typed::basic_set_list<>)> &fn) const;
+  inline typed::basic_set_list<> set_at(int index, const typed::basic_set<> &el) const = delete;
+};
+
+template <typename Domain>
+struct basic_set_list<Domain> : public isl::basic_set_list {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  basic_set_list() = default;
+  template <typename Arg1,
+            typename std::enable_if<
+              std::is_base_of<Domain, Arg1>{},
+            bool>::type = true>
+  basic_set_list(const basic_set_list<Arg1> &obj) : isl::basic_set_list(obj) {}
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::basic_set_list>{}, bool>::type = true>
+  basic_set_list(const base &obj) : isl::basic_set_list(obj) {}
+ public:
+  static basic_set_list from(const isl::basic_set_list &obj) {
+    return basic_set_list(obj);
+  }
+  inline explicit basic_set_list(const isl::ctx &ctx, int n);
+  inline explicit basic_set_list(const typed::basic_set<Domain> &el);
+  inline typed::basic_set_list<Domain> add(const typed::basic_set<Domain> &el) const;
+  inline typed::basic_set_list<Domain> add(const typed::point<Domain> &el) const;
+  inline typed::basic_set<Domain> at(int index) const;
+  inline typed::basic_set<Domain> get_at(int index) const = delete;
+  inline typed::basic_set_list<Domain> drop(unsigned int first, unsigned int n) const;
+  inline void foreach(const std::function<void(typed::basic_set<Domain>)> &fn) const;
+  inline void foreach_scc(const std::function<bool(typed::basic_set<Domain>, typed::basic_set<Domain>)> &follows, const std::function<void(typed::basic_set_list<Domain>)> &fn) const;
+  inline typed::basic_set_list<Domain> set_at(int index, const typed::basic_set<Anonymous> &el) const;
+};
+
+template <>
+struct constraint<> : public isl::constraint {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  constraint() = default;
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::constraint>{}, bool>::type = true>
+  constraint(const base &obj) : isl::constraint(obj) {}
+ public:
+  static constraint from(const isl::constraint &obj) {
+    return constraint(obj);
+  }
+  inline typed::aff<> aff() const = delete;
+  inline typed::aff<> get_aff() const = delete;
+  inline typed::aff<> get_bound(enum isl_dim_type type, int pos) const = delete;
+  inline typed::val<> get_coefficient_val(enum isl_dim_type type, int pos) const = delete;
+  inline typed::val<> constant_val() const = delete;
+  inline typed::val<> get_constant_val() const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<> get_div(int pos) const = delete;
+  inline typed::local_space<> local_space() const;
+  inline typed::local_space<> get_local_space() const = delete;
+  inline typed::space<> space() const;
+  inline typed::space<> get_space() const = delete;
+};
+
+template <>
+struct constraint_list<> : public isl::constraint_list {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  constraint_list() = default;
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::constraint_list>{}, bool>::type = true>
+  constraint_list(const base &obj) : isl::constraint_list(obj) {}
+ public:
+  static constraint_list from(const isl::constraint_list &obj) {
+    return constraint_list(obj);
+  }
+  inline explicit constraint_list(const isl::ctx &ctx, int n);
+  inline explicit constraint_list(const typed::constraint<> &el);
+  inline typed::constraint_list<> add(const typed::constraint<> &el) const;
+  inline typed::constraint<> at(int index) const = delete;
+  inline typed::constraint<> get_at(int index) const = delete;
+  inline typed::constraint_list<> drop(unsigned int first, unsigned int n) const;
+  inline void foreach(const std::function<void(typed::constraint<>)> &fn) const;
+  inline void foreach_scc(const std::function<bool(typed::constraint<>, typed::constraint<>)> &follows, const std::function<void(typed::constraint_list<>)> &fn) const;
+  inline typed::constraint_list<> set_at(int index, const typed::constraint<> &el) const = delete;
 };
 
 template <typename Domain>
@@ -2753,13 +3502,23 @@ struct fixed_box<Domain> : public isl::fixed_box {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -2840,13 +3599,23 @@ struct fixed_box<Domain, Range> : public isl::fixed_box {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -2928,13 +3697,23 @@ struct id<Anonymous> : public isl::id {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -3000,13 +3779,23 @@ struct id_list<Anonymous> : public isl::id_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -3073,6 +3862,615 @@ struct id_list<Anonymous> : public isl::id_list {
   inline typed::id_list<Anonymous> set_at(int index, const std::string &el) const;
 };
 
+template <>
+struct local_space<> : public isl::local_space {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  local_space() = default;
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::local_space>{}, bool>::type = true>
+  local_space(const base &obj) : isl::local_space(obj) {}
+ public:
+  static local_space from(const isl::local_space &obj) {
+    return local_space(obj);
+  }
+  inline typed::id<> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<> get_div(int pos) const = delete;
+  inline typed::local_space<> domain() const = delete;
+  inline typed::local_space<> flatten_domain() const = delete;
+  inline typed::local_space<> flatten_range() const = delete;
+  inline typed::local_space<> intersect(const typed::local_space<> &ls2) const;
+  inline typed::local_space<> range() const = delete;
+  inline typed::space<> space() const;
+  inline typed::space<> get_space() const = delete;
+  inline typed::local_space<> wrap() const = delete;
+};
+
+template <typename Domain>
+struct local_space<Domain> : public isl::local_space {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  local_space() = default;
+  template <typename Arg1,
+            typename std::enable_if<
+              std::is_base_of<Domain, Arg1>{},
+            bool>::type = true>
+  local_space(const local_space<Arg1> &obj) : isl::local_space(obj) {}
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::local_space>{}, bool>::type = true>
+  local_space(const base &obj) : isl::local_space(obj) {}
+ public:
+  static local_space from(const isl::local_space &obj) {
+    return local_space(obj);
+  }
+  inline typed::id<Domain> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<Domain> get_div(int pos) const = delete;
+  inline typed::local_space<> domain() const;
+  inline typed::local_space<Domain> flatten_domain() const = delete;
+  inline typed::local_space<Domain> flatten_range() const = delete;
+  inline typed::local_space<Domain> intersect(const typed::local_space<Domain> &ls2) const;
+  inline typed::local_space<Domain> range() const = delete;
+  inline typed::space<Domain> space() const;
+  inline typed::space<Domain> get_space() const = delete;
+  inline typed::local_space<Domain> wrap() const = delete;
+};
+
+template <typename Domain, typename Range>
+struct local_space<Domain, Range> : public isl::local_space {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  local_space() = default;
+  template <typename Arg1, typename Arg2,
+            typename std::enable_if<
+              std::is_base_of<Domain, Arg1>{} &&
+              std::is_base_of<Range, Arg2>{},
+            bool>::type = true>
+  local_space(const local_space<Arg1, Arg2> &obj) : isl::local_space(obj) {}
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::local_space>{}, bool>::type = true>
+  local_space(const base &obj) : isl::local_space(obj) {}
+ public:
+  static local_space from(const isl::local_space &obj) {
+    return local_space(obj);
+  }
+  inline typed::id<Domain, Range> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<Domain, Range> get_div(int pos) const = delete;
+  inline typed::local_space<Domain> domain() const;
+  inline typed::local_space<Domain, Range> flatten_domain() const = delete;
+  inline typed::local_space<Domain, Range> flatten_range() const = delete;
+  inline typed::local_space<Domain, Range> intersect(const typed::local_space<Domain, Range> &ls2) const;
+  inline typed::local_space<Range> range() const;
+  inline typed::space<Domain, Range> space() const;
+  inline typed::space<Domain, Range> get_space() const = delete;
+  inline typed::local_space<pair<Domain, Range>> wrap() const;
+};
+
+template <typename Domain, typename Range, typename Range2>
+struct local_space<pair<Domain, Range>, Range2> : public isl::local_space {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  local_space() = default;
+  template <typename Arg1, typename Arg2, typename Arg3,
+            typename std::enable_if<
+              std::is_base_of<Domain, Arg1>{} &&
+              std::is_base_of<Range, Arg2>{} &&
+              std::is_base_of<Range2, Arg3>{},
+            bool>::type = true>
+  local_space(const local_space<pair<Arg1, Arg2>, Arg3> &obj) : isl::local_space(obj) {}
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::local_space>{}, bool>::type = true>
+  local_space(const base &obj) : isl::local_space(obj) {}
+ public:
+  static local_space from(const isl::local_space &obj) {
+    return local_space(obj);
+  }
+  inline typed::id<pair<Domain, Range>, Range2> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<pair<Domain, Range>, Range2> get_div(int pos) const = delete;
+  inline typed::local_space<pair<Domain, Range>> domain() const;
+  inline typed::local_space<Anonymous, Range2> flatten_domain() const;
+  inline typed::local_space<pair<Domain, Range>, Range2> flatten_range() const = delete;
+  inline typed::local_space<pair<Domain, Range>, Range2> intersect(const typed::local_space<pair<Domain, Range>, Range2> &ls2) const;
+  inline typed::local_space<Range2> range() const;
+  inline typed::space<pair<Domain, Range>, Range2> space() const;
+  inline typed::space<pair<Domain, Range>, Range2> get_space() const = delete;
+  inline typed::local_space<pair<pair<Domain, Range>, Range2>> wrap() const;
+};
+
+template <typename Domain, typename Range, typename Range2>
+struct local_space<Domain, pair<Range, Range2>> : public isl::local_space {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  local_space() = default;
+  template <typename Arg1, typename Arg2, typename Arg3,
+            typename std::enable_if<
+              std::is_base_of<Domain, Arg1>{} &&
+              std::is_base_of<Range, Arg2>{} &&
+              std::is_base_of<Range2, Arg3>{},
+            bool>::type = true>
+  local_space(const local_space<Arg1, pair<Arg2, Arg3>> &obj) : isl::local_space(obj) {}
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::local_space>{}, bool>::type = true>
+  local_space(const base &obj) : isl::local_space(obj) {}
+ public:
+  static local_space from(const isl::local_space &obj) {
+    return local_space(obj);
+  }
+  inline typed::id<Domain, pair<Range, Range2>> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<Domain, pair<Range, Range2>> get_div(int pos) const = delete;
+  inline typed::local_space<Domain> domain() const;
+  inline typed::local_space<Domain, pair<Range, Range2>> flatten_domain() const = delete;
+  inline typed::local_space<Domain, Anonymous> flatten_range() const;
+  inline typed::local_space<Domain, pair<Range, Range2>> intersect(const typed::local_space<Domain, pair<Range, Range2>> &ls2) const;
+  inline typed::local_space<pair<Range, Range2>> range() const;
+  inline typed::space<Domain, pair<Range, Range2>> space() const;
+  inline typed::space<Domain, pair<Range, Range2>> get_space() const = delete;
+  inline typed::local_space<pair<Domain, pair<Range, Range2>>> wrap() const;
+};
+
+template <typename T1, typename T2, typename Range, typename Range2>
+struct local_space<pair<T1, T2>, pair<Range, Range2>> : public isl::local_space {
+  template <typename...>
+  friend struct aff;
+  template <typename...>
+  friend struct aff_list;
+  template <typename...>
+  friend struct basic_map;
+  template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
+  friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
+  template <typename...>
+  friend struct fixed_box;
+  template <typename...>
+  friend struct id;
+  template <typename...>
+  friend struct id_list;
+  template <typename...>
+  friend struct local_space;
+  template <typename...>
+  friend struct map;
+  template <typename...>
+  friend struct map_list;
+  template <typename...>
+  friend struct multi_aff;
+  template <typename...>
+  friend struct multi_id;
+  template <typename...>
+  friend struct multi_pw_aff;
+  template <typename...>
+  friend struct multi_union_pw_aff;
+  template <typename...>
+  friend struct multi_val;
+  template <typename...>
+  friend struct point;
+  template <typename...>
+  friend struct pw_aff;
+  template <typename...>
+  friend struct pw_aff_list;
+  template <typename...>
+  friend struct pw_multi_aff;
+  template <typename...>
+  friend struct pw_multi_aff_list;
+  template <typename...>
+  friend struct set;
+  template <typename...>
+  friend struct set_list;
+  template <typename...>
+  friend struct space;
+  template <typename...>
+  friend struct union_map;
+  template <typename...>
+  friend struct union_pw_aff;
+  template <typename...>
+  friend struct union_pw_aff_list;
+  template <typename...>
+  friend struct union_pw_multi_aff;
+  template <typename...>
+  friend struct union_set;
+  template <typename...>
+  friend struct union_set_list;
+  template <typename...>
+  friend struct val;
+  template <typename...>
+  friend struct val_list;
+
+  local_space() = default;
+  template <typename Arg1, typename Arg2, typename Arg3, typename Arg4,
+            typename std::enable_if<
+              std::is_base_of<T1, Arg1>{} &&
+              std::is_base_of<T2, Arg2>{} &&
+              std::is_base_of<Range, Arg3>{} &&
+              std::is_base_of<Range2, Arg4>{},
+            bool>::type = true>
+  local_space(const local_space<pair<Arg1, Arg2>, pair<Arg3, Arg4>> &obj) : isl::local_space(obj) {}
+ private:
+  template <typename base,
+            typename std::enable_if<
+              std::is_same<base, isl::local_space>{}, bool>::type = true>
+  local_space(const base &obj) : isl::local_space(obj) {}
+ public:
+  static local_space from(const isl::local_space &obj) {
+    return local_space(obj);
+  }
+  inline typed::id<pair<T1, T2>, pair<Range, Range2>> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline typed::aff<pair<T1, T2>, pair<Range, Range2>> get_div(int pos) const = delete;
+  inline typed::local_space<pair<T1, T2>> domain() const;
+  inline typed::local_space<Anonymous, pair<Range, Range2>> flatten_domain() const;
+  inline typed::local_space<pair<T1, T2>, Anonymous> flatten_range() const;
+  inline typed::local_space<pair<T1, T2>, pair<Range, Range2>> intersect(const typed::local_space<pair<T1, T2>, pair<Range, Range2>> &ls2) const;
+  inline typed::local_space<pair<Range, Range2>> range() const;
+  inline typed::space<pair<T1, T2>, pair<Range, Range2>> space() const;
+  inline typed::space<pair<T1, T2>, pair<Range, Range2>> get_space() const = delete;
+  inline typed::local_space<pair<pair<T1, T2>, pair<Range, Range2>>> wrap() const;
+};
+
 template <typename Domain, typename Range>
 struct map<Domain, Range> : public isl::map {
   template <typename...>
@@ -3082,13 +4480,23 @@ struct map<Domain, Range> : public isl::map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -3175,11 +4583,14 @@ struct map<Domain, Range> : public isl::map {
   inline typed::map<Domain, Range> coalesce() const;
   inline typed::map<Domain, Range> curry() const = delete;
   inline typed::set<Domain, Range> deltas() const = delete;
+  inline typed::map<Domain, Range> deltas_map() const = delete;
   inline typed::map<Domain, Range> detect_equalities() const;
+  inline typed::id<Domain, Range> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
   inline typed::set<Domain> domain() const;
   inline typed::map<Domain, Range> domain_factor_domain() const = delete;
   inline typed::map<Domain, Range> domain_factor_range() const = delete;
-  inline typed::union_map<pair<Domain, Range>, Domain> domain_map() const;
+  inline typed::map<pair<Domain, Range>, Domain> domain_map() const;
   inline typed::union_pw_multi_aff<pair<Domain, Range>, Domain> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<Domain, Domain2>, Range> domain_product(const typed::map<Domain2, Range> &map2) const;
@@ -3268,6 +4679,7 @@ struct map<Domain, Range> : public isl::map {
   inline typed::map_list<Domain, Range> map_list() const;
   inline typed::multi_pw_aff<Domain, Range> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<Domain, Range> min_multi_pw_aff() const;
+  inline typed::map<Domain, Range> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, Range> preimage_domain(const typed::multi_aff<Domain2, Domain> &ma) const;
@@ -3298,7 +4710,7 @@ struct map<Domain, Range> : public isl::map {
   inline typed::map<Domain, Range> range_factor_range() const = delete;
   inline typed::fixed_box<Domain, Range> range_lattice_tile() const;
   inline typed::fixed_box<Domain, Range> get_range_lattice_tile() const = delete;
-  inline typed::union_map<pair<Domain, Range>, Range> range_map() const;
+  inline typed::map<pair<Domain, Range>, Range> range_map() const;
   template <typename Range2>
   inline typed::map<Domain, pair<Range, Range2>> range_product(const typed::map<Domain, Range2> &map2) const;
   template <typename Range2>
@@ -3323,9 +4735,16 @@ struct map<Domain, Range> : public isl::map {
   inline typed::map<Domain, Range> subtract(const typed::map<Domain, Range> &map2) const;
   inline typed::union_map<Domain, Range> subtract(const typed::union_map<Domain, Range> &umap2) const;
   inline typed::map<Domain, Range> subtract(const typed::basic_map<Domain, Range> &map2) const;
+  inline typed::map<Domain, Range> subtract_domain(const typed::set<Domain> &dom) const;
   inline typed::union_map<Domain, Range> subtract_domain(const typed::union_set<Domain> &dom) const;
+  inline typed::map<Domain, Range> subtract_domain(const typed::basic_set<Domain> &dom) const;
+  inline typed::map<Domain, Range> subtract_domain(const typed::point<Domain> &dom) const;
+  inline typed::map<Domain, Range> subtract_range(const typed::set<Range> &dom) const;
   inline typed::union_map<Domain, Range> subtract_range(const typed::union_set<Range> &dom) const;
+  inline typed::map<Domain, Range> subtract_range(const typed::basic_set<Range> &dom) const;
+  inline typed::map<Domain, Range> subtract_range(const typed::point<Range> &dom) const;
   inline typed::union_map<Domain, Range> to_union_map() const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
   inline typed::map<Domain, Range> uncurry() const = delete;
   inline typed::map<Domain, Range> unite(const typed::map<Domain, Range> &map2) const;
   inline typed::union_map<Domain, Range> unite(const typed::union_map<Domain, Range> &umap2) const;
@@ -3348,13 +4767,23 @@ struct map<pair<Domain, Range>, Range2> : public isl::map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -3442,11 +4871,14 @@ struct map<pair<Domain, Range>, Range2> : public isl::map {
   inline typed::map<pair<Domain, Range>, Range2> coalesce() const;
   inline typed::map<Domain, pair<Range, Range2>> curry() const;
   inline typed::set<pair<Domain, Range>, Range2> deltas() const = delete;
+  inline typed::map<pair<Domain, Range>, Range2> deltas_map() const = delete;
   inline typed::map<pair<Domain, Range>, Range2> detect_equalities() const;
+  inline typed::id<pair<Domain, Range>, Range2> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
   inline typed::set<pair<Domain, Range>> domain() const;
   inline typed::map<Domain, Range2> domain_factor_domain() const;
   inline typed::map<Range, Range2> domain_factor_range() const;
-  inline typed::union_map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> domain_map() const;
+  inline typed::map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> domain_map() const;
   inline typed::union_pw_multi_aff<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<pair<Domain, Range>, Domain2>, Range2> domain_product(const typed::map<Domain2, Range2> &map2) const;
@@ -3535,6 +4967,7 @@ struct map<pair<Domain, Range>, Range2> : public isl::map {
   inline typed::map_list<pair<Domain, Range>, Range2> map_list() const;
   inline typed::multi_pw_aff<pair<Domain, Range>, Range2> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<pair<Domain, Range>, Range2> min_multi_pw_aff() const;
+  inline typed::map<pair<Domain, Range>, Range2> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, Range2> preimage_domain(const typed::multi_aff<Domain2, pair<Domain, Range>> &ma) const;
@@ -3565,7 +4998,7 @@ struct map<pair<Domain, Range>, Range2> : public isl::map {
   inline typed::map<pair<Domain, Range>, Range2> range_factor_range() const = delete;
   inline typed::fixed_box<pair<Domain, Range>, Range2> range_lattice_tile() const;
   inline typed::fixed_box<pair<Domain, Range>, Range2> get_range_lattice_tile() const = delete;
-  inline typed::union_map<pair<pair<Domain, Range>, Range2>, Range2> range_map() const;
+  inline typed::map<pair<pair<Domain, Range>, Range2>, Range2> range_map() const;
   template <typename Arg3>
   inline typed::map<pair<Domain, Range>, pair<Range2, Arg3>> range_product(const typed::map<pair<Domain, Range>, Arg3> &map2) const;
   template <typename Arg3>
@@ -3588,9 +5021,16 @@ struct map<pair<Domain, Range>, Range2> : public isl::map {
   inline typed::map<pair<Domain, Range>, Range2> subtract(const typed::map<pair<Domain, Range>, Range2> &map2) const;
   inline typed::union_map<pair<Domain, Range>, Range2> subtract(const typed::union_map<pair<Domain, Range>, Range2> &umap2) const;
   inline typed::map<pair<Domain, Range>, Range2> subtract(const typed::basic_map<pair<Domain, Range>, Range2> &map2) const;
+  inline typed::map<pair<Domain, Range>, Range2> subtract_domain(const typed::set<pair<Domain, Range>> &dom) const;
   inline typed::union_map<pair<Domain, Range>, Range2> subtract_domain(const typed::union_set<pair<Domain, Range>> &dom) const;
+  inline typed::map<pair<Domain, Range>, Range2> subtract_domain(const typed::basic_set<pair<Domain, Range>> &dom) const;
+  inline typed::map<pair<Domain, Range>, Range2> subtract_domain(const typed::point<pair<Domain, Range>> &dom) const;
+  inline typed::map<pair<Domain, Range>, Range2> subtract_range(const typed::set<Range2> &dom) const;
   inline typed::union_map<pair<Domain, Range>, Range2> subtract_range(const typed::union_set<Range2> &dom) const;
+  inline typed::map<pair<Domain, Range>, Range2> subtract_range(const typed::basic_set<Range2> &dom) const;
+  inline typed::map<pair<Domain, Range>, Range2> subtract_range(const typed::point<Range2> &dom) const;
   inline typed::union_map<pair<Domain, Range>, Range2> to_union_map() const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
   inline typed::map<pair<Domain, Range>, Range2> uncurry() const = delete;
   inline typed::map<pair<Domain, Range>, Range2> unite(const typed::map<pair<Domain, Range>, Range2> &map2) const;
   inline typed::union_map<pair<Domain, Range>, Range2> unite(const typed::union_map<pair<Domain, Range>, Range2> &umap2) const;
@@ -3613,13 +5053,23 @@ struct map<Domain, Domain> : public isl::map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -3705,11 +5155,14 @@ struct map<Domain, Domain> : public isl::map {
   inline typed::map<Domain, Domain> coalesce() const;
   inline typed::map<Domain, Domain> curry() const = delete;
   inline typed::set<Domain> deltas() const;
+  inline typed::map<Domain, Domain> deltas_map() const = delete;
   inline typed::map<Domain, Domain> detect_equalities() const;
+  inline typed::id<Domain, Domain> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
   inline typed::set<Domain> domain() const;
   inline typed::map<Domain, Domain> domain_factor_domain() const = delete;
   inline typed::map<Domain, Domain> domain_factor_range() const = delete;
-  inline typed::union_map<pair<Domain, Domain>, Domain> domain_map() const;
+  inline typed::map<pair<Domain, Domain>, Domain> domain_map() const;
   inline typed::union_pw_multi_aff<pair<Domain, Domain>, Domain> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<Domain, Domain2>, Domain> domain_product(const typed::map<Domain2, Domain> &map2) const;
@@ -3814,6 +5267,7 @@ struct map<Domain, Domain> : public isl::map {
   inline typed::map_list<Domain, Domain> map_list() const;
   inline typed::multi_pw_aff<Domain, Domain> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<Domain, Domain> min_multi_pw_aff() const;
+  inline typed::map<Domain, Domain> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, Domain> preimage_domain(const typed::multi_aff<Domain2, Domain> &ma) const;
@@ -3844,7 +5298,7 @@ struct map<Domain, Domain> : public isl::map {
   inline typed::map<Domain, Domain> range_factor_range() const = delete;
   inline typed::fixed_box<Domain, Domain> range_lattice_tile() const;
   inline typed::fixed_box<Domain, Domain> get_range_lattice_tile() const = delete;
-  inline typed::union_map<pair<Domain, Domain>, Domain> range_map() const;
+  inline typed::map<pair<Domain, Domain>, Domain> range_map() const;
   template <typename Range2>
   inline typed::map<Domain, pair<Domain, Range2>> range_product(const typed::map<Domain, Range2> &map2) const;
   template <typename Range2>
@@ -3869,9 +5323,16 @@ struct map<Domain, Domain> : public isl::map {
   inline typed::map<Domain, Domain> subtract(const typed::map<Domain, Domain> &map2) const;
   inline typed::union_map<Domain, Domain> subtract(const typed::union_map<Domain, Domain> &umap2) const;
   inline typed::map<Domain, Domain> subtract(const typed::basic_map<Domain, Domain> &map2) const;
+  inline typed::map<Domain, Domain> subtract_domain(const typed::set<Domain> &dom) const;
   inline typed::union_map<Domain, Domain> subtract_domain(const typed::union_set<Domain> &dom) const;
+  inline typed::map<Domain, Domain> subtract_domain(const typed::basic_set<Domain> &dom) const;
+  inline typed::map<Domain, Domain> subtract_domain(const typed::point<Domain> &dom) const;
+  inline typed::map<Domain, Domain> subtract_range(const typed::set<Domain> &dom) const;
   inline typed::union_map<Domain, Domain> subtract_range(const typed::union_set<Domain> &dom) const;
+  inline typed::map<Domain, Domain> subtract_range(const typed::basic_set<Domain> &dom) const;
+  inline typed::map<Domain, Domain> subtract_range(const typed::point<Domain> &dom) const;
   inline typed::union_map<Domain, Domain> to_union_map() const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
   inline typed::map<Domain, Domain> uncurry() const = delete;
   inline typed::map<Domain, Domain> unite(const typed::map<Domain, Domain> &map2) const;
   inline typed::union_map<Domain, Domain> unite(const typed::union_map<Domain, Domain> &umap2) const;
@@ -3894,13 +5355,23 @@ struct map<Domain, pair<Range, Range2>> : public isl::map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -3988,11 +5459,14 @@ struct map<Domain, pair<Range, Range2>> : public isl::map {
   inline typed::map<Domain, pair<Range, Range2>> coalesce() const;
   inline typed::map<Domain, pair<Range, Range2>> curry() const = delete;
   inline typed::set<Domain, pair<Range, Range2>> deltas() const = delete;
+  inline typed::map<Domain, pair<Range, Range2>> deltas_map() const = delete;
   inline typed::map<Domain, pair<Range, Range2>> detect_equalities() const;
+  inline typed::id<Domain, pair<Range, Range2>> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
   inline typed::set<Domain> domain() const;
   inline typed::map<Domain, pair<Range, Range2>> domain_factor_domain() const = delete;
   inline typed::map<Domain, pair<Range, Range2>> domain_factor_range() const = delete;
-  inline typed::union_map<pair<Domain, pair<Range, Range2>>, Domain> domain_map() const;
+  inline typed::map<pair<Domain, pair<Range, Range2>>, Domain> domain_map() const;
   inline typed::union_pw_multi_aff<pair<Domain, pair<Range, Range2>>, Domain> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<Domain, Domain2>, pair<Range, Range2>> domain_product(const typed::map<Domain2, pair<Range, Range2>> &map2) const;
@@ -4081,6 +5555,7 @@ struct map<Domain, pair<Range, Range2>> : public isl::map {
   inline typed::map_list<Domain, pair<Range, Range2>> map_list() const;
   inline typed::multi_pw_aff<Domain, pair<Range, Range2>> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<Domain, pair<Range, Range2>> min_multi_pw_aff() const;
+  inline typed::map<Domain, pair<Range, Range2>> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, pair<Range, Range2>> preimage_domain(const typed::multi_aff<Domain2, Domain> &ma) const;
@@ -4111,7 +5586,7 @@ struct map<Domain, pair<Range, Range2>> : public isl::map {
   inline typed::map<Domain, Range2> range_factor_range() const;
   inline typed::fixed_box<Domain, pair<Range, Range2>> range_lattice_tile() const;
   inline typed::fixed_box<Domain, pair<Range, Range2>> get_range_lattice_tile() const = delete;
-  inline typed::union_map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> range_map() const;
+  inline typed::map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> range_map() const;
   template <typename Arg3>
   inline typed::map<Domain, pair<pair<Range, Range2>, Arg3>> range_product(const typed::map<Domain, Arg3> &map2) const;
   template <typename Arg3>
@@ -4134,9 +5609,16 @@ struct map<Domain, pair<Range, Range2>> : public isl::map {
   inline typed::map<Domain, pair<Range, Range2>> subtract(const typed::map<Domain, pair<Range, Range2>> &map2) const;
   inline typed::union_map<Domain, pair<Range, Range2>> subtract(const typed::union_map<Domain, pair<Range, Range2>> &umap2) const;
   inline typed::map<Domain, pair<Range, Range2>> subtract(const typed::basic_map<Domain, pair<Range, Range2>> &map2) const;
+  inline typed::map<Domain, pair<Range, Range2>> subtract_domain(const typed::set<Domain> &dom) const;
   inline typed::union_map<Domain, pair<Range, Range2>> subtract_domain(const typed::union_set<Domain> &dom) const;
+  inline typed::map<Domain, pair<Range, Range2>> subtract_domain(const typed::basic_set<Domain> &dom) const;
+  inline typed::map<Domain, pair<Range, Range2>> subtract_domain(const typed::point<Domain> &dom) const;
+  inline typed::map<Domain, pair<Range, Range2>> subtract_range(const typed::set<pair<Range, Range2>> &dom) const;
   inline typed::union_map<Domain, pair<Range, Range2>> subtract_range(const typed::union_set<pair<Range, Range2>> &dom) const;
+  inline typed::map<Domain, pair<Range, Range2>> subtract_range(const typed::basic_set<pair<Range, Range2>> &dom) const;
+  inline typed::map<Domain, pair<Range, Range2>> subtract_range(const typed::point<pair<Range, Range2>> &dom) const;
   inline typed::union_map<Domain, pair<Range, Range2>> to_union_map() const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
   inline typed::map<pair<Domain, Range>, Range2> uncurry() const;
   inline typed::map<Domain, pair<Range, Range2>> unite(const typed::map<Domain, pair<Range, Range2>> &map2) const;
   inline typed::union_map<Domain, pair<Range, Range2>> unite(const typed::union_map<Domain, pair<Range, Range2>> &umap2) const;
@@ -4159,13 +5641,23 @@ struct map<pair<T1, T2>, pair<T1, T2>> : public isl::map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -4252,11 +5744,14 @@ struct map<pair<T1, T2>, pair<T1, T2>> : public isl::map {
   inline typed::map<pair<T1, T2>, pair<T1, T2>> coalesce() const;
   inline typed::map<T1, pair<T2, pair<T1, T2>>> curry() const;
   inline typed::set<pair<T1, T2>> deltas() const;
+  inline typed::map<pair<T1, T2>, pair<T1, T2>> deltas_map() const = delete;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> detect_equalities() const;
+  inline typed::id<pair<T1, T2>, pair<T1, T2>> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
   inline typed::set<pair<T1, T2>> domain() const;
   inline typed::map<T1, pair<T1, T2>> domain_factor_domain() const;
   inline typed::map<T2, pair<T1, T2>> domain_factor_range() const;
-  inline typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> domain_map() const;
+  inline typed::map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> domain_map() const;
   inline typed::union_pw_multi_aff<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<pair<T1, T2>, Domain2>, pair<T1, T2>> domain_product(const typed::map<Domain2, pair<T1, T2>> &map2) const;
@@ -4361,6 +5856,7 @@ struct map<pair<T1, T2>, pair<T1, T2>> : public isl::map {
   inline typed::map_list<pair<T1, T2>, pair<T1, T2>> map_list() const;
   inline typed::multi_pw_aff<pair<T1, T2>, pair<T1, T2>> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<pair<T1, T2>, pair<T1, T2>> min_multi_pw_aff() const;
+  inline typed::map<pair<T1, T2>, pair<T1, T2>> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, pair<T1, T2>> preimage_domain(const typed::multi_aff<Domain2, pair<T1, T2>> &ma) const;
@@ -4391,7 +5887,7 @@ struct map<pair<T1, T2>, pair<T1, T2>> : public isl::map {
   inline typed::map<pair<T1, T2>, T2> range_factor_range() const;
   inline typed::fixed_box<pair<T1, T2>, pair<T1, T2>> range_lattice_tile() const;
   inline typed::fixed_box<pair<T1, T2>, pair<T1, T2>> get_range_lattice_tile() const = delete;
-  inline typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> range_map() const;
+  inline typed::map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> range_map() const;
   template <typename Range2>
   inline typed::map<pair<T1, T2>, pair<pair<T1, T2>, Range2>> range_product(const typed::map<pair<T1, T2>, Range2> &map2) const;
   template <typename Range2>
@@ -4412,9 +5908,16 @@ struct map<pair<T1, T2>, pair<T1, T2>> : public isl::map {
   inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract(const typed::map<pair<T1, T2>, pair<T1, T2>> &map2) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> subtract(const typed::union_map<pair<T1, T2>, pair<T1, T2>> &umap2) const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract(const typed::basic_map<pair<T1, T2>, pair<T1, T2>> &map2) const;
+  inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract_domain(const typed::set<pair<T1, T2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> subtract_domain(const typed::union_set<pair<T1, T2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract_domain(const typed::basic_set<pair<T1, T2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract_domain(const typed::point<pair<T1, T2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract_range(const typed::set<pair<T1, T2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> subtract_range(const typed::union_set<pair<T1, T2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract_range(const typed::basic_set<pair<T1, T2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<T1, T2>> subtract_range(const typed::point<pair<T1, T2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> to_union_map() const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
   inline typed::map<pair<pair<T1, T2>, T1>, T2> uncurry() const;
   inline typed::map<pair<T1, T2>, pair<T1, T2>> unite(const typed::map<pair<T1, T2>, pair<T1, T2>> &map2) const;
   inline typed::union_map<pair<T1, T2>, pair<T1, T2>> unite(const typed::union_map<pair<T1, T2>, pair<T1, T2>> &umap2) const;
@@ -4437,13 +5940,23 @@ struct map<pair<T1, T2>, pair<Range, Range2>> : public isl::map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -4532,11 +6045,14 @@ struct map<pair<T1, T2>, pair<Range, Range2>> : public isl::map {
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> coalesce() const;
   inline typed::map<T1, pair<T2, pair<Range, Range2>>> curry() const;
   inline typed::set<pair<T1, T2>, pair<Range, Range2>> deltas() const = delete;
+  inline typed::map<pair<T1, T2>, pair<Range, Range2>> deltas_map() const = delete;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> detect_equalities() const;
+  inline typed::id<pair<T1, T2>, pair<Range, Range2>> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
   inline typed::set<pair<T1, T2>> domain() const;
   inline typed::map<T1, pair<Range, Range2>> domain_factor_domain() const;
   inline typed::map<T2, pair<Range, Range2>> domain_factor_range() const;
-  inline typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> domain_map() const;
+  inline typed::map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> domain_map() const;
   inline typed::union_pw_multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> domain_map_union_pw_multi_aff() const;
   template <typename Domain2>
   inline typed::map<pair<pair<T1, T2>, Domain2>, pair<Range, Range2>> domain_product(const typed::map<Domain2, pair<Range, Range2>> &map2) const;
@@ -4625,6 +6141,7 @@ struct map<pair<T1, T2>, pair<Range, Range2>> : public isl::map {
   inline typed::map_list<pair<T1, T2>, pair<Range, Range2>> map_list() const;
   inline typed::multi_pw_aff<pair<T1, T2>, pair<Range, Range2>> max_multi_pw_aff() const;
   inline typed::multi_pw_aff<pair<T1, T2>, pair<Range, Range2>> min_multi_pw_aff() const;
+  inline typed::map<pair<T1, T2>, pair<Range, Range2>> neg() const;
   inline typed::set<> params() const;
   template <typename Domain2>
   inline typed::map<Domain2, pair<Range, Range2>> preimage_domain(const typed::multi_aff<Domain2, pair<T1, T2>> &ma) const;
@@ -4655,7 +6172,7 @@ struct map<pair<T1, T2>, pair<Range, Range2>> : public isl::map {
   inline typed::map<pair<T1, T2>, Range2> range_factor_range() const;
   inline typed::fixed_box<pair<T1, T2>, pair<Range, Range2>> range_lattice_tile() const;
   inline typed::fixed_box<pair<T1, T2>, pair<Range, Range2>> get_range_lattice_tile() const = delete;
-  inline typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> range_map() const;
+  inline typed::map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> range_map() const;
   template <typename Arg2>
   inline typed::map<pair<T1, T2>, pair<pair<Range, Range2>, Arg2>> range_product(const typed::map<pair<T1, T2>, Arg2> &map2) const;
   template <typename Arg2>
@@ -4676,9 +6193,16 @@ struct map<pair<T1, T2>, pair<Range, Range2>> : public isl::map {
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract(const typed::map<pair<T1, T2>, pair<Range, Range2>> &map2) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> subtract(const typed::union_map<pair<T1, T2>, pair<Range, Range2>> &umap2) const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract(const typed::basic_map<pair<T1, T2>, pair<Range, Range2>> &map2) const;
+  inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract_domain(const typed::set<pair<T1, T2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> subtract_domain(const typed::union_set<pair<T1, T2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract_domain(const typed::basic_set<pair<T1, T2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract_domain(const typed::point<pair<T1, T2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract_range(const typed::set<pair<Range, Range2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> subtract_range(const typed::union_set<pair<Range, Range2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract_range(const typed::basic_set<pair<Range, Range2>> &dom) const;
+  inline typed::map<pair<T1, T2>, pair<Range, Range2>> subtract_range(const typed::point<pair<Range, Range2>> &dom) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> to_union_map() const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const = delete;
   inline typed::map<pair<pair<T1, T2>, Range>, Range2> uncurry() const;
   inline typed::map<pair<T1, T2>, pair<Range, Range2>> unite(const typed::map<pair<T1, T2>, pair<Range, Range2>> &map2) const;
   inline typed::union_map<pair<T1, T2>, pair<Range, Range2>> unite(const typed::union_map<pair<T1, T2>, pair<Range, Range2>> &umap2) const;
@@ -4701,13 +6225,23 @@ struct map_list<Domain, Range> : public isl::map_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -4793,13 +6327,23 @@ struct multi_aff<Domain> : public isl::multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -4986,13 +6530,23 @@ struct multi_aff<Domain, Range> : public isl::multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -5194,13 +6748,23 @@ struct multi_aff<pair<Domain2, Range2>, Range> : public isl::multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -5405,13 +6969,23 @@ struct multi_aff<Domain, pair<Range, Range2>> : public isl::multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -5612,13 +7186,23 @@ struct multi_aff<pair<T1, T2>, pair<Range, Range2>> : public isl::multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -5822,13 +7406,23 @@ struct multi_id<Domain> : public isl::multi_id {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -5913,13 +7507,23 @@ struct multi_pw_aff<Domain> : public isl::multi_pw_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -6098,13 +7702,23 @@ struct multi_pw_aff<Domain, Range> : public isl::multi_pw_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -6296,13 +7910,23 @@ struct multi_pw_aff<pair<Domain2, Range2>, Range> : public isl::multi_pw_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -6495,13 +8119,23 @@ struct multi_union_pw_aff<Domain> : public isl::multi_union_pw_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -6631,13 +8265,23 @@ struct multi_union_pw_aff<Domain, Range> : public isl::multi_union_pw_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -6778,13 +8422,23 @@ struct multi_val<Domain> : public isl::multi_val {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -6889,13 +8543,23 @@ struct point<> : public isl::point {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -6958,13 +8622,17 @@ struct point<> : public isl::point {
   inline typed::union_set<> apply(const typed::union_map<> &umap) const = delete;
   inline typed::pw_multi_aff<> as_pw_multi_aff() const = delete;
   inline typed::set<> as_set() const = delete;
+  inline typed::basic_set_list<> basic_set_list() const;
   inline typed::set<> bind(const typed::multi_id<> &tuple) const = delete;
   inline typed::set<> coalesce() const;
+  inline typed::constraint_list<> constraint_list() const;
+  inline typed::val<> get_coordinate_val(enum isl_dim_type type, int pos) const = delete;
   inline typed::basic_set<> detect_equalities() const;
-  inline typed::set<> drop_unused_params() const;
+  inline typed::basic_set<> drop_unused_params() const;
   inline bool every_set(const std::function<bool(typed::set<>)> &test) const;
   inline typed::set<> extract_set(const typed::space<> &space) const;
   inline void foreach_basic_set(const std::function<void(typed::basic_set<>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<>)> &fn) const;
   inline void foreach_point(const std::function<void(typed::point<>)> &fn) const;
   inline void foreach_set(const std::function<void(typed::set<>)> &fn) const;
   inline typed::basic_set<> gist(const typed::basic_set<> &context) const;
@@ -6984,6 +8652,7 @@ struct point<> : public isl::point {
   inline typed::pw_multi_aff<> lexmax_pw_multi_aff() const = delete;
   inline typed::set<> lexmin() const = delete;
   inline typed::pw_multi_aff<> lexmin_pw_multi_aff() const = delete;
+  inline typed::local_space<> local_space() const;
   inline typed::set<> lower_bound(const typed::multi_pw_aff<> &lower) const = delete;
   inline typed::set<> lower_bound(const typed::multi_val<> &lower) const = delete;
   inline typed::multi_pw_aff<> max_multi_pw_aff() const = delete;
@@ -6992,6 +8661,7 @@ struct point<> : public isl::point {
   inline typed::val<> min_val(const typed::aff<> &obj) const = delete;
   inline typed::multi_val<> multi_val() const = delete;
   inline typed::multi_val<> get_multi_val() const = delete;
+  inline typed::basic_set<> neg() const = delete;
   inline typed::pw_aff<Anonymous> param_pw_aff_on_domain(const typed::id<Anonymous> &id) const;
   inline typed::pw_aff<Anonymous> param_pw_aff_on_domain(const std::string &id) const;
   inline typed::basic_set<> params() const = delete;
@@ -7023,7 +8693,7 @@ struct point<> : public isl::point {
   inline typed::set<> unite(const typed::basic_set<> &bset2) const;
   inline typed::set<> unite(const typed::set<> &set2) const;
   inline typed::union_set<> unite(const typed::union_set<> &uset2) const;
-  inline typed::map<> unwrap() const = delete;
+  inline typed::basic_map<> unwrap() const = delete;
   inline typed::set<> upper_bound(const typed::multi_pw_aff<> &upper) const = delete;
   inline typed::set<> upper_bound(const typed::multi_val<> &upper) const = delete;
   inline typed::set<> wrapped_reverse() const = delete;
@@ -7038,13 +8708,23 @@ struct point<Domain> : public isl::point {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -7115,13 +8795,17 @@ struct point<Domain> : public isl::point {
   inline typed::union_set<Range> apply(const typed::union_map<Domain, Range> &umap) const;
   inline typed::pw_multi_aff<Domain> as_pw_multi_aff() const;
   inline typed::set<Domain> as_set() const;
+  inline typed::basic_set_list<Domain> basic_set_list() const;
   inline typed::set<> bind(const typed::multi_id<Domain> &tuple) const;
   inline typed::set<Domain> coalesce() const;
+  inline typed::constraint_list<Domain> constraint_list() const = delete;
+  inline typed::val<Domain> get_coordinate_val(enum isl_dim_type type, int pos) const = delete;
   inline typed::basic_set<Domain> detect_equalities() const;
-  inline typed::set<Domain> drop_unused_params() const;
+  inline typed::basic_set<Domain> drop_unused_params() const;
   inline bool every_set(const std::function<bool(typed::set<Domain>)> &test) const;
   inline typed::set<Domain> extract_set(const typed::space<Domain> &space) const;
   inline void foreach_basic_set(const std::function<void(typed::basic_set<Domain>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<Domain>)> &fn) const;
   inline void foreach_point(const std::function<void(typed::point<Domain>)> &fn) const;
   inline void foreach_set(const std::function<void(typed::set<Domain>)> &fn) const;
   inline typed::basic_set<Domain> gist(const typed::basic_set<Domain> &context) const;
@@ -7142,6 +8826,7 @@ struct point<Domain> : public isl::point {
   inline typed::pw_multi_aff<Domain> lexmax_pw_multi_aff() const;
   inline typed::set<Domain> lexmin() const;
   inline typed::pw_multi_aff<Domain> lexmin_pw_multi_aff() const;
+  inline typed::local_space<Domain> local_space() const;
   inline typed::set<Domain> lower_bound(const typed::multi_pw_aff<Domain> &lower) const;
   inline typed::set<Domain> lower_bound(const typed::multi_val<Domain> &lower) const;
   inline typed::multi_pw_aff<Domain> max_multi_pw_aff() const;
@@ -7150,6 +8835,7 @@ struct point<Domain> : public isl::point {
   inline typed::val<Domain> min_val(const typed::aff<> &obj) const = delete;
   inline typed::multi_val<Domain> multi_val() const;
   inline typed::multi_val<Domain> get_multi_val() const = delete;
+  inline typed::basic_set<Domain> neg() const;
   inline typed::pw_aff<Domain, Anonymous> param_pw_aff_on_domain(const typed::id<Anonymous> &id) const;
   inline typed::pw_aff<Domain, Anonymous> param_pw_aff_on_domain(const std::string &id) const;
   inline typed::basic_set<> params() const;
@@ -7186,7 +8872,7 @@ struct point<Domain> : public isl::point {
   inline typed::set<Domain> unite(const typed::basic_set<Domain> &bset2) const;
   inline typed::set<Domain> unite(const typed::set<Domain> &set2) const;
   inline typed::union_set<Domain> unite(const typed::union_set<Domain> &uset2) const;
-  inline typed::map<Domain> unwrap() const = delete;
+  inline typed::basic_map<Domain> unwrap() const = delete;
   inline typed::set<Domain> upper_bound(const typed::multi_pw_aff<Domain> &upper) const;
   inline typed::set<Domain> upper_bound(const typed::multi_val<Domain> &upper) const;
   inline typed::set<Domain> wrapped_reverse() const = delete;
@@ -7201,13 +8887,23 @@ struct point<pair<Domain, Range>> : public isl::point {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -7279,13 +8975,17 @@ struct point<pair<Domain, Range>> : public isl::point {
   inline typed::union_set<Arg2> apply(const typed::union_map<pair<Domain, Range>, Arg2> &umap) const;
   inline typed::pw_multi_aff<pair<Domain, Range>> as_pw_multi_aff() const;
   inline typed::set<pair<Domain, Range>> as_set() const;
+  inline typed::basic_set_list<pair<Domain, Range>> basic_set_list() const;
   inline typed::set<> bind(const typed::multi_id<pair<Domain, Range>> &tuple) const;
   inline typed::set<pair<Domain, Range>> coalesce() const;
+  inline typed::constraint_list<pair<Domain, Range>> constraint_list() const = delete;
+  inline typed::val<pair<Domain, Range>> get_coordinate_val(enum isl_dim_type type, int pos) const = delete;
   inline typed::basic_set<pair<Domain, Range>> detect_equalities() const;
-  inline typed::set<pair<Domain, Range>> drop_unused_params() const;
+  inline typed::basic_set<pair<Domain, Range>> drop_unused_params() const;
   inline bool every_set(const std::function<bool(typed::set<pair<Domain, Range>>)> &test) const;
   inline typed::set<pair<Domain, Range>> extract_set(const typed::space<pair<Domain, Range>> &space) const;
   inline void foreach_basic_set(const std::function<void(typed::basic_set<pair<Domain, Range>>)> &fn) const;
+  inline void foreach_constraint(const std::function<void(typed::constraint<pair<Domain, Range>>)> &fn) const;
   inline void foreach_point(const std::function<void(typed::point<pair<Domain, Range>>)> &fn) const;
   inline void foreach_set(const std::function<void(typed::set<pair<Domain, Range>>)> &fn) const;
   inline typed::basic_set<pair<Domain, Range>> gist(const typed::basic_set<pair<Domain, Range>> &context) const;
@@ -7306,6 +9006,7 @@ struct point<pair<Domain, Range>> : public isl::point {
   inline typed::pw_multi_aff<pair<Domain, Range>> lexmax_pw_multi_aff() const;
   inline typed::set<pair<Domain, Range>> lexmin() const;
   inline typed::pw_multi_aff<pair<Domain, Range>> lexmin_pw_multi_aff() const;
+  inline typed::local_space<pair<Domain, Range>> local_space() const;
   inline typed::set<pair<Domain, Range>> lower_bound(const typed::multi_pw_aff<pair<Domain, Range>> &lower) const;
   inline typed::set<pair<Domain, Range>> lower_bound(const typed::multi_val<pair<Domain, Range>> &lower) const;
   inline typed::multi_pw_aff<pair<Domain, Range>> max_multi_pw_aff() const;
@@ -7314,6 +9015,7 @@ struct point<pair<Domain, Range>> : public isl::point {
   inline typed::val<pair<Domain, Range>> min_val(const typed::aff<> &obj) const = delete;
   inline typed::multi_val<pair<Domain, Range>> multi_val() const;
   inline typed::multi_val<pair<Domain, Range>> get_multi_val() const = delete;
+  inline typed::basic_set<pair<Domain, Range>> neg() const;
   inline typed::pw_aff<pair<Domain, Range>, Anonymous> param_pw_aff_on_domain(const typed::id<Anonymous> &id) const;
   inline typed::pw_aff<pair<Domain, Range>, Anonymous> param_pw_aff_on_domain(const std::string &id) const;
   inline typed::basic_set<> params() const;
@@ -7350,7 +9052,7 @@ struct point<pair<Domain, Range>> : public isl::point {
   inline typed::set<pair<Domain, Range>> unite(const typed::basic_set<pair<Domain, Range>> &bset2) const;
   inline typed::set<pair<Domain, Range>> unite(const typed::set<pair<Domain, Range>> &set2) const;
   inline typed::union_set<pair<Domain, Range>> unite(const typed::union_set<pair<Domain, Range>> &uset2) const;
-  inline typed::map<Domain, Range> unwrap() const;
+  inline typed::basic_map<Domain, Range> unwrap() const;
   inline typed::set<pair<Domain, Range>> upper_bound(const typed::multi_pw_aff<pair<Domain, Range>> &upper) const;
   inline typed::set<pair<Domain, Range>> upper_bound(const typed::multi_val<pair<Domain, Range>> &upper) const;
   inline typed::set<pair<Range, Domain>> wrapped_reverse() const;
@@ -7365,13 +9067,23 @@ struct pw_aff<Anonymous> : public isl::pw_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -7567,13 +9279,23 @@ struct pw_aff<Domain, Anonymous> : public isl::pw_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -7789,13 +9511,23 @@ struct pw_aff<pair<Domain2, Range2>, Anonymous> : public isl::pw_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -8014,13 +9746,23 @@ struct pw_aff_list<Anonymous> : public isl::pw_aff_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -8095,13 +9837,23 @@ struct pw_aff_list<Domain, Anonymous> : public isl::pw_aff_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -8186,13 +9938,23 @@ struct pw_multi_aff<Domain> : public isl::pw_multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -8381,13 +10143,23 @@ struct pw_multi_aff<Domain, Range> : public isl::pw_multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -8589,13 +10361,23 @@ struct pw_multi_aff<pair<Domain2, Range2>, Range> : public isl::pw_multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -8802,13 +10584,23 @@ struct pw_multi_aff<Domain, pair<Range, Range2>> : public isl::pw_multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -9009,13 +10801,23 @@ struct pw_multi_aff<pair<T1, T2>, pair<Range, Range2>> : public isl::pw_multi_af
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -9221,13 +11023,23 @@ struct pw_multi_aff_list<Domain> : public isl::pw_multi_aff_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -9313,13 +11125,23 @@ struct pw_multi_aff_list<Domain, Range> : public isl::pw_multi_aff_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -9406,13 +11228,23 @@ struct set<> : public isl::set {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -9478,9 +11310,13 @@ struct set<> : public isl::set {
   inline typed::set<> apply(const typed::basic_map<> &map) const = delete;
   inline typed::pw_multi_aff<> as_pw_multi_aff() const = delete;
   inline typed::set<> as_set() const = delete;
+  inline typed::basic_set_list<> basic_set_list() const;
+  inline typed::basic_set_list<> get_basic_set_list() const = delete;
   inline typed::set<> bind(const typed::multi_id<> &tuple) const = delete;
   inline typed::set<> coalesce() const;
   inline typed::set<> detect_equalities() const;
+  inline typed::id<> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
   inline typed::set<> drop_unused_params() const;
   inline bool every_set(const std::function<bool(typed::set<>)> &test) const;
   inline typed::set<> extract_set(const typed::space<> &space) const;
@@ -9516,6 +11352,7 @@ struct set<> : public isl::set {
   inline typed::val<> max_val(const typed::aff<> &obj) const = delete;
   inline typed::multi_pw_aff<> min_multi_pw_aff() const = delete;
   inline typed::val<> min_val(const typed::aff<> &obj) const = delete;
+  inline typed::set<> neg() const = delete;
   inline typed::pw_aff<Anonymous> param_pw_aff_on_domain(const typed::id<Anonymous> &id) const;
   inline typed::pw_aff<Anonymous> param_pw_aff_on_domain(const std::string &id) const;
   inline typed::set<> params() const = delete;
@@ -9548,6 +11385,8 @@ struct set<> : public isl::set {
   inline typed::set<> subtract(const typed::point<> &set2) const;
   inline typed::union_set<> to_union_set() const;
   inline typed::map<> translation() const = delete;
+  inline typed::id<> get_tuple_id() const = delete;
+  inline std::string get_tuple_name() const = delete;
   template <typename Domain>
   inline typed::set<Domain> unbind_params(const typed::multi_id<Domain> &tuple) const;
   inline typed::map<> unbind_params_insert_domain(const typed::multi_id<> &domain) const = delete;
@@ -9571,13 +11410,23 @@ struct set<Domain> : public isl::set {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -9651,9 +11500,13 @@ struct set<Domain> : public isl::set {
   inline typed::set<Range> apply(const typed::basic_map<Domain, Range> &map) const;
   inline typed::pw_multi_aff<Domain> as_pw_multi_aff() const;
   inline typed::set<Domain> as_set() const;
+  inline typed::basic_set_list<Domain> basic_set_list() const;
+  inline typed::basic_set_list<Domain> get_basic_set_list() const = delete;
   inline typed::set<> bind(const typed::multi_id<Domain> &tuple) const;
   inline typed::set<Domain> coalesce() const;
   inline typed::set<Domain> detect_equalities() const;
+  inline typed::id<Domain> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
   inline typed::set<Domain> drop_unused_params() const;
   inline bool every_set(const std::function<bool(typed::set<Domain>)> &test) const;
   inline typed::set<Domain> extract_set(const typed::space<Domain> &space) const;
@@ -9690,6 +11543,7 @@ struct set<Domain> : public isl::set {
   inline typed::val<Domain> max_val(const typed::aff<> &obj) const = delete;
   inline typed::multi_pw_aff<Domain> min_multi_pw_aff() const;
   inline typed::val<Domain> min_val(const typed::aff<> &obj) const = delete;
+  inline typed::set<Domain> neg() const;
   inline typed::pw_aff<Domain, Anonymous> param_pw_aff_on_domain(const typed::id<Anonymous> &id) const;
   inline typed::pw_aff<Domain, Anonymous> param_pw_aff_on_domain(const std::string &id) const;
   inline typed::set<> params() const;
@@ -9729,6 +11583,8 @@ struct set<Domain> : public isl::set {
   inline typed::set<Domain> subtract(const typed::point<Domain> &set2) const;
   inline typed::union_set<Domain> to_union_set() const;
   inline typed::map<Domain, Domain> translation() const;
+  inline typed::id<Domain> get_tuple_id() const = delete;
+  inline std::string get_tuple_name() const = delete;
   inline typed::set<Domain> unbind_params(const typed::multi_id<> &tuple) const = delete;
   template <typename Arg1>
   inline typed::map<Arg1, Domain> unbind_params_insert_domain(const typed::multi_id<Arg1> &domain) const;
@@ -9752,13 +11608,23 @@ struct set<pair<Domain, Range>> : public isl::set {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -9833,9 +11699,13 @@ struct set<pair<Domain, Range>> : public isl::set {
   inline typed::set<Arg2> apply(const typed::basic_map<pair<Domain, Range>, Arg2> &map) const;
   inline typed::pw_multi_aff<pair<Domain, Range>> as_pw_multi_aff() const;
   inline typed::set<pair<Domain, Range>> as_set() const;
+  inline typed::basic_set_list<pair<Domain, Range>> basic_set_list() const;
+  inline typed::basic_set_list<pair<Domain, Range>> get_basic_set_list() const = delete;
   inline typed::set<> bind(const typed::multi_id<pair<Domain, Range>> &tuple) const;
   inline typed::set<pair<Domain, Range>> coalesce() const;
   inline typed::set<pair<Domain, Range>> detect_equalities() const;
+  inline typed::id<pair<Domain, Range>> get_dim_id(enum isl_dim_type type, unsigned int pos) const = delete;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const = delete;
   inline typed::set<pair<Domain, Range>> drop_unused_params() const;
   inline bool every_set(const std::function<bool(typed::set<pair<Domain, Range>>)> &test) const;
   inline typed::set<pair<Domain, Range>> extract_set(const typed::space<pair<Domain, Range>> &space) const;
@@ -9872,6 +11742,7 @@ struct set<pair<Domain, Range>> : public isl::set {
   inline typed::val<pair<Domain, Range>> max_val(const typed::aff<> &obj) const = delete;
   inline typed::multi_pw_aff<pair<Domain, Range>> min_multi_pw_aff() const;
   inline typed::val<pair<Domain, Range>> min_val(const typed::aff<> &obj) const = delete;
+  inline typed::set<pair<Domain, Range>> neg() const;
   inline typed::pw_aff<pair<Domain, Range>, Anonymous> param_pw_aff_on_domain(const typed::id<Anonymous> &id) const;
   inline typed::pw_aff<pair<Domain, Range>, Anonymous> param_pw_aff_on_domain(const std::string &id) const;
   inline typed::set<> params() const;
@@ -9911,6 +11782,8 @@ struct set<pair<Domain, Range>> : public isl::set {
   inline typed::set<pair<Domain, Range>> subtract(const typed::point<pair<Domain, Range>> &set2) const;
   inline typed::union_set<pair<Domain, Range>> to_union_set() const;
   inline typed::map<pair<Domain, Range>, pair<Domain, Range>> translation() const;
+  inline typed::id<pair<Domain, Range>> get_tuple_id() const = delete;
+  inline std::string get_tuple_name() const = delete;
   inline typed::set<pair<Domain, Range>> unbind_params(const typed::multi_id<> &tuple) const = delete;
   template <typename Arg2>
   inline typed::map<Arg2, pair<Domain, Range>> unbind_params_insert_domain(const typed::multi_id<Arg2> &domain) const;
@@ -9934,13 +11807,23 @@ struct set_list<> : public isl::set_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -10010,6 +11893,7 @@ struct set_list<> : public isl::set_list {
   inline void foreach(const std::function<void(typed::set<>)> &fn) const;
   inline void foreach_scc(const std::function<bool(typed::set<>, typed::set<>)> &follows, const std::function<void(typed::set_list<>)> &fn) const;
   inline typed::set_list<> set_at(int index, const typed::set<> &el) const = delete;
+  inline typed::set<> unite() const = delete;
 };
 
 template <typename Domain>
@@ -10021,13 +11905,23 @@ struct set_list<Domain> : public isl::set_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -10102,6 +11996,7 @@ struct set_list<Domain> : public isl::set_list {
   inline void foreach(const std::function<void(typed::set<Domain>)> &fn) const;
   inline void foreach_scc(const std::function<bool(typed::set<Domain>, typed::set<Domain>)> &follows, const std::function<void(typed::set_list<Domain>)> &fn) const;
   inline typed::set_list<Domain> set_at(int index, const typed::set<Anonymous> &el) const;
+  inline typed::set<Domain> unite() const = delete;
 };
 
 template <>
@@ -10113,13 +12008,23 @@ struct space<> : public isl::space {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -10188,8 +12093,12 @@ struct space<> : public isl::space {
   inline typed::space<Domain> add_unnamed_tuple(unsigned int dim) const;
   inline typed::space<> curry() const = delete;
   inline typed::space<> domain() const = delete;
+  inline typed::space<> domain_factor_domain() const = delete;
+  inline typed::space<> domain_factor_range() const = delete;
+  inline typed::space<> domain_map() const = delete;
   inline typed::multi_aff<> domain_map_multi_aff() const = delete;
   inline typed::pw_multi_aff<> domain_map_pw_multi_aff() const = delete;
+  inline typed::space<> domain_product(const typed::space<> &right) const = delete;
   inline typed::space<> domain_reverse() const = delete;
   inline typed::id<> get_domain_tuple_id() const = delete;
   inline typed::space<> drop_all_params() const;
@@ -10211,8 +12120,12 @@ struct space<> : public isl::space {
   inline typed::space<> params() const = delete;
   inline typed::space<> product(const typed::space<> &right) const = delete;
   inline typed::space<> range() const = delete;
+  inline typed::space<> range_factor_domain() const = delete;
+  inline typed::space<> range_factor_range() const = delete;
+  inline typed::space<> range_map() const = delete;
   inline typed::multi_aff<> range_map_multi_aff() const = delete;
   inline typed::pw_multi_aff<> range_map_pw_multi_aff() const = delete;
+  inline typed::space<> range_product(const typed::space<> &right) const = delete;
   inline typed::space<> range_reverse() const = delete;
   inline typed::id<> get_range_tuple_id() const = delete;
   inline typed::space<> reverse() const = delete;
@@ -10243,13 +12156,23 @@ struct space<Domain> : public isl::space {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -10323,8 +12246,12 @@ struct space<Domain> : public isl::space {
   inline typed::space<Domain, Range> add_unnamed_tuple(unsigned int dim) const;
   inline typed::space<Domain> curry() const = delete;
   inline typed::space<> domain() const;
+  inline typed::space<Domain> domain_factor_domain() const = delete;
+  inline typed::space<Domain> domain_factor_range() const = delete;
+  inline typed::space<Domain> domain_map() const = delete;
   inline typed::multi_aff<Domain> domain_map_multi_aff() const = delete;
   inline typed::pw_multi_aff<Domain> domain_map_pw_multi_aff() const = delete;
+  inline typed::space<Domain> domain_product(const typed::space<> &right) const = delete;
   inline typed::space<Domain> domain_reverse() const = delete;
   inline typed::id<Domain> get_domain_tuple_id() const = delete;
   inline typed::space<Domain> drop_all_params() const;
@@ -10349,8 +12276,12 @@ struct space<Domain> : public isl::space {
   template <typename Range>
   inline typed::space<pair<Domain, Range>> product(const typed::space<Range> &right) const;
   inline typed::space<Domain> range() const = delete;
+  inline typed::space<Domain> range_factor_domain() const = delete;
+  inline typed::space<Domain> range_factor_range() const = delete;
+  inline typed::space<Domain> range_map() const = delete;
   inline typed::multi_aff<Domain> range_map_multi_aff() const = delete;
   inline typed::pw_multi_aff<Domain> range_map_pw_multi_aff() const = delete;
+  inline typed::space<Domain> range_product(const typed::space<> &right) const = delete;
   inline typed::space<Domain> range_reverse() const = delete;
   inline typed::id<Domain> get_range_tuple_id() const = delete;
   inline typed::space<Domain> reverse() const = delete;
@@ -10383,13 +12314,23 @@ struct space<Domain, Range> : public isl::space {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -10461,8 +12402,13 @@ struct space<Domain, Range> : public isl::space {
   inline typed::space<Domain, Range> add_unnamed_tuple(unsigned int dim) const = delete;
   inline typed::space<Domain, Range> curry() const = delete;
   inline typed::space<Domain> domain() const;
+  inline typed::space<Domain, Range> domain_factor_domain() const = delete;
+  inline typed::space<Domain, Range> domain_factor_range() const = delete;
+  inline typed::space<pair<Domain, Range>, Domain> domain_map() const;
   inline typed::multi_aff<pair<Domain, Range>, Domain> domain_map_multi_aff() const;
   inline typed::pw_multi_aff<pair<Domain, Range>, Domain> domain_map_pw_multi_aff() const;
+  template <typename Domain2>
+  inline typed::space<pair<Domain, Domain2>, Range> domain_product(const typed::space<Domain2, Range> &right) const;
   inline typed::space<Domain, Range> domain_reverse() const = delete;
   inline typed::id<Domain, Range> get_domain_tuple_id() const = delete;
   inline typed::space<Domain, Range> drop_all_params() const;
@@ -10484,8 +12430,13 @@ struct space<Domain, Range> : public isl::space {
   template <typename Domain2, typename Range2>
   inline typed::space<pair<Domain, Domain2>, pair<Range, Range2>> product(const typed::space<Domain2, Range2> &right) const;
   inline typed::space<Range> range() const;
+  inline typed::space<Domain, Range> range_factor_domain() const = delete;
+  inline typed::space<Domain, Range> range_factor_range() const = delete;
+  inline typed::space<pair<Domain, Range>, Range> range_map() const;
   inline typed::multi_aff<pair<Domain, Range>, Range> range_map_multi_aff() const;
   inline typed::pw_multi_aff<pair<Domain, Range>, Range> range_map_pw_multi_aff() const;
+  template <typename Range2>
+  inline typed::space<Domain, pair<Range, Range2>> range_product(const typed::space<Domain, Range2> &right) const;
   inline typed::space<Domain, Range> range_reverse() const = delete;
   inline typed::id<Domain, Range> get_range_tuple_id() const = delete;
   inline typed::space<Range, Domain> reverse() const;
@@ -10520,13 +12471,23 @@ struct space<pair<Domain, Range>> : public isl::space {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -10601,8 +12562,12 @@ struct space<pair<Domain, Range>> : public isl::space {
   inline typed::space<pair<Domain, Range>, Arg2> add_unnamed_tuple(unsigned int dim) const;
   inline typed::space<pair<Domain, Range>> curry() const = delete;
   inline typed::space<> domain() const;
+  inline typed::space<pair<Domain, Range>> domain_factor_domain() const = delete;
+  inline typed::space<pair<Domain, Range>> domain_factor_range() const = delete;
+  inline typed::space<pair<Domain, Range>> domain_map() const = delete;
   inline typed::multi_aff<pair<Domain, Range>> domain_map_multi_aff() const = delete;
   inline typed::pw_multi_aff<pair<Domain, Range>> domain_map_pw_multi_aff() const = delete;
+  inline typed::space<pair<Domain, Range>> domain_product(const typed::space<> &right) const = delete;
   inline typed::space<pair<Domain, Range>> domain_reverse() const = delete;
   inline typed::id<pair<Domain, Range>> get_domain_tuple_id() const = delete;
   inline typed::space<pair<Domain, Range>> drop_all_params() const;
@@ -10627,8 +12592,12 @@ struct space<pair<Domain, Range>> : public isl::space {
   template <typename Arg2>
   inline typed::space<pair<pair<Domain, Range>, Arg2>> product(const typed::space<Arg2> &right) const;
   inline typed::space<pair<Domain, Range>> range() const = delete;
+  inline typed::space<pair<Domain, Range>> range_factor_domain() const = delete;
+  inline typed::space<pair<Domain, Range>> range_factor_range() const = delete;
+  inline typed::space<pair<Domain, Range>> range_map() const = delete;
   inline typed::multi_aff<pair<Domain, Range>> range_map_multi_aff() const = delete;
   inline typed::pw_multi_aff<pair<Domain, Range>> range_map_pw_multi_aff() const = delete;
+  inline typed::space<pair<Domain, Range>> range_product(const typed::space<> &right) const = delete;
   inline typed::space<pair<Domain, Range>> range_reverse() const = delete;
   inline typed::id<pair<Domain, Range>> get_range_tuple_id() const = delete;
   inline typed::space<pair<Domain, Range>> reverse() const = delete;
@@ -10659,13 +12628,23 @@ struct space<pair<Domain, Range>, Range2> : public isl::space {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -10738,8 +12717,13 @@ struct space<pair<Domain, Range>, Range2> : public isl::space {
   inline typed::space<pair<Domain, Range>, Range2> add_unnamed_tuple(unsigned int dim) const = delete;
   inline typed::space<Domain, pair<Range, Range2>> curry() const;
   inline typed::space<pair<Domain, Range>> domain() const;
+  inline typed::space<Domain, Range2> domain_factor_domain() const;
+  inline typed::space<Range, Range2> domain_factor_range() const;
+  inline typed::space<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> domain_map() const;
   inline typed::multi_aff<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> domain_map_multi_aff() const;
   inline typed::pw_multi_aff<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> domain_map_pw_multi_aff() const;
+  template <typename Domain2>
+  inline typed::space<pair<pair<Domain, Range>, Domain2>, Range2> domain_product(const typed::space<Domain2, Range2> &right) const;
   inline typed::space<pair<Range, Domain>, Range2> domain_reverse() const;
   inline typed::id<pair<Domain, Range>, Range2> get_domain_tuple_id() const = delete;
   inline typed::space<pair<Domain, Range>, Range2> drop_all_params() const;
@@ -10761,8 +12745,13 @@ struct space<pair<Domain, Range>, Range2> : public isl::space {
   template <typename Domain2, typename Arg3>
   inline typed::space<pair<pair<Domain, Range>, Domain2>, pair<Range2, Arg3>> product(const typed::space<Domain2, Arg3> &right) const;
   inline typed::space<Range2> range() const;
+  inline typed::space<pair<Domain, Range>, Range2> range_factor_domain() const = delete;
+  inline typed::space<pair<Domain, Range>, Range2> range_factor_range() const = delete;
+  inline typed::space<pair<pair<Domain, Range>, Range2>, Range2> range_map() const;
   inline typed::multi_aff<pair<pair<Domain, Range>, Range2>, Range2> range_map_multi_aff() const;
   inline typed::pw_multi_aff<pair<pair<Domain, Range>, Range2>, Range2> range_map_pw_multi_aff() const;
+  template <typename Arg3>
+  inline typed::space<pair<Domain, Range>, pair<Range2, Arg3>> range_product(const typed::space<pair<Domain, Range>, Arg3> &right) const;
   inline typed::space<pair<Domain, Range>, Range2> range_reverse() const = delete;
   inline typed::id<pair<Domain, Range>, Range2> get_range_tuple_id() const = delete;
   inline typed::space<Range2, pair<Domain, Range>> reverse() const;
@@ -10795,13 +12784,23 @@ struct space<Domain, pair<Range, Range2>> : public isl::space {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -10874,8 +12873,13 @@ struct space<Domain, pair<Range, Range2>> : public isl::space {
   inline typed::space<Domain, pair<Range, Range2>> add_unnamed_tuple(unsigned int dim) const = delete;
   inline typed::space<Domain, pair<Range, Range2>> curry() const = delete;
   inline typed::space<Domain> domain() const;
+  inline typed::space<Domain, pair<Range, Range2>> domain_factor_domain() const = delete;
+  inline typed::space<Domain, pair<Range, Range2>> domain_factor_range() const = delete;
+  inline typed::space<pair<Domain, pair<Range, Range2>>, Domain> domain_map() const;
   inline typed::multi_aff<pair<Domain, pair<Range, Range2>>, Domain> domain_map_multi_aff() const;
   inline typed::pw_multi_aff<pair<Domain, pair<Range, Range2>>, Domain> domain_map_pw_multi_aff() const;
+  template <typename Domain2>
+  inline typed::space<pair<Domain, Domain2>, pair<Range, Range2>> domain_product(const typed::space<Domain2, pair<Range, Range2>> &right) const;
   inline typed::space<Domain, pair<Range, Range2>> domain_reverse() const = delete;
   inline typed::id<Domain, pair<Range, Range2>> get_domain_tuple_id() const = delete;
   inline typed::space<Domain, pair<Range, Range2>> drop_all_params() const;
@@ -10897,8 +12901,13 @@ struct space<Domain, pair<Range, Range2>> : public isl::space {
   template <typename Domain2, typename Arg3>
   inline typed::space<pair<Domain, Domain2>, pair<pair<Range, Range2>, Arg3>> product(const typed::space<Domain2, Arg3> &right) const;
   inline typed::space<pair<Range, Range2>> range() const;
+  inline typed::space<Domain, Range> range_factor_domain() const;
+  inline typed::space<Domain, Range2> range_factor_range() const;
+  inline typed::space<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> range_map() const;
   inline typed::multi_aff<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> range_map_multi_aff() const;
   inline typed::pw_multi_aff<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> range_map_pw_multi_aff() const;
+  template <typename Arg3>
+  inline typed::space<Domain, pair<pair<Range, Range2>, Arg3>> range_product(const typed::space<Domain, Arg3> &right) const;
   inline typed::space<Domain, pair<Range2, Range>> range_reverse() const;
   inline typed::id<Domain, pair<Range, Range2>> get_range_tuple_id() const = delete;
   inline typed::space<pair<Range, Range2>, Domain> reverse() const;
@@ -10931,13 +12940,23 @@ struct space<pair<T1, T2>, pair<Range, Range2>> : public isl::space {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -11011,8 +13030,13 @@ struct space<pair<T1, T2>, pair<Range, Range2>> : public isl::space {
   inline typed::space<pair<T1, T2>, pair<Range, Range2>> add_unnamed_tuple(unsigned int dim) const = delete;
   inline typed::space<T1, pair<T2, pair<Range, Range2>>> curry() const;
   inline typed::space<pair<T1, T2>> domain() const;
+  inline typed::space<T1, pair<Range, Range2>> domain_factor_domain() const;
+  inline typed::space<T2, pair<Range, Range2>> domain_factor_range() const;
+  inline typed::space<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> domain_map() const;
   inline typed::multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> domain_map_multi_aff() const;
   inline typed::pw_multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> domain_map_pw_multi_aff() const;
+  template <typename Domain2>
+  inline typed::space<pair<pair<T1, T2>, Domain2>, pair<Range, Range2>> domain_product(const typed::space<Domain2, pair<Range, Range2>> &right) const;
   inline typed::space<pair<T2, T1>, pair<Range, Range2>> domain_reverse() const;
   inline typed::id<pair<T1, T2>, pair<Range, Range2>> get_domain_tuple_id() const = delete;
   inline typed::space<pair<T1, T2>, pair<Range, Range2>> drop_all_params() const;
@@ -11034,8 +13058,13 @@ struct space<pair<T1, T2>, pair<Range, Range2>> : public isl::space {
   template <typename Domain2, typename Arg2>
   inline typed::space<pair<pair<T1, T2>, Domain2>, pair<pair<Range, Range2>, Arg2>> product(const typed::space<Domain2, Arg2> &right) const;
   inline typed::space<pair<Range, Range2>> range() const;
+  inline typed::space<pair<T1, T2>, Range> range_factor_domain() const;
+  inline typed::space<pair<T1, T2>, Range2> range_factor_range() const;
+  inline typed::space<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> range_map() const;
   inline typed::multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> range_map_multi_aff() const;
   inline typed::pw_multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> range_map_pw_multi_aff() const;
+  template <typename Arg2>
+  inline typed::space<pair<T1, T2>, pair<pair<Range, Range2>, Arg2>> range_product(const typed::space<pair<T1, T2>, Arg2> &right) const;
   inline typed::space<pair<T1, T2>, pair<Range2, Range>> range_reverse() const;
   inline typed::id<pair<T1, T2>, pair<Range, Range2>> get_range_tuple_id() const = delete;
   inline typed::space<pair<Range, Range2>, pair<T1, T2>> reverse() const;
@@ -11066,13 +13095,23 @@ struct union_map<Domain, Range> : public isl::union_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -11278,13 +13317,23 @@ struct union_map<pair<Domain, Range>, Range2> : public isl::union_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -11491,13 +13540,23 @@ struct union_map<Domain, Domain> : public isl::union_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -11704,13 +13763,23 @@ struct union_map<Domain, pair<Range, Range2>> : public isl::union_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -11917,13 +13986,23 @@ struct union_map<pair<T1, T2>, pair<T1, T2>> : public isl::union_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -12131,13 +14210,23 @@ struct union_map<pair<T1, T2>, pair<Range, Range2>> : public isl::union_map {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -12345,13 +14434,23 @@ struct union_pw_aff<Anonymous> : public isl::union_pw_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -12487,13 +14586,23 @@ struct union_pw_aff<Domain, Anonymous> : public isl::union_pw_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -12649,13 +14758,23 @@ struct union_pw_aff<pair<Domain, Domain2>, Anonymous> : public isl::union_pw_aff
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -12813,13 +14932,23 @@ struct union_pw_aff_list<Anonymous> : public isl::union_pw_aff_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -12895,13 +15024,23 @@ struct union_pw_aff_list<Domain, Anonymous> : public isl::union_pw_aff_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -12987,13 +15126,23 @@ struct union_pw_multi_aff<Domain> : public isl::union_pw_multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -13131,13 +15280,23 @@ struct union_pw_multi_aff<Domain, Range> : public isl::union_pw_multi_aff {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -13287,13 +15446,23 @@ struct union_pw_multi_aff<pair<Domain, Domain2>, Range> : public isl::union_pw_m
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -13448,13 +15617,23 @@ struct union_pw_multi_aff<Domain, pair<Range, Range2>> : public isl::union_pw_mu
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -13605,13 +15784,23 @@ struct union_pw_multi_aff<pair<T1, T2>, pair<Range, Range2>> : public isl::union
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -13767,13 +15956,23 @@ struct union_set<> : public isl::union_set {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -13894,13 +16093,23 @@ struct union_set<Domain> : public isl::union_set {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -14032,13 +16241,23 @@ struct union_set<pair<Domain, Range>> : public isl::union_set {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -14171,13 +16390,23 @@ struct union_set_list<> : public isl::union_set_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -14259,13 +16488,23 @@ struct union_set_list<Domain> : public isl::union_set_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -14352,13 +16591,23 @@ struct val<Anonymous> : public isl::val {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -14439,13 +16688,23 @@ struct val_list<Anonymous> : public isl::val_list {
   template <typename...>
   friend struct basic_map;
   template <typename...>
+  friend struct basic_map_list;
+  template <typename...>
   friend struct basic_set;
+  template <typename...>
+  friend struct basic_set_list;
+  template <typename...>
+  friend struct constraint;
+  template <typename...>
+  friend struct constraint_list;
   template <typename...>
   friend struct fixed_box;
   template <typename...>
   friend struct id;
   template <typename...>
   friend struct id_list;
+  template <typename...>
+  friend struct local_space;
   template <typename...>
   friend struct map;
   template <typename...>
@@ -17028,17 +19287,17 @@ typed::basic_map<Domain, Range> typed::basic_map<Domain, Range>::detect_equaliti
 }
 
 template <typename Domain, typename Range>
-typed::set<Domain> typed::basic_map<Domain, Range>::domain() const
+typed::basic_set<Domain> typed::basic_map<Domain, Range>::domain() const
 {
   auto res = isl::basic_map::domain();
-  return typed::set<Domain>(res);
+  return typed::basic_set<Domain>(res);
 }
 
 template <typename Domain, typename Range>
-typed::union_map<pair<Domain, Range>, Domain> typed::basic_map<Domain, Range>::domain_map() const
+typed::basic_map<pair<Domain, Range>, Domain> typed::basic_map<Domain, Range>::domain_map() const
 {
   auto res = isl::basic_map::domain_map();
-  return typed::union_map<pair<Domain, Range>, Domain>(res);
+  return typed::basic_map<pair<Domain, Range>, Domain>(res);
 }
 
 template <typename Domain, typename Range>
@@ -17065,10 +19324,10 @@ typed::union_map<pair<Domain, Domain2>, Range> typed::basic_map<Domain, Range>::
 }
 
 template <typename Domain, typename Range>
-typed::map<Domain, Range> typed::basic_map<Domain, Range>::drop_unused_params() const
+typed::basic_map<Domain, Range> typed::basic_map<Domain, Range>::drop_unused_params() const
 {
   auto res = isl::basic_map::drop_unused_params();
-  return typed::map<Domain, Range>(res);
+  return typed::basic_map<Domain, Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -17094,6 +19353,15 @@ void typed::basic_map<Domain, Range>::foreach_basic_map(const std::function<void
     return fn(typed::basic_map<Domain, Range>(arg0));
   };
   return isl::basic_map::foreach_basic_map(lambda_fn);
+}
+
+template <typename Domain, typename Range>
+void typed::basic_map<Domain, Range>::foreach_constraint(const std::function<void(typed::constraint<Domain, Range>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<Domain, Range>(arg0));
+  };
+  return isl::basic_map::foreach_constraint(lambda_fn);
 }
 
 template <typename Domain, typename Range>
@@ -17127,6 +19395,13 @@ typed::union_map<Domain, Range> typed::basic_map<Domain, Range>::gist(const type
 }
 
 template <typename Domain, typename Range>
+typed::basic_map<Domain, Range> typed::basic_map<Domain, Range>::gist_domain(const typed::basic_set<Domain> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
 typed::map<Domain, Range> typed::basic_map<Domain, Range>::gist_domain(const typed::set<Domain> &context) const
 {
   auto res = isl::basic_map::gist_domain(context);
@@ -17138,6 +19413,13 @@ typed::union_map<Domain, Range> typed::basic_map<Domain, Range>::gist_domain(con
 {
   auto res = isl::basic_map::gist_domain(uset);
   return typed::union_map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
+typed::basic_map<Domain, Range> typed::basic_map<Domain, Range>::gist_domain(const typed::point<Domain> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<Domain, Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -17316,6 +19598,13 @@ typed::multi_pw_aff<Domain, Range> typed::basic_map<Domain, Range>::min_multi_pw
 }
 
 template <typename Domain, typename Range>
+typed::basic_map<Domain, Range> typed::basic_map<Domain, Range>::neg() const
+{
+  auto res = isl::basic_map::neg();
+  return typed::basic_map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
 typed::set<> typed::basic_map<Domain, Range>::params() const
 {
   auto res = isl::basic_map::params();
@@ -17423,10 +19712,10 @@ typed::map<Domain, Range> typed::basic_map<Domain, Range>::project_out_param(con
 }
 
 template <typename Domain, typename Range>
-typed::set<Range> typed::basic_map<Domain, Range>::range() const
+typed::basic_set<Range> typed::basic_map<Domain, Range>::range() const
 {
   auto res = isl::basic_map::range();
-  return typed::set<Range>(res);
+  return typed::basic_set<Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -17437,10 +19726,10 @@ typed::fixed_box<Domain, Range> typed::basic_map<Domain, Range>::range_lattice_t
 }
 
 template <typename Domain, typename Range>
-typed::union_map<pair<Domain, Range>, Range> typed::basic_map<Domain, Range>::range_map() const
+typed::basic_map<pair<Domain, Range>, Range> typed::basic_map<Domain, Range>::range_map() const
 {
   auto res = isl::basic_map::range_map();
-  return typed::union_map<pair<Domain, Range>, Range>(res);
+  return typed::basic_map<pair<Domain, Range>, Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -17527,10 +19816,24 @@ typed::union_map<Domain, Range> typed::basic_map<Domain, Range>::subtract(const 
 }
 
 template <typename Domain, typename Range>
+typed::map<Domain, Range> typed::basic_map<Domain, Range>::subtract_domain(const typed::set<Domain> &dom) const
+{
+  auto res = isl::basic_map::subtract_domain(dom);
+  return typed::map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
 typed::union_map<Domain, Range> typed::basic_map<Domain, Range>::subtract_domain(const typed::union_set<Domain> &dom) const
 {
   auto res = isl::basic_map::subtract_domain(dom);
   return typed::union_map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
+typed::map<Domain, Range> typed::basic_map<Domain, Range>::subtract_range(const typed::set<Range> &dom) const
+{
+  auto res = isl::basic_map::subtract_range(dom);
+  return typed::map<Domain, Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -17566,6 +19869,13 @@ typed::union_map<Domain, Range> typed::basic_map<Domain, Range>::unite(const typ
 {
   auto res = isl::basic_map::unite(umap2);
   return typed::union_map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
+typed::basic_map<Domain, Range> typed::basic_map<Domain, Range>::universe(const typed::space<Domain, Range> &space)
+{
+  auto res = isl::basic_map::universe(space);
+  return typed::basic_map<Domain, Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -17686,10 +19996,10 @@ typed::map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Ra
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::map<Domain, pair<Range, Range2>> typed::basic_map<pair<Domain, Range>, Range2>::curry() const
+typed::basic_map<Domain, pair<Range, Range2>> typed::basic_map<pair<Domain, Range>, Range2>::curry() const
 {
   auto res = isl::basic_map::curry();
-  return typed::map<Domain, pair<Range, Range2>>(res);
+  return typed::basic_map<Domain, pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -17700,10 +20010,10 @@ typed::basic_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Rang
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::set<pair<Domain, Range>> typed::basic_map<pair<Domain, Range>, Range2>::domain() const
+typed::basic_set<pair<Domain, Range>> typed::basic_map<pair<Domain, Range>, Range2>::domain() const
 {
   auto res = isl::basic_map::domain();
-  return typed::set<pair<Domain, Range>>(res);
+  return typed::basic_set<pair<Domain, Range>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -17721,10 +20031,10 @@ typed::map<Range, Range2> typed::basic_map<pair<Domain, Range>, Range2>::domain_
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::union_map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> typed::basic_map<pair<Domain, Range>, Range2>::domain_map() const
+typed::basic_map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> typed::basic_map<pair<Domain, Range>, Range2>::domain_map() const
 {
   auto res = isl::basic_map::domain_map();
-  return typed::union_map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>>(res);
+  return typed::basic_map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -17758,10 +20068,10 @@ typed::map<pair<Range, Domain>, Range2> typed::basic_map<pair<Domain, Range>, Ra
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::drop_unused_params() const
+typed::basic_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::drop_unused_params() const
 {
   auto res = isl::basic_map::drop_unused_params();
-  return typed::map<pair<Domain, Range>, Range2>(res);
+  return typed::basic_map<pair<Domain, Range>, Range2>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -17797,6 +20107,15 @@ void typed::basic_map<pair<Domain, Range>, Range2>::foreach_basic_map(const std:
 }
 
 template <typename Domain, typename Range, typename Range2>
+void typed::basic_map<pair<Domain, Range>, Range2>::foreach_constraint(const std::function<void(typed::constraint<pair<Domain, Range>, Range2>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<pair<Domain, Range>, Range2>(arg0));
+  };
+  return isl::basic_map::foreach_constraint(lambda_fn);
+}
+
+template <typename Domain, typename Range, typename Range2>
 void typed::basic_map<pair<Domain, Range>, Range2>::foreach_map(const std::function<void(typed::map<pair<Domain, Range>, Range2>)> &fn) const
 {
   auto lambda_fn = [&] (isl::map arg0) {
@@ -17827,6 +20146,13 @@ typed::union_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Rang
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::basic_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::gist_domain(const typed::basic_set<pair<Domain, Range>> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::gist_domain(const typed::set<pair<Domain, Range>> &context) const
 {
   auto res = isl::basic_map::gist_domain(context);
@@ -17838,6 +20164,13 @@ typed::union_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Rang
 {
   auto res = isl::basic_map::gist_domain(uset);
   return typed::union_map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::basic_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::gist_domain(const typed::point<pair<Domain, Range>> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<pair<Domain, Range>, Range2>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -18030,6 +20363,13 @@ typed::multi_pw_aff<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, R
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::basic_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::neg() const
+{
+  auto res = isl::basic_map::neg();
+  return typed::basic_map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::set<> typed::basic_map<pair<Domain, Range>, Range2>::params() const
 {
   auto res = isl::basic_map::params();
@@ -18137,10 +20477,10 @@ typed::map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Ra
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::set<Range2> typed::basic_map<pair<Domain, Range>, Range2>::range() const
+typed::basic_set<Range2> typed::basic_map<pair<Domain, Range>, Range2>::range() const
 {
   auto res = isl::basic_map::range();
-  return typed::set<Range2>(res);
+  return typed::basic_set<Range2>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -18151,10 +20491,10 @@ typed::fixed_box<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Rang
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::union_map<pair<pair<Domain, Range>, Range2>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::range_map() const
+typed::basic_map<pair<pair<Domain, Range>, Range2>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::range_map() const
 {
   auto res = isl::basic_map::range_map();
-  return typed::union_map<pair<pair<Domain, Range>, Range2>, Range2>(res);
+  return typed::basic_map<pair<pair<Domain, Range>, Range2>, Range2>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -18225,10 +20565,24 @@ typed::union_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Rang
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::subtract_domain(const typed::set<pair<Domain, Range>> &dom) const
+{
+  auto res = isl::basic_map::subtract_domain(dom);
+  return typed::map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::union_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::subtract_domain(const typed::union_set<pair<Domain, Range>> &dom) const
 {
   auto res = isl::basic_map::subtract_domain(dom);
   return typed::union_map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::subtract_range(const typed::set<Range2> &dom) const
+{
+  auto res = isl::basic_map::subtract_range(dom);
+  return typed::map<pair<Domain, Range>, Range2>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -18264,6 +20618,13 @@ typed::union_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Rang
 {
   auto res = isl::basic_map::unite(umap2);
   return typed::union_map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::basic_map<pair<Domain, Range>, Range2> typed::basic_map<pair<Domain, Range>, Range2>::universe(const typed::space<pair<Domain, Range>, Range2> &space)
+{
+  auto res = isl::basic_map::universe(space);
+  return typed::basic_map<pair<Domain, Range>, Range2>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -18398,17 +20759,17 @@ typed::basic_map<Domain, Domain> typed::basic_map<Domain, Domain>::detect_equali
 }
 
 template <typename Domain>
-typed::set<Domain> typed::basic_map<Domain, Domain>::domain() const
+typed::basic_set<Domain> typed::basic_map<Domain, Domain>::domain() const
 {
   auto res = isl::basic_map::domain();
-  return typed::set<Domain>(res);
+  return typed::basic_set<Domain>(res);
 }
 
 template <typename Domain>
-typed::union_map<pair<Domain, Domain>, Domain> typed::basic_map<Domain, Domain>::domain_map() const
+typed::basic_map<pair<Domain, Domain>, Domain> typed::basic_map<Domain, Domain>::domain_map() const
 {
   auto res = isl::basic_map::domain_map();
-  return typed::union_map<pair<Domain, Domain>, Domain>(res);
+  return typed::basic_map<pair<Domain, Domain>, Domain>(res);
 }
 
 template <typename Domain>
@@ -18435,10 +20796,10 @@ typed::union_map<pair<Domain, Domain2>, Domain> typed::basic_map<Domain, Domain>
 }
 
 template <typename Domain>
-typed::map<Domain, Domain> typed::basic_map<Domain, Domain>::drop_unused_params() const
+typed::basic_map<Domain, Domain> typed::basic_map<Domain, Domain>::drop_unused_params() const
 {
   auto res = isl::basic_map::drop_unused_params();
-  return typed::map<Domain, Domain>(res);
+  return typed::basic_map<Domain, Domain>(res);
 }
 
 template <typename Domain>
@@ -18483,6 +20844,15 @@ void typed::basic_map<Domain, Domain>::foreach_basic_map(const std::function<voi
 }
 
 template <typename Domain>
+void typed::basic_map<Domain, Domain>::foreach_constraint(const std::function<void(typed::constraint<Domain, Domain>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<Domain, Domain>(arg0));
+  };
+  return isl::basic_map::foreach_constraint(lambda_fn);
+}
+
+template <typename Domain>
 void typed::basic_map<Domain, Domain>::foreach_map(const std::function<void(typed::map<Domain, Domain>)> &fn) const
 {
   auto lambda_fn = [&] (isl::map arg0) {
@@ -18513,6 +20883,13 @@ typed::union_map<Domain, Domain> typed::basic_map<Domain, Domain>::gist(const ty
 }
 
 template <typename Domain>
+typed::basic_map<Domain, Domain> typed::basic_map<Domain, Domain>::gist_domain(const typed::basic_set<Domain> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<Domain, Domain>(res);
+}
+
+template <typename Domain>
 typed::map<Domain, Domain> typed::basic_map<Domain, Domain>::gist_domain(const typed::set<Domain> &context) const
 {
   auto res = isl::basic_map::gist_domain(context);
@@ -18524,6 +20901,13 @@ typed::union_map<Domain, Domain> typed::basic_map<Domain, Domain>::gist_domain(c
 {
   auto res = isl::basic_map::gist_domain(uset);
   return typed::union_map<Domain, Domain>(res);
+}
+
+template <typename Domain>
+typed::basic_map<Domain, Domain> typed::basic_map<Domain, Domain>::gist_domain(const typed::point<Domain> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<Domain, Domain>(res);
 }
 
 template <typename Domain>
@@ -18734,6 +21118,13 @@ typed::multi_pw_aff<Domain, Domain> typed::basic_map<Domain, Domain>::min_multi_
 }
 
 template <typename Domain>
+typed::basic_map<Domain, Domain> typed::basic_map<Domain, Domain>::neg() const
+{
+  auto res = isl::basic_map::neg();
+  return typed::basic_map<Domain, Domain>(res);
+}
+
+template <typename Domain>
 typed::set<> typed::basic_map<Domain, Domain>::params() const
 {
   auto res = isl::basic_map::params();
@@ -18841,10 +21232,10 @@ typed::map<Domain, Domain> typed::basic_map<Domain, Domain>::project_out_param(c
 }
 
 template <typename Domain>
-typed::set<Domain> typed::basic_map<Domain, Domain>::range() const
+typed::basic_set<Domain> typed::basic_map<Domain, Domain>::range() const
 {
   auto res = isl::basic_map::range();
-  return typed::set<Domain>(res);
+  return typed::basic_set<Domain>(res);
 }
 
 template <typename Domain>
@@ -18855,10 +21246,10 @@ typed::fixed_box<Domain, Domain> typed::basic_map<Domain, Domain>::range_lattice
 }
 
 template <typename Domain>
-typed::union_map<pair<Domain, Domain>, Domain> typed::basic_map<Domain, Domain>::range_map() const
+typed::basic_map<pair<Domain, Domain>, Domain> typed::basic_map<Domain, Domain>::range_map() const
 {
   auto res = isl::basic_map::range_map();
-  return typed::union_map<pair<Domain, Domain>, Domain>(res);
+  return typed::basic_map<pair<Domain, Domain>, Domain>(res);
 }
 
 template <typename Domain>
@@ -18945,10 +21336,24 @@ typed::union_map<Domain, Domain> typed::basic_map<Domain, Domain>::subtract(cons
 }
 
 template <typename Domain>
+typed::map<Domain, Domain> typed::basic_map<Domain, Domain>::subtract_domain(const typed::set<Domain> &dom) const
+{
+  auto res = isl::basic_map::subtract_domain(dom);
+  return typed::map<Domain, Domain>(res);
+}
+
+template <typename Domain>
 typed::union_map<Domain, Domain> typed::basic_map<Domain, Domain>::subtract_domain(const typed::union_set<Domain> &dom) const
 {
   auto res = isl::basic_map::subtract_domain(dom);
   return typed::union_map<Domain, Domain>(res);
+}
+
+template <typename Domain>
+typed::map<Domain, Domain> typed::basic_map<Domain, Domain>::subtract_range(const typed::set<Domain> &dom) const
+{
+  auto res = isl::basic_map::subtract_range(dom);
+  return typed::map<Domain, Domain>(res);
 }
 
 template <typename Domain>
@@ -18984,6 +21389,13 @@ typed::union_map<Domain, Domain> typed::basic_map<Domain, Domain>::unite(const t
 {
   auto res = isl::basic_map::unite(umap2);
   return typed::union_map<Domain, Domain>(res);
+}
+
+template <typename Domain>
+typed::basic_map<Domain, Domain> typed::basic_map<Domain, Domain>::universe(const typed::space<Domain, Domain> &space)
+{
+  auto res = isl::basic_map::universe(space);
+  return typed::basic_map<Domain, Domain>(res);
 }
 
 template <typename Domain>
@@ -19111,17 +21523,17 @@ typed::basic_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Rang
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::set<Domain> typed::basic_map<Domain, pair<Range, Range2>>::domain() const
+typed::basic_set<Domain> typed::basic_map<Domain, pair<Range, Range2>>::domain() const
 {
   auto res = isl::basic_map::domain();
-  return typed::set<Domain>(res);
+  return typed::basic_set<Domain>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::union_map<pair<Domain, pair<Range, Range2>>, Domain> typed::basic_map<Domain, pair<Range, Range2>>::domain_map() const
+typed::basic_map<pair<Domain, pair<Range, Range2>>, Domain> typed::basic_map<Domain, pair<Range, Range2>>::domain_map() const
 {
   auto res = isl::basic_map::domain_map();
-  return typed::union_map<pair<Domain, pair<Range, Range2>>, Domain>(res);
+  return typed::basic_map<pair<Domain, pair<Range, Range2>>, Domain>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -19148,10 +21560,10 @@ typed::union_map<pair<Domain, Domain2>, pair<Range, Range2>> typed::basic_map<Do
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::drop_unused_params() const
+typed::basic_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::drop_unused_params() const
 {
   auto res = isl::basic_map::drop_unused_params();
-  return typed::map<Domain, pair<Range, Range2>>(res);
+  return typed::basic_map<Domain, pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -19187,6 +21599,15 @@ void typed::basic_map<Domain, pair<Range, Range2>>::foreach_basic_map(const std:
 }
 
 template <typename Domain, typename Range, typename Range2>
+void typed::basic_map<Domain, pair<Range, Range2>>::foreach_constraint(const std::function<void(typed::constraint<Domain, pair<Range, Range2>>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<Domain, pair<Range, Range2>>(arg0));
+  };
+  return isl::basic_map::foreach_constraint(lambda_fn);
+}
+
+template <typename Domain, typename Range, typename Range2>
 void typed::basic_map<Domain, pair<Range, Range2>>::foreach_map(const std::function<void(typed::map<Domain, pair<Range, Range2>>)> &fn) const
 {
   auto lambda_fn = [&] (isl::map arg0) {
@@ -19217,6 +21638,13 @@ typed::union_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Rang
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::basic_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::gist_domain(const typed::basic_set<Domain> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::gist_domain(const typed::set<Domain> &context) const
 {
   auto res = isl::basic_map::gist_domain(context);
@@ -19228,6 +21656,13 @@ typed::union_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Rang
 {
   auto res = isl::basic_map::gist_domain(uset);
   return typed::union_map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::basic_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::gist_domain(const typed::point<Domain> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<Domain, pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -19420,6 +21855,13 @@ typed::multi_pw_aff<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<R
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::basic_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::neg() const
+{
+  auto res = isl::basic_map::neg();
+  return typed::basic_map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::set<> typed::basic_map<Domain, pair<Range, Range2>>::params() const
 {
   auto res = isl::basic_map::params();
@@ -19527,10 +21969,10 @@ typed::map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Ran
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::set<pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::range() const
+typed::basic_set<pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::range() const
 {
   auto res = isl::basic_map::range();
-  return typed::set<pair<Range, Range2>>(res);
+  return typed::basic_set<pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -19555,10 +21997,10 @@ typed::fixed_box<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Rang
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::union_map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::range_map() const
+typed::basic_map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::range_map() const
 {
   auto res = isl::basic_map::range_map();
-  return typed::union_map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>>(res);
+  return typed::basic_map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -19636,10 +22078,24 @@ typed::union_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Rang
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::subtract_domain(const typed::set<Domain> &dom) const
+{
+  auto res = isl::basic_map::subtract_domain(dom);
+  return typed::map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::union_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::subtract_domain(const typed::union_set<Domain> &dom) const
 {
   auto res = isl::basic_map::subtract_domain(dom);
   return typed::union_map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::subtract_range(const typed::set<pair<Range, Range2>> &dom) const
+{
+  auto res = isl::basic_map::subtract_range(dom);
+  return typed::map<Domain, pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -19657,10 +22113,10 @@ typed::union_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Rang
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::map<pair<Domain, Range>, Range2> typed::basic_map<Domain, pair<Range, Range2>>::uncurry() const
+typed::basic_map<pair<Domain, Range>, Range2> typed::basic_map<Domain, pair<Range, Range2>>::uncurry() const
 {
   auto res = isl::basic_map::uncurry();
-  return typed::map<pair<Domain, Range>, Range2>(res);
+  return typed::basic_map<pair<Domain, Range>, Range2>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -19682,6 +22138,13 @@ typed::union_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Rang
 {
   auto res = isl::basic_map::unite(umap2);
   return typed::union_map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::basic_map<Domain, pair<Range, Range2>> typed::basic_map<Domain, pair<Range, Range2>>::universe(const typed::space<Domain, pair<Range, Range2>> &space)
+{
+  auto res = isl::basic_map::universe(space);
+  return typed::basic_map<Domain, pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -19802,10 +22265,10 @@ typed::map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T
 }
 
 template <typename T1, typename T2>
-typed::map<T1, pair<T2, pair<T1, T2>>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::curry() const
+typed::basic_map<T1, pair<T2, pair<T1, T2>>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::curry() const
 {
   auto res = isl::basic_map::curry();
-  return typed::map<T1, pair<T2, pair<T1, T2>>>(res);
+  return typed::basic_map<T1, pair<T2, pair<T1, T2>>>(res);
 }
 
 template <typename T1, typename T2>
@@ -19823,10 +22286,10 @@ typed::basic_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair
 }
 
 template <typename T1, typename T2>
-typed::set<pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::domain() const
+typed::basic_set<pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::domain() const
 {
   auto res = isl::basic_map::domain();
-  return typed::set<pair<T1, T2>>(res);
+  return typed::basic_set<pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -19844,10 +22307,10 @@ typed::map<T2, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::domai
 }
 
 template <typename T1, typename T2>
-typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::domain_map() const
+typed::basic_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::domain_map() const
 {
   auto res = isl::basic_map::domain_map();
-  return typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>>(res);
+  return typed::basic_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -19881,10 +22344,10 @@ typed::map<pair<T2, T1>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T
 }
 
 template <typename T1, typename T2>
-typed::map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::drop_unused_params() const
+typed::basic_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::drop_unused_params() const
 {
   auto res = isl::basic_map::drop_unused_params();
-  return typed::map<pair<T1, T2>, pair<T1, T2>>(res);
+  return typed::basic_map<pair<T1, T2>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -19943,6 +22406,15 @@ void typed::basic_map<pair<T1, T2>, pair<T1, T2>>::foreach_basic_map(const std::
 }
 
 template <typename T1, typename T2>
+void typed::basic_map<pair<T1, T2>, pair<T1, T2>>::foreach_constraint(const std::function<void(typed::constraint<pair<T1, T2>, pair<T1, T2>>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<pair<T1, T2>, pair<T1, T2>>(arg0));
+  };
+  return isl::basic_map::foreach_constraint(lambda_fn);
+}
+
+template <typename T1, typename T2>
 void typed::basic_map<pair<T1, T2>, pair<T1, T2>>::foreach_map(const std::function<void(typed::map<pair<T1, T2>, pair<T1, T2>>)> &fn) const
 {
   auto lambda_fn = [&] (isl::map arg0) {
@@ -19973,6 +22445,13 @@ typed::union_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair
 }
 
 template <typename T1, typename T2>
+typed::basic_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::gist_domain(const typed::basic_set<pair<T1, T2>> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
 typed::map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::gist_domain(const typed::set<pair<T1, T2>> &context) const
 {
   auto res = isl::basic_map::gist_domain(context);
@@ -19984,6 +22463,13 @@ typed::union_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair
 {
   auto res = isl::basic_map::gist_domain(uset);
   return typed::union_map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
+typed::basic_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::gist_domain(const typed::point<pair<T1, T2>> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<pair<T1, T2>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -20222,6 +22708,13 @@ typed::multi_pw_aff<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, p
 }
 
 template <typename T1, typename T2>
+typed::basic_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::neg() const
+{
+  auto res = isl::basic_map::neg();
+  return typed::basic_map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
 typed::set<> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::params() const
 {
   auto res = isl::basic_map::params();
@@ -20329,10 +22822,10 @@ typed::map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T
 }
 
 template <typename T1, typename T2>
-typed::set<pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::range() const
+typed::basic_set<pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::range() const
 {
   auto res = isl::basic_map::range();
-  return typed::set<pair<T1, T2>>(res);
+  return typed::basic_set<pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -20357,10 +22850,10 @@ typed::fixed_box<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair
 }
 
 template <typename T1, typename T2>
-typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::range_map() const
+typed::basic_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::range_map() const
 {
   auto res = isl::basic_map::range_map();
-  return typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>>(res);
+  return typed::basic_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -20422,10 +22915,24 @@ typed::union_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair
 }
 
 template <typename T1, typename T2>
+typed::map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::subtract_domain(const typed::set<pair<T1, T2>> &dom) const
+{
+  auto res = isl::basic_map::subtract_domain(dom);
+  return typed::map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
 typed::union_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::subtract_domain(const typed::union_set<pair<T1, T2>> &dom) const
 {
   auto res = isl::basic_map::subtract_domain(dom);
   return typed::union_map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
+typed::map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::subtract_range(const typed::set<pair<T1, T2>> &dom) const
+{
+  auto res = isl::basic_map::subtract_range(dom);
+  return typed::map<pair<T1, T2>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -20443,10 +22950,10 @@ typed::union_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair
 }
 
 template <typename T1, typename T2>
-typed::map<pair<pair<T1, T2>, T1>, T2> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::uncurry() const
+typed::basic_map<pair<pair<T1, T2>, T1>, T2> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::uncurry() const
 {
   auto res = isl::basic_map::uncurry();
-  return typed::map<pair<pair<T1, T2>, T1>, T2>(res);
+  return typed::basic_map<pair<pair<T1, T2>, T1>, T2>(res);
 }
 
 template <typename T1, typename T2>
@@ -20468,6 +22975,13 @@ typed::union_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair
 {
   auto res = isl::basic_map::unite(umap2);
   return typed::union_map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
+typed::basic_map<pair<T1, T2>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<T1, T2>>::universe(const typed::space<pair<T1, T2>, pair<T1, T2>> &space)
+{
+  auto res = isl::basic_map::universe(space);
+  return typed::basic_map<pair<T1, T2>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -20588,10 +23102,10 @@ typed::map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pai
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
-typed::map<T1, pair<T2, pair<Range, Range2>>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::curry() const
+typed::basic_map<T1, pair<T2, pair<Range, Range2>>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::curry() const
 {
   auto res = isl::basic_map::curry();
-  return typed::map<T1, pair<T2, pair<Range, Range2>>>(res);
+  return typed::basic_map<T1, pair<T2, pair<Range, Range2>>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -20602,10 +23116,10 @@ typed::basic_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
-typed::set<pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::domain() const
+typed::basic_set<pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::domain() const
 {
   auto res = isl::basic_map::domain();
-  return typed::set<pair<T1, T2>>(res);
+  return typed::basic_set<pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -20623,10 +23137,10 @@ typed::map<T2, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, R
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
-typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::domain_map() const
+typed::basic_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::domain_map() const
 {
   auto res = isl::basic_map::domain_map();
-  return typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>>(res);
+  return typed::basic_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -20660,10 +23174,10 @@ typed::map<pair<T2, T1>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pai
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
-typed::map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::drop_unused_params() const
+typed::basic_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::drop_unused_params() const
 {
   auto res = isl::basic_map::drop_unused_params();
-  return typed::map<pair<T1, T2>, pair<Range, Range2>>(res);
+  return typed::basic_map<pair<T1, T2>, pair<Range, Range2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -20706,6 +23220,15 @@ void typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::foreach_basic_map(cons
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
+void typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::foreach_constraint(const std::function<void(typed::constraint<pair<T1, T2>, pair<Range, Range2>>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<pair<T1, T2>, pair<Range, Range2>>(arg0));
+  };
+  return isl::basic_map::foreach_constraint(lambda_fn);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
 void typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::foreach_map(const std::function<void(typed::map<pair<T1, T2>, pair<Range, Range2>>)> &fn) const
 {
   auto lambda_fn = [&] (isl::map arg0) {
@@ -20736,6 +23259,13 @@ typed::union_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
+typed::basic_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::gist_domain(const typed::basic_set<pair<T1, T2>> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
 typed::map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::gist_domain(const typed::set<pair<T1, T2>> &context) const
 {
   auto res = isl::basic_map::gist_domain(context);
@@ -20747,6 +23277,13 @@ typed::union_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2
 {
   auto res = isl::basic_map::gist_domain(uset);
   return typed::union_map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::basic_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::gist_domain(const typed::point<pair<T1, T2>> &context) const
+{
+  auto res = isl::basic_map::gist_domain(context);
+  return typed::basic_map<pair<T1, T2>, pair<Range, Range2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -20953,6 +23490,13 @@ typed::multi_pw_aff<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1,
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
+typed::basic_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::neg() const
+{
+  auto res = isl::basic_map::neg();
+  return typed::basic_map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
 typed::set<> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::params() const
 {
   auto res = isl::basic_map::params();
@@ -21060,10 +23604,10 @@ typed::map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pai
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
-typed::set<pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::range() const
+typed::basic_set<pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::range() const
 {
   auto res = isl::basic_map::range();
-  return typed::set<pair<Range, Range2>>(res);
+  return typed::basic_set<pair<Range, Range2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -21088,10 +23632,10 @@ typed::fixed_box<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
-typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::range_map() const
+typed::basic_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::range_map() const
 {
   auto res = isl::basic_map::range_map();
-  return typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>>(res);
+  return typed::basic_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -21153,10 +23697,24 @@ typed::union_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
+typed::map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::subtract_domain(const typed::set<pair<T1, T2>> &dom) const
+{
+  auto res = isl::basic_map::subtract_domain(dom);
+  return typed::map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
 typed::union_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::subtract_domain(const typed::union_set<pair<T1, T2>> &dom) const
 {
   auto res = isl::basic_map::subtract_domain(dom);
   return typed::union_map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::subtract_range(const typed::set<pair<Range, Range2>> &dom) const
+{
+  auto res = isl::basic_map::subtract_range(dom);
+  return typed::map<pair<T1, T2>, pair<Range, Range2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -21174,10 +23732,10 @@ typed::union_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
-typed::map<pair<pair<T1, T2>, Range>, Range2> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::uncurry() const
+typed::basic_map<pair<pair<T1, T2>, Range>, Range2> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::uncurry() const
 {
   auto res = isl::basic_map::uncurry();
-  return typed::map<pair<pair<T1, T2>, Range>, Range2>(res);
+  return typed::basic_map<pair<pair<T1, T2>, Range>, Range2>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -21199,6 +23757,13 @@ typed::union_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2
 {
   auto res = isl::basic_map::unite(umap2);
   return typed::union_map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::basic_map<pair<T1, T2>, pair<Range, Range2>> typed::basic_map<pair<T1, T2>, pair<Range, Range2>>::universe(const typed::space<pair<T1, T2>, pair<Range, Range2>> &space)
+{
+  auto res = isl::basic_map::universe(space);
+  return typed::basic_map<pair<T1, T2>, pair<Range, Range2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -21225,10 +23790,22 @@ typed::basic_set<>::basic_set(const isl::ctx &ctx, const std::string &str)
 {
 }
 
+typed::basic_set_list<> typed::basic_set<>::basic_set_list() const
+{
+  auto res = isl::basic_set::basic_set_list();
+  return typed::basic_set_list<>(res);
+}
+
 typed::set<> typed::basic_set<>::coalesce() const
 {
   auto res = isl::basic_set::coalesce();
   return typed::set<>(res);
+}
+
+typed::constraint_list<> typed::basic_set<>::constraint_list() const
+{
+  auto res = isl::basic_set::constraint_list();
+  return typed::constraint_list<>(res);
 }
 
 typed::basic_set<> typed::basic_set<>::detect_equalities() const
@@ -21237,10 +23814,10 @@ typed::basic_set<> typed::basic_set<>::detect_equalities() const
   return typed::basic_set<>(res);
 }
 
-typed::set<> typed::basic_set<>::drop_unused_params() const
+typed::basic_set<> typed::basic_set<>::drop_unused_params() const
 {
   auto res = isl::basic_set::drop_unused_params();
-  return typed::set<>(res);
+  return typed::basic_set<>(res);
 }
 
 bool typed::basic_set<>::every_set(const std::function<bool(typed::set<>)> &test) const
@@ -21263,6 +23840,14 @@ void typed::basic_set<>::foreach_basic_set(const std::function<void(typed::basic
     return fn(typed::basic_set<>(arg0));
   };
   return isl::basic_set::foreach_basic_set(lambda_fn);
+}
+
+void typed::basic_set<>::foreach_constraint(const std::function<void(typed::constraint<>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<>(arg0));
+  };
+  return isl::basic_set::foreach_constraint(lambda_fn);
 }
 
 void typed::basic_set<>::foreach_point(const std::function<void(typed::point<>)> &fn) const
@@ -21333,6 +23918,12 @@ typed::basic_set<> typed::basic_set<>::intersect(const typed::point<> &bset2) co
 {
   auto res = isl::basic_set::intersect(bset2);
   return typed::basic_set<>(res);
+}
+
+typed::local_space<> typed::basic_set<>::local_space() const
+{
+  auto res = isl::basic_set::local_space();
+  return typed::local_space<>(res);
 }
 
 typed::pw_aff<Anonymous> typed::basic_set<>::param_pw_aff_on_domain(const typed::id<Anonymous> &id) const
@@ -21457,6 +24048,12 @@ typed::set<> typed::basic_set<>::unite(const typed::point<> &bset2) const
   return typed::set<>(res);
 }
 
+typed::basic_set<> typed::basic_set<>::universe(const typed::space<> &space)
+{
+  auto res = isl::basic_set::universe(space);
+  return typed::basic_set<>(res);
+}
+
 template <typename Domain>
 typed::basic_set<Domain>::basic_set(const typed::point<Domain> &pnt)
   : isl::basic_set(pnt)
@@ -21508,6 +24105,13 @@ typed::set<Domain> typed::basic_set<Domain>::as_set() const
 }
 
 template <typename Domain>
+typed::basic_set_list<Domain> typed::basic_set<Domain>::basic_set_list() const
+{
+  auto res = isl::basic_set::basic_set_list();
+  return typed::basic_set_list<Domain>(res);
+}
+
+template <typename Domain>
 typed::set<> typed::basic_set<Domain>::bind(const typed::multi_id<Domain> &tuple) const
 {
   auto res = isl::basic_set::bind(tuple);
@@ -21529,10 +24133,10 @@ typed::basic_set<Domain> typed::basic_set<Domain>::detect_equalities() const
 }
 
 template <typename Domain>
-typed::set<Domain> typed::basic_set<Domain>::drop_unused_params() const
+typed::basic_set<Domain> typed::basic_set<Domain>::drop_unused_params() const
 {
   auto res = isl::basic_set::drop_unused_params();
-  return typed::set<Domain>(res);
+  return typed::basic_set<Domain>(res);
 }
 
 template <typename Domain>
@@ -21558,6 +24162,15 @@ void typed::basic_set<Domain>::foreach_basic_set(const std::function<void(typed:
     return fn(typed::basic_set<Domain>(arg0));
   };
   return isl::basic_set::foreach_basic_set(lambda_fn);
+}
+
+template <typename Domain>
+void typed::basic_set<Domain>::foreach_constraint(const std::function<void(typed::constraint<Domain>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<Domain>(arg0));
+  };
+  return isl::basic_set::foreach_constraint(lambda_fn);
 }
 
 template <typename Domain>
@@ -21720,6 +24333,13 @@ typed::pw_multi_aff<Domain> typed::basic_set<Domain>::lexmin_pw_multi_aff() cons
 }
 
 template <typename Domain>
+typed::local_space<Domain> typed::basic_set<Domain>::local_space() const
+{
+  auto res = isl::basic_set::local_space();
+  return typed::local_space<Domain>(res);
+}
+
+template <typename Domain>
 typed::set<Domain> typed::basic_set<Domain>::lower_bound(const typed::multi_pw_aff<Domain> &lower) const
 {
   auto res = isl::basic_set::lower_bound(lower);
@@ -21745,6 +24365,13 @@ typed::multi_pw_aff<Domain> typed::basic_set<Domain>::min_multi_pw_aff() const
 {
   auto res = isl::basic_set::min_multi_pw_aff();
   return typed::multi_pw_aff<Domain>(res);
+}
+
+template <typename Domain>
+typed::basic_set<Domain> typed::basic_set<Domain>::neg() const
+{
+  auto res = isl::basic_set::neg();
+  return typed::basic_set<Domain>(res);
 }
 
 template <typename Domain>
@@ -21958,6 +24585,13 @@ typed::set<Domain> typed::basic_set<Domain>::unite(const typed::point<Domain> &b
 }
 
 template <typename Domain>
+typed::basic_set<Domain> typed::basic_set<Domain>::universe(const typed::space<Domain> &space)
+{
+  auto res = isl::basic_set::universe(space);
+  return typed::basic_set<Domain>(res);
+}
+
+template <typename Domain>
 typed::set<Domain> typed::basic_set<Domain>::upper_bound(const typed::multi_pw_aff<Domain> &upper) const
 {
   auto res = isl::basic_set::upper_bound(upper);
@@ -22022,6 +24656,13 @@ typed::set<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::as_set() 
 }
 
 template <typename Domain, typename Range>
+typed::basic_set_list<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::basic_set_list() const
+{
+  auto res = isl::basic_set::basic_set_list();
+  return typed::basic_set_list<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range>
 typed::set<> typed::basic_set<pair<Domain, Range>>::bind(const typed::multi_id<pair<Domain, Range>> &tuple) const
 {
   auto res = isl::basic_set::bind(tuple);
@@ -22043,10 +24684,10 @@ typed::basic_set<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::det
 }
 
 template <typename Domain, typename Range>
-typed::set<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::drop_unused_params() const
+typed::basic_set<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::drop_unused_params() const
 {
   auto res = isl::basic_set::drop_unused_params();
-  return typed::set<pair<Domain, Range>>(res);
+  return typed::basic_set<pair<Domain, Range>>(res);
 }
 
 template <typename Domain, typename Range>
@@ -22072,6 +24713,15 @@ void typed::basic_set<pair<Domain, Range>>::foreach_basic_set(const std::functio
     return fn(typed::basic_set<pair<Domain, Range>>(arg0));
   };
   return isl::basic_set::foreach_basic_set(lambda_fn);
+}
+
+template <typename Domain, typename Range>
+void typed::basic_set<pair<Domain, Range>>::foreach_constraint(const std::function<void(typed::constraint<pair<Domain, Range>>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<pair<Domain, Range>>(arg0));
+  };
+  return isl::basic_set::foreach_constraint(lambda_fn);
 }
 
 template <typename Domain, typename Range>
@@ -22234,6 +24884,13 @@ typed::pw_multi_aff<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::
 }
 
 template <typename Domain, typename Range>
+typed::local_space<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::local_space() const
+{
+  auto res = isl::basic_set::local_space();
+  return typed::local_space<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range>
 typed::set<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::lower_bound(const typed::multi_pw_aff<pair<Domain, Range>> &lower) const
 {
   auto res = isl::basic_set::lower_bound(lower);
@@ -22259,6 +24916,13 @@ typed::multi_pw_aff<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::
 {
   auto res = isl::basic_set::min_multi_pw_aff();
   return typed::multi_pw_aff<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range>
+typed::basic_set<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::neg() const
+{
+  auto res = isl::basic_set::neg();
+  return typed::basic_set<pair<Domain, Range>>(res);
 }
 
 template <typename Domain, typename Range>
@@ -22472,10 +25136,17 @@ typed::set<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::unite(con
 }
 
 template <typename Domain, typename Range>
-typed::map<Domain, Range> typed::basic_set<pair<Domain, Range>>::unwrap() const
+typed::basic_set<pair<Domain, Range>> typed::basic_set<pair<Domain, Range>>::universe(const typed::space<pair<Domain, Range>> &space)
+{
+  auto res = isl::basic_set::universe(space);
+  return typed::basic_set<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range>
+typed::basic_map<Domain, Range> typed::basic_set<pair<Domain, Range>>::unwrap() const
 {
   auto res = isl::basic_set::unwrap();
-  return typed::map<Domain, Range>(res);
+  return typed::basic_map<Domain, Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -22497,6 +25168,174 @@ typed::set<pair<Range, Domain>> typed::basic_set<pair<Domain, Range>>::wrapped_r
 {
   auto res = isl::basic_set::wrapped_reverse();
   return typed::set<pair<Range, Domain>>(res);
+}
+
+typed::basic_set_list<>::basic_set_list(const isl::ctx &ctx, int n)
+  : isl::basic_set_list(ctx, n)
+{
+}
+
+typed::basic_set_list<>::basic_set_list(const typed::basic_set<> &el)
+  : isl::basic_set_list(el)
+{
+}
+
+typed::basic_set_list<> typed::basic_set_list<>::add(const typed::basic_set<> &el) const
+{
+  auto res = isl::basic_set_list::add(el);
+  return typed::basic_set_list<>(res);
+}
+
+typed::basic_set_list<> typed::basic_set_list<>::add(const typed::point<> &el) const
+{
+  auto res = isl::basic_set_list::add(el);
+  return typed::basic_set_list<>(res);
+}
+
+typed::basic_set_list<> typed::basic_set_list<>::drop(unsigned int first, unsigned int n) const
+{
+  auto res = isl::basic_set_list::drop(first, n);
+  return typed::basic_set_list<>(res);
+}
+
+void typed::basic_set_list<>::foreach(const std::function<void(typed::basic_set<>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::basic_set arg0) {
+    return fn(typed::basic_set<>(arg0));
+  };
+  return isl::basic_set_list::foreach(lambda_fn);
+}
+
+void typed::basic_set_list<>::foreach_scc(const std::function<bool(typed::basic_set<>, typed::basic_set<>)> &follows, const std::function<void(typed::basic_set_list<>)> &fn) const
+{
+  auto lambda_follows = [&] (isl::basic_set arg0, isl::basic_set arg1) {
+    return follows(typed::basic_set<>(arg0), typed::basic_set<>(arg1));
+  };
+  auto lambda_fn = [&] (isl::basic_set_list arg0) {
+    return fn(typed::basic_set_list<>(arg0));
+  };
+  return isl::basic_set_list::foreach_scc(lambda_follows, lambda_fn);
+}
+
+template <typename Domain>
+typed::basic_set_list<Domain>::basic_set_list(const isl::ctx &ctx, int n)
+  : isl::basic_set_list(ctx, n)
+{
+}
+
+template <typename Domain>
+typed::basic_set_list<Domain>::basic_set_list(const typed::basic_set<Domain> &el)
+  : isl::basic_set_list(el)
+{
+}
+
+template <typename Domain>
+typed::basic_set_list<Domain> typed::basic_set_list<Domain>::add(const typed::basic_set<Domain> &el) const
+{
+  auto res = isl::basic_set_list::add(el);
+  return typed::basic_set_list<Domain>(res);
+}
+
+template <typename Domain>
+typed::basic_set_list<Domain> typed::basic_set_list<Domain>::add(const typed::point<Domain> &el) const
+{
+  auto res = isl::basic_set_list::add(el);
+  return typed::basic_set_list<Domain>(res);
+}
+
+template <typename Domain>
+typed::basic_set<Domain> typed::basic_set_list<Domain>::at(int index) const
+{
+  auto res = isl::basic_set_list::at(index);
+  return typed::basic_set<Domain>(res);
+}
+
+template <typename Domain>
+typed::basic_set_list<Domain> typed::basic_set_list<Domain>::drop(unsigned int first, unsigned int n) const
+{
+  auto res = isl::basic_set_list::drop(first, n);
+  return typed::basic_set_list<Domain>(res);
+}
+
+template <typename Domain>
+void typed::basic_set_list<Domain>::foreach(const std::function<void(typed::basic_set<Domain>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::basic_set arg0) {
+    return fn(typed::basic_set<Domain>(arg0));
+  };
+  return isl::basic_set_list::foreach(lambda_fn);
+}
+
+template <typename Domain>
+void typed::basic_set_list<Domain>::foreach_scc(const std::function<bool(typed::basic_set<Domain>, typed::basic_set<Domain>)> &follows, const std::function<void(typed::basic_set_list<Domain>)> &fn) const
+{
+  auto lambda_follows = [&] (isl::basic_set arg0, isl::basic_set arg1) {
+    return follows(typed::basic_set<Domain>(arg0), typed::basic_set<Domain>(arg1));
+  };
+  auto lambda_fn = [&] (isl::basic_set_list arg0) {
+    return fn(typed::basic_set_list<Domain>(arg0));
+  };
+  return isl::basic_set_list::foreach_scc(lambda_follows, lambda_fn);
+}
+
+template <typename Domain>
+typed::basic_set_list<Domain> typed::basic_set_list<Domain>::set_at(int index, const typed::basic_set<Anonymous> &el) const
+{
+  auto res = isl::basic_set_list::set_at(index, el);
+  return typed::basic_set_list<Domain>(res);
+}
+
+typed::local_space<> typed::constraint<>::local_space() const
+{
+  auto res = isl::constraint::local_space();
+  return typed::local_space<>(res);
+}
+
+typed::space<> typed::constraint<>::space() const
+{
+  auto res = isl::constraint::space();
+  return typed::space<>(res);
+}
+
+typed::constraint_list<>::constraint_list(const isl::ctx &ctx, int n)
+  : isl::constraint_list(ctx, n)
+{
+}
+
+typed::constraint_list<>::constraint_list(const typed::constraint<> &el)
+  : isl::constraint_list(el)
+{
+}
+
+typed::constraint_list<> typed::constraint_list<>::add(const typed::constraint<> &el) const
+{
+  auto res = isl::constraint_list::add(el);
+  return typed::constraint_list<>(res);
+}
+
+typed::constraint_list<> typed::constraint_list<>::drop(unsigned int first, unsigned int n) const
+{
+  auto res = isl::constraint_list::drop(first, n);
+  return typed::constraint_list<>(res);
+}
+
+void typed::constraint_list<>::foreach(const std::function<void(typed::constraint<>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<>(arg0));
+  };
+  return isl::constraint_list::foreach(lambda_fn);
+}
+
+void typed::constraint_list<>::foreach_scc(const std::function<bool(typed::constraint<>, typed::constraint<>)> &follows, const std::function<void(typed::constraint_list<>)> &fn) const
+{
+  auto lambda_follows = [&] (isl::constraint arg0, isl::constraint arg1) {
+    return follows(typed::constraint<>(arg0), typed::constraint<>(arg1));
+  };
+  auto lambda_fn = [&] (isl::constraint_list arg0) {
+    return fn(typed::constraint_list<>(arg0));
+  };
+  return isl::constraint_list::foreach_scc(lambda_follows, lambda_fn);
 }
 
 template <typename Domain>
@@ -22628,6 +25467,207 @@ typed::id_list<Anonymous> typed::id_list<Anonymous>::set_at(int index, const std
   return typed::id_list<Anonymous>(res);
 }
 
+typed::local_space<> typed::local_space<>::intersect(const typed::local_space<> &ls2) const
+{
+  auto res = isl::local_space::intersect(ls2);
+  return typed::local_space<>(res);
+}
+
+typed::space<> typed::local_space<>::space() const
+{
+  auto res = isl::local_space::space();
+  return typed::space<>(res);
+}
+
+template <typename Domain>
+typed::local_space<> typed::local_space<Domain>::domain() const
+{
+  auto res = isl::local_space::domain();
+  return typed::local_space<>(res);
+}
+
+template <typename Domain>
+typed::local_space<Domain> typed::local_space<Domain>::intersect(const typed::local_space<Domain> &ls2) const
+{
+  auto res = isl::local_space::intersect(ls2);
+  return typed::local_space<Domain>(res);
+}
+
+template <typename Domain>
+typed::space<Domain> typed::local_space<Domain>::space() const
+{
+  auto res = isl::local_space::space();
+  return typed::space<Domain>(res);
+}
+
+template <typename Domain, typename Range>
+typed::local_space<Domain> typed::local_space<Domain, Range>::domain() const
+{
+  auto res = isl::local_space::domain();
+  return typed::local_space<Domain>(res);
+}
+
+template <typename Domain, typename Range>
+typed::local_space<Domain, Range> typed::local_space<Domain, Range>::intersect(const typed::local_space<Domain, Range> &ls2) const
+{
+  auto res = isl::local_space::intersect(ls2);
+  return typed::local_space<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
+typed::local_space<Range> typed::local_space<Domain, Range>::range() const
+{
+  auto res = isl::local_space::range();
+  return typed::local_space<Range>(res);
+}
+
+template <typename Domain, typename Range>
+typed::space<Domain, Range> typed::local_space<Domain, Range>::space() const
+{
+  auto res = isl::local_space::space();
+  return typed::space<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
+typed::local_space<pair<Domain, Range>> typed::local_space<Domain, Range>::wrap() const
+{
+  auto res = isl::local_space::wrap();
+  return typed::local_space<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::local_space<pair<Domain, Range>> typed::local_space<pair<Domain, Range>, Range2>::domain() const
+{
+  auto res = isl::local_space::domain();
+  return typed::local_space<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::local_space<Anonymous, Range2> typed::local_space<pair<Domain, Range>, Range2>::flatten_domain() const
+{
+  auto res = isl::local_space::flatten_domain();
+  return typed::local_space<Anonymous, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::local_space<pair<Domain, Range>, Range2> typed::local_space<pair<Domain, Range>, Range2>::intersect(const typed::local_space<pair<Domain, Range>, Range2> &ls2) const
+{
+  auto res = isl::local_space::intersect(ls2);
+  return typed::local_space<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::local_space<Range2> typed::local_space<pair<Domain, Range>, Range2>::range() const
+{
+  auto res = isl::local_space::range();
+  return typed::local_space<Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::space<pair<Domain, Range>, Range2> typed::local_space<pair<Domain, Range>, Range2>::space() const
+{
+  auto res = isl::local_space::space();
+  return typed::space<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::local_space<pair<pair<Domain, Range>, Range2>> typed::local_space<pair<Domain, Range>, Range2>::wrap() const
+{
+  auto res = isl::local_space::wrap();
+  return typed::local_space<pair<pair<Domain, Range>, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::local_space<Domain> typed::local_space<Domain, pair<Range, Range2>>::domain() const
+{
+  auto res = isl::local_space::domain();
+  return typed::local_space<Domain>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::local_space<Domain, Anonymous> typed::local_space<Domain, pair<Range, Range2>>::flatten_range() const
+{
+  auto res = isl::local_space::flatten_range();
+  return typed::local_space<Domain, Anonymous>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::local_space<Domain, pair<Range, Range2>> typed::local_space<Domain, pair<Range, Range2>>::intersect(const typed::local_space<Domain, pair<Range, Range2>> &ls2) const
+{
+  auto res = isl::local_space::intersect(ls2);
+  return typed::local_space<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::local_space<pair<Range, Range2>> typed::local_space<Domain, pair<Range, Range2>>::range() const
+{
+  auto res = isl::local_space::range();
+  return typed::local_space<pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::space<Domain, pair<Range, Range2>> typed::local_space<Domain, pair<Range, Range2>>::space() const
+{
+  auto res = isl::local_space::space();
+  return typed::space<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::local_space<pair<Domain, pair<Range, Range2>>> typed::local_space<Domain, pair<Range, Range2>>::wrap() const
+{
+  auto res = isl::local_space::wrap();
+  return typed::local_space<pair<Domain, pair<Range, Range2>>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::local_space<pair<T1, T2>> typed::local_space<pair<T1, T2>, pair<Range, Range2>>::domain() const
+{
+  auto res = isl::local_space::domain();
+  return typed::local_space<pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::local_space<Anonymous, pair<Range, Range2>> typed::local_space<pair<T1, T2>, pair<Range, Range2>>::flatten_domain() const
+{
+  auto res = isl::local_space::flatten_domain();
+  return typed::local_space<Anonymous, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::local_space<pair<T1, T2>, Anonymous> typed::local_space<pair<T1, T2>, pair<Range, Range2>>::flatten_range() const
+{
+  auto res = isl::local_space::flatten_range();
+  return typed::local_space<pair<T1, T2>, Anonymous>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::local_space<pair<T1, T2>, pair<Range, Range2>> typed::local_space<pair<T1, T2>, pair<Range, Range2>>::intersect(const typed::local_space<pair<T1, T2>, pair<Range, Range2>> &ls2) const
+{
+  auto res = isl::local_space::intersect(ls2);
+  return typed::local_space<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::local_space<pair<Range, Range2>> typed::local_space<pair<T1, T2>, pair<Range, Range2>>::range() const
+{
+  auto res = isl::local_space::range();
+  return typed::local_space<pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::space<pair<T1, T2>, pair<Range, Range2>> typed::local_space<pair<T1, T2>, pair<Range, Range2>>::space() const
+{
+  auto res = isl::local_space::space();
+  return typed::space<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::local_space<pair<pair<T1, T2>, pair<Range, Range2>>> typed::local_space<pair<T1, T2>, pair<Range, Range2>>::wrap() const
+{
+  auto res = isl::local_space::wrap();
+  return typed::local_space<pair<pair<T1, T2>, pair<Range, Range2>>>(res);
+}
+
 template <typename Domain, typename Range>
 typed::map<Domain, Range>::map(const typed::basic_map<Domain, Range> &bmap)
   : isl::map(bmap)
@@ -22752,10 +25792,10 @@ typed::set<Domain> typed::map<Domain, Range>::domain() const
 }
 
 template <typename Domain, typename Range>
-typed::union_map<pair<Domain, Range>, Domain> typed::map<Domain, Range>::domain_map() const
+typed::map<pair<Domain, Range>, Domain> typed::map<Domain, Range>::domain_map() const
 {
   auto res = isl::map::domain_map();
-  return typed::union_map<pair<Domain, Range>, Domain>(res);
+  return typed::map<pair<Domain, Range>, Domain>(res);
 }
 
 template <typename Domain, typename Range>
@@ -23097,6 +26137,13 @@ typed::multi_pw_aff<Domain, Range> typed::map<Domain, Range>::min_multi_pw_aff()
 }
 
 template <typename Domain, typename Range>
+typed::map<Domain, Range> typed::map<Domain, Range>::neg() const
+{
+  auto res = isl::map::neg();
+  return typed::map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
 typed::set<> typed::map<Domain, Range>::params() const
 {
   auto res = isl::map::params();
@@ -23226,10 +26273,10 @@ typed::fixed_box<Domain, Range> typed::map<Domain, Range>::range_lattice_tile() 
 }
 
 template <typename Domain, typename Range>
-typed::union_map<pair<Domain, Range>, Range> typed::map<Domain, Range>::range_map() const
+typed::map<pair<Domain, Range>, Range> typed::map<Domain, Range>::range_map() const
 {
   auto res = isl::map::range_map();
-  return typed::union_map<pair<Domain, Range>, Range>(res);
+  return typed::map<pair<Domain, Range>, Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -23331,6 +26378,13 @@ typed::map<Domain, Range> typed::map<Domain, Range>::subtract(const typed::basic
 }
 
 template <typename Domain, typename Range>
+typed::map<Domain, Range> typed::map<Domain, Range>::subtract_domain(const typed::set<Domain> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
 typed::union_map<Domain, Range> typed::map<Domain, Range>::subtract_domain(const typed::union_set<Domain> &dom) const
 {
   auto res = isl::map::subtract_domain(dom);
@@ -23338,10 +26392,45 @@ typed::union_map<Domain, Range> typed::map<Domain, Range>::subtract_domain(const
 }
 
 template <typename Domain, typename Range>
+typed::map<Domain, Range> typed::map<Domain, Range>::subtract_domain(const typed::basic_set<Domain> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
+typed::map<Domain, Range> typed::map<Domain, Range>::subtract_domain(const typed::point<Domain> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
+typed::map<Domain, Range> typed::map<Domain, Range>::subtract_range(const typed::set<Range> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
 typed::union_map<Domain, Range> typed::map<Domain, Range>::subtract_range(const typed::union_set<Range> &dom) const
 {
   auto res = isl::map::subtract_range(dom);
   return typed::union_map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
+typed::map<Domain, Range> typed::map<Domain, Range>::subtract_range(const typed::basic_set<Range> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range>
+typed::map<Domain, Range> typed::map<Domain, Range>::subtract_range(const typed::point<Range> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<Domain, Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -23566,10 +26655,10 @@ typed::map<Range, Range2> typed::map<pair<Domain, Range>, Range2>::domain_factor
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::union_map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> typed::map<pair<Domain, Range>, Range2>::domain_map() const
+typed::map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> typed::map<pair<Domain, Range>, Range2>::domain_map() const
 {
   auto res = isl::map::domain_map();
-  return typed::union_map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>>(res);
+  return typed::map<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -23953,6 +27042,13 @@ typed::multi_pw_aff<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>,
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Range2>::neg() const
+{
+  auto res = isl::map::neg();
+  return typed::map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::set<> typed::map<pair<Domain, Range>, Range2>::params() const
 {
   auto res = isl::map::params();
@@ -24082,10 +27178,10 @@ typed::fixed_box<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Ra
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::union_map<pair<pair<Domain, Range>, Range2>, Range2> typed::map<pair<Domain, Range>, Range2>::range_map() const
+typed::map<pair<pair<Domain, Range>, Range2>, Range2> typed::map<pair<Domain, Range>, Range2>::range_map() const
 {
   auto res = isl::map::range_map();
-  return typed::union_map<pair<pair<Domain, Range>, Range2>, Range2>(res);
+  return typed::map<pair<pair<Domain, Range>, Range2>, Range2>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -24171,6 +27267,13 @@ typed::map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Range2>:
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Range2>::subtract_domain(const typed::set<pair<Domain, Range>> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::union_map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Range2>::subtract_domain(const typed::union_set<pair<Domain, Range>> &dom) const
 {
   auto res = isl::map::subtract_domain(dom);
@@ -24178,10 +27281,45 @@ typed::union_map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Ra
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Range2>::subtract_domain(const typed::basic_set<pair<Domain, Range>> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Range2>::subtract_domain(const typed::point<pair<Domain, Range>> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Range2>::subtract_range(const typed::set<Range2> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::union_map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Range2>::subtract_range(const typed::union_set<Range2> &dom) const
 {
   auto res = isl::map::subtract_range(dom);
   return typed::union_map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Range2>::subtract_range(const typed::basic_set<Range2> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<pair<Domain, Range>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::map<pair<Domain, Range>, Range2> typed::map<pair<Domain, Range>, Range2>::subtract_range(const typed::point<Range2> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<pair<Domain, Range>, Range2>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -24392,10 +27530,10 @@ typed::set<Domain> typed::map<Domain, Domain>::domain() const
 }
 
 template <typename Domain>
-typed::union_map<pair<Domain, Domain>, Domain> typed::map<Domain, Domain>::domain_map() const
+typed::map<pair<Domain, Domain>, Domain> typed::map<Domain, Domain>::domain_map() const
 {
   auto res = isl::map::domain_map();
-  return typed::union_map<pair<Domain, Domain>, Domain>(res);
+  return typed::map<pair<Domain, Domain>, Domain>(res);
 }
 
 template <typename Domain>
@@ -24935,6 +28073,13 @@ typed::multi_pw_aff<Domain, Domain> typed::map<Domain, Domain>::min_multi_pw_aff
 }
 
 template <typename Domain>
+typed::map<Domain, Domain> typed::map<Domain, Domain>::neg() const
+{
+  auto res = isl::map::neg();
+  return typed::map<Domain, Domain>(res);
+}
+
+template <typename Domain>
 typed::set<> typed::map<Domain, Domain>::params() const
 {
   auto res = isl::map::params();
@@ -25064,10 +28209,10 @@ typed::fixed_box<Domain, Domain> typed::map<Domain, Domain>::range_lattice_tile(
 }
 
 template <typename Domain>
-typed::union_map<pair<Domain, Domain>, Domain> typed::map<Domain, Domain>::range_map() const
+typed::map<pair<Domain, Domain>, Domain> typed::map<Domain, Domain>::range_map() const
 {
   auto res = isl::map::range_map();
-  return typed::union_map<pair<Domain, Domain>, Domain>(res);
+  return typed::map<pair<Domain, Domain>, Domain>(res);
 }
 
 template <typename Domain>
@@ -25169,6 +28314,13 @@ typed::map<Domain, Domain> typed::map<Domain, Domain>::subtract(const typed::bas
 }
 
 template <typename Domain>
+typed::map<Domain, Domain> typed::map<Domain, Domain>::subtract_domain(const typed::set<Domain> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<Domain, Domain>(res);
+}
+
+template <typename Domain>
 typed::union_map<Domain, Domain> typed::map<Domain, Domain>::subtract_domain(const typed::union_set<Domain> &dom) const
 {
   auto res = isl::map::subtract_domain(dom);
@@ -25176,10 +28328,45 @@ typed::union_map<Domain, Domain> typed::map<Domain, Domain>::subtract_domain(con
 }
 
 template <typename Domain>
+typed::map<Domain, Domain> typed::map<Domain, Domain>::subtract_domain(const typed::basic_set<Domain> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<Domain, Domain>(res);
+}
+
+template <typename Domain>
+typed::map<Domain, Domain> typed::map<Domain, Domain>::subtract_domain(const typed::point<Domain> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<Domain, Domain>(res);
+}
+
+template <typename Domain>
+typed::map<Domain, Domain> typed::map<Domain, Domain>::subtract_range(const typed::set<Domain> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<Domain, Domain>(res);
+}
+
+template <typename Domain>
 typed::union_map<Domain, Domain> typed::map<Domain, Domain>::subtract_range(const typed::union_set<Domain> &dom) const
 {
   auto res = isl::map::subtract_range(dom);
   return typed::union_map<Domain, Domain>(res);
+}
+
+template <typename Domain>
+typed::map<Domain, Domain> typed::map<Domain, Domain>::subtract_range(const typed::basic_set<Domain> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<Domain, Domain>(res);
+}
+
+template <typename Domain>
+typed::map<Domain, Domain> typed::map<Domain, Domain>::subtract_range(const typed::point<Domain> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<Domain, Domain>(res);
 }
 
 template <typename Domain>
@@ -25383,10 +28570,10 @@ typed::set<Domain> typed::map<Domain, pair<Range, Range2>>::domain() const
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::union_map<pair<Domain, pair<Range, Range2>>, Domain> typed::map<Domain, pair<Range, Range2>>::domain_map() const
+typed::map<pair<Domain, pair<Range, Range2>>, Domain> typed::map<Domain, pair<Range, Range2>>::domain_map() const
 {
   auto res = isl::map::domain_map();
-  return typed::union_map<pair<Domain, pair<Range, Range2>>, Domain>(res);
+  return typed::map<pair<Domain, pair<Range, Range2>>, Domain>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -25763,6 +28950,13 @@ typed::multi_pw_aff<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, 
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::neg() const
+{
+  auto res = isl::map::neg();
+  return typed::map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::set<> typed::map<Domain, pair<Range, Range2>>::params() const
 {
   auto res = isl::map::params();
@@ -25906,10 +29100,10 @@ typed::fixed_box<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Ran
 }
 
 template <typename Domain, typename Range, typename Range2>
-typed::union_map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::range_map() const
+typed::map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::range_map() const
 {
   auto res = isl::map::range_map();
-  return typed::union_map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>>(res);
+  return typed::map<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -26002,6 +29196,13 @@ typed::map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>:
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::subtract_domain(const typed::set<Domain> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::union_map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::subtract_domain(const typed::union_set<Domain> &dom) const
 {
   auto res = isl::map::subtract_domain(dom);
@@ -26009,10 +29210,45 @@ typed::union_map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Ran
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::subtract_domain(const typed::basic_set<Domain> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::subtract_domain(const typed::point<Domain> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::subtract_range(const typed::set<pair<Range, Range2>> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::union_map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::subtract_range(const typed::union_set<pair<Range, Range2>> &dom) const
 {
   auto res = isl::map::subtract_range(dom);
   return typed::union_map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::subtract_range(const typed::basic_set<pair<Range, Range2>> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<Domain, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::map<Domain, pair<Range, Range2>> typed::map<Domain, pair<Range, Range2>>::subtract_range(const typed::point<pair<Range, Range2>> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<Domain, pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -26251,10 +29487,10 @@ typed::map<T2, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::domain_fact
 }
 
 template <typename T1, typename T2>
-typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::domain_map() const
+typed::map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::domain_map() const
 {
   auto res = isl::map::domain_map();
-  return typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>>(res);
+  return typed::map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -26871,6 +30107,13 @@ typed::multi_pw_aff<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1
 }
 
 template <typename T1, typename T2>
+typed::map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::neg() const
+{
+  auto res = isl::map::neg();
+  return typed::map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
 typed::set<> typed::map<pair<T1, T2>, pair<T1, T2>>::params() const
 {
   auto res = isl::map::params();
@@ -27014,10 +30257,10 @@ typed::fixed_box<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T
 }
 
 template <typename T1, typename T2>
-typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::range_map() const
+typed::map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::range_map() const
 {
   auto res = isl::map::range_map();
-  return typed::union_map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>>(res);
+  return typed::map<pair<pair<T1, T2>, pair<T1, T2>>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -27094,6 +30337,13 @@ typed::map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::s
 }
 
 template <typename T1, typename T2>
+typed::map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::subtract_domain(const typed::set<pair<T1, T2>> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
 typed::union_map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::subtract_domain(const typed::union_set<pair<T1, T2>> &dom) const
 {
   auto res = isl::map::subtract_domain(dom);
@@ -27101,10 +30351,45 @@ typed::union_map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T
 }
 
 template <typename T1, typename T2>
+typed::map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::subtract_domain(const typed::basic_set<pair<T1, T2>> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
+typed::map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::subtract_domain(const typed::point<pair<T1, T2>> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
+typed::map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::subtract_range(const typed::set<pair<T1, T2>> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
 typed::union_map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::subtract_range(const typed::union_set<pair<T1, T2>> &dom) const
 {
   auto res = isl::map::subtract_range(dom);
   return typed::union_map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
+typed::map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::subtract_range(const typed::basic_set<pair<T1, T2>> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<pair<T1, T2>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2>
+typed::map<pair<T1, T2>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<T1, T2>>::subtract_range(const typed::point<pair<T1, T2>> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<pair<T1, T2>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2>
@@ -27336,10 +30621,10 @@ typed::map<T2, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
-typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::domain_map() const
+typed::map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::domain_map() const
 {
   auto res = isl::map::domain_map();
-  return typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>>(res);
+  return typed::map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -27758,6 +31043,13 @@ typed::multi_pw_aff<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, 
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
+typed::map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::neg() const
+{
+  auto res = isl::map::neg();
+  return typed::map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
 typed::set<> typed::map<pair<T1, T2>, pair<Range, Range2>>::params() const
 {
   auto res = isl::map::params();
@@ -27901,10 +31193,10 @@ typed::fixed_box<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pai
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
-typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::range_map() const
+typed::map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::range_map() const
 {
   auto res = isl::map::range_map();
-  return typed::union_map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>>(res);
+  return typed::map<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -27981,6 +31273,13 @@ typed::map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Rang
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
+typed::map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::subtract_domain(const typed::set<pair<T1, T2>> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
 typed::union_map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::subtract_domain(const typed::union_set<pair<T1, T2>> &dom) const
 {
   auto res = isl::map::subtract_domain(dom);
@@ -27988,10 +31287,45 @@ typed::union_map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pai
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
+typed::map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::subtract_domain(const typed::basic_set<pair<T1, T2>> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::subtract_domain(const typed::point<pair<T1, T2>> &dom) const
+{
+  auto res = isl::map::subtract_domain(dom);
+  return typed::map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::subtract_range(const typed::set<pair<Range, Range2>> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
 typed::union_map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::subtract_range(const typed::union_set<pair<Range, Range2>> &dom) const
 {
   auto res = isl::map::subtract_range(dom);
   return typed::union_map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::subtract_range(const typed::basic_set<pair<Range, Range2>> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<pair<T1, T2>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::map<pair<T1, T2>, pair<Range, Range2>> typed::map<pair<T1, T2>, pair<Range, Range2>>::subtract_range(const typed::point<pair<Range, Range2>> &dom) const
+{
+  auto res = isl::map::subtract_range(dom);
+  return typed::map<pair<T1, T2>, pair<Range, Range2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -34183,10 +37517,22 @@ typed::multi_val<Domain> typed::multi_val<Domain>::sub(const typed::multi_val<Do
   return typed::multi_val<Domain>(res);
 }
 
+typed::basic_set_list<> typed::point<>::basic_set_list() const
+{
+  auto res = isl::point::basic_set_list();
+  return typed::basic_set_list<>(res);
+}
+
 typed::set<> typed::point<>::coalesce() const
 {
   auto res = isl::point::coalesce();
   return typed::set<>(res);
+}
+
+typed::constraint_list<> typed::point<>::constraint_list() const
+{
+  auto res = isl::point::constraint_list();
+  return typed::constraint_list<>(res);
 }
 
 typed::basic_set<> typed::point<>::detect_equalities() const
@@ -34195,10 +37541,10 @@ typed::basic_set<> typed::point<>::detect_equalities() const
   return typed::basic_set<>(res);
 }
 
-typed::set<> typed::point<>::drop_unused_params() const
+typed::basic_set<> typed::point<>::drop_unused_params() const
 {
   auto res = isl::point::drop_unused_params();
-  return typed::set<>(res);
+  return typed::basic_set<>(res);
 }
 
 bool typed::point<>::every_set(const std::function<bool(typed::set<>)> &test) const
@@ -34221,6 +37567,14 @@ void typed::point<>::foreach_basic_set(const std::function<void(typed::basic_set
     return fn(typed::basic_set<>(arg0));
   };
   return isl::point::foreach_basic_set(lambda_fn);
+}
+
+void typed::point<>::foreach_constraint(const std::function<void(typed::constraint<>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<>(arg0));
+  };
+  return isl::point::foreach_constraint(lambda_fn);
 }
 
 void typed::point<>::foreach_point(const std::function<void(typed::point<>)> &fn) const
@@ -34279,6 +37633,12 @@ typed::union_set<> typed::point<>::intersect(const typed::union_set<> &uset2) co
 {
   auto res = isl::point::intersect(uset2);
   return typed::union_set<>(res);
+}
+
+typed::local_space<> typed::point<>::local_space() const
+{
+  auto res = isl::point::local_space();
+  return typed::local_space<>(res);
 }
 
 typed::pw_aff<Anonymous> typed::point<>::param_pw_aff_on_domain(const typed::id<Anonymous> &id) const
@@ -34436,6 +37796,13 @@ typed::set<Domain> typed::point<Domain>::as_set() const
 }
 
 template <typename Domain>
+typed::basic_set_list<Domain> typed::point<Domain>::basic_set_list() const
+{
+  auto res = isl::point::basic_set_list();
+  return typed::basic_set_list<Domain>(res);
+}
+
+template <typename Domain>
 typed::set<> typed::point<Domain>::bind(const typed::multi_id<Domain> &tuple) const
 {
   auto res = isl::point::bind(tuple);
@@ -34457,10 +37824,10 @@ typed::basic_set<Domain> typed::point<Domain>::detect_equalities() const
 }
 
 template <typename Domain>
-typed::set<Domain> typed::point<Domain>::drop_unused_params() const
+typed::basic_set<Domain> typed::point<Domain>::drop_unused_params() const
 {
   auto res = isl::point::drop_unused_params();
-  return typed::set<Domain>(res);
+  return typed::basic_set<Domain>(res);
 }
 
 template <typename Domain>
@@ -34486,6 +37853,15 @@ void typed::point<Domain>::foreach_basic_set(const std::function<void(typed::bas
     return fn(typed::basic_set<Domain>(arg0));
   };
   return isl::point::foreach_basic_set(lambda_fn);
+}
+
+template <typename Domain>
+void typed::point<Domain>::foreach_constraint(const std::function<void(typed::constraint<Domain>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<Domain>(arg0));
+  };
+  return isl::point::foreach_constraint(lambda_fn);
 }
 
 template <typename Domain>
@@ -34627,6 +38003,13 @@ typed::pw_multi_aff<Domain> typed::point<Domain>::lexmin_pw_multi_aff() const
 }
 
 template <typename Domain>
+typed::local_space<Domain> typed::point<Domain>::local_space() const
+{
+  auto res = isl::point::local_space();
+  return typed::local_space<Domain>(res);
+}
+
+template <typename Domain>
 typed::set<Domain> typed::point<Domain>::lower_bound(const typed::multi_pw_aff<Domain> &lower) const
 {
   auto res = isl::point::lower_bound(lower);
@@ -34659,6 +38042,13 @@ typed::multi_val<Domain> typed::point<Domain>::multi_val() const
 {
   auto res = isl::point::multi_val();
   return typed::multi_val<Domain>(res);
+}
+
+template <typename Domain>
+typed::basic_set<Domain> typed::point<Domain>::neg() const
+{
+  auto res = isl::point::neg();
+  return typed::basic_set<Domain>(res);
 }
 
 template <typename Domain>
@@ -34917,6 +38307,13 @@ typed::set<pair<Domain, Range>> typed::point<pair<Domain, Range>>::as_set() cons
 }
 
 template <typename Domain, typename Range>
+typed::basic_set_list<pair<Domain, Range>> typed::point<pair<Domain, Range>>::basic_set_list() const
+{
+  auto res = isl::point::basic_set_list();
+  return typed::basic_set_list<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range>
 typed::set<> typed::point<pair<Domain, Range>>::bind(const typed::multi_id<pair<Domain, Range>> &tuple) const
 {
   auto res = isl::point::bind(tuple);
@@ -34938,10 +38335,10 @@ typed::basic_set<pair<Domain, Range>> typed::point<pair<Domain, Range>>::detect_
 }
 
 template <typename Domain, typename Range>
-typed::set<pair<Domain, Range>> typed::point<pair<Domain, Range>>::drop_unused_params() const
+typed::basic_set<pair<Domain, Range>> typed::point<pair<Domain, Range>>::drop_unused_params() const
 {
   auto res = isl::point::drop_unused_params();
-  return typed::set<pair<Domain, Range>>(res);
+  return typed::basic_set<pair<Domain, Range>>(res);
 }
 
 template <typename Domain, typename Range>
@@ -34967,6 +38364,15 @@ void typed::point<pair<Domain, Range>>::foreach_basic_set(const std::function<vo
     return fn(typed::basic_set<pair<Domain, Range>>(arg0));
   };
   return isl::point::foreach_basic_set(lambda_fn);
+}
+
+template <typename Domain, typename Range>
+void typed::point<pair<Domain, Range>>::foreach_constraint(const std::function<void(typed::constraint<pair<Domain, Range>>)> &fn) const
+{
+  auto lambda_fn = [&] (isl::constraint arg0) {
+    return fn(typed::constraint<pair<Domain, Range>>(arg0));
+  };
+  return isl::point::foreach_constraint(lambda_fn);
 }
 
 template <typename Domain, typename Range>
@@ -35108,6 +38514,13 @@ typed::pw_multi_aff<pair<Domain, Range>> typed::point<pair<Domain, Range>>::lexm
 }
 
 template <typename Domain, typename Range>
+typed::local_space<pair<Domain, Range>> typed::point<pair<Domain, Range>>::local_space() const
+{
+  auto res = isl::point::local_space();
+  return typed::local_space<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range>
 typed::set<pair<Domain, Range>> typed::point<pair<Domain, Range>>::lower_bound(const typed::multi_pw_aff<pair<Domain, Range>> &lower) const
 {
   auto res = isl::point::lower_bound(lower);
@@ -35140,6 +38553,13 @@ typed::multi_val<pair<Domain, Range>> typed::point<pair<Domain, Range>>::multi_v
 {
   auto res = isl::point::multi_val();
   return typed::multi_val<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range>
+typed::basic_set<pair<Domain, Range>> typed::point<pair<Domain, Range>>::neg() const
+{
+  auto res = isl::point::neg();
+  return typed::basic_set<pair<Domain, Range>>(res);
 }
 
 template <typename Domain, typename Range>
@@ -35346,10 +38766,10 @@ typed::union_set<pair<Domain, Range>> typed::point<pair<Domain, Range>>::unite(c
 }
 
 template <typename Domain, typename Range>
-typed::map<Domain, Range> typed::point<pair<Domain, Range>>::unwrap() const
+typed::basic_map<Domain, Range> typed::point<pair<Domain, Range>>::unwrap() const
 {
   auto res = isl::point::unwrap();
-  return typed::map<Domain, Range>(res);
+  return typed::basic_map<Domain, Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -41283,6 +44703,12 @@ typed::set<>::set(const isl::ctx &ctx, const std::string &str)
 {
 }
 
+typed::basic_set_list<> typed::set<>::basic_set_list() const
+{
+  auto res = isl::set::basic_set_list();
+  return typed::basic_set_list<>(res);
+}
+
 typed::set<> typed::set<>::coalesce() const
 {
   auto res = isl::set::coalesce();
@@ -41584,6 +45010,13 @@ typed::set<Domain> typed::set<Domain>::as_set() const
 }
 
 template <typename Domain>
+typed::basic_set_list<Domain> typed::set<Domain>::basic_set_list() const
+{
+  auto res = isl::set::basic_set_list();
+  return typed::basic_set_list<Domain>(res);
+}
+
+template <typename Domain>
 typed::set<> typed::set<Domain>::bind(const typed::multi_id<Domain> &tuple) const
 {
   auto res = isl::set::bind(tuple);
@@ -41835,6 +45268,13 @@ typed::multi_pw_aff<Domain> typed::set<Domain>::min_multi_pw_aff() const
 {
   auto res = isl::set::min_multi_pw_aff();
   return typed::multi_pw_aff<Domain>(res);
+}
+
+template <typename Domain>
+typed::set<Domain> typed::set<Domain>::neg() const
+{
+  auto res = isl::set::neg();
+  return typed::set<Domain>(res);
 }
 
 template <typename Domain>
@@ -42148,6 +45588,13 @@ typed::set<pair<Domain, Range>> typed::set<pair<Domain, Range>>::as_set() const
 }
 
 template <typename Domain, typename Range>
+typed::basic_set_list<pair<Domain, Range>> typed::set<pair<Domain, Range>>::basic_set_list() const
+{
+  auto res = isl::set::basic_set_list();
+  return typed::basic_set_list<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range>
 typed::set<> typed::set<pair<Domain, Range>>::bind(const typed::multi_id<pair<Domain, Range>> &tuple) const
 {
   auto res = isl::set::bind(tuple);
@@ -42399,6 +45846,13 @@ typed::multi_pw_aff<pair<Domain, Range>> typed::set<pair<Domain, Range>>::min_mu
 {
   auto res = isl::set::min_multi_pw_aff();
   return typed::multi_pw_aff<pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range>
+typed::set<pair<Domain, Range>> typed::set<pair<Domain, Range>>::neg() const
+{
+  auto res = isl::set::neg();
+  return typed::set<pair<Domain, Range>>(res);
 }
 
 template <typename Domain, typename Range>
@@ -43135,6 +46589,13 @@ typed::space<Domain> typed::space<Domain, Range>::domain() const
 }
 
 template <typename Domain, typename Range>
+typed::space<pair<Domain, Range>, Domain> typed::space<Domain, Range>::domain_map() const
+{
+  auto res = isl::space::domain_map();
+  return typed::space<pair<Domain, Range>, Domain>(res);
+}
+
+template <typename Domain, typename Range>
 typed::multi_aff<pair<Domain, Range>, Domain> typed::space<Domain, Range>::domain_map_multi_aff() const
 {
   auto res = isl::space::domain_map_multi_aff();
@@ -43146,6 +46607,14 @@ typed::pw_multi_aff<pair<Domain, Range>, Domain> typed::space<Domain, Range>::do
 {
   auto res = isl::space::domain_map_pw_multi_aff();
   return typed::pw_multi_aff<pair<Domain, Range>, Domain>(res);
+}
+
+template <typename Domain, typename Range>
+template <typename Domain2>
+typed::space<pair<Domain, Domain2>, Range> typed::space<Domain, Range>::domain_product(const typed::space<Domain2, Range> &right) const
+{
+  auto res = isl::space::domain_product(right);
+  return typed::space<pair<Domain, Domain2>, Range>(res);
 }
 
 template <typename Domain, typename Range>
@@ -43192,6 +46661,13 @@ typed::space<Range> typed::space<Domain, Range>::range() const
 }
 
 template <typename Domain, typename Range>
+typed::space<pair<Domain, Range>, Range> typed::space<Domain, Range>::range_map() const
+{
+  auto res = isl::space::range_map();
+  return typed::space<pair<Domain, Range>, Range>(res);
+}
+
+template <typename Domain, typename Range>
 typed::multi_aff<pair<Domain, Range>, Range> typed::space<Domain, Range>::range_map_multi_aff() const
 {
   auto res = isl::space::range_map_multi_aff();
@@ -43203,6 +46679,14 @@ typed::pw_multi_aff<pair<Domain, Range>, Range> typed::space<Domain, Range>::ran
 {
   auto res = isl::space::range_map_pw_multi_aff();
   return typed::pw_multi_aff<pair<Domain, Range>, Range>(res);
+}
+
+template <typename Domain, typename Range>
+template <typename Range2>
+typed::space<Domain, pair<Range, Range2>> typed::space<Domain, Range>::range_product(const typed::space<Domain, Range2> &right) const
+{
+  auto res = isl::space::range_product(right);
+  return typed::space<Domain, pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range>
@@ -43536,6 +47020,27 @@ typed::space<pair<Domain, Range>> typed::space<pair<Domain, Range>, Range2>::dom
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::space<Domain, Range2> typed::space<pair<Domain, Range>, Range2>::domain_factor_domain() const
+{
+  auto res = isl::space::domain_factor_domain();
+  return typed::space<Domain, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::space<Range, Range2> typed::space<pair<Domain, Range>, Range2>::domain_factor_range() const
+{
+  auto res = isl::space::domain_factor_range();
+  return typed::space<Range, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::space<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> typed::space<pair<Domain, Range>, Range2>::domain_map() const
+{
+  auto res = isl::space::domain_map();
+  return typed::space<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::multi_aff<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> typed::space<pair<Domain, Range>, Range2>::domain_map_multi_aff() const
 {
   auto res = isl::space::domain_map_multi_aff();
@@ -43547,6 +47052,14 @@ typed::pw_multi_aff<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>> type
 {
   auto res = isl::space::domain_map_pw_multi_aff();
   return typed::pw_multi_aff<pair<pair<Domain, Range>, Range2>, pair<Domain, Range>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+template <typename Domain2>
+typed::space<pair<pair<Domain, Range>, Domain2>, Range2> typed::space<pair<Domain, Range>, Range2>::domain_product(const typed::space<Domain2, Range2> &right) const
+{
+  auto res = isl::space::domain_product(right);
+  return typed::space<pair<pair<Domain, Range>, Domain2>, Range2>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -43607,6 +47120,13 @@ typed::space<Range2> typed::space<pair<Domain, Range>, Range2>::range() const
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::space<pair<pair<Domain, Range>, Range2>, Range2> typed::space<pair<Domain, Range>, Range2>::range_map() const
+{
+  auto res = isl::space::range_map();
+  return typed::space<pair<pair<Domain, Range>, Range2>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::multi_aff<pair<pair<Domain, Range>, Range2>, Range2> typed::space<pair<Domain, Range>, Range2>::range_map_multi_aff() const
 {
   auto res = isl::space::range_map_multi_aff();
@@ -43618,6 +47138,14 @@ typed::pw_multi_aff<pair<pair<Domain, Range>, Range2>, Range2> typed::space<pair
 {
   auto res = isl::space::range_map_pw_multi_aff();
   return typed::pw_multi_aff<pair<pair<Domain, Range>, Range2>, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+template <typename Arg3>
+typed::space<pair<Domain, Range>, pair<Range2, Arg3>> typed::space<pair<Domain, Range>, Range2>::range_product(const typed::space<pair<Domain, Range>, Arg3> &right) const
+{
+  auto res = isl::space::range_product(right);
+  return typed::space<pair<Domain, Range>, pair<Range2, Arg3>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -43706,6 +47234,13 @@ typed::space<Domain> typed::space<Domain, pair<Range, Range2>>::domain() const
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::space<pair<Domain, pair<Range, Range2>>, Domain> typed::space<Domain, pair<Range, Range2>>::domain_map() const
+{
+  auto res = isl::space::domain_map();
+  return typed::space<pair<Domain, pair<Range, Range2>>, Domain>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::multi_aff<pair<Domain, pair<Range, Range2>>, Domain> typed::space<Domain, pair<Range, Range2>>::domain_map_multi_aff() const
 {
   auto res = isl::space::domain_map_multi_aff();
@@ -43717,6 +47252,14 @@ typed::pw_multi_aff<pair<Domain, pair<Range, Range2>>, Domain> typed::space<Doma
 {
   auto res = isl::space::domain_map_pw_multi_aff();
   return typed::pw_multi_aff<pair<Domain, pair<Range, Range2>>, Domain>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+template <typename Domain2>
+typed::space<pair<Domain, Domain2>, pair<Range, Range2>> typed::space<Domain, pair<Range, Range2>>::domain_product(const typed::space<Domain2, pair<Range, Range2>> &right) const
+{
+  auto res = isl::space::domain_product(right);
+  return typed::space<pair<Domain, Domain2>, pair<Range, Range2>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -43770,6 +47313,27 @@ typed::space<pair<Range, Range2>> typed::space<Domain, pair<Range, Range2>>::ran
 }
 
 template <typename Domain, typename Range, typename Range2>
+typed::space<Domain, Range> typed::space<Domain, pair<Range, Range2>>::range_factor_domain() const
+{
+  auto res = isl::space::range_factor_domain();
+  return typed::space<Domain, Range>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::space<Domain, Range2> typed::space<Domain, pair<Range, Range2>>::range_factor_range() const
+{
+  auto res = isl::space::range_factor_range();
+  return typed::space<Domain, Range2>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+typed::space<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> typed::space<Domain, pair<Range, Range2>>::range_map() const
+{
+  auto res = isl::space::range_map();
+  return typed::space<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
 typed::multi_aff<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> typed::space<Domain, pair<Range, Range2>>::range_map_multi_aff() const
 {
   auto res = isl::space::range_map_multi_aff();
@@ -43781,6 +47345,14 @@ typed::pw_multi_aff<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>> type
 {
   auto res = isl::space::range_map_pw_multi_aff();
   return typed::pw_multi_aff<pair<Domain, pair<Range, Range2>>, pair<Range, Range2>>(res);
+}
+
+template <typename Domain, typename Range, typename Range2>
+template <typename Arg3>
+typed::space<Domain, pair<pair<Range, Range2>, Arg3>> typed::space<Domain, pair<Range, Range2>>::range_product(const typed::space<Domain, Arg3> &right) const
+{
+  auto res = isl::space::range_product(right);
+  return typed::space<Domain, pair<pair<Range, Range2>, Arg3>>(res);
 }
 
 template <typename Domain, typename Range, typename Range2>
@@ -43890,6 +47462,27 @@ typed::space<pair<T1, T2>> typed::space<pair<T1, T2>, pair<Range, Range2>>::doma
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
+typed::space<T1, pair<Range, Range2>> typed::space<pair<T1, T2>, pair<Range, Range2>>::domain_factor_domain() const
+{
+  auto res = isl::space::domain_factor_domain();
+  return typed::space<T1, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::space<T2, pair<Range, Range2>> typed::space<pair<T1, T2>, pair<Range, Range2>>::domain_factor_range() const
+{
+  auto res = isl::space::domain_factor_range();
+  return typed::space<T2, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::space<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> typed::space<pair<T1, T2>, pair<Range, Range2>>::domain_map() const
+{
+  auto res = isl::space::domain_map();
+  return typed::space<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
 typed::multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> typed::space<pair<T1, T2>, pair<Range, Range2>>::domain_map_multi_aff() const
 {
   auto res = isl::space::domain_map_multi_aff();
@@ -43901,6 +47494,14 @@ typed::pw_multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>> typed
 {
   auto res = isl::space::domain_map_pw_multi_aff();
   return typed::pw_multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<T1, T2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+template <typename Domain2>
+typed::space<pair<pair<T1, T2>, Domain2>, pair<Range, Range2>> typed::space<pair<T1, T2>, pair<Range, Range2>>::domain_product(const typed::space<Domain2, pair<Range, Range2>> &right) const
+{
+  auto res = isl::space::domain_product(right);
+  return typed::space<pair<pair<T1, T2>, Domain2>, pair<Range, Range2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
@@ -43968,6 +47569,27 @@ typed::space<pair<Range, Range2>> typed::space<pair<T1, T2>, pair<Range, Range2>
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>
+typed::space<pair<T1, T2>, Range> typed::space<pair<T1, T2>, pair<Range, Range2>>::range_factor_domain() const
+{
+  auto res = isl::space::range_factor_domain();
+  return typed::space<pair<T1, T2>, Range>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::space<pair<T1, T2>, Range2> typed::space<pair<T1, T2>, pair<Range, Range2>>::range_factor_range() const
+{
+  auto res = isl::space::range_factor_range();
+  return typed::space<pair<T1, T2>, Range2>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+typed::space<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> typed::space<pair<T1, T2>, pair<Range, Range2>>::range_map() const
+{
+  auto res = isl::space::range_map();
+  return typed::space<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
 typed::multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>> typed::space<pair<T1, T2>, pair<Range, Range2>>::range_map_multi_aff() const
 {
   auto res = isl::space::range_map_multi_aff();
@@ -43979,6 +47601,14 @@ typed::pw_multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>
 {
   auto res = isl::space::range_map_pw_multi_aff();
   return typed::pw_multi_aff<pair<pair<T1, T2>, pair<Range, Range2>>, pair<Range, Range2>>(res);
+}
+
+template <typename T1, typename T2, typename Range, typename Range2>
+template <typename Arg2>
+typed::space<pair<T1, T2>, pair<pair<Range, Range2>, Arg2>> typed::space<pair<T1, T2>, pair<Range, Range2>>::range_product(const typed::space<pair<T1, T2>, Arg2> &right) const
+{
+  auto res = isl::space::range_product(right);
+  return typed::space<pair<T1, T2>, pair<pair<Range, Range2>, Arg2>>(res);
 }
 
 template <typename T1, typename T2, typename Range, typename Range2>

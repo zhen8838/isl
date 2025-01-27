@@ -36,8 +36,8 @@
 #define ISL_USE_EXCEPTIONS	0
 #endif
 #endif
-namespace isl {
 
+namespace isl {
 
 class ctx {
 	isl_ctx *ptr;
@@ -271,6 +271,7 @@ public:
 #include <isl/val.h>
 #include <isl/aff.h>
 #include <isl/set.h>
+#include <isl/mat.h>
 #include <isl/map.h>
 #include <isl/ilp.h>
 #include <isl/union_set.h>
@@ -280,7 +281,9 @@ public:
 #include <isl/schedule_node.h>
 #include <isl/ast_build.h>
 #include <isl/fixed_box.h>
-
+#include <isl/constraint.h>
+#include <isl/local_space.h>
+#include <isl/vertices.h>
 namespace isl {
 
 // forward declarations
@@ -325,14 +328,20 @@ class ast_node_list;
 class ast_node_mark;
 class ast_node_user;
 class basic_map;
+class basic_map_list;
 class basic_set;
+class basic_set_list;
+class constraint;
+class constraint_list;
 class fixed_box;
 class id;
 class id_list;
 class id_to_ast_expr;
 class id_to_id;
+class local_space;
 class map;
 class map_list;
+class mat;
 class multi_aff;
 class multi_id;
 class multi_pw_aff;
@@ -1488,7 +1497,10 @@ class basic_map {
   inline bool is_null() const;
   inline isl::ctx ctx() const;
 
+  inline isl::basic_map add_constraint(isl::constraint constraint) const;
+  inline isl::basic_map add_dims(enum isl_dim_type type, unsigned int n) const;
   inline isl::basic_map affine_hull() const;
+  inline isl::basic_map align_params(isl::space model) const;
   inline isl::basic_map apply_domain(isl::basic_map bmap2) const;
   inline isl::map apply_domain(const isl::map &map2) const;
   inline isl::union_map apply_domain(const isl::union_map &umap2) const;
@@ -1501,45 +1513,102 @@ class basic_map {
   inline isl::union_pw_multi_aff as_union_pw_multi_aff() const;
   inline isl::set bind_domain(const isl::multi_id &tuple) const;
   inline isl::set bind_range(const isl::multi_id &tuple) const;
+  inline bool can_curry() const;
+  inline bool can_range_curry() const;
+  inline bool can_uncurry() const;
+  inline bool can_zip() const;
   inline isl::map coalesce() const;
   inline isl::map complement() const;
-  inline isl::union_map compute_divs() const;
-  inline isl::map curry() const;
+  inline isl::map compute_divs() const;
+  inline isl::constraint_list constraint_list() const;
+  inline isl::constraint_list get_constraint_list() const;
+  inline isl::basic_map convex_hull() const;
+  inline isl::basic_map curry() const;
   inline isl::basic_set deltas() const;
+  inline isl::basic_map deltas_map() const;
   inline isl::basic_map detect_equalities() const;
-  inline isl::set domain() const;
+  inline unsigned dim(enum isl_dim_type type) const;
+  inline isl::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::pw_aff dim_max(int pos) const;
+  inline isl::pw_aff dim_min(int pos) const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::aff div(int pos) const;
+  inline isl::aff get_div(int pos) const;
+  inline isl::basic_set domain() const;
   inline isl::map domain_factor_domain() const;
   inline isl::map domain_factor_range() const;
-  inline isl::union_map domain_map() const;
+  inline bool domain_is_wrapping() const;
+  inline isl::basic_map domain_map() const;
   inline isl::union_pw_multi_aff domain_map_union_pw_multi_aff() const;
   inline isl::map domain_product(const isl::map &map2) const;
   inline isl::union_map domain_product(const isl::union_map &umap2) const;
   inline isl::map domain_reverse() const;
   inline unsigned domain_tuple_dim() const;
   inline isl::id domain_tuple_id() const;
-  inline isl::map drop_unused_params() const;
+  inline isl::basic_map drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_map drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_map drop_unused_params() const;
+  inline isl::basic_map eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  static inline isl::basic_map empty(isl::space space);
   inline isl::map eq_at(const isl::multi_pw_aff &mpa) const;
   inline isl::union_map eq_at(const isl::multi_union_pw_aff &mupa) const;
+  inline isl::mat equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5) const;
+  inline isl::basic_map equate(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
   inline bool every_map(const std::function<bool(isl::map)> &test) const;
   inline isl::map extract_map(const isl::space &space) const;
   inline isl::map factor_domain() const;
   inline isl::map factor_range() const;
+  inline int find_dim_by_id(enum isl_dim_type type, const isl::id &id) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const std::string &id) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::map fix_input_si(unsigned int input, int value) const;
+  inline isl::basic_map fix_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::basic_map fix_val(enum isl_dim_type type, unsigned int pos, isl::val v) const;
+  inline isl::basic_map fix_val(enum isl_dim_type type, unsigned int pos, long v) const;
   inline isl::map fixed_power(const isl::val &exp) const;
   inline isl::map fixed_power(long exp) const;
+  inline isl::map flat_domain_product(const isl::map &map2) const;
+  inline isl::basic_map flat_product(isl::basic_map bmap2) const;
+  inline isl::map flat_product(const isl::map &map2) const;
+  inline isl::basic_map flat_range_product(isl::basic_map bmap2) const;
+  inline isl::map flat_range_product(const isl::map &map2) const;
   inline isl::basic_map flatten() const;
   inline isl::basic_map flatten_domain() const;
   inline isl::basic_map flatten_range() const;
+  inline isl::map floordiv_val(const isl::val &d) const;
+  inline isl::map floordiv_val(long d) const;
   inline void foreach_basic_map(const std::function<void(isl::basic_map)> &fn) const;
+  inline void foreach_constraint(const std::function<void(isl::constraint)> &fn) const;
   inline void foreach_map(const std::function<void(isl::map)> &fn) const;
+  static inline isl::basic_map from_aff(isl::aff aff);
+  static inline isl::basic_map from_aff_list(isl::space domain_space, isl::aff_list list);
+  static inline isl::basic_map from_constraint(isl::constraint constraint);
+  static inline isl::basic_map from_constraint_matrices(isl::space space, isl::mat eq, isl::mat ineq, enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5);
+  static inline isl::basic_map from_domain(isl::basic_set bset);
+  static inline isl::basic_map from_domain_and_range(isl::basic_set domain, isl::basic_set range);
+  static inline isl::basic_map from_multi_aff(isl::multi_aff maff);
+  static inline isl::basic_map from_range(isl::basic_set bset);
   inline isl::basic_map gist(isl::basic_map context) const;
   inline isl::map gist(const isl::map &context) const;
   inline isl::union_map gist(const isl::union_map &context) const;
+  inline isl::map gist_basic_map(const isl::basic_map &context) const;
+  inline isl::basic_map gist_domain(isl::basic_set context) const;
   inline isl::map gist_domain(const isl::set &context) const;
   inline isl::union_map gist_domain(const isl::union_set &uset) const;
+  inline isl::basic_map gist_domain(const isl::point &context) const;
   inline isl::map gist_params(const isl::set &context) const;
   inline isl::union_map gist_range(const isl::union_set &uset) const;
+  inline bool has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline bool has_dim_name(enum isl_dim_type type, unsigned int pos) const;
   inline bool has_domain_tuple_id() const;
+  inline bool has_equal_space(const isl::map &map2) const;
   inline bool has_range_tuple_id() const;
+  inline bool has_tuple_name(enum isl_dim_type type) const;
+  static inline isl::basic_map identity(isl::space space);
+  inline bool image_is_bounded() const;
+  inline isl::mat inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5) const;
+  inline isl::basic_map insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline isl::basic_map intersect(isl::basic_map bmap2) const;
   inline isl::map intersect(const isl::map &map2) const;
   inline isl::union_map intersect(const isl::union_map &umap2) const;
@@ -1568,35 +1637,68 @@ class basic_map {
   inline isl::union_map intersect_range_factor_range(const isl::union_map &factor) const;
   inline isl::map intersect_range_wrapped_domain(const isl::set &domain) const;
   inline isl::union_map intersect_range_wrapped_domain(const isl::union_set &domain) const;
+  inline bool involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline bool is_bijective() const;
+  inline bool is_disjoint(const isl::basic_map &bmap2) const;
   inline bool is_disjoint(const isl::map &map2) const;
   inline bool is_disjoint(const isl::union_map &umap2) const;
   inline bool is_empty() const;
   inline bool is_equal(const isl::basic_map &bmap2) const;
   inline bool is_equal(const isl::map &map2) const;
   inline bool is_equal(const isl::union_map &umap2) const;
+  inline bool is_identity() const;
   inline bool is_injective() const;
+  inline bool is_product() const;
+  inline bool is_rational() const;
   inline bool is_single_valued() const;
+  inline bool is_strict_subset(const isl::basic_map &bmap2) const;
   inline bool is_strict_subset(const isl::map &map2) const;
   inline bool is_strict_subset(const isl::union_map &umap2) const;
   inline bool is_subset(const isl::basic_map &bmap2) const;
   inline bool is_subset(const isl::map &map2) const;
   inline bool is_subset(const isl::union_map &umap2) const;
+  inline int is_translation() const;
+  inline bool is_universe() const;
   inline bool isa_map() const;
+  static inline isl::basic_map less_at(isl::space space, unsigned int pos);
   inline isl::map lex_ge_at(const isl::multi_pw_aff &mpa) const;
+  inline isl::map lex_ge_map(const isl::map &map2) const;
   inline isl::map lex_gt_at(const isl::multi_pw_aff &mpa) const;
+  inline isl::map lex_gt_map(const isl::map &map2) const;
   inline isl::map lex_le_at(const isl::multi_pw_aff &mpa) const;
+  inline isl::map lex_le_map(const isl::map &map2) const;
   inline isl::map lex_lt_at(const isl::multi_pw_aff &mpa) const;
+  inline isl::map lex_lt_map(const isl::map &map2) const;
   inline isl::map lexmax() const;
   inline isl::pw_multi_aff lexmax_pw_multi_aff() const;
   inline isl::map lexmin() const;
   inline isl::pw_multi_aff lexmin_pw_multi_aff() const;
   inline isl::map lower_bound(const isl::multi_pw_aff &lower) const;
+  inline isl::basic_map lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::map lower_bound_val(enum isl_dim_type type, unsigned int pos, const isl::val &value) const;
+  inline isl::map lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::map make_disjoint() const;
   inline isl::map_list map_list() const;
   inline isl::multi_pw_aff max_multi_pw_aff() const;
   inline isl::multi_pw_aff min_multi_pw_aff() const;
+  static inline isl::basic_map more_at(isl::space space, unsigned int pos);
+  inline isl::basic_map move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline unsigned n_basic_map() const;
+  inline unsigned n_constraint() const;
+  static inline isl::basic_map nat_universe(isl::space space);
+  inline isl::basic_map neg() const;
+  inline isl::map oppose(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::basic_map order_ge(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::basic_map order_gt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::map order_le(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::map order_lt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
   inline isl::set params() const;
+  inline isl::val plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const;
+  inline bool plain_is_empty() const;
+  inline bool plain_is_injective() const;
+  inline bool plain_is_single_valued() const;
+  inline bool plain_is_universe() const;
+  inline isl::basic_map plain_unshifted_simple_hull() const;
   inline isl::basic_map polyhedral_hull() const;
   inline isl::map preimage_domain(const isl::multi_aff &ma) const;
   inline isl::map preimage_domain(const isl::multi_pw_aff &mpa) const;
@@ -1607,42 +1709,99 @@ class basic_map {
   inline isl::union_map preimage_range(const isl::union_pw_multi_aff &upma) const;
   inline isl::map product(const isl::map &map2) const;
   inline isl::union_map product(const isl::union_map &umap2) const;
+  inline isl::basic_map project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::map project_out_all_params() const;
   inline isl::map project_out_param(const isl::id &id) const;
   inline isl::map project_out_param(const std::string &id) const;
   inline isl::map project_out_param(const isl::id_list &list) const;
-  inline isl::set range() const;
+  inline isl::basic_set range() const;
+  inline isl::map range_curry() const;
   inline isl::map range_factor_domain() const;
   inline isl::map range_factor_range() const;
+  inline bool range_is_wrapping() const;
   inline isl::fixed_box range_lattice_tile() const;
-  inline isl::union_map range_map() const;
+  inline isl::basic_map range_map() const;
   inline isl::map range_product(const isl::map &map2) const;
   inline isl::union_map range_product(const isl::union_map &umap2) const;
   inline isl::map range_reverse() const;
   inline isl::fixed_box range_simple_fixed_box_hull() const;
   inline unsigned range_tuple_dim() const;
   inline isl::id range_tuple_id() const;
+  inline isl::basic_map remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_map remove_divs() const;
+  inline isl::basic_map remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::map remove_inputs(unsigned int first, unsigned int n) const;
+  inline isl::basic_map remove_redundancies() const;
+  inline isl::map remove_unknown_divs() const;
   inline isl::basic_map reverse() const;
   inline isl::basic_map sample() const;
+  inline isl::map set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::id &id) const;
+  inline isl::map set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::basic_map set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
   inline isl::map set_domain_tuple(const isl::id &id) const;
   inline isl::map set_domain_tuple(const std::string &id) const;
   inline isl::map set_range_tuple(const isl::id &id) const;
   inline isl::map set_range_tuple(const std::string &id) const;
+  inline isl::basic_map set_tuple_id(enum isl_dim_type type, isl::id id) const;
+  inline isl::basic_map set_tuple_id(enum isl_dim_type type, const std::string &id) const;
+  inline isl::basic_map set_tuple_name(enum isl_dim_type type, const std::string &s) const;
+  inline isl::basic_map simple_hull() const;
   inline isl::space space() const;
+  inline isl::space get_space() const;
   inline isl::map subtract(const isl::map &map2) const;
   inline isl::union_map subtract(const isl::union_map &umap2) const;
+  inline isl::map subtract_domain(const isl::set &dom) const;
   inline isl::union_map subtract_domain(const isl::union_set &dom) const;
+  inline isl::map subtract_range(const isl::set &dom) const;
   inline isl::union_map subtract_range(const isl::union_set &dom) const;
+  inline isl::basic_map sum(isl::basic_map bmap2) const;
+  inline isl::map sum(const isl::map &map2) const;
   inline isl::map_list to_list() const;
   inline isl::union_map to_union_map() const;
-  inline isl::map uncurry() const;
+  static inline unsigned total_dim(const isl::basic_map &bmap);
+  inline std::string tuple_name(enum isl_dim_type type) const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const;
+  inline isl::basic_map uncurry() const;
   inline isl::map unite(isl::basic_map bmap2) const;
   inline isl::map unite(const isl::map &map2) const;
   inline isl::union_map unite(const isl::union_map &umap2) const;
+  inline isl::map union_disjoint(const isl::map &map2) const;
+  static inline isl::basic_map universe(isl::space space);
   inline isl::basic_map unshifted_simple_hull() const;
+  inline isl::basic_map unshifted_simple_hull_from_map_list(const isl::map_list &list) const;
   inline isl::map upper_bound(const isl::multi_pw_aff &upper) const;
+  inline isl::basic_map upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::map upper_bound_val(enum isl_dim_type type, unsigned int pos, const isl::val &value) const;
+  inline isl::map upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
   inline isl::set wrap() const;
-  inline isl::map zip() const;
+  inline isl::basic_map zip() const;
+};
+
+// declarations for isl::basic_map_list
+inline basic_map_list manage(__isl_take isl_basic_map_list *ptr);
+inline basic_map_list manage_copy(__isl_keep isl_basic_map_list *ptr);
+
+class basic_map_list {
+  friend inline basic_map_list manage(__isl_take isl_basic_map_list *ptr);
+  friend inline basic_map_list manage_copy(__isl_keep isl_basic_map_list *ptr);
+
+ protected:
+  isl_basic_map_list *ptr = nullptr;
+
+  inline explicit basic_map_list(__isl_take isl_basic_map_list *ptr);
+
+ public:
+  inline /* implicit */ basic_map_list();
+  inline /* implicit */ basic_map_list(const basic_map_list &obj);
+  inline basic_map_list &operator=(basic_map_list obj);
+  inline ~basic_map_list();
+  inline __isl_give isl_basic_map_list *copy() const &;
+  inline __isl_give isl_basic_map_list *copy() && = delete;
+  inline __isl_keep isl_basic_map_list *get() const;
+  inline __isl_give isl_basic_map_list *release();
+  inline bool is_null() const;
+  inline isl::ctx ctx() const;
+
 };
 
 // declarations for isl::basic_set
@@ -1672,33 +1831,82 @@ class basic_set {
   inline bool is_null() const;
   inline isl::ctx ctx() const;
 
+  inline isl::basic_set add_constraint(isl::constraint constraint) const;
+  inline isl::basic_set add_dims(enum isl_dim_type type, unsigned int n) const;
   inline isl::basic_set affine_hull() const;
+  inline isl::basic_set align_params(isl::space model) const;
   inline isl::basic_set apply(isl::basic_map bmap) const;
   inline isl::set apply(const isl::map &map) const;
   inline isl::union_set apply(const isl::union_map &umap) const;
   inline isl::pw_multi_aff as_pw_multi_aff() const;
   inline isl::set as_set() const;
+  inline isl::basic_set_list basic_set_list() const;
   inline isl::set bind(const isl::multi_id &tuple) const;
+  static inline isl::basic_set box_from_points(isl::point pnt1, isl::point pnt2);
   inline isl::set coalesce() const;
+  inline isl::basic_set coefficients() const;
   inline isl::set complement() const;
-  inline isl::union_set compute_divs() const;
+  inline isl::set compute_divs() const;
+  inline isl::constraint_list constraint_list() const;
+  inline isl::constraint_list get_constraint_list() const;
+  inline isl::val count_val() const;
   inline isl::basic_set detect_equalities() const;
+  inline unsigned dim(enum isl_dim_type type) const;
+  inline bool dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::id get_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_is_bounded(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::pw_aff dim_max(int pos) const;
   inline isl::val dim_max_val(int pos) const;
+  inline isl::pw_aff dim_min(int pos) const;
   inline isl::val dim_min_val(int pos) const;
-  inline isl::set drop_unused_params() const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::aff div(int pos) const;
+  inline isl::aff get_div(int pos) const;
+  inline isl::basic_set drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_set drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_set drop_unused_params() const;
+  inline isl::basic_set eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::set eliminate_dims(unsigned int first, unsigned int n) const;
+  inline isl::mat equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const;
   inline bool every_set(const std::function<bool(isl::set)> &test) const;
   inline isl::set extract_set(const isl::space &space) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const isl::id &id) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const std::string &id) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::set fix_dim_si(unsigned int dim, int value) const;
+  inline isl::basic_set fix_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::basic_set fix_val(enum isl_dim_type type, unsigned int pos, isl::val v) const;
+  inline isl::basic_set fix_val(enum isl_dim_type type, unsigned int pos, long v) const;
   inline isl::basic_set flatten() const;
+  inline isl::map flatten_map() const;
   inline void foreach_basic_set(const std::function<void(isl::basic_set)> &fn) const;
+  inline void foreach_bound_pair(enum isl_dim_type type, unsigned int pos, const std::function<void(isl::constraint, isl::constraint, isl::basic_set)> &fn) const;
+  inline void foreach_constraint(const std::function<void(isl::constraint)> &fn) const;
   inline void foreach_point(const std::function<void(isl::point)> &fn) const;
   inline void foreach_set(const std::function<void(isl::set)> &fn) const;
+  static inline isl::basic_set from_constraint(isl::constraint constraint);
+  static inline isl::basic_set from_constraint_matrices(isl::space space, isl::mat eq, isl::mat ineq, enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4);
+  static inline isl::basic_set from_multi_aff(isl::multi_aff ma);
   inline isl::basic_set gist(isl::basic_set context) const;
   inline isl::set gist(const isl::set &context) const;
   inline isl::union_set gist(const isl::union_set &context) const;
   inline isl::basic_set gist(const isl::point &context) const;
+  inline isl::set gist_basic_set(const isl::basic_set &context) const;
   inline isl::set gist_params(const isl::set &context) const;
+  inline bool has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline bool has_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline bool has_equal_space(const isl::set &set2) const;
+  inline bool has_tuple_id() const;
+  inline bool has_tuple_name() const;
   inline isl::map identity() const;
   inline isl::pw_aff indicator_function() const;
+  inline isl::mat inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const;
+  inline isl::basic_set insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline isl::map insert_domain(const isl::space &domain) const;
   inline isl::basic_set intersect(isl::basic_set bset2) const;
   inline isl::set intersect(const isl::set &set2) const;
@@ -1707,7 +1915,10 @@ class basic_set {
   inline isl::basic_set intersect_params(isl::basic_set bset2) const;
   inline isl::set intersect_params(const isl::set &params) const;
   inline isl::basic_set intersect_params(const isl::point &bset2) const;
+  inline bool involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline bool involves_locals() const;
+  inline bool is_bounded() const;
+  inline bool is_box() const;
   inline bool is_disjoint(const isl::set &set2) const;
   inline bool is_disjoint(const isl::union_set &uset2) const;
   inline bool is_empty() const;
@@ -1715,6 +1926,8 @@ class basic_set {
   inline bool is_equal(const isl::set &set2) const;
   inline bool is_equal(const isl::union_set &uset2) const;
   inline bool is_equal(const isl::point &bset2) const;
+  inline bool is_params() const;
+  inline int is_rational() const;
   inline bool is_singleton() const;
   inline bool is_strict_subset(const isl::set &set2) const;
   inline bool is_strict_subset(const isl::union_set &uset2) const;
@@ -1725,27 +1938,52 @@ class basic_set {
   inline bool is_wrapping() const;
   inline bool isa_set() const;
   inline isl::fixed_box lattice_tile() const;
+  inline isl::map lex_ge_set(const isl::set &set2) const;
+  inline isl::map lex_gt_set(const isl::set &set2) const;
+  inline isl::map lex_le_set(const isl::set &set2) const;
+  inline isl::map lex_lt_set(const isl::set &set2) const;
   inline isl::set lexmax() const;
   inline isl::pw_multi_aff lexmax_pw_multi_aff() const;
   inline isl::set lexmin() const;
   inline isl::pw_multi_aff lexmin_pw_multi_aff() const;
+  inline isl::basic_set lift() const;
+  inline isl::local_space local_space() const;
+  inline isl::local_space get_local_space() const;
   inline isl::set lower_bound(const isl::multi_pw_aff &lower) const;
   inline isl::set lower_bound(const isl::multi_val &lower) const;
+  inline isl::set lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::basic_set lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const;
+  inline isl::basic_set lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::set make_disjoint() const;
   inline isl::multi_pw_aff max_multi_pw_aff() const;
   inline isl::val max_val(const isl::aff &obj) const;
   inline isl::multi_pw_aff min_multi_pw_aff() const;
   inline isl::val min_val(const isl::aff &obj) const;
+  inline isl::basic_set move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline unsigned n_basic_set() const;
+  inline unsigned n_constraint() const;
+  inline unsigned n_dim() const;
+  inline unsigned n_param() const;
+  static inline isl::basic_set nat_universe(isl::space space);
+  inline isl::basic_set neg() const;
   inline isl::pw_aff param_pw_aff_on_domain(const isl::id &id) const;
   inline isl::pw_aff param_pw_aff_on_domain(const std::string &id) const;
   inline isl::basic_set params() const;
+  inline isl::val plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const;
+  inline bool plain_is_disjoint(const isl::set &set2) const;
+  inline bool plain_is_empty() const;
+  inline bool plain_is_universe() const;
   inline isl::multi_val plain_multi_val_if_fixed() const;
   inline isl::basic_set polyhedral_hull() const;
+  static inline isl::basic_set positive_orthant(isl::space space);
   inline isl::set preimage(const isl::multi_aff &ma) const;
   inline isl::set preimage(const isl::multi_pw_aff &mpa) const;
   inline isl::set preimage(const isl::pw_multi_aff &pma) const;
   inline isl::union_set preimage(const isl::union_pw_multi_aff &upma) const;
+  inline isl::basic_set preimage_multi_aff(isl::multi_aff ma) const;
   inline isl::set product(const isl::set &set2) const;
+  inline isl::map project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_set project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::set project_out_all_params() const;
   inline isl::set project_out_param(const isl::id &id) const;
   inline isl::set project_out_param(const std::string &id) const;
@@ -1753,30 +1991,200 @@ class basic_set {
   inline isl::pw_aff pw_aff_on_domain(const isl::val &v) const;
   inline isl::pw_aff pw_aff_on_domain(long v) const;
   inline isl::pw_multi_aff pw_multi_aff_on_domain(const isl::multi_val &mv) const;
+  inline isl::mat reduced_basis() const;
+  inline isl::basic_set remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_set remove_divs() const;
+  inline isl::basic_set remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_set remove_redundancies() const;
+  inline isl::basic_set remove_unknown_divs() const;
+  inline isl::set reset_space(const isl::space &space) const;
+  inline isl::set reset_tuple_id() const;
+  inline isl::set reset_user() const;
   inline isl::basic_set sample() const;
   inline isl::point sample_point() const;
+  inline isl::set set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::id &id) const;
+  inline isl::set set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::basic_set set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
   inline isl::set_list set_list() const;
+  inline isl::basic_set set_tuple_id(isl::id id) const;
+  inline isl::basic_set set_tuple_id(const std::string &id) const;
+  inline isl::basic_set set_tuple_name(const std::string &s) const;
   inline isl::fixed_box simple_fixed_box_hull() const;
+  inline int size() const;
+  inline isl::basic_set solutions() const;
   inline isl::space space() const;
+  inline isl::space get_space() const;
+  inline isl::set split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::val stride(int pos) const;
   inline isl::set subtract(const isl::set &set2) const;
   inline isl::union_set subtract(const isl::union_set &uset2) const;
-  inline isl::set_list to_list() const;
+  inline isl::set sum(const isl::set &set2) const;
+  inline isl::basic_set_list to_list() const;
   inline isl::set to_set() const;
   inline isl::union_set to_union_set() const;
+  static inline unsigned total_dim(const isl::basic_set &bset);
   inline isl::map translation() const;
   inline unsigned tuple_dim() const;
+  inline isl::id tuple_id() const;
+  inline std::string tuple_name() const;
+  inline std::string get_tuple_name() const;
   inline isl::set unbind_params(const isl::multi_id &tuple) const;
   inline isl::map unbind_params_insert_domain(const isl::multi_id &domain) const;
   inline isl::set unite(isl::basic_set bset2) const;
   inline isl::set unite(const isl::set &set2) const;
   inline isl::union_set unite(const isl::union_set &uset2) const;
   inline isl::set unite(const isl::point &bset2) const;
+  static inline isl::basic_set universe(isl::space space);
   inline isl::basic_set unshifted_simple_hull() const;
-  inline isl::map unwrap() const;
+  inline isl::basic_map unwrap() const;
   inline isl::set upper_bound(const isl::multi_pw_aff &upper) const;
   inline isl::set upper_bound(const isl::multi_val &upper) const;
+  inline isl::set upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::basic_set upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const;
+  inline isl::basic_set upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::map wrapped_domain_map() const;
   inline isl::set wrapped_reverse() const;
+};
+
+// declarations for isl::basic_set_list
+inline basic_set_list manage(__isl_take isl_basic_set_list *ptr);
+inline basic_set_list manage_copy(__isl_keep isl_basic_set_list *ptr);
+
+class basic_set_list {
+  friend inline basic_set_list manage(__isl_take isl_basic_set_list *ptr);
+  friend inline basic_set_list manage_copy(__isl_keep isl_basic_set_list *ptr);
+
+ protected:
+  isl_basic_set_list *ptr = nullptr;
+
+  inline explicit basic_set_list(__isl_take isl_basic_set_list *ptr);
+
+ public:
+  inline /* implicit */ basic_set_list();
+  inline /* implicit */ basic_set_list(const basic_set_list &obj);
+  inline explicit basic_set_list(isl::ctx ctx, int n);
+  inline explicit basic_set_list(isl::basic_set el);
+  inline basic_set_list &operator=(basic_set_list obj);
+  inline ~basic_set_list();
+  inline __isl_give isl_basic_set_list *copy() const &;
+  inline __isl_give isl_basic_set_list *copy() && = delete;
+  inline __isl_keep isl_basic_set_list *get() const;
+  inline __isl_give isl_basic_set_list *release();
+  inline bool is_null() const;
+  inline isl::ctx ctx() const;
+
+  inline isl::basic_set_list add(isl::basic_set el) const;
+  inline isl::basic_set at(int index) const;
+  inline isl::basic_set get_at(int index) const;
+  inline isl::basic_set_list clear() const;
+  inline isl::basic_set_list coefficients() const;
+  inline isl::basic_set_list concat(isl::basic_set_list list2) const;
+  inline isl::basic_set_list drop(unsigned int first, unsigned int n) const;
+  inline void foreach(const std::function<void(isl::basic_set)> &fn) const;
+  inline void foreach_scc(const std::function<bool(isl::basic_set, isl::basic_set)> &follows, const std::function<void(isl::basic_set_list)> &fn) const;
+  inline isl::basic_set_list insert(unsigned int pos, isl::basic_set el) const;
+  inline isl::basic_set_list set_at(int index, isl::basic_set el) const;
+  inline unsigned size() const;
+};
+
+// declarations for isl::constraint
+inline constraint manage(__isl_take isl_constraint *ptr);
+inline constraint manage_copy(__isl_keep isl_constraint *ptr);
+
+class constraint {
+  friend inline constraint manage(__isl_take isl_constraint *ptr);
+  friend inline constraint manage_copy(__isl_keep isl_constraint *ptr);
+
+ protected:
+  isl_constraint *ptr = nullptr;
+
+  inline explicit constraint(__isl_take isl_constraint *ptr);
+
+ public:
+  inline /* implicit */ constraint();
+  inline /* implicit */ constraint(const constraint &obj);
+  inline constraint &operator=(constraint obj);
+  inline ~constraint();
+  inline __isl_give isl_constraint *copy() const &;
+  inline __isl_give isl_constraint *copy() && = delete;
+  inline __isl_keep isl_constraint *get() const;
+  inline __isl_give isl_constraint *release();
+  inline bool is_null() const;
+  inline isl::ctx ctx() const;
+
+  inline isl::aff aff() const;
+  inline isl::aff get_aff() const;
+  static inline isl::constraint alloc_equality(isl::local_space ls);
+  static inline isl::constraint alloc_inequality(isl::local_space ls);
+  inline isl::aff bound(enum isl_dim_type type, int pos) const;
+  inline isl::aff get_bound(enum isl_dim_type type, int pos) const;
+  inline int cmp_last_non_zero(const isl::constraint &c2) const;
+  inline isl::val coefficient_val(enum isl_dim_type type, int pos) const;
+  inline isl::val get_coefficient_val(enum isl_dim_type type, int pos) const;
+  inline isl::val constant_val() const;
+  inline isl::val get_constant_val() const;
+  inline unsigned dim(enum isl_dim_type type) const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::aff div(int pos) const;
+  inline isl::aff get_div(int pos) const;
+  inline bool involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline bool is_div_constraint() const;
+  inline bool is_equality() const;
+  inline bool is_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline bool is_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::local_space local_space() const;
+  inline isl::local_space get_local_space() const;
+  inline isl::constraint negate() const;
+  inline isl::constraint set_coefficient_si(enum isl_dim_type type, int pos, int v) const;
+  inline isl::constraint set_coefficient_val(enum isl_dim_type type, int pos, isl::val v) const;
+  inline isl::constraint set_coefficient_val(enum isl_dim_type type, int pos, long v) const;
+  inline isl::constraint set_constant_si(int v) const;
+  inline isl::constraint set_constant_val(isl::val v) const;
+  inline isl::constraint set_constant_val(long v) const;
+  inline isl::space space() const;
+  inline isl::space get_space() const;
+  inline isl::constraint_list to_list() const;
+};
+
+// declarations for isl::constraint_list
+inline constraint_list manage(__isl_take isl_constraint_list *ptr);
+inline constraint_list manage_copy(__isl_keep isl_constraint_list *ptr);
+
+class constraint_list {
+  friend inline constraint_list manage(__isl_take isl_constraint_list *ptr);
+  friend inline constraint_list manage_copy(__isl_keep isl_constraint_list *ptr);
+
+ protected:
+  isl_constraint_list *ptr = nullptr;
+
+  inline explicit constraint_list(__isl_take isl_constraint_list *ptr);
+
+ public:
+  inline /* implicit */ constraint_list();
+  inline /* implicit */ constraint_list(const constraint_list &obj);
+  inline explicit constraint_list(isl::ctx ctx, int n);
+  inline explicit constraint_list(isl::constraint el);
+  inline constraint_list &operator=(constraint_list obj);
+  inline ~constraint_list();
+  inline __isl_give isl_constraint_list *copy() const &;
+  inline __isl_give isl_constraint_list *copy() && = delete;
+  inline __isl_keep isl_constraint_list *get() const;
+  inline __isl_give isl_constraint_list *release();
+  inline bool is_null() const;
+  inline isl::ctx ctx() const;
+
+  inline isl::constraint_list add(isl::constraint el) const;
+  inline isl::constraint at(int index) const;
+  inline isl::constraint get_at(int index) const;
+  inline isl::constraint_list clear() const;
+  inline isl::constraint_list concat(isl::constraint_list list2) const;
+  inline isl::constraint_list drop(unsigned int first, unsigned int n) const;
+  inline void foreach(const std::function<void(isl::constraint)> &fn) const;
+  inline void foreach_scc(const std::function<bool(isl::constraint, isl::constraint)> &follows, const std::function<void(isl::constraint_list)> &fn) const;
+  inline isl::constraint_list insert(unsigned int pos, isl::constraint el) const;
+  inline isl::constraint_list set_at(int index, isl::constraint el) const;
+  inline unsigned size() const;
 };
 
 // declarations for isl::fixed_box
@@ -1963,6 +2371,65 @@ class id_to_id {
   inline isl::id_to_id set(const std::string &key, const std::string &val) const;
 };
 
+// declarations for isl::local_space
+inline local_space manage(__isl_take isl_local_space *ptr);
+inline local_space manage_copy(__isl_keep isl_local_space *ptr);
+
+class local_space {
+  friend inline local_space manage(__isl_take isl_local_space *ptr);
+  friend inline local_space manage_copy(__isl_keep isl_local_space *ptr);
+
+ protected:
+  isl_local_space *ptr = nullptr;
+
+  inline explicit local_space(__isl_take isl_local_space *ptr);
+
+ public:
+  inline /* implicit */ local_space();
+  inline /* implicit */ local_space(const local_space &obj);
+  inline local_space &operator=(local_space obj);
+  inline ~local_space();
+  inline __isl_give isl_local_space *copy() const &;
+  inline __isl_give isl_local_space *copy() && = delete;
+  inline __isl_keep isl_local_space *get() const;
+  inline __isl_give isl_local_space *release();
+  inline bool is_null() const;
+  inline isl::ctx ctx() const;
+
+  inline isl::local_space add_dims(enum isl_dim_type type, unsigned int n) const;
+  inline unsigned dim(enum isl_dim_type type) const;
+  inline isl::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::id get_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::aff div(int pos) const;
+  inline isl::aff get_div(int pos) const;
+  inline isl::local_space domain() const;
+  inline isl::local_space drop_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::local_space flatten_domain() const;
+  inline isl::local_space flatten_range() const;
+  inline isl::local_space from_domain() const;
+  static inline isl::local_space from_space(isl::space space);
+  inline bool has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline bool has_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::local_space insert_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::local_space intersect(isl::local_space ls2) const;
+  inline bool is_params() const;
+  inline bool is_set() const;
+  inline isl::basic_map lifting() const;
+  inline isl::local_space range() const;
+  inline isl::local_space set_dim_id(enum isl_dim_type type, unsigned int pos, isl::id id) const;
+  inline isl::local_space set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::local_space set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
+  inline isl::local_space set_from_params() const;
+  inline isl::local_space set_tuple_id(enum isl_dim_type type, isl::id id) const;
+  inline isl::local_space set_tuple_id(enum isl_dim_type type, const std::string &id) const;
+  inline isl::space space() const;
+  inline isl::space get_space() const;
+  inline isl::local_space wrap() const;
+};
+
 // declarations for isl::map
 inline map manage(__isl_take isl_map *ptr);
 inline map manage_copy(__isl_keep isl_map *ptr);
@@ -1990,7 +2457,10 @@ class map {
   inline bool is_null() const;
   inline isl::ctx ctx() const;
 
+  inline isl::map add_constraint(isl::constraint constraint) const;
+  inline isl::map add_dims(enum isl_dim_type type, unsigned int n) const;
   inline isl::basic_map affine_hull() const;
+  inline isl::map align_params(isl::space model) const;
   inline isl::map apply_domain(isl::map map2) const;
   inline isl::union_map apply_domain(const isl::union_map &umap2) const;
   inline isl::map apply_domain(const isl::basic_map &map2) const;
@@ -2003,16 +2473,30 @@ class map {
   inline isl::union_pw_multi_aff as_union_pw_multi_aff() const;
   inline isl::set bind_domain(isl::multi_id tuple) const;
   inline isl::set bind_range(isl::multi_id tuple) const;
+  inline bool can_curry() const;
+  inline bool can_range_curry() const;
+  inline bool can_uncurry() const;
+  inline bool can_zip() const;
   inline isl::map coalesce() const;
   inline isl::map complement() const;
-  inline isl::union_map compute_divs() const;
+  inline isl::map compute_divs() const;
+  inline isl::basic_map convex_hull() const;
   inline isl::map curry() const;
   inline isl::set deltas() const;
+  inline isl::map deltas_map() const;
   inline isl::map detect_equalities() const;
+  inline unsigned dim(enum isl_dim_type type) const;
+  inline isl::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::id get_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::pw_aff dim_max(int pos) const;
+  inline isl::pw_aff dim_min(int pos) const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
   inline isl::set domain() const;
   inline isl::map domain_factor_domain() const;
   inline isl::map domain_factor_range() const;
-  inline isl::union_map domain_map() const;
+  inline bool domain_is_wrapping() const;
+  inline isl::map domain_map() const;
   inline isl::union_pw_multi_aff domain_map_union_pw_multi_aff() const;
   inline isl::map domain_product(isl::map map2) const;
   inline isl::union_map domain_product(const isl::union_map &umap2) const;
@@ -2021,7 +2505,10 @@ class map {
   inline unsigned domain_tuple_dim() const;
   inline isl::id domain_tuple_id() const;
   inline isl::id get_domain_tuple_id() const;
+  inline isl::map drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::map drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::map drop_unused_params() const;
+  inline isl::map eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   static inline isl::map empty(isl::space space);
   inline isl::map eq_at(isl::multi_pw_aff mpa) const;
   inline isl::union_map eq_at(const isl::multi_union_pw_aff &mupa) const;
@@ -2029,28 +2516,53 @@ class map {
   inline isl::map eq_at(const isl::multi_aff &mpa) const;
   inline isl::map eq_at(const isl::pw_aff &mpa) const;
   inline isl::map eq_at(const isl::pw_multi_aff &mpa) const;
+  inline isl::map equate(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
   inline bool every_map(const std::function<bool(isl::map)> &test) const;
   inline isl::map extract_map(const isl::space &space) const;
   inline isl::map factor_domain() const;
   inline isl::map factor_range() const;
+  inline int find_dim_by_id(enum isl_dim_type type, const isl::id &id) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const std::string &id) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::map fix_input_si(unsigned int input, int value) const;
+  inline isl::map fix_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::map fix_val(enum isl_dim_type type, unsigned int pos, isl::val v) const;
+  inline isl::map fix_val(enum isl_dim_type type, unsigned int pos, long v) const;
   inline isl::map fixed_power(isl::val exp) const;
   inline isl::map fixed_power(long exp) const;
+  inline isl::map flat_domain_product(isl::map map2) const;
+  inline isl::map flat_product(isl::map map2) const;
+  inline isl::map flat_range_product(isl::map map2) const;
   inline isl::map flatten() const;
   inline isl::map flatten_domain() const;
   inline isl::map flatten_range() const;
+  inline isl::map floordiv_val(isl::val d) const;
+  inline isl::map floordiv_val(long d) const;
   inline void foreach_basic_map(const std::function<void(isl::basic_map)> &fn) const;
   inline void foreach_map(const std::function<void(isl::map)> &fn) const;
+  static inline isl::map from_aff(isl::aff aff);
+  static inline isl::map from_domain(isl::set set);
+  static inline isl::map from_domain_and_range(isl::set domain, isl::set range);
+  static inline isl::map from_multi_aff(isl::multi_aff maff);
+  static inline isl::map from_range(isl::set set);
   inline isl::map gist(isl::map context) const;
   inline isl::union_map gist(const isl::union_map &context) const;
   inline isl::map gist(const isl::basic_map &context) const;
+  inline isl::map gist_basic_map(isl::basic_map context) const;
   inline isl::map gist_domain(isl::set context) const;
   inline isl::union_map gist_domain(const isl::union_set &uset) const;
   inline isl::map gist_domain(const isl::basic_set &context) const;
   inline isl::map gist_domain(const isl::point &context) const;
   inline isl::map gist_params(isl::set context) const;
   inline isl::union_map gist_range(const isl::union_set &uset) const;
+  inline bool has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline bool has_dim_name(enum isl_dim_type type, unsigned int pos) const;
   inline bool has_domain_tuple_id() const;
+  inline bool has_equal_space(const isl::map &map2) const;
   inline bool has_range_tuple_id() const;
+  inline bool has_tuple_name(enum isl_dim_type type) const;
+  static inline isl::map identity(isl::space space);
+  inline isl::map insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline isl::map intersect(isl::map map2) const;
   inline isl::union_map intersect(const isl::union_map &umap2) const;
   inline isl::map intersect(const isl::basic_map &map2) const;
@@ -2085,6 +2597,7 @@ class map {
   inline isl::union_map intersect_range_wrapped_domain(const isl::union_set &domain) const;
   inline isl::map intersect_range_wrapped_domain(const isl::basic_set &domain) const;
   inline isl::map intersect_range_wrapped_domain(const isl::point &domain) const;
+  inline bool involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline bool is_bijective() const;
   inline bool is_disjoint(const isl::map &map2) const;
   inline bool is_disjoint(const isl::union_map &umap2) const;
@@ -2093,7 +2606,9 @@ class map {
   inline bool is_equal(const isl::map &map2) const;
   inline bool is_equal(const isl::union_map &umap2) const;
   inline bool is_equal(const isl::basic_map &map2) const;
+  inline bool is_identity() const;
   inline bool is_injective() const;
+  inline bool is_product() const;
   inline bool is_single_valued() const;
   inline bool is_strict_subset(const isl::map &map2) const;
   inline bool is_strict_subset(const isl::union_map &umap2) const;
@@ -2101,21 +2616,52 @@ class map {
   inline bool is_subset(const isl::map &map2) const;
   inline bool is_subset(const isl::union_map &umap2) const;
   inline bool is_subset(const isl::basic_map &map2) const;
+  inline int is_translation() const;
   inline bool isa_map() const;
+  static inline isl::map lex_ge(isl::space set_space);
   inline isl::map lex_ge_at(isl::multi_pw_aff mpa) const;
+  static inline isl::map lex_ge_first(isl::space space, unsigned int n);
+  inline isl::map lex_ge_map(isl::map map2) const;
+  static inline isl::map lex_gt(isl::space set_space);
   inline isl::map lex_gt_at(isl::multi_pw_aff mpa) const;
+  static inline isl::map lex_gt_first(isl::space space, unsigned int n);
+  inline isl::map lex_gt_map(isl::map map2) const;
+  static inline isl::map lex_le(isl::space set_space);
   inline isl::map lex_le_at(isl::multi_pw_aff mpa) const;
+  static inline isl::map lex_le_first(isl::space space, unsigned int n);
+  inline isl::map lex_le_map(isl::map map2) const;
+  static inline isl::map lex_lt(isl::space set_space);
   inline isl::map lex_lt_at(isl::multi_pw_aff mpa) const;
+  static inline isl::map lex_lt_first(isl::space space, unsigned int n);
+  inline isl::map lex_lt_map(isl::map map2) const;
   inline isl::map lexmax() const;
   inline isl::pw_multi_aff lexmax_pw_multi_aff() const;
   inline isl::map lexmin() const;
   inline isl::pw_multi_aff lexmin_pw_multi_aff() const;
   inline isl::map lower_bound(isl::multi_pw_aff lower) const;
+  inline isl::map lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::map lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const;
+  inline isl::map lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::map make_disjoint() const;
   inline isl::map_list map_list() const;
   inline isl::multi_pw_aff max_multi_pw_aff() const;
   inline isl::multi_pw_aff min_multi_pw_aff() const;
+  inline isl::map move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline unsigned n_basic_map() const;
+  static inline isl::map nat_universe(isl::space space);
+  inline isl::map neg() const;
+  inline isl::map oppose(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::map order_ge(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::map order_gt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::map order_le(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
+  inline isl::map order_lt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const;
   inline isl::set params() const;
+  inline isl::val plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const;
+  inline bool plain_is_empty() const;
+  inline bool plain_is_injective() const;
+  inline bool plain_is_single_valued() const;
+  inline bool plain_is_universe() const;
+  inline isl::basic_map plain_unshifted_simple_hull() const;
   inline isl::basic_map polyhedral_hull() const;
   inline isl::map preimage_domain(isl::multi_aff ma) const;
   inline isl::map preimage_domain(isl::multi_pw_aff mpa) const;
@@ -2127,16 +2673,19 @@ class map {
   inline isl::map product(isl::map map2) const;
   inline isl::union_map product(const isl::union_map &umap2) const;
   inline isl::map product(const isl::basic_map &map2) const;
+  inline isl::map project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::map project_out_all_params() const;
   inline isl::map project_out_param(isl::id id) const;
   inline isl::map project_out_param(const std::string &id) const;
   inline isl::map project_out_param(isl::id_list list) const;
   inline isl::set range() const;
+  inline isl::map range_curry() const;
   inline isl::map range_factor_domain() const;
   inline isl::map range_factor_range() const;
+  inline bool range_is_wrapping() const;
   inline isl::fixed_box range_lattice_tile() const;
   inline isl::fixed_box get_range_lattice_tile() const;
-  inline isl::union_map range_map() const;
+  inline isl::map range_map() const;
   inline isl::map range_product(isl::map map2) const;
   inline isl::union_map range_product(const isl::union_map &umap2) const;
   inline isl::map range_product(const isl::basic_map &map2) const;
@@ -2146,28 +2695,55 @@ class map {
   inline unsigned range_tuple_dim() const;
   inline isl::id range_tuple_id() const;
   inline isl::id get_range_tuple_id() const;
+  inline isl::map remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::map remove_divs() const;
+  inline isl::map remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::map remove_inputs(unsigned int first, unsigned int n) const;
+  inline isl::map remove_redundancies() const;
+  inline isl::map remove_unknown_divs() const;
   inline isl::map reverse() const;
   inline isl::basic_map sample() const;
+  inline isl::map set_dim_id(enum isl_dim_type type, unsigned int pos, isl::id id) const;
+  inline isl::map set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::map set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
   inline isl::map set_domain_tuple(isl::id id) const;
   inline isl::map set_domain_tuple(const std::string &id) const;
   inline isl::map set_range_tuple(isl::id id) const;
   inline isl::map set_range_tuple(const std::string &id) const;
+  inline isl::map set_tuple_id(enum isl_dim_type type, isl::id id) const;
+  inline isl::map set_tuple_id(enum isl_dim_type type, const std::string &id) const;
+  inline isl::map set_tuple_name(enum isl_dim_type type, const std::string &s) const;
+  inline isl::basic_map simple_hull() const;
   inline isl::space space() const;
   inline isl::space get_space() const;
   inline isl::map subtract(isl::map map2) const;
   inline isl::union_map subtract(const isl::union_map &umap2) const;
   inline isl::map subtract(const isl::basic_map &map2) const;
+  inline isl::map subtract_domain(isl::set dom) const;
   inline isl::union_map subtract_domain(const isl::union_set &dom) const;
+  inline isl::map subtract_domain(const isl::basic_set &dom) const;
+  inline isl::map subtract_domain(const isl::point &dom) const;
+  inline isl::map subtract_range(isl::set dom) const;
   inline isl::union_map subtract_range(const isl::union_set &dom) const;
+  inline isl::map subtract_range(const isl::basic_set &dom) const;
+  inline isl::map subtract_range(const isl::point &dom) const;
+  inline isl::map sum(isl::map map2) const;
   inline isl::map_list to_list() const;
   inline isl::union_map to_union_map() const;
+  inline std::string tuple_name(enum isl_dim_type type) const;
+  inline std::string get_tuple_name(enum isl_dim_type type) const;
   inline isl::map uncurry() const;
   inline isl::map unite(isl::map map2) const;
   inline isl::union_map unite(const isl::union_map &umap2) const;
   inline isl::map unite(const isl::basic_map &map2) const;
+  inline isl::map union_disjoint(isl::map map2) const;
   static inline isl::map universe(isl::space space);
   inline isl::basic_map unshifted_simple_hull() const;
+  inline isl::basic_map unshifted_simple_hull_from_map_list(isl::map_list list) const;
   inline isl::map upper_bound(isl::multi_pw_aff upper) const;
+  inline isl::map upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::map upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const;
+  inline isl::map upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
   inline isl::set wrap() const;
   inline isl::map zip() const;
 };
@@ -2211,6 +2787,69 @@ class map_list {
   inline isl::map_list insert(unsigned int pos, isl::map el) const;
   inline isl::map_list set_at(int index, isl::map el) const;
   inline unsigned size() const;
+};
+
+// declarations for isl::mat
+inline mat manage(__isl_take isl_mat *ptr);
+inline mat manage_copy(__isl_keep isl_mat *ptr);
+
+class mat {
+  friend inline mat manage(__isl_take isl_mat *ptr);
+  friend inline mat manage_copy(__isl_keep isl_mat *ptr);
+
+ protected:
+  isl_mat *ptr = nullptr;
+
+  inline explicit mat(__isl_take isl_mat *ptr);
+
+ public:
+  inline /* implicit */ mat();
+  inline /* implicit */ mat(const mat &obj);
+  inline mat &operator=(mat obj);
+  inline ~mat();
+  inline __isl_give isl_mat *copy() const &;
+  inline __isl_give isl_mat *copy() && = delete;
+  inline __isl_keep isl_mat *get() const;
+  inline __isl_give isl_mat *release();
+  inline bool is_null() const;
+  inline isl::ctx ctx() const;
+
+  inline isl::mat add_rows(unsigned int n) const;
+  inline isl::mat add_zero_cols(unsigned int n) const;
+  inline isl::mat add_zero_rows(unsigned int n) const;
+  inline isl::mat aff_direct_sum(isl::mat right) const;
+  inline unsigned cols() const;
+  inline isl::mat concat(isl::mat bot) const;
+  inline isl::mat diagonal(isl::mat mat2) const;
+  inline isl::mat drop_cols(unsigned int col, unsigned int n) const;
+  inline isl::mat drop_rows(unsigned int row, unsigned int n) const;
+  inline isl::val element_val(int row, int col) const;
+  inline isl::val get_element_val(int row, int col) const;
+  inline bool has_linearly_independent_rows(const isl::mat &mat2) const;
+  inline int initial_non_zero_cols() const;
+  inline isl::mat insert_cols(unsigned int col, unsigned int n) const;
+  inline isl::mat insert_rows(unsigned int row, unsigned int n) const;
+  inline isl::mat insert_zero_cols(unsigned int first, unsigned int n) const;
+  inline isl::mat insert_zero_rows(unsigned int row, unsigned int n) const;
+  inline isl::mat inverse_product(isl::mat right) const;
+  inline isl::mat lin_to_aff() const;
+  inline isl::mat move_cols(unsigned int dst_col, unsigned int src_col, unsigned int n) const;
+  inline isl::mat normalize() const;
+  inline isl::mat normalize_row(int row) const;
+  inline isl::mat product(isl::mat right) const;
+  inline unsigned rank() const;
+  inline isl::mat right_inverse() const;
+  inline isl::mat right_kernel() const;
+  inline isl::mat row_basis() const;
+  inline isl::mat row_basis_extension(isl::mat mat2) const;
+  inline unsigned rows() const;
+  inline isl::mat set_element_si(int row, int col, int v) const;
+  inline isl::mat set_element_val(int row, int col, isl::val v) const;
+  inline isl::mat set_element_val(int row, int col, long v) const;
+  inline isl::mat swap_cols(unsigned int i, unsigned int j) const;
+  inline isl::mat swap_rows(unsigned int i, unsigned int j) const;
+  inline isl::mat transpose() const;
+  inline isl::mat unimodular_complete(int row) const;
 };
 
 // declarations for isl::multi_aff
@@ -2705,45 +3344,94 @@ class point {
   inline bool is_null() const;
   inline isl::ctx ctx() const;
 
+  inline isl::basic_set add_constraint(const isl::constraint &constraint) const;
+  inline isl::basic_set add_dims(enum isl_dim_type type, unsigned int n) const;
+  inline isl::point add_ui(enum isl_dim_type type, int pos, unsigned int val) const;
   inline isl::basic_set affine_hull() const;
+  inline isl::basic_set align_params(const isl::space &model) const;
   inline isl::basic_set apply(const isl::basic_map &bmap) const;
   inline isl::set apply(const isl::map &map) const;
   inline isl::union_set apply(const isl::union_map &umap) const;
   inline isl::pw_multi_aff as_pw_multi_aff() const;
   inline isl::set as_set() const;
+  inline isl::basic_set_list basic_set_list() const;
   inline isl::set bind(const isl::multi_id &tuple) const;
   inline isl::set coalesce() const;
+  inline isl::basic_set coefficients() const;
   inline isl::set complement() const;
-  inline isl::union_set compute_divs() const;
+  inline isl::set compute_divs() const;
+  inline isl::constraint_list constraint_list() const;
+  inline isl::val coordinate_val(enum isl_dim_type type, int pos) const;
+  inline isl::val get_coordinate_val(enum isl_dim_type type, int pos) const;
+  inline isl::val count_val() const;
   inline isl::basic_set detect_equalities() const;
+  inline unsigned dim(enum isl_dim_type type) const;
+  inline bool dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_is_bounded(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::pw_aff dim_max(int pos) const;
   inline isl::val dim_max_val(int pos) const;
+  inline isl::pw_aff dim_min(int pos) const;
   inline isl::val dim_min_val(int pos) const;
-  inline isl::set drop_unused_params() const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::aff div(int pos) const;
+  inline isl::basic_set drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_set drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_set drop_unused_params() const;
+  inline isl::basic_set eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::set eliminate_dims(unsigned int first, unsigned int n) const;
+  inline isl::mat equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const;
   inline bool every_set(const std::function<bool(isl::set)> &test) const;
   inline isl::set extract_set(const isl::space &space) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const isl::id &id) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const std::string &id) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::set fix_dim_si(unsigned int dim, int value) const;
+  inline isl::basic_set fix_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::basic_set fix_val(enum isl_dim_type type, unsigned int pos, const isl::val &v) const;
+  inline isl::basic_set fix_val(enum isl_dim_type type, unsigned int pos, long v) const;
   inline isl::basic_set flatten() const;
+  inline isl::map flatten_map() const;
   inline void foreach_basic_set(const std::function<void(isl::basic_set)> &fn) const;
+  inline void foreach_bound_pair(enum isl_dim_type type, unsigned int pos, const std::function<void(isl::constraint, isl::constraint, isl::basic_set)> &fn) const;
+  inline void foreach_constraint(const std::function<void(isl::constraint)> &fn) const;
   inline void foreach_point(const std::function<void(isl::point)> &fn) const;
   inline void foreach_set(const std::function<void(isl::set)> &fn) const;
   inline isl::basic_set gist(const isl::basic_set &context) const;
   inline isl::set gist(const isl::set &context) const;
   inline isl::union_set gist(const isl::union_set &context) const;
+  inline isl::set gist_basic_set(const isl::basic_set &context) const;
   inline isl::set gist_params(const isl::set &context) const;
+  inline bool has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline bool has_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline bool has_equal_space(const isl::set &set2) const;
+  inline bool has_tuple_id() const;
+  inline bool has_tuple_name() const;
   inline isl::map identity() const;
   inline isl::pw_aff indicator_function() const;
+  inline isl::mat inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const;
+  inline isl::basic_set insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline isl::map insert_domain(const isl::space &domain) const;
   inline isl::basic_set intersect(const isl::basic_set &bset2) const;
   inline isl::set intersect(const isl::set &set2) const;
   inline isl::union_set intersect(const isl::union_set &uset2) const;
   inline isl::basic_set intersect_params(const isl::basic_set &bset2) const;
   inline isl::set intersect_params(const isl::set &params) const;
+  inline bool involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline bool involves_locals() const;
+  inline bool is_bounded() const;
+  inline bool is_box() const;
   inline bool is_disjoint(const isl::set &set2) const;
   inline bool is_disjoint(const isl::union_set &uset2) const;
   inline bool is_empty() const;
   inline bool is_equal(const isl::basic_set &bset2) const;
   inline bool is_equal(const isl::set &set2) const;
   inline bool is_equal(const isl::union_set &uset2) const;
+  inline bool is_params() const;
+  inline int is_rational() const;
   inline bool is_singleton() const;
   inline bool is_strict_subset(const isl::set &set2) const;
   inline bool is_strict_subset(const isl::union_set &uset2) const;
@@ -2753,29 +3441,51 @@ class point {
   inline bool is_wrapping() const;
   inline bool isa_set() const;
   inline isl::fixed_box lattice_tile() const;
+  inline isl::map lex_ge_set(const isl::set &set2) const;
+  inline isl::map lex_gt_set(const isl::set &set2) const;
+  inline isl::map lex_le_set(const isl::set &set2) const;
+  inline isl::map lex_lt_set(const isl::set &set2) const;
   inline isl::set lexmax() const;
   inline isl::pw_multi_aff lexmax_pw_multi_aff() const;
   inline isl::set lexmin() const;
   inline isl::pw_multi_aff lexmin_pw_multi_aff() const;
+  inline isl::basic_set lift() const;
+  inline isl::local_space local_space() const;
   inline isl::set lower_bound(const isl::multi_pw_aff &lower) const;
   inline isl::set lower_bound(const isl::multi_val &lower) const;
+  inline isl::set lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::basic_set lower_bound_val(enum isl_dim_type type, unsigned int pos, const isl::val &value) const;
+  inline isl::basic_set lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::set make_disjoint() const;
   inline isl::multi_pw_aff max_multi_pw_aff() const;
   inline isl::val max_val(const isl::aff &obj) const;
   inline isl::multi_pw_aff min_multi_pw_aff() const;
   inline isl::val min_val(const isl::aff &obj) const;
+  inline isl::basic_set move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline isl::multi_val multi_val() const;
   inline isl::multi_val get_multi_val() const;
   inline unsigned n_basic_set() const;
+  inline unsigned n_constraint() const;
+  inline unsigned n_dim() const;
+  inline unsigned n_param() const;
+  inline isl::basic_set neg() const;
   inline isl::pw_aff param_pw_aff_on_domain(const isl::id &id) const;
   inline isl::pw_aff param_pw_aff_on_domain(const std::string &id) const;
   inline isl::basic_set params() const;
+  inline isl::val plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const;
+  inline bool plain_is_disjoint(const isl::set &set2) const;
+  inline bool plain_is_empty() const;
+  inline bool plain_is_universe() const;
   inline isl::multi_val plain_multi_val_if_fixed() const;
   inline isl::basic_set polyhedral_hull() const;
   inline isl::set preimage(const isl::multi_aff &ma) const;
   inline isl::set preimage(const isl::multi_pw_aff &mpa) const;
   inline isl::set preimage(const isl::pw_multi_aff &pma) const;
   inline isl::union_set preimage(const isl::union_pw_multi_aff &upma) const;
+  inline isl::basic_set preimage_multi_aff(const isl::multi_aff &ma) const;
   inline isl::set product(const isl::set &set2) const;
+  inline isl::map project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_set project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::set project_out_all_params() const;
   inline isl::set project_out_param(const isl::id &id) const;
   inline isl::set project_out_param(const std::string &id) const;
@@ -2783,28 +3493,56 @@ class point {
   inline isl::pw_aff pw_aff_on_domain(const isl::val &v) const;
   inline isl::pw_aff pw_aff_on_domain(long v) const;
   inline isl::pw_multi_aff pw_multi_aff_on_domain(const isl::multi_val &mv) const;
+  inline isl::mat reduced_basis() const;
+  inline isl::basic_set remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_set remove_divs() const;
+  inline isl::basic_set remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::basic_set remove_redundancies() const;
+  inline isl::basic_set remove_unknown_divs() const;
+  inline isl::set reset_space(const isl::space &space) const;
+  inline isl::set reset_tuple_id() const;
+  inline isl::set reset_user() const;
   inline isl::basic_set sample() const;
   inline isl::point sample_point() const;
+  inline isl::point set_coordinate_val(enum isl_dim_type type, int pos, isl::val v) const;
+  inline isl::point set_coordinate_val(enum isl_dim_type type, int pos, long v) const;
+  inline isl::set set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::id &id) const;
+  inline isl::set set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::basic_set set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
   inline isl::set_list set_list() const;
+  inline isl::basic_set set_tuple_id(const isl::id &id) const;
+  inline isl::basic_set set_tuple_id(const std::string &id) const;
+  inline isl::basic_set set_tuple_name(const std::string &s) const;
   inline isl::fixed_box simple_fixed_box_hull() const;
+  inline int size() const;
+  inline isl::basic_set solutions() const;
   inline isl::space space() const;
+  inline isl::set split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::val stride(int pos) const;
+  inline isl::point sub_ui(enum isl_dim_type type, int pos, unsigned int val) const;
   inline isl::set subtract(const isl::set &set2) const;
   inline isl::union_set subtract(const isl::union_set &uset2) const;
-  inline isl::set_list to_list() const;
+  inline isl::set sum(const isl::set &set2) const;
+  inline isl::basic_set_list to_list() const;
   inline isl::set to_set() const;
   inline isl::union_set to_union_set() const;
   inline isl::map translation() const;
   inline unsigned tuple_dim() const;
+  inline isl::id tuple_id() const;
+  inline std::string tuple_name() const;
   inline isl::set unbind_params(const isl::multi_id &tuple) const;
   inline isl::map unbind_params_insert_domain(const isl::multi_id &domain) const;
   inline isl::set unite(const isl::basic_set &bset2) const;
   inline isl::set unite(const isl::set &set2) const;
   inline isl::union_set unite(const isl::union_set &uset2) const;
   inline isl::basic_set unshifted_simple_hull() const;
-  inline isl::map unwrap() const;
+  inline isl::basic_map unwrap() const;
   inline isl::set upper_bound(const isl::multi_pw_aff &upper) const;
   inline isl::set upper_bound(const isl::multi_val &upper) const;
+  inline isl::set upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::basic_set upper_bound_val(enum isl_dim_type type, unsigned int pos, const isl::val &value) const;
+  inline isl::basic_set upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::map wrapped_domain_map() const;
   inline isl::set wrapped_reverse() const;
 };
 
@@ -3676,41 +4414,84 @@ class set {
   inline bool is_null() const;
   inline isl::ctx ctx() const;
 
+  inline isl::set add_constraint(isl::constraint constraint) const;
+  inline isl::set add_dims(enum isl_dim_type type, unsigned int n) const;
   inline isl::basic_set affine_hull() const;
+  inline isl::set align_params(isl::space model) const;
   inline isl::set apply(isl::map map) const;
   inline isl::union_set apply(const isl::union_map &umap) const;
   inline isl::set apply(const isl::basic_map &map) const;
   inline isl::pw_multi_aff as_pw_multi_aff() const;
   inline isl::set as_set() const;
+  inline isl::basic_set_list basic_set_list() const;
+  inline isl::basic_set_list get_basic_set_list() const;
   inline isl::set bind(isl::multi_id tuple) const;
+  static inline isl::set box_from_points(isl::point pnt1, isl::point pnt2);
   inline isl::set coalesce() const;
+  inline isl::basic_set coefficients() const;
   inline isl::set complement() const;
-  inline isl::union_set compute_divs() const;
+  inline isl::set compute_divs() const;
+  inline isl::val count_val() const;
   inline isl::set detect_equalities() const;
+  inline unsigned dim(enum isl_dim_type type) const;
+  inline bool dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::id dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::id get_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline bool dim_is_bounded(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::pw_aff dim_max(int pos) const;
   inline isl::val dim_max_val(int pos) const;
+  inline isl::pw_aff dim_min(int pos) const;
   inline isl::val dim_min_val(int pos) const;
+  inline std::string dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline std::string get_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline isl::set drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::set drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::set drop_unused_params() const;
+  inline isl::set eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::set eliminate_dims(unsigned int first, unsigned int n) const;
   static inline isl::set empty(isl::space space);
   inline bool every_set(const std::function<bool(isl::set)> &test) const;
   inline isl::set extract_set(const isl::space &space) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const isl::id &id) const;
+  inline int find_dim_by_id(enum isl_dim_type type, const std::string &id) const;
+  inline int find_dim_by_name(enum isl_dim_type type, const std::string &name) const;
+  inline isl::set fix_dim_si(unsigned int dim, int value) const;
+  inline isl::set fix_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::set fix_val(enum isl_dim_type type, unsigned int pos, isl::val v) const;
+  inline isl::set fix_val(enum isl_dim_type type, unsigned int pos, long v) const;
   inline isl::set flatten() const;
+  inline isl::map flatten_map() const;
   inline void foreach_basic_set(const std::function<void(isl::basic_set)> &fn) const;
   inline void foreach_point(const std::function<void(isl::point)> &fn) const;
   inline void foreach_set(const std::function<void(isl::set)> &fn) const;
+  static inline isl::set from_multi_aff(isl::multi_aff ma);
   inline isl::set gist(isl::set context) const;
   inline isl::union_set gist(const isl::union_set &context) const;
   inline isl::set gist(const isl::basic_set &context) const;
   inline isl::set gist(const isl::point &context) const;
+  inline isl::set gist_basic_set(isl::basic_set context) const;
   inline isl::set gist_params(isl::set context) const;
+  inline bool has_dim_id(enum isl_dim_type type, unsigned int pos) const;
+  inline bool has_dim_name(enum isl_dim_type type, unsigned int pos) const;
+  inline bool has_equal_space(const isl::set &set2) const;
+  inline bool has_tuple_id() const;
+  inline bool has_tuple_name() const;
   inline isl::map identity() const;
   inline isl::pw_aff indicator_function() const;
+  inline isl::set insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline isl::map insert_domain(isl::space domain) const;
   inline isl::set intersect(isl::set set2) const;
   inline isl::union_set intersect(const isl::union_set &uset2) const;
   inline isl::set intersect(const isl::basic_set &set2) const;
   inline isl::set intersect(const isl::point &set2) const;
   inline isl::set intersect_params(isl::set params) const;
+  inline bool involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline bool involves_locals() const;
+  inline bool is_bounded() const;
+  inline bool is_box() const;
   inline bool is_disjoint(const isl::set &set2) const;
   inline bool is_disjoint(const isl::union_set &uset2) const;
   inline bool is_disjoint(const isl::basic_set &set2) const;
@@ -3720,6 +4501,7 @@ class set {
   inline bool is_equal(const isl::union_set &uset2) const;
   inline bool is_equal(const isl::basic_set &set2) const;
   inline bool is_equal(const isl::point &set2) const;
+  inline bool is_params() const;
   inline bool is_singleton() const;
   inline bool is_strict_subset(const isl::set &set2) const;
   inline bool is_strict_subset(const isl::union_set &uset2) const;
@@ -3733,20 +4515,37 @@ class set {
   inline bool isa_set() const;
   inline isl::fixed_box lattice_tile() const;
   inline isl::fixed_box get_lattice_tile() const;
+  inline isl::map lex_ge_set(isl::set set2) const;
+  inline isl::map lex_gt_set(isl::set set2) const;
+  inline isl::map lex_le_set(isl::set set2) const;
+  inline isl::map lex_lt_set(isl::set set2) const;
   inline isl::set lexmax() const;
   inline isl::pw_multi_aff lexmax_pw_multi_aff() const;
   inline isl::set lexmin() const;
   inline isl::pw_multi_aff lexmin_pw_multi_aff() const;
+  inline isl::set lift() const;
   inline isl::set lower_bound(isl::multi_pw_aff lower) const;
   inline isl::set lower_bound(isl::multi_val lower) const;
+  inline isl::set lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::set lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const;
+  inline isl::set lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::set make_disjoint() const;
   inline isl::multi_pw_aff max_multi_pw_aff() const;
   inline isl::val max_val(const isl::aff &obj) const;
   inline isl::multi_pw_aff min_multi_pw_aff() const;
   inline isl::val min_val(const isl::aff &obj) const;
+  inline isl::set move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline unsigned n_basic_set() const;
+  inline unsigned n_dim() const;
+  inline unsigned n_param() const;
+  inline isl::set neg() const;
   inline isl::pw_aff param_pw_aff_on_domain(isl::id id) const;
   inline isl::pw_aff param_pw_aff_on_domain(const std::string &id) const;
   inline isl::set params() const;
+  inline isl::val plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const;
+  inline bool plain_is_disjoint(const isl::set &set2) const;
+  inline bool plain_is_empty() const;
+  inline bool plain_is_universe() const;
   inline isl::multi_val plain_multi_val_if_fixed() const;
   inline isl::multi_val get_plain_multi_val_if_fixed() const;
   inline isl::basic_set polyhedral_hull() const;
@@ -3755,6 +4554,8 @@ class set {
   inline isl::set preimage(isl::pw_multi_aff pma) const;
   inline isl::union_set preimage(const isl::union_pw_multi_aff &upma) const;
   inline isl::set product(isl::set set2) const;
+  inline isl::map project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::set project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::set project_out_all_params() const;
   inline isl::set project_out_param(isl::id id) const;
   inline isl::set project_out_param(const std::string &id) const;
@@ -3762,23 +4563,45 @@ class set {
   inline isl::pw_aff pw_aff_on_domain(isl::val v) const;
   inline isl::pw_aff pw_aff_on_domain(long v) const;
   inline isl::pw_multi_aff pw_multi_aff_on_domain(isl::multi_val mv) const;
+  inline isl::set remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::set remove_divs() const;
+  inline isl::set remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
+  inline isl::set remove_redundancies() const;
+  inline isl::set remove_unknown_divs() const;
+  inline isl::set reset_space(isl::space space) const;
+  inline isl::set reset_tuple_id() const;
+  inline isl::set reset_user() const;
   inline isl::basic_set sample() const;
   inline isl::point sample_point() const;
+  inline isl::set set_dim_id(enum isl_dim_type type, unsigned int pos, isl::id id) const;
+  inline isl::set set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const;
+  inline isl::set set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const;
   inline isl::set_list set_list() const;
+  inline isl::set set_tuple_id(isl::id id) const;
+  inline isl::set set_tuple_id(const std::string &id) const;
+  inline isl::set set_tuple_name(const std::string &s) const;
   inline isl::fixed_box simple_fixed_box_hull() const;
   inline isl::fixed_box get_simple_fixed_box_hull() const;
+  inline int size() const;
+  inline isl::basic_set solutions() const;
   inline isl::space space() const;
   inline isl::space get_space() const;
+  inline isl::set split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const;
   inline isl::val stride(int pos) const;
   inline isl::val get_stride(int pos) const;
   inline isl::set subtract(isl::set set2) const;
   inline isl::union_set subtract(const isl::union_set &uset2) const;
   inline isl::set subtract(const isl::basic_set &set2) const;
   inline isl::set subtract(const isl::point &set2) const;
+  inline isl::set sum(isl::set set2) const;
   inline isl::set_list to_list() const;
   inline isl::union_set to_union_set() const;
   inline isl::map translation() const;
   inline unsigned tuple_dim() const;
+  inline isl::id tuple_id() const;
+  inline isl::id get_tuple_id() const;
+  inline std::string tuple_name() const;
+  inline std::string get_tuple_name() const;
   inline isl::set unbind_params(isl::multi_id tuple) const;
   inline isl::map unbind_params_insert_domain(isl::multi_id domain) const;
   inline isl::set unite(isl::set set2) const;
@@ -3790,6 +4613,10 @@ class set {
   inline isl::map unwrap() const;
   inline isl::set upper_bound(isl::multi_pw_aff upper) const;
   inline isl::set upper_bound(isl::multi_val upper) const;
+  inline isl::set upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const;
+  inline isl::set upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const;
+  inline isl::set upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const;
+  inline isl::map wrapped_domain_map() const;
   inline isl::set wrapped_reverse() const;
 };
 
@@ -3832,6 +4659,7 @@ class set_list {
   inline isl::set_list insert(unsigned int pos, isl::set el) const;
   inline isl::set_list set_at(int index, isl::set el) const;
   inline unsigned size() const;
+  inline isl::set unite() const;
 };
 
 // declarations for isl::space
@@ -3860,6 +4688,7 @@ class space {
   inline bool is_null() const;
   inline isl::ctx ctx() const;
 
+  inline isl::space add_dims(enum isl_dim_type type, unsigned int n) const;
   inline isl::space add_named_tuple(isl::id tuple_id, unsigned int dim) const;
   inline isl::space add_named_tuple(const std::string &tuple_id, unsigned int dim) const;
   inline isl::space add_param(isl::id id) const;
@@ -3867,22 +4696,37 @@ class space {
   inline isl::space add_unnamed_tuple(unsigned int dim) const;
   inline isl::space curry() const;
   inline isl::space domain() const;
+  inline isl::space domain_factor_domain() const;
+  inline isl::space domain_factor_range() const;
+  inline isl::space domain_map() const;
   inline isl::multi_aff domain_map_multi_aff() const;
   inline isl::pw_multi_aff domain_map_pw_multi_aff() const;
+  inline isl::space domain_product(isl::space right) const;
   inline isl::space domain_reverse() const;
   inline isl::id domain_tuple_id() const;
   inline isl::id get_domain_tuple_id() const;
+  inline isl::space domain_wrapped_domain() const;
+  inline isl::space domain_wrapped_range() const;
   inline isl::space drop_all_params() const;
+  inline isl::space drop_dims(enum isl_dim_type type, unsigned int first, unsigned int num) const;
+  inline isl::space factor_domain() const;
+  inline isl::space factor_range() const;
   inline isl::space flatten_domain() const;
   inline isl::space flatten_range() const;
+  inline isl::space from_domain() const;
+  inline isl::space from_range() const;
   inline bool has_domain_tuple_id() const;
   inline bool has_range_tuple_id() const;
   inline isl::multi_aff identity_multi_aff_on_domain() const;
   inline isl::multi_pw_aff identity_multi_pw_aff_on_domain() const;
   inline isl::pw_multi_aff identity_pw_multi_aff_on_domain() const;
+  inline isl::space insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const;
   inline bool is_equal(const isl::space &space2) const;
   inline bool is_wrapping() const;
+  inline isl::space join(isl::space right) const;
+  inline isl::space map_from_domain_and_range(isl::space range) const;
   inline isl::space map_from_set() const;
+  inline isl::space move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const;
   inline isl::multi_aff multi_aff(isl::aff_list list) const;
   inline isl::multi_aff multi_aff_on_domain(isl::multi_val mv) const;
   inline isl::multi_id multi_id(isl::id_list list) const;
@@ -3894,11 +4738,17 @@ class space {
   inline isl::space params() const;
   inline isl::space product(isl::space right) const;
   inline isl::space range() const;
+  inline isl::space range_factor_domain() const;
+  inline isl::space range_factor_range() const;
+  inline isl::space range_map() const;
   inline isl::multi_aff range_map_multi_aff() const;
   inline isl::pw_multi_aff range_map_pw_multi_aff() const;
+  inline isl::space range_product(isl::space right) const;
   inline isl::space range_reverse() const;
   inline isl::id range_tuple_id() const;
   inline isl::id get_range_tuple_id() const;
+  inline isl::space range_wrapped_domain() const;
+  inline isl::space range_wrapped_range() const;
   inline isl::space reverse() const;
   inline isl::space set_domain_tuple(isl::id id) const;
   inline isl::space set_domain_tuple(const std::string &id) const;
@@ -8686,6 +9536,30 @@ isl::ctx basic_map::ctx() const {
   return isl::ctx(isl_basic_map_get_ctx(ptr));
 }
 
+isl::basic_map basic_map::add_constraint(isl::constraint constraint) const
+{
+  if (!ptr || constraint.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_add_constraint(copy(), constraint.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_add_dims(copy(), type, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::basic_map basic_map::affine_hull() const
 {
   if (!ptr)
@@ -8693,6 +9567,18 @@ isl::basic_map basic_map::affine_hull() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_basic_map_affine_hull(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::align_params(isl::space model) const
+{
+  if (!ptr || model.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_align_params(copy(), model.release());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -8792,6 +9678,49 @@ isl::set basic_map::bind_range(const isl::multi_id &tuple) const
   return isl::map(*this).bind_range(tuple);
 }
 
+bool basic_map::can_curry() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_can_curry(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool basic_map::can_range_curry() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).can_range_curry();
+}
+
+bool basic_map::can_uncurry() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_can_uncurry(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool basic_map::can_zip() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_can_zip(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 isl::map basic_map::coalesce() const
 {
   if (!ptr)
@@ -8806,18 +9735,52 @@ isl::map basic_map::complement() const
   return isl::map(*this).complement();
 }
 
-isl::union_map basic_map::compute_divs() const
+isl::map basic_map::compute_divs() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).compute_divs();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_compute_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
-isl::map basic_map::curry() const
+isl::constraint_list basic_map::constraint_list() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).curry();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_get_constraint_list(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint_list basic_map::get_constraint_list() const
+{
+  return constraint_list();
+}
+
+isl::basic_map basic_map::convex_hull() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).convex_hull();
+}
+
+isl::basic_map basic_map::curry() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_curry(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::basic_set basic_map::deltas() const
@@ -8827,6 +9790,18 @@ isl::basic_set basic_map::deltas() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_basic_map_deltas(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::deltas_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_deltas_map(copy());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -8844,11 +9819,82 @@ isl::basic_map basic_map::detect_equalities() const
   return manage(res);
 }
 
-isl::set basic_map::domain() const
+unsigned basic_map::dim(enum isl_dim_type type) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).domain();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_dim(get(), type);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::id basic_map::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).dim_id(type, pos);
+}
+
+isl::pw_aff basic_map::dim_max(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).dim_max(pos);
+}
+
+isl::pw_aff basic_map::dim_min(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).dim_min(pos);
+}
+
+std::string basic_map::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string basic_map::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
+}
+
+isl::aff basic_map::div(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_get_div(get(), pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::aff basic_map::get_div(int pos) const
+{
+  return div(pos);
+}
+
+isl::basic_set basic_map::domain() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_domain(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map basic_map::domain_factor_domain() const
@@ -8865,11 +9911,23 @@ isl::map basic_map::domain_factor_range() const
   return isl::map(*this).domain_factor_range();
 }
 
-isl::union_map basic_map::domain_map() const
+bool basic_map::domain_is_wrapping() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).domain_map();
+  return isl::map(*this).domain_is_wrapping();
+}
+
+isl::basic_map basic_map::domain_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_domain_map(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::union_pw_multi_aff basic_map::domain_map_union_pw_multi_aff() const
@@ -8914,11 +9972,64 @@ isl::id basic_map::domain_tuple_id() const
   return isl::map(*this).domain_tuple_id();
 }
 
-isl::map basic_map::drop_unused_params() const
+isl::basic_map basic_map::drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).drop_unused_params();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_drop_constraints_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_drop_constraints_not_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::drop_unused_params() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_drop_unused_params(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_eliminate(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::empty(isl::space space)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_empty(space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map basic_map::eq_at(const isl::multi_pw_aff &mpa) const
@@ -8933,6 +10044,30 @@ isl::union_map basic_map::eq_at(const isl::multi_union_pw_aff &mupa) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).eq_at(mupa);
+}
+
+isl::mat basic_map::equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_equalities_matrix(get(), c1, c2, c3, c4, c5);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::equate(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_equate(copy(), type1, pos1, type2, pos2);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 bool basic_map::every_map(const std::function<bool(isl::map)> &test) const
@@ -8963,6 +10098,68 @@ isl::map basic_map::factor_range() const
   return isl::map(*this).factor_range();
 }
 
+int basic_map::find_dim_by_id(enum isl_dim_type type, const isl::id &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).find_dim_by_id(type, id);
+}
+
+int basic_map::find_dim_by_id(enum isl_dim_type type, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->find_dim_by_id(type, isl::id(ctx(), id));
+}
+
+int basic_map::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_find_dim_by_name(get(), type, name.c_str());
+  return res;
+}
+
+isl::map basic_map::fix_input_si(unsigned int input, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).fix_input_si(input, value);
+}
+
+isl::basic_map basic_map::fix_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_fix_si(copy(), type, pos, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::fix_val(enum isl_dim_type type, unsigned int pos, isl::val v) const
+{
+  if (!ptr || v.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_fix_val(copy(), type, pos, v.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::fix_val(enum isl_dim_type type, unsigned int pos, long v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->fix_val(type, pos, isl::val(ctx(), v));
+}
+
 isl::map basic_map::fixed_power(const isl::val &exp) const
 {
   if (!ptr)
@@ -8975,6 +10172,51 @@ isl::map basic_map::fixed_power(long exp) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return this->fixed_power(isl::val(ctx(), exp));
+}
+
+isl::map basic_map::flat_domain_product(const isl::map &map2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).flat_domain_product(map2);
+}
+
+isl::basic_map basic_map::flat_product(isl::basic_map bmap2) const
+{
+  if (!ptr || bmap2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_flat_product(copy(), bmap2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::flat_product(const isl::map &map2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).flat_product(map2);
+}
+
+isl::basic_map basic_map::flat_range_product(isl::basic_map bmap2) const
+{
+  if (!ptr || bmap2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_flat_range_product(copy(), bmap2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::flat_range_product(const isl::map &map2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).flat_range_product(map2);
 }
 
 isl::basic_map basic_map::flatten() const
@@ -9013,6 +10255,20 @@ isl::basic_map basic_map::flatten_range() const
   return manage(res);
 }
 
+isl::map basic_map::floordiv_val(const isl::val &d) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).floordiv_val(d);
+}
+
+isl::map basic_map::floordiv_val(long d) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->floordiv_val(isl::val(ctx(), d));
+}
+
 void basic_map::foreach_basic_map(const std::function<void(isl::basic_map)> &fn) const
 {
   if (!ptr)
@@ -9020,11 +10276,135 @@ void basic_map::foreach_basic_map(const std::function<void(isl::basic_map)> &fn)
   return isl::map(*this).foreach_basic_map(fn);
 }
 
+void basic_map::foreach_constraint(const std::function<void(isl::constraint)> &fn) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  struct fn_data {
+    std::function<void(isl::constraint)> func;
+    std::exception_ptr eptr;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_constraint *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    ISL_CPP_TRY {
+      (data->func)(manage(arg_0));
+      return isl_stat_ok;
+    } ISL_CPP_CATCH_ALL {
+      data->eptr = std::current_exception();
+      return isl_stat_error;
+    }
+  };
+  auto res = isl_basic_map_foreach_constraint(get(), fn_lambda, &fn_data);
+  if (fn_data.eptr)
+    std::rethrow_exception(fn_data.eptr);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return;
+}
+
 void basic_map::foreach_map(const std::function<void(isl::map)> &fn) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).foreach_map(fn);
+}
+
+isl::basic_map basic_map::from_aff(isl::aff aff)
+{
+  if (aff.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = aff.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_from_aff(aff.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::from_aff_list(isl::space domain_space, isl::aff_list list)
+{
+  if (domain_space.is_null() || list.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = domain_space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_from_aff_list(domain_space.release(), list.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::from_constraint(isl::constraint constraint)
+{
+  if (constraint.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = constraint.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_from_constraint(constraint.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::from_constraint_matrices(isl::space space, isl::mat eq, isl::mat ineq, enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5)
+{
+  if (space.is_null() || eq.is_null() || ineq.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_from_constraint_matrices(space.release(), eq.release(), ineq.release(), c1, c2, c3, c4, c5);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::from_domain(isl::basic_set bset)
+{
+  if (bset.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = bset.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_from_domain(bset.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::from_domain_and_range(isl::basic_set domain, isl::basic_set range)
+{
+  if (domain.is_null() || range.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = domain.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_from_domain_and_range(domain.release(), range.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::from_multi_aff(isl::multi_aff maff)
+{
+  if (maff.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = maff.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_from_multi_aff(maff.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::from_range(isl::basic_set bset)
+{
+  if (bset.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = bset.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_from_range(bset.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::basic_map basic_map::gist(isl::basic_map context) const
@@ -9053,6 +10433,25 @@ isl::union_map basic_map::gist(const isl::union_map &context) const
   return isl::map(*this).gist(context);
 }
 
+isl::map basic_map::gist_basic_map(const isl::basic_map &context) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).gist_basic_map(context);
+}
+
+isl::basic_map basic_map::gist_domain(isl::basic_set context) const
+{
+  if (!ptr || context.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_gist_domain(copy(), context.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map basic_map::gist_domain(const isl::set &context) const
 {
   if (!ptr)
@@ -9065,6 +10464,13 @@ isl::union_map basic_map::gist_domain(const isl::union_set &uset) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).gist_domain(uset);
+}
+
+isl::basic_map basic_map::gist_domain(const isl::point &context) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->gist_domain(isl::basic_set(context));
 }
 
 isl::map basic_map::gist_params(const isl::set &context) const
@@ -9081,6 +10487,25 @@ isl::union_map basic_map::gist_range(const isl::union_set &uset) const
   return isl::map(*this).gist_range(uset);
 }
 
+bool basic_map::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_has_dim_id(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool basic_map::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).has_dim_name(type, pos);
+}
+
 bool basic_map::has_domain_tuple_id() const
 {
   if (!ptr)
@@ -9088,11 +10513,73 @@ bool basic_map::has_domain_tuple_id() const
   return isl::map(*this).has_domain_tuple_id();
 }
 
+bool basic_map::has_equal_space(const isl::map &map2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).has_equal_space(map2);
+}
+
 bool basic_map::has_range_tuple_id() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).has_range_tuple_id();
+}
+
+bool basic_map::has_tuple_name(enum isl_dim_type type) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).has_tuple_name(type);
+}
+
+isl::basic_map basic_map::identity(isl::space space)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_identity(space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+bool basic_map::image_is_bounded() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_image_is_bounded(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::mat basic_map::inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4, enum isl_dim_type c5) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_inequalities_matrix(get(), c1, c2, c3, c4, c5);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_insert_dims(copy(), type, pos, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::basic_map basic_map::intersect(isl::basic_map bmap2) const
@@ -9311,11 +10798,35 @@ isl::union_map basic_map::intersect_range_wrapped_domain(const isl::union_set &d
   return isl::map(*this).intersect_range_wrapped_domain(domain);
 }
 
+bool basic_map::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_involves_dims(get(), type, first, n);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 bool basic_map::is_bijective() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).is_bijective();
+}
+
+bool basic_map::is_disjoint(const isl::basic_map &bmap2) const
+{
+  if (!ptr || bmap2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_is_disjoint(get(), bmap2.get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
 }
 
 bool basic_map::is_disjoint(const isl::map &map2) const
@@ -9370,6 +10881,13 @@ bool basic_map::is_equal(const isl::union_map &umap2) const
   return isl::map(*this).is_equal(umap2);
 }
 
+bool basic_map::is_identity() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).is_identity();
+}
+
 bool basic_map::is_injective() const
 {
   if (!ptr)
@@ -9377,11 +10895,47 @@ bool basic_map::is_injective() const
   return isl::map(*this).is_injective();
 }
 
+bool basic_map::is_product() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).is_product();
+}
+
+bool basic_map::is_rational() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_is_rational(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 bool basic_map::is_single_valued() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).is_single_valued();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_is_single_valued(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool basic_map::is_strict_subset(const isl::basic_map &bmap2) const
+{
+  if (!ptr || bmap2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_is_strict_subset(get(), bmap2.get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
 }
 
 bool basic_map::is_strict_subset(const isl::map &map2) const
@@ -9424,11 +10978,42 @@ bool basic_map::is_subset(const isl::union_map &umap2) const
   return isl::map(*this).is_subset(umap2);
 }
 
+int basic_map::is_translation() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).is_translation();
+}
+
+bool basic_map::is_universe() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_is_universe(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 bool basic_map::isa_map() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).isa_map();
+}
+
+isl::basic_map basic_map::less_at(isl::space space, unsigned int pos)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_less_at(space.release(), pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map basic_map::lex_ge_at(const isl::multi_pw_aff &mpa) const
@@ -9438,11 +11023,25 @@ isl::map basic_map::lex_ge_at(const isl::multi_pw_aff &mpa) const
   return isl::map(*this).lex_ge_at(mpa);
 }
 
+isl::map basic_map::lex_ge_map(const isl::map &map2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).lex_ge_map(map2);
+}
+
 isl::map basic_map::lex_gt_at(const isl::multi_pw_aff &mpa) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).lex_gt_at(mpa);
+}
+
+isl::map basic_map::lex_gt_map(const isl::map &map2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).lex_gt_map(map2);
 }
 
 isl::map basic_map::lex_le_at(const isl::multi_pw_aff &mpa) const
@@ -9452,11 +11051,25 @@ isl::map basic_map::lex_le_at(const isl::multi_pw_aff &mpa) const
   return isl::map(*this).lex_le_at(mpa);
 }
 
+isl::map basic_map::lex_le_map(const isl::map &map2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).lex_le_map(map2);
+}
+
 isl::map basic_map::lex_lt_at(const isl::multi_pw_aff &mpa) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).lex_lt_at(mpa);
+}
+
+isl::map basic_map::lex_lt_map(const isl::map &map2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).lex_lt_map(map2);
 }
 
 isl::map basic_map::lexmax() const
@@ -9504,6 +11117,39 @@ isl::map basic_map::lower_bound(const isl::multi_pw_aff &lower) const
   return isl::map(*this).lower_bound(lower);
 }
 
+isl::basic_map basic_map::lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_lower_bound_si(copy(), type, pos, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::lower_bound_val(enum isl_dim_type type, unsigned int pos, const isl::val &value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).lower_bound_val(type, pos, value);
+}
+
+isl::map basic_map::lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->lower_bound_val(type, pos, isl::val(ctx(), value));
+}
+
+isl::map basic_map::make_disjoint() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).make_disjoint();
+}
+
 isl::map_list basic_map::map_list() const
 {
   if (!ptr)
@@ -9525,6 +11171,30 @@ isl::multi_pw_aff basic_map::min_multi_pw_aff() const
   return isl::map(*this).min_multi_pw_aff();
 }
 
+isl::basic_map basic_map::more_at(isl::space space, unsigned int pos)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_more_at(space.release(), pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 unsigned basic_map::n_basic_map() const
 {
   if (!ptr)
@@ -9532,11 +11202,144 @@ unsigned basic_map::n_basic_map() const
   return isl::map(*this).n_basic_map();
 }
 
+unsigned basic_map::n_constraint() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_n_constraint(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::basic_map basic_map::nat_universe(isl::space space)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_nat_universe(space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::neg() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_neg(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::oppose(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).oppose(type1, pos1, type2, pos2);
+}
+
+isl::basic_map basic_map::order_ge(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_order_ge(copy(), type1, pos1, type2, pos2);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::order_gt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_order_gt(copy(), type1, pos1, type2, pos2);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::order_le(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).order_le(type1, pos1, type2, pos2);
+}
+
+isl::map basic_map::order_lt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).order_lt(type1, pos1, type2, pos2);
+}
+
 isl::set basic_map::params() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).params();
+}
+
+isl::val basic_map::plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).plain_get_val_if_fixed(type, pos);
+}
+
+bool basic_map::plain_is_empty() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_plain_is_empty(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool basic_map::plain_is_injective() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).plain_is_injective();
+}
+
+bool basic_map::plain_is_single_valued() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).plain_is_single_valued();
+}
+
+bool basic_map::plain_is_universe() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_plain_is_universe(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::basic_map basic_map::plain_unshifted_simple_hull() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).plain_unshifted_simple_hull();
 }
 
 isl::basic_map basic_map::polyhedral_hull() const
@@ -9609,6 +11412,18 @@ isl::union_map basic_map::product(const isl::union_map &umap2) const
   return isl::map(*this).product(umap2);
 }
 
+isl::basic_map basic_map::project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_project_out(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map basic_map::project_out_all_params() const
 {
   if (!ptr)
@@ -9637,11 +11452,23 @@ isl::map basic_map::project_out_param(const isl::id_list &list) const
   return isl::map(*this).project_out_param(list);
 }
 
-isl::set basic_map::range() const
+isl::basic_set basic_map::range() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).range();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_range(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::range_curry() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).range_curry();
 }
 
 isl::map basic_map::range_factor_domain() const
@@ -9658,6 +11485,13 @@ isl::map basic_map::range_factor_range() const
   return isl::map(*this).range_factor_range();
 }
 
+bool basic_map::range_is_wrapping() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).range_is_wrapping();
+}
+
 isl::fixed_box basic_map::range_lattice_tile() const
 {
   if (!ptr)
@@ -9665,11 +11499,16 @@ isl::fixed_box basic_map::range_lattice_tile() const
   return isl::map(*this).range_lattice_tile();
 }
 
-isl::union_map basic_map::range_map() const
+isl::basic_map basic_map::range_map() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).range_map();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_range_map(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map basic_map::range_product(const isl::map &map2) const
@@ -9714,6 +11553,68 @@ isl::id basic_map::range_tuple_id() const
   return isl::map(*this).range_tuple_id();
 }
 
+isl::basic_map basic_map::remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_remove_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::remove_divs() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_remove_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_remove_divs_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::remove_inputs(unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).remove_inputs(first, n);
+}
+
+isl::basic_map basic_map::remove_redundancies() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_remove_redundancies(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::remove_unknown_divs() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).remove_unknown_divs();
+}
+
 isl::basic_map basic_map::reverse() const
 {
   if (!ptr)
@@ -9733,6 +11634,32 @@ isl::basic_map basic_map::sample() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_basic_map_sample(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::id &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).set_dim_id(type, pos, id);
+}
+
+isl::map basic_map::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_dim_id(type, pos, isl::id(ctx(), id));
+}
+
+isl::basic_map basic_map::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_set_dim_name(copy(), type, pos, s.c_str());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -9766,11 +11693,59 @@ isl::map basic_map::set_range_tuple(const std::string &id) const
   return this->set_range_tuple(isl::id(ctx(), id));
 }
 
+isl::basic_map basic_map::set_tuple_id(enum isl_dim_type type, isl::id id) const
+{
+  if (!ptr || id.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_set_tuple_id(copy(), type, id.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::set_tuple_id(enum isl_dim_type type, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_tuple_id(type, isl::id(ctx(), id));
+}
+
+isl::basic_map basic_map::set_tuple_name(enum isl_dim_type type, const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_set_tuple_name(copy(), type, s.c_str());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map basic_map::simple_hull() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).simple_hull();
+}
+
 isl::space basic_map::space() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).space();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_get_space(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space basic_map::get_space() const
+{
+  return space();
 }
 
 isl::map basic_map::subtract(const isl::map &map2) const
@@ -9787,6 +11762,13 @@ isl::union_map basic_map::subtract(const isl::union_map &umap2) const
   return isl::map(*this).subtract(umap2);
 }
 
+isl::map basic_map::subtract_domain(const isl::set &dom) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).subtract_domain(dom);
+}
+
 isl::union_map basic_map::subtract_domain(const isl::union_set &dom) const
 {
   if (!ptr)
@@ -9794,11 +11776,37 @@ isl::union_map basic_map::subtract_domain(const isl::union_set &dom) const
   return isl::map(*this).subtract_domain(dom);
 }
 
+isl::map basic_map::subtract_range(const isl::set &dom) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).subtract_range(dom);
+}
+
 isl::union_map basic_map::subtract_range(const isl::union_set &dom) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).subtract_range(dom);
+}
+
+isl::basic_map basic_map::sum(isl::basic_map bmap2) const
+{
+  if (!ptr || bmap2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_sum(copy(), bmap2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::sum(const isl::map &map2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).sum(map2);
 }
 
 isl::map_list basic_map::to_list() const
@@ -9815,11 +11823,44 @@ isl::union_map basic_map::to_union_map() const
   return isl::map(*this).to_union_map();
 }
 
-isl::map basic_map::uncurry() const
+unsigned basic_map::total_dim(const isl::basic_map &bmap)
+{
+  if (bmap.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = bmap.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_total_dim(bmap.get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+std::string basic_map::tuple_name(enum isl_dim_type type) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).uncurry();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_get_tuple_name(get(), type);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string basic_map::get_tuple_name(enum isl_dim_type type) const
+{
+  return tuple_name(type);
+}
+
+isl::basic_map basic_map::uncurry() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_uncurry(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map basic_map::unite(isl::basic_map bmap2) const
@@ -9848,11 +11889,37 @@ isl::union_map basic_map::unite(const isl::union_map &umap2) const
   return isl::map(*this).unite(umap2);
 }
 
+isl::map basic_map::union_disjoint(const isl::map &map2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).union_disjoint(map2);
+}
+
+isl::basic_map basic_map::universe(isl::space space)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_universe(space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::basic_map basic_map::unshifted_simple_hull() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::map(*this).unshifted_simple_hull();
+}
+
+isl::basic_map basic_map::unshifted_simple_hull_from_map_list(const isl::map_list &list) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).unshifted_simple_hull_from_map_list(list);
 }
 
 isl::map basic_map::upper_bound(const isl::multi_pw_aff &upper) const
@@ -9862,6 +11929,32 @@ isl::map basic_map::upper_bound(const isl::multi_pw_aff &upper) const
   return isl::map(*this).upper_bound(upper);
 }
 
+isl::basic_map basic_map::upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_upper_bound_si(copy(), type, pos, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map basic_map::upper_bound_val(enum isl_dim_type type, unsigned int pos, const isl::val &value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::map(*this).upper_bound_val(type, pos, value);
+}
+
+isl::map basic_map::upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->upper_bound_val(type, pos, isl::val(ctx(), value));
+}
+
 isl::set basic_map::wrap() const
 {
   if (!ptr)
@@ -9869,11 +11962,16 @@ isl::set basic_map::wrap() const
   return isl::map(*this).wrap();
 }
 
-isl::map basic_map::zip() const
+isl::basic_map basic_map::zip() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::map(*this).zip();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_map_zip(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 inline std::ostream &operator<<(std::ostream &os, const basic_map &obj)
@@ -9883,6 +11981,87 @@ inline std::ostream &operator<<(std::ostream &os, const basic_map &obj)
   auto saved_ctx = isl_basic_map_get_ctx(obj.get());
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   char *str = isl_basic_map_to_str(obj.get());
+  if (!str)
+    exception::throw_last_error(saved_ctx);
+  os << str;
+  free(str);
+  return os;
+}
+
+// implementations for isl::basic_map_list
+basic_map_list manage(__isl_take isl_basic_map_list *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return basic_map_list(ptr);
+}
+basic_map_list manage_copy(__isl_keep isl_basic_map_list *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_basic_map_list_get_ctx(ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = isl_basic_map_list_copy(ptr);
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+  return basic_map_list(ptr);
+}
+
+basic_map_list::basic_map_list(__isl_take isl_basic_map_list *ptr)
+    : ptr(ptr) {}
+
+basic_map_list::basic_map_list()
+    : ptr(nullptr) {}
+
+basic_map_list::basic_map_list(const basic_map_list &obj)
+    : ptr(nullptr)
+{
+  if (!obj.ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_basic_map_list_get_ctx(obj.ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = obj.copy();
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+}
+
+basic_map_list &basic_map_list::operator=(basic_map_list obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+basic_map_list::~basic_map_list() {
+  if (ptr)
+    isl_basic_map_list_free(ptr);
+}
+
+__isl_give isl_basic_map_list *basic_map_list::copy() const & {
+  return isl_basic_map_list_copy(ptr);
+}
+
+__isl_keep isl_basic_map_list *basic_map_list::get() const {
+  return ptr;
+}
+
+__isl_give isl_basic_map_list *basic_map_list::release() {
+  isl_basic_map_list *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool basic_map_list::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::ctx basic_map_list::ctx() const {
+  return isl::ctx(isl_basic_map_list_get_ctx(ptr));
+}
+
+inline std::ostream &operator<<(std::ostream &os, const basic_map_list &obj)
+{
+  if (!obj.get())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_basic_map_list_get_ctx(obj.get());
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  char *str = isl_basic_map_list_to_str(obj.get());
   if (!str)
     exception::throw_last_error(saved_ctx);
   os << str;
@@ -9979,6 +12158,30 @@ isl::ctx basic_set::ctx() const {
   return isl::ctx(isl_basic_set_get_ctx(ptr));
 }
 
+isl::basic_set basic_set::add_constraint(isl::constraint constraint) const
+{
+  if (!ptr || constraint.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_add_constraint(copy(), constraint.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_add_dims(copy(), type, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::basic_set basic_set::affine_hull() const
 {
   if (!ptr)
@@ -9986,6 +12189,18 @@ isl::basic_set basic_set::affine_hull() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_basic_set_affine_hull(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::align_params(isl::space model) const
+{
+  if (!ptr || model.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_align_params(copy(), model.release());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -10031,11 +12246,30 @@ isl::set basic_set::as_set() const
   return isl::set(*this).as_set();
 }
 
+isl::basic_set_list basic_set::basic_set_list() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).basic_set_list();
+}
+
 isl::set basic_set::bind(const isl::multi_id &tuple) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).bind(tuple);
+}
+
+isl::basic_set basic_set::box_from_points(isl::point pnt1, isl::point pnt2)
+{
+  if (pnt1.is_null() || pnt2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = pnt1.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_box_from_points(pnt1.release(), pnt2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::set basic_set::coalesce() const
@@ -10045,6 +12279,18 @@ isl::set basic_set::coalesce() const
   return isl::set(*this).coalesce();
 }
 
+isl::basic_set basic_set::coefficients() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_coefficients(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set basic_set::complement() const
 {
   if (!ptr)
@@ -10052,11 +12298,40 @@ isl::set basic_set::complement() const
   return isl::set(*this).complement();
 }
 
-isl::union_set basic_set::compute_divs() const
+isl::set basic_set::compute_divs() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::set(*this).compute_divs();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_compute_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint_list basic_set::constraint_list() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_get_constraint_list(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint_list basic_set::get_constraint_list() const
+{
+  return constraint_list();
+}
+
+isl::val basic_set::count_val() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).count_val();
 }
 
 isl::basic_set basic_set::detect_equalities() const
@@ -10071,6 +12346,77 @@ isl::basic_set basic_set::detect_equalities() const
   return manage(res);
 }
 
+unsigned basic_set::dim(enum isl_dim_type type) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_dim(get(), type);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool basic_set::dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).dim_has_any_lower_bound(type, pos);
+}
+
+bool basic_set::dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).dim_has_any_upper_bound(type, pos);
+}
+
+bool basic_set::dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).dim_has_lower_bound(type, pos);
+}
+
+bool basic_set::dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).dim_has_upper_bound(type, pos);
+}
+
+isl::id basic_set::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_get_dim_id(get(), type, pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::id basic_set::get_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_id(type, pos);
+}
+
+bool basic_set::dim_is_bounded(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).dim_is_bounded(type, pos);
+}
+
+isl::pw_aff basic_set::dim_max(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).dim_max(pos);
+}
+
 isl::val basic_set::dim_max_val(int pos) const
 {
   if (!ptr)
@@ -10083,6 +12429,13 @@ isl::val basic_set::dim_max_val(int pos) const
   return manage(res);
 }
 
+isl::pw_aff basic_set::dim_min(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).dim_min(pos);
+}
+
 isl::val basic_set::dim_min_val(int pos) const
 {
   if (!ptr)
@@ -10090,11 +12443,104 @@ isl::val basic_set::dim_min_val(int pos) const
   return isl::set(*this).dim_min_val(pos);
 }
 
-isl::set basic_set::drop_unused_params() const
+std::string basic_set::dim_name(enum isl_dim_type type, unsigned int pos) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::set(*this).drop_unused_params();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string basic_set::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
+}
+
+isl::aff basic_set::div(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_get_div(get(), pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::aff basic_set::get_div(int pos) const
+{
+  return div(pos);
+}
+
+isl::basic_set basic_set::drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_drop_constraints_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_drop_constraints_not_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::drop_unused_params() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_drop_unused_params(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_eliminate(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set basic_set::eliminate_dims(unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).eliminate_dims(first, n);
+}
+
+isl::mat basic_set::equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_equalities_matrix(get(), c1, c2, c3, c4);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 bool basic_set::every_set(const std::function<bool(isl::set)> &test) const
@@ -10111,6 +12557,65 @@ isl::set basic_set::extract_set(const isl::space &space) const
   return isl::set(*this).extract_set(space);
 }
 
+int basic_set::find_dim_by_id(enum isl_dim_type type, const isl::id &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).find_dim_by_id(type, id);
+}
+
+int basic_set::find_dim_by_id(enum isl_dim_type type, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->find_dim_by_id(type, isl::id(ctx(), id));
+}
+
+int basic_set::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).find_dim_by_name(type, name);
+}
+
+isl::set basic_set::fix_dim_si(unsigned int dim, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).fix_dim_si(dim, value);
+}
+
+isl::basic_set basic_set::fix_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_fix_si(copy(), type, pos, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::fix_val(enum isl_dim_type type, unsigned int pos, isl::val v) const
+{
+  if (!ptr || v.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_fix_val(copy(), type, pos, v.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::fix_val(enum isl_dim_type type, unsigned int pos, long v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->fix_val(type, pos, isl::val(ctx(), v));
+}
+
 isl::basic_set basic_set::flatten() const
 {
   if (!ptr)
@@ -10123,11 +12628,74 @@ isl::basic_set basic_set::flatten() const
   return manage(res);
 }
 
+isl::map basic_set::flatten_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).flatten_map();
+}
+
 void basic_set::foreach_basic_set(const std::function<void(isl::basic_set)> &fn) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).foreach_basic_set(fn);
+}
+
+void basic_set::foreach_bound_pair(enum isl_dim_type type, unsigned int pos, const std::function<void(isl::constraint, isl::constraint, isl::basic_set)> &fn) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  struct fn_data {
+    std::function<void(isl::constraint, isl::constraint, isl::basic_set)> func;
+    std::exception_ptr eptr;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_constraint *arg_0, isl_constraint *arg_1, isl_basic_set *arg_2, void *arg_3) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_3);
+    ISL_CPP_TRY {
+      (data->func)(manage(arg_0), manage(arg_1), manage(arg_2));
+      return isl_stat_ok;
+    } ISL_CPP_CATCH_ALL {
+      data->eptr = std::current_exception();
+      return isl_stat_error;
+    }
+  };
+  auto res = isl_basic_set_foreach_bound_pair(get(), type, pos, fn_lambda, &fn_data);
+  if (fn_data.eptr)
+    std::rethrow_exception(fn_data.eptr);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return;
+}
+
+void basic_set::foreach_constraint(const std::function<void(isl::constraint)> &fn) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  struct fn_data {
+    std::function<void(isl::constraint)> func;
+    std::exception_ptr eptr;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_constraint *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    ISL_CPP_TRY {
+      (data->func)(manage(arg_0));
+      return isl_stat_ok;
+    } ISL_CPP_CATCH_ALL {
+      data->eptr = std::current_exception();
+      return isl_stat_error;
+    }
+  };
+  auto res = isl_basic_set_foreach_constraint(get(), fn_lambda, &fn_data);
+  if (fn_data.eptr)
+    std::rethrow_exception(fn_data.eptr);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return;
 }
 
 void basic_set::foreach_point(const std::function<void(isl::point)> &fn) const
@@ -10142,6 +12710,42 @@ void basic_set::foreach_set(const std::function<void(isl::set)> &fn) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).foreach_set(fn);
+}
+
+isl::basic_set basic_set::from_constraint(isl::constraint constraint)
+{
+  if (constraint.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = constraint.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_from_constraint(constraint.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::from_constraint_matrices(isl::space space, isl::mat eq, isl::mat ineq, enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4)
+{
+  if (space.is_null() || eq.is_null() || ineq.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_from_constraint_matrices(space.release(), eq.release(), ineq.release(), c1, c2, c3, c4);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::from_multi_aff(isl::multi_aff ma)
+{
+  if (ma.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ma.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_from_multi_aff(ma.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::basic_set basic_set::gist(isl::basic_set context) const
@@ -10177,11 +12781,53 @@ isl::basic_set basic_set::gist(const isl::point &context) const
   return this->gist(isl::basic_set(context));
 }
 
+isl::set basic_set::gist_basic_set(const isl::basic_set &context) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).gist_basic_set(context);
+}
+
 isl::set basic_set::gist_params(const isl::set &context) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).gist_params(context);
+}
+
+bool basic_set::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).has_dim_id(type, pos);
+}
+
+bool basic_set::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).has_dim_name(type, pos);
+}
+
+bool basic_set::has_equal_space(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).has_equal_space(set2);
+}
+
+bool basic_set::has_tuple_id() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).has_tuple_id();
+}
+
+bool basic_set::has_tuple_name() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).has_tuple_name();
 }
 
 isl::map basic_set::identity() const
@@ -10196,6 +12842,30 @@ isl::pw_aff basic_set::indicator_function() const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).indicator_function();
+}
+
+isl::mat basic_set::inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_inequalities_matrix(get(), c1, c2, c3, c4);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_insert_dims(copy(), type, pos, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map basic_set::insert_domain(const isl::space &domain) const
@@ -10264,11 +12934,37 @@ isl::basic_set basic_set::intersect_params(const isl::point &bset2) const
   return this->intersect_params(isl::basic_set(bset2));
 }
 
+bool basic_set::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_involves_dims(get(), type, first, n);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 bool basic_set::involves_locals() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).involves_locals();
+}
+
+bool basic_set::is_bounded() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).is_bounded();
+}
+
+bool basic_set::is_box() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).is_box();
 }
 
 bool basic_set::is_disjoint(const isl::set &set2) const
@@ -10328,6 +13024,23 @@ bool basic_set::is_equal(const isl::point &bset2) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return this->is_equal(isl::basic_set(bset2));
+}
+
+bool basic_set::is_params() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).is_params();
+}
+
+int basic_set::is_rational() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_is_rational(get());
+  return res;
 }
 
 bool basic_set::is_singleton() const
@@ -10410,6 +13123,34 @@ isl::fixed_box basic_set::lattice_tile() const
   return isl::set(*this).lattice_tile();
 }
 
+isl::map basic_set::lex_ge_set(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).lex_ge_set(set2);
+}
+
+isl::map basic_set::lex_gt_set(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).lex_gt_set(set2);
+}
+
+isl::map basic_set::lex_le_set(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).lex_le_set(set2);
+}
+
+isl::map basic_set::lex_lt_set(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).lex_lt_set(set2);
+}
+
 isl::set basic_set::lexmax() const
 {
   if (!ptr)
@@ -10448,6 +13189,35 @@ isl::pw_multi_aff basic_set::lexmin_pw_multi_aff() const
   return isl::set(*this).lexmin_pw_multi_aff();
 }
 
+isl::basic_set basic_set::lift() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_lift(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space basic_set::local_space() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_get_local_space(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space basic_set::get_local_space() const
+{
+  return local_space();
+}
+
 isl::set basic_set::lower_bound(const isl::multi_pw_aff &lower) const
 {
   if (!ptr)
@@ -10460,6 +13230,39 @@ isl::set basic_set::lower_bound(const isl::multi_val &lower) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).lower_bound(lower);
+}
+
+isl::set basic_set::lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).lower_bound_si(type, pos, value);
+}
+
+isl::basic_set basic_set::lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const
+{
+  if (!ptr || value.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_lower_bound_val(copy(), type, pos, value.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->lower_bound_val(type, pos, isl::val(ctx(), value));
+}
+
+isl::set basic_set::make_disjoint() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).make_disjoint();
 }
 
 isl::multi_pw_aff basic_set::max_multi_pw_aff() const
@@ -10490,11 +13293,83 @@ isl::val basic_set::min_val(const isl::aff &obj) const
   return isl::set(*this).min_val(obj);
 }
 
+isl::basic_set basic_set::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 unsigned basic_set::n_basic_set() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).n_basic_set();
+}
+
+unsigned basic_set::n_constraint() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_n_constraint(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+unsigned basic_set::n_dim() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_n_dim(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+unsigned basic_set::n_param() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_n_param(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::basic_set basic_set::nat_universe(isl::space space)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_nat_universe(space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::neg() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_neg(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::pw_aff basic_set::param_pw_aff_on_domain(const isl::id &id) const
@@ -10523,6 +13398,34 @@ isl::basic_set basic_set::params() const
   return manage(res);
 }
 
+isl::val basic_set::plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).plain_get_val_if_fixed(type, pos);
+}
+
+bool basic_set::plain_is_disjoint(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).plain_is_disjoint(set2);
+}
+
+bool basic_set::plain_is_empty() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).plain_is_empty();
+}
+
+bool basic_set::plain_is_universe() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).plain_is_universe();
+}
+
 isl::multi_val basic_set::plain_multi_val_if_fixed() const
 {
   if (!ptr)
@@ -10535,6 +13438,18 @@ isl::basic_set basic_set::polyhedral_hull() const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).polyhedral_hull();
+}
+
+isl::basic_set basic_set::positive_orthant(isl::space space)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_positive_orthant(space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::set basic_set::preimage(const isl::multi_aff &ma) const
@@ -10565,11 +13480,42 @@ isl::union_set basic_set::preimage(const isl::union_pw_multi_aff &upma) const
   return isl::set(*this).preimage(upma);
 }
 
+isl::basic_set basic_set::preimage_multi_aff(isl::multi_aff ma) const
+{
+  if (!ptr || ma.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_preimage_multi_aff(copy(), ma.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set basic_set::product(const isl::set &set2) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).product(set2);
+}
+
+isl::map basic_set::project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).project_onto_map(type, first, n);
+}
+
+isl::basic_set basic_set::project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_project_out(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::set basic_set::project_out_all_params() const
@@ -10621,6 +13567,99 @@ isl::pw_multi_aff basic_set::pw_multi_aff_on_domain(const isl::multi_val &mv) co
   return isl::set(*this).pw_multi_aff_on_domain(mv);
 }
 
+isl::mat basic_set::reduced_basis() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_reduced_basis(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_remove_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::remove_divs() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_remove_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_remove_divs_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::remove_redundancies() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_remove_redundancies(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::remove_unknown_divs() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_remove_unknown_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set basic_set::reset_space(const isl::space &space) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).reset_space(space);
+}
+
+isl::set basic_set::reset_tuple_id() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).reset_tuple_id();
+}
+
+isl::set basic_set::reset_user() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).reset_user();
+}
+
 isl::basic_set basic_set::sample() const
 {
   if (!ptr)
@@ -10645,11 +13684,68 @@ isl::point basic_set::sample_point() const
   return manage(res);
 }
 
+isl::set basic_set::set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::id &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).set_dim_id(type, pos, id);
+}
+
+isl::set basic_set::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_dim_id(type, pos, isl::id(ctx(), id));
+}
+
+isl::basic_set basic_set::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_set_dim_name(copy(), type, pos, s.c_str());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set_list basic_set::set_list() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).set_list();
+}
+
+isl::basic_set basic_set::set_tuple_id(isl::id id) const
+{
+  if (!ptr || id.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_set_tuple_id(copy(), id.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::set_tuple_id(const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_tuple_id(isl::id(ctx(), id));
+}
+
+isl::basic_set basic_set::set_tuple_name(const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_set_tuple_name(copy(), s.c_str());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::fixed_box basic_set::simple_fixed_box_hull() const
@@ -10659,11 +13755,47 @@ isl::fixed_box basic_set::simple_fixed_box_hull() const
   return isl::set(*this).simple_fixed_box_hull();
 }
 
+int basic_set::size() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).size();
+}
+
+isl::basic_set basic_set::solutions() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_solutions(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::space basic_set::space() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::set(*this).space();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_get_space(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space basic_set::get_space() const
+{
+  return space();
+}
+
+isl::set basic_set::split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).split_dims(type, first, n);
 }
 
 isl::val basic_set::stride(int pos) const
@@ -10687,11 +13819,23 @@ isl::union_set basic_set::subtract(const isl::union_set &uset2) const
   return isl::set(*this).subtract(uset2);
 }
 
-isl::set_list basic_set::to_list() const
+isl::set basic_set::sum(const isl::set &set2) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::set(*this).to_list();
+  return isl::set(*this).sum(set2);
+}
+
+isl::basic_set_list basic_set::to_list() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_to_list(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::set basic_set::to_set() const
@@ -10713,6 +13857,18 @@ isl::union_set basic_set::to_union_set() const
   return isl::set(*this).to_union_set();
 }
 
+unsigned basic_set::total_dim(const isl::basic_set &bset)
+{
+  if (bset.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = bset.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_total_dim(bset.get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 isl::map basic_set::translation() const
 {
   if (!ptr)
@@ -10725,6 +13881,29 @@ unsigned basic_set::tuple_dim() const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::set(*this).tuple_dim();
+}
+
+isl::id basic_set::tuple_id() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).tuple_id();
+}
+
+std::string basic_set::tuple_name() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_get_tuple_name(get());
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string basic_set::get_tuple_name() const
+{
+  return tuple_name();
 }
 
 isl::set basic_set::unbind_params(const isl::multi_id &tuple) const
@@ -10774,6 +13953,18 @@ isl::set basic_set::unite(const isl::point &bset2) const
   return this->unite(isl::basic_set(bset2));
 }
 
+isl::basic_set basic_set::universe(isl::space space)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_universe(space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::basic_set basic_set::unshifted_simple_hull() const
 {
   if (!ptr)
@@ -10781,11 +13972,16 @@ isl::basic_set basic_set::unshifted_simple_hull() const
   return isl::set(*this).unshifted_simple_hull();
 }
 
-isl::map basic_set::unwrap() const
+isl::basic_map basic_set::unwrap() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::set(*this).unwrap();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_unwrap(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::set basic_set::upper_bound(const isl::multi_pw_aff &upper) const
@@ -10802,6 +13998,39 @@ isl::set basic_set::upper_bound(const isl::multi_val &upper) const
   return isl::set(*this).upper_bound(upper);
 }
 
+isl::set basic_set::upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).upper_bound_si(type, pos, value);
+}
+
+isl::basic_set basic_set::upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const
+{
+  if (!ptr || value.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_upper_bound_val(copy(), type, pos, value.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set::upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->upper_bound_val(type, pos, isl::val(ctx(), value));
+}
+
+isl::map basic_set::wrapped_domain_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::set(*this).wrapped_domain_map();
+}
+
 isl::set basic_set::wrapped_reverse() const
 {
   if (!ptr)
@@ -10816,6 +14045,978 @@ inline std::ostream &operator<<(std::ostream &os, const basic_set &obj)
   auto saved_ctx = isl_basic_set_get_ctx(obj.get());
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   char *str = isl_basic_set_to_str(obj.get());
+  if (!str)
+    exception::throw_last_error(saved_ctx);
+  os << str;
+  free(str);
+  return os;
+}
+
+// implementations for isl::basic_set_list
+basic_set_list manage(__isl_take isl_basic_set_list *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return basic_set_list(ptr);
+}
+basic_set_list manage_copy(__isl_keep isl_basic_set_list *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_basic_set_list_get_ctx(ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = isl_basic_set_list_copy(ptr);
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+  return basic_set_list(ptr);
+}
+
+basic_set_list::basic_set_list(__isl_take isl_basic_set_list *ptr)
+    : ptr(ptr) {}
+
+basic_set_list::basic_set_list()
+    : ptr(nullptr) {}
+
+basic_set_list::basic_set_list(const basic_set_list &obj)
+    : ptr(nullptr)
+{
+  if (!obj.ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_basic_set_list_get_ctx(obj.ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = obj.copy();
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+}
+
+basic_set_list::basic_set_list(isl::ctx ctx, int n)
+{
+  auto saved_ctx = ctx;
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_alloc(ctx.release(), n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  ptr = res;
+}
+
+basic_set_list::basic_set_list(isl::basic_set el)
+{
+  if (el.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = el.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_from_basic_set(el.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  ptr = res;
+}
+
+basic_set_list &basic_set_list::operator=(basic_set_list obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+basic_set_list::~basic_set_list() {
+  if (ptr)
+    isl_basic_set_list_free(ptr);
+}
+
+__isl_give isl_basic_set_list *basic_set_list::copy() const & {
+  return isl_basic_set_list_copy(ptr);
+}
+
+__isl_keep isl_basic_set_list *basic_set_list::get() const {
+  return ptr;
+}
+
+__isl_give isl_basic_set_list *basic_set_list::release() {
+  isl_basic_set_list *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool basic_set_list::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::ctx basic_set_list::ctx() const {
+  return isl::ctx(isl_basic_set_list_get_ctx(ptr));
+}
+
+isl::basic_set_list basic_set_list::add(isl::basic_set el) const
+{
+  if (!ptr || el.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_add(copy(), el.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set_list::at(int index) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_get_at(get(), index);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set basic_set_list::get_at(int index) const
+{
+  return at(index);
+}
+
+isl::basic_set_list basic_set_list::clear() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_clear(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set_list basic_set_list::coefficients() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_coefficients(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set_list basic_set_list::concat(isl::basic_set_list list2) const
+{
+  if (!ptr || list2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_concat(copy(), list2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set_list basic_set_list::drop(unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_drop(copy(), first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+void basic_set_list::foreach(const std::function<void(isl::basic_set)> &fn) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  struct fn_data {
+    std::function<void(isl::basic_set)> func;
+    std::exception_ptr eptr;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_basic_set *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    ISL_CPP_TRY {
+      (data->func)(manage(arg_0));
+      return isl_stat_ok;
+    } ISL_CPP_CATCH_ALL {
+      data->eptr = std::current_exception();
+      return isl_stat_error;
+    }
+  };
+  auto res = isl_basic_set_list_foreach(get(), fn_lambda, &fn_data);
+  if (fn_data.eptr)
+    std::rethrow_exception(fn_data.eptr);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return;
+}
+
+void basic_set_list::foreach_scc(const std::function<bool(isl::basic_set, isl::basic_set)> &follows, const std::function<void(isl::basic_set_list)> &fn) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  struct follows_data {
+    std::function<bool(isl::basic_set, isl::basic_set)> func;
+    std::exception_ptr eptr;
+  } follows_data = { follows };
+  auto follows_lambda = [](isl_basic_set *arg_0, isl_basic_set *arg_1, void *arg_2) -> isl_bool {
+    auto *data = static_cast<struct follows_data *>(arg_2);
+    ISL_CPP_TRY {
+      auto ret = (data->func)(manage_copy(arg_0), manage_copy(arg_1));
+      return ret ? isl_bool_true : isl_bool_false;
+    } ISL_CPP_CATCH_ALL {
+      data->eptr = std::current_exception();
+      return isl_bool_error;
+    }
+  };
+  struct fn_data {
+    std::function<void(isl::basic_set_list)> func;
+    std::exception_ptr eptr;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_basic_set_list *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    ISL_CPP_TRY {
+      (data->func)(manage(arg_0));
+      return isl_stat_ok;
+    } ISL_CPP_CATCH_ALL {
+      data->eptr = std::current_exception();
+      return isl_stat_error;
+    }
+  };
+  auto res = isl_basic_set_list_foreach_scc(get(), follows_lambda, &follows_data, fn_lambda, &fn_data);
+  if (follows_data.eptr)
+    std::rethrow_exception(follows_data.eptr);
+  if (fn_data.eptr)
+    std::rethrow_exception(fn_data.eptr);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return;
+}
+
+isl::basic_set_list basic_set_list::insert(unsigned int pos, isl::basic_set el) const
+{
+  if (!ptr || el.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_insert(copy(), pos, el.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set_list basic_set_list::set_at(int index, isl::basic_set el) const
+{
+  if (!ptr || el.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_set_at(copy(), index, el.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+unsigned basic_set_list::size() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_basic_set_list_size(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+inline std::ostream &operator<<(std::ostream &os, const basic_set_list &obj)
+{
+  if (!obj.get())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_basic_set_list_get_ctx(obj.get());
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  char *str = isl_basic_set_list_to_str(obj.get());
+  if (!str)
+    exception::throw_last_error(saved_ctx);
+  os << str;
+  free(str);
+  return os;
+}
+
+// implementations for isl::constraint
+constraint manage(__isl_take isl_constraint *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return constraint(ptr);
+}
+constraint manage_copy(__isl_keep isl_constraint *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_constraint_get_ctx(ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = isl_constraint_copy(ptr);
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+  return constraint(ptr);
+}
+
+constraint::constraint(__isl_take isl_constraint *ptr)
+    : ptr(ptr) {}
+
+constraint::constraint()
+    : ptr(nullptr) {}
+
+constraint::constraint(const constraint &obj)
+    : ptr(nullptr)
+{
+  if (!obj.ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_constraint_get_ctx(obj.ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = obj.copy();
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+}
+
+constraint &constraint::operator=(constraint obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+constraint::~constraint() {
+  if (ptr)
+    isl_constraint_free(ptr);
+}
+
+__isl_give isl_constraint *constraint::copy() const & {
+  return isl_constraint_copy(ptr);
+}
+
+__isl_keep isl_constraint *constraint::get() const {
+  return ptr;
+}
+
+__isl_give isl_constraint *constraint::release() {
+  isl_constraint *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool constraint::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::ctx constraint::ctx() const {
+  return isl::ctx(isl_constraint_get_ctx(ptr));
+}
+
+isl::aff constraint::aff() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_get_aff(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::aff constraint::get_aff() const
+{
+  return aff();
+}
+
+isl::constraint constraint::alloc_equality(isl::local_space ls)
+{
+  if (ls.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ls.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_alloc_equality(ls.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint constraint::alloc_inequality(isl::local_space ls)
+{
+  if (ls.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ls.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_alloc_inequality(ls.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::aff constraint::bound(enum isl_dim_type type, int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_get_bound(get(), type, pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::aff constraint::get_bound(enum isl_dim_type type, int pos) const
+{
+  return bound(type, pos);
+}
+
+int constraint::cmp_last_non_zero(const isl::constraint &c2) const
+{
+  if (!ptr || c2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_cmp_last_non_zero(get(), c2.get());
+  return res;
+}
+
+isl::val constraint::coefficient_val(enum isl_dim_type type, int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_get_coefficient_val(get(), type, pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::val constraint::get_coefficient_val(enum isl_dim_type type, int pos) const
+{
+  return coefficient_val(type, pos);
+}
+
+isl::val constraint::constant_val() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_get_constant_val(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::val constraint::get_constant_val() const
+{
+  return constant_val();
+}
+
+unsigned constraint::dim(enum isl_dim_type type) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_dim(get(), type);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+std::string constraint::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string constraint::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
+}
+
+isl::aff constraint::div(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_get_div(get(), pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::aff constraint::get_div(int pos) const
+{
+  return div(pos);
+}
+
+bool constraint::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_involves_dims(get(), type, first, n);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool constraint::is_div_constraint() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_is_div_constraint(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool constraint::is_equality() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_is_equality(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool constraint::is_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_is_lower_bound(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool constraint::is_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_is_upper_bound(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::local_space constraint::local_space() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_get_local_space(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space constraint::get_local_space() const
+{
+  return local_space();
+}
+
+isl::constraint constraint::negate() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_negate(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint constraint::set_coefficient_si(enum isl_dim_type type, int pos, int v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_set_coefficient_si(copy(), type, pos, v);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint constraint::set_coefficient_val(enum isl_dim_type type, int pos, isl::val v) const
+{
+  if (!ptr || v.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_set_coefficient_val(copy(), type, pos, v.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint constraint::set_coefficient_val(enum isl_dim_type type, int pos, long v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_coefficient_val(type, pos, isl::val(ctx(), v));
+}
+
+isl::constraint constraint::set_constant_si(int v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_set_constant_si(copy(), v);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint constraint::set_constant_val(isl::val v) const
+{
+  if (!ptr || v.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_set_constant_val(copy(), v.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint constraint::set_constant_val(long v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_constant_val(isl::val(ctx(), v));
+}
+
+isl::space constraint::space() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_get_space(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space constraint::get_space() const
+{
+  return space();
+}
+
+isl::constraint_list constraint::to_list() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_to_list(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+inline std::ostream &operator<<(std::ostream &os, const constraint &obj)
+{
+  if (!obj.get())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_constraint_get_ctx(obj.get());
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  char *str = isl_constraint_to_str(obj.get());
+  if (!str)
+    exception::throw_last_error(saved_ctx);
+  os << str;
+  free(str);
+  return os;
+}
+
+// implementations for isl::constraint_list
+constraint_list manage(__isl_take isl_constraint_list *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return constraint_list(ptr);
+}
+constraint_list manage_copy(__isl_keep isl_constraint_list *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_constraint_list_get_ctx(ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = isl_constraint_list_copy(ptr);
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+  return constraint_list(ptr);
+}
+
+constraint_list::constraint_list(__isl_take isl_constraint_list *ptr)
+    : ptr(ptr) {}
+
+constraint_list::constraint_list()
+    : ptr(nullptr) {}
+
+constraint_list::constraint_list(const constraint_list &obj)
+    : ptr(nullptr)
+{
+  if (!obj.ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_constraint_list_get_ctx(obj.ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = obj.copy();
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+}
+
+constraint_list::constraint_list(isl::ctx ctx, int n)
+{
+  auto saved_ctx = ctx;
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_list_alloc(ctx.release(), n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  ptr = res;
+}
+
+constraint_list::constraint_list(isl::constraint el)
+{
+  if (el.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = el.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_list_from_constraint(el.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  ptr = res;
+}
+
+constraint_list &constraint_list::operator=(constraint_list obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+constraint_list::~constraint_list() {
+  if (ptr)
+    isl_constraint_list_free(ptr);
+}
+
+__isl_give isl_constraint_list *constraint_list::copy() const & {
+  return isl_constraint_list_copy(ptr);
+}
+
+__isl_keep isl_constraint_list *constraint_list::get() const {
+  return ptr;
+}
+
+__isl_give isl_constraint_list *constraint_list::release() {
+  isl_constraint_list *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool constraint_list::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::ctx constraint_list::ctx() const {
+  return isl::ctx(isl_constraint_list_get_ctx(ptr));
+}
+
+isl::constraint_list constraint_list::add(isl::constraint el) const
+{
+  if (!ptr || el.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_list_add(copy(), el.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint constraint_list::at(int index) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_list_get_at(get(), index);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint constraint_list::get_at(int index) const
+{
+  return at(index);
+}
+
+isl::constraint_list constraint_list::clear() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_list_clear(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint_list constraint_list::concat(isl::constraint_list list2) const
+{
+  if (!ptr || list2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_list_concat(copy(), list2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint_list constraint_list::drop(unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_list_drop(copy(), first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+void constraint_list::foreach(const std::function<void(isl::constraint)> &fn) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  struct fn_data {
+    std::function<void(isl::constraint)> func;
+    std::exception_ptr eptr;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_constraint *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    ISL_CPP_TRY {
+      (data->func)(manage(arg_0));
+      return isl_stat_ok;
+    } ISL_CPP_CATCH_ALL {
+      data->eptr = std::current_exception();
+      return isl_stat_error;
+    }
+  };
+  auto res = isl_constraint_list_foreach(get(), fn_lambda, &fn_data);
+  if (fn_data.eptr)
+    std::rethrow_exception(fn_data.eptr);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return;
+}
+
+void constraint_list::foreach_scc(const std::function<bool(isl::constraint, isl::constraint)> &follows, const std::function<void(isl::constraint_list)> &fn) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  struct follows_data {
+    std::function<bool(isl::constraint, isl::constraint)> func;
+    std::exception_ptr eptr;
+  } follows_data = { follows };
+  auto follows_lambda = [](isl_constraint *arg_0, isl_constraint *arg_1, void *arg_2) -> isl_bool {
+    auto *data = static_cast<struct follows_data *>(arg_2);
+    ISL_CPP_TRY {
+      auto ret = (data->func)(manage_copy(arg_0), manage_copy(arg_1));
+      return ret ? isl_bool_true : isl_bool_false;
+    } ISL_CPP_CATCH_ALL {
+      data->eptr = std::current_exception();
+      return isl_bool_error;
+    }
+  };
+  struct fn_data {
+    std::function<void(isl::constraint_list)> func;
+    std::exception_ptr eptr;
+  } fn_data = { fn };
+  auto fn_lambda = [](isl_constraint_list *arg_0, void *arg_1) -> isl_stat {
+    auto *data = static_cast<struct fn_data *>(arg_1);
+    ISL_CPP_TRY {
+      (data->func)(manage(arg_0));
+      return isl_stat_ok;
+    } ISL_CPP_CATCH_ALL {
+      data->eptr = std::current_exception();
+      return isl_stat_error;
+    }
+  };
+  auto res = isl_constraint_list_foreach_scc(get(), follows_lambda, &follows_data, fn_lambda, &fn_data);
+  if (follows_data.eptr)
+    std::rethrow_exception(follows_data.eptr);
+  if (fn_data.eptr)
+    std::rethrow_exception(fn_data.eptr);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return;
+}
+
+isl::constraint_list constraint_list::insert(unsigned int pos, isl::constraint el) const
+{
+  if (!ptr || el.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_list_insert(copy(), pos, el.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::constraint_list constraint_list::set_at(int index, isl::constraint el) const
+{
+  if (!ptr || el.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_list_set_at(copy(), index, el.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+unsigned constraint_list::size() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_constraint_list_size(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+inline std::ostream &operator<<(std::ostream &os, const constraint_list &obj)
+{
+  if (!obj.get())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_constraint_list_get_ctx(obj.get());
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  char *str = isl_constraint_list_to_str(obj.get());
   if (!str)
     exception::throw_last_error(saved_ctx);
   os << str;
@@ -11729,6 +15930,430 @@ inline std::ostream &operator<<(std::ostream &os, const id_to_id &obj)
   return os;
 }
 
+// implementations for isl::local_space
+local_space manage(__isl_take isl_local_space *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return local_space(ptr);
+}
+local_space manage_copy(__isl_keep isl_local_space *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_local_space_get_ctx(ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = isl_local_space_copy(ptr);
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+  return local_space(ptr);
+}
+
+local_space::local_space(__isl_take isl_local_space *ptr)
+    : ptr(ptr) {}
+
+local_space::local_space()
+    : ptr(nullptr) {}
+
+local_space::local_space(const local_space &obj)
+    : ptr(nullptr)
+{
+  if (!obj.ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_local_space_get_ctx(obj.ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = obj.copy();
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+}
+
+local_space &local_space::operator=(local_space obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+local_space::~local_space() {
+  if (ptr)
+    isl_local_space_free(ptr);
+}
+
+__isl_give isl_local_space *local_space::copy() const & {
+  return isl_local_space_copy(ptr);
+}
+
+__isl_keep isl_local_space *local_space::get() const {
+  return ptr;
+}
+
+__isl_give isl_local_space *local_space::release() {
+  isl_local_space *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool local_space::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::ctx local_space::ctx() const {
+  return isl::ctx(isl_local_space_get_ctx(ptr));
+}
+
+isl::local_space local_space::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_add_dims(copy(), type, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+unsigned local_space::dim(enum isl_dim_type type) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_dim(get(), type);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::id local_space::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_get_dim_id(get(), type, pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::id local_space::get_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_id(type, pos);
+}
+
+std::string local_space::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string local_space::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
+}
+
+isl::aff local_space::div(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_get_div(get(), pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::aff local_space::get_div(int pos) const
+{
+  return div(pos);
+}
+
+isl::local_space local_space::domain() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_domain(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::drop_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_drop_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+int local_space::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_find_dim_by_name(get(), type, name.c_str());
+  return res;
+}
+
+isl::local_space local_space::flatten_domain() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_flatten_domain(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::flatten_range() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_flatten_range(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::from_domain() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_from_domain(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::from_space(isl::space space)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_from_space(space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+bool local_space::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_has_dim_id(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool local_space::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_has_dim_name(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::local_space local_space::insert_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_insert_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::intersect(isl::local_space ls2) const
+{
+  if (!ptr || ls2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_intersect(copy(), ls2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+bool local_space::is_params() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_is_params(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool local_space::is_set() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_is_set(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::basic_map local_space::lifting() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_lifting(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::range() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_range(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::set_dim_id(enum isl_dim_type type, unsigned int pos, isl::id id) const
+{
+  if (!ptr || id.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_set_dim_id(copy(), type, pos, id.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_dim_id(type, pos, isl::id(ctx(), id));
+}
+
+isl::local_space local_space::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_set_dim_name(copy(), type, pos, s.c_str());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::set_from_params() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_set_from_params(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::set_tuple_id(enum isl_dim_type type, isl::id id) const
+{
+  if (!ptr || id.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_set_tuple_id(copy(), type, id.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::local_space local_space::set_tuple_id(enum isl_dim_type type, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_tuple_id(type, isl::id(ctx(), id));
+}
+
+isl::space local_space::space() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_get_space(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space local_space::get_space() const
+{
+  return space();
+}
+
+isl::local_space local_space::wrap() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_local_space_wrap(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+inline std::ostream &operator<<(std::ostream &os, const local_space &obj)
+{
+  if (!obj.get())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_local_space_get_ctx(obj.get());
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  char *str = isl_local_space_to_str(obj.get());
+  if (!str)
+    exception::throw_last_error(saved_ctx);
+  os << str;
+  free(str);
+  return os;
+}
+
 // implementations for isl::map
 map manage(__isl_take isl_map *ptr) {
   if (!ptr)
@@ -11818,6 +16443,30 @@ isl::ctx map::ctx() const {
   return isl::ctx(isl_map_get_ctx(ptr));
 }
 
+isl::map map::add_constraint(isl::constraint constraint) const
+{
+  if (!ptr || constraint.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_add_constraint(copy(), constraint.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_add_dims(copy(), type, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::basic_map map::affine_hull() const
 {
   if (!ptr)
@@ -11825,6 +16474,18 @@ isl::basic_map map::affine_hull() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_map_affine_hull(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::align_params(isl::space model) const
+{
+  if (!ptr || model.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_align_params(copy(), model.release());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -11939,6 +16600,54 @@ isl::set map::bind_range(isl::multi_id tuple) const
   return manage(res);
 }
 
+bool map::can_curry() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_can_curry(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool map::can_range_curry() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_can_range_curry(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool map::can_uncurry() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_can_uncurry(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool map::can_zip() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_can_zip(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 isl::map map::coalesce() const
 {
   if (!ptr)
@@ -11963,11 +16672,28 @@ isl::map map::complement() const
   return manage(res);
 }
 
-isl::union_map map::compute_divs() const
+isl::map map::compute_divs() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::union_map(*this).compute_divs();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_compute_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map map::convex_hull() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_convex_hull(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map map::curry() const
@@ -11994,6 +16720,18 @@ isl::set map::deltas() const
   return manage(res);
 }
 
+isl::map map::deltas_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_deltas_map(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map map::detect_equalities() const
 {
   if (!ptr)
@@ -12004,6 +16742,75 @@ isl::map map::detect_equalities() const
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
+}
+
+unsigned map::dim(enum isl_dim_type type) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_dim(get(), type);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::id map::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_get_dim_id(get(), type, pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::id map::get_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_id(type, pos);
+}
+
+isl::pw_aff map::dim_max(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_dim_max(copy(), pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::pw_aff map::dim_min(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_dim_min(copy(), pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+std::string map::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string map::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
 }
 
 isl::set map::domain() const
@@ -12042,11 +16849,28 @@ isl::map map::domain_factor_range() const
   return manage(res);
 }
 
-isl::union_map map::domain_map() const
+bool map::domain_is_wrapping() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::union_map(*this).domain_map();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_domain_is_wrapping(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::map map::domain_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_domain_map(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::union_pw_multi_aff map::domain_map_union_pw_multi_aff() const
@@ -12123,6 +16947,30 @@ isl::id map::get_domain_tuple_id() const
   return domain_tuple_id();
 }
 
+isl::map map::drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_drop_constraints_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_drop_constraints_not_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map map::drop_unused_params() const
 {
   if (!ptr)
@@ -12130,6 +16978,18 @@ isl::map map::drop_unused_params() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_map_drop_unused_params(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_eliminate(copy(), type, first, n);
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -12194,6 +17054,18 @@ isl::map map::eq_at(const isl::pw_multi_aff &mpa) const
   return this->eq_at(isl::multi_pw_aff(mpa));
 }
 
+isl::map map::equate(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_equate(copy(), type1, pos1, type2, pos2);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 bool map::every_map(const std::function<bool(isl::map)> &test) const
 {
   if (!ptr)
@@ -12232,6 +17104,76 @@ isl::map map::factor_range() const
   return manage(res);
 }
 
+int map::find_dim_by_id(enum isl_dim_type type, const isl::id &id) const
+{
+  if (!ptr || id.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_find_dim_by_id(get(), type, id.get());
+  return res;
+}
+
+int map::find_dim_by_id(enum isl_dim_type type, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->find_dim_by_id(type, isl::id(ctx(), id));
+}
+
+int map::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_find_dim_by_name(get(), type, name.c_str());
+  return res;
+}
+
+isl::map map::fix_input_si(unsigned int input, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_fix_input_si(copy(), input, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::fix_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_fix_si(copy(), type, pos, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::fix_val(enum isl_dim_type type, unsigned int pos, isl::val v) const
+{
+  if (!ptr || v.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_fix_val(copy(), type, pos, v.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::fix_val(enum isl_dim_type type, unsigned int pos, long v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->fix_val(type, pos, isl::val(ctx(), v));
+}
+
 isl::map map::fixed_power(isl::val exp) const
 {
   if (!ptr || exp.is_null())
@@ -12249,6 +17191,42 @@ isl::map map::fixed_power(long exp) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return this->fixed_power(isl::val(ctx(), exp));
+}
+
+isl::map map::flat_domain_product(isl::map map2) const
+{
+  if (!ptr || map2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_flat_domain_product(copy(), map2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::flat_product(isl::map map2) const
+{
+  if (!ptr || map2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_flat_product(copy(), map2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::flat_range_product(isl::map map2) const
+{
+  if (!ptr || map2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_flat_range_product(copy(), map2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map map::flatten() const
@@ -12287,6 +17265,25 @@ isl::map map::flatten_range() const
   return manage(res);
 }
 
+isl::map map::floordiv_val(isl::val d) const
+{
+  if (!ptr || d.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_floordiv_val(copy(), d.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::floordiv_val(long d) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->floordiv_val(isl::val(ctx(), d));
+}
+
 void map::foreach_basic_map(const std::function<void(isl::basic_map)> &fn) const
 {
   if (!ptr)
@@ -12322,6 +17319,66 @@ void map::foreach_map(const std::function<void(isl::map)> &fn) const
   return isl::union_map(*this).foreach_map(fn);
 }
 
+isl::map map::from_aff(isl::aff aff)
+{
+  if (aff.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = aff.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_from_aff(aff.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::from_domain(isl::set set)
+{
+  if (set.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = set.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_from_domain(set.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::from_domain_and_range(isl::set domain, isl::set range)
+{
+  if (domain.is_null() || range.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = domain.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_from_domain_and_range(domain.release(), range.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::from_multi_aff(isl::multi_aff maff)
+{
+  if (maff.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = maff.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_from_multi_aff(maff.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::from_range(isl::set set)
+{
+  if (set.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = set.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_from_range(set.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map map::gist(isl::map context) const
 {
   if (!ptr || context.is_null())
@@ -12346,6 +17403,18 @@ isl::map map::gist(const isl::basic_map &context) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return this->gist(isl::map(context));
+}
+
+isl::map map::gist_basic_map(isl::basic_map context) const
+{
+  if (!ptr || context.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_gist_basic_map(copy(), context.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map map::gist_domain(isl::set context) const
@@ -12400,6 +17469,30 @@ isl::union_map map::gist_range(const isl::union_set &uset) const
   return isl::union_map(*this).gist_range(uset);
 }
 
+bool map::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_has_dim_id(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool map::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_has_dim_name(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 bool map::has_domain_tuple_id() const
 {
   if (!ptr)
@@ -12407,6 +17500,18 @@ bool map::has_domain_tuple_id() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_map_has_domain_tuple_id(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool map::has_equal_space(const isl::map &map2) const
+{
+  if (!ptr || map2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_has_equal_space(get(), map2.get());
   if (res < 0)
     exception::throw_last_error(saved_ctx);
   return res;
@@ -12422,6 +17527,42 @@ bool map::has_range_tuple_id() const
   if (res < 0)
     exception::throw_last_error(saved_ctx);
   return res;
+}
+
+bool map::has_tuple_name(enum isl_dim_type type) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_has_tuple_name(get(), type);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::map map::identity(isl::space space)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_identity(space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_insert_dims(copy(), type, pos, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map map::intersect(isl::map map2) const
@@ -12712,6 +17853,18 @@ isl::map map::intersect_range_wrapped_domain(const isl::point &domain) const
   return this->intersect_range_wrapped_domain(isl::set(domain));
 }
 
+bool map::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_involves_dims(get(), type, first, n);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 bool map::is_bijective() const
 {
   if (!ptr)
@@ -12788,6 +17941,18 @@ bool map::is_equal(const isl::basic_map &map2) const
   return this->is_equal(isl::map(map2));
 }
 
+bool map::is_identity() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_is_identity(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 bool map::is_injective() const
 {
   if (!ptr)
@@ -12795,6 +17960,18 @@ bool map::is_injective() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_map_is_injective(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool map::is_product() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_is_product(get());
   if (res < 0)
     exception::throw_last_error(saved_ctx);
   return res;
@@ -12864,11 +18041,33 @@ bool map::is_subset(const isl::basic_map &map2) const
   return this->is_subset(isl::map(map2));
 }
 
+int map::is_translation() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_is_translation(get());
+  return res;
+}
+
 bool map::isa_map() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::union_map(*this).isa_map();
+}
+
+isl::map map::lex_ge(isl::space set_space)
+{
+  if (set_space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = set_space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_ge(set_space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map map::lex_ge_at(isl::multi_pw_aff mpa) const
@@ -12878,6 +18077,42 @@ isl::map map::lex_ge_at(isl::multi_pw_aff mpa) const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_map_lex_ge_at_multi_pw_aff(copy(), mpa.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lex_ge_first(isl::space space, unsigned int n)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_ge_first(space.release(), n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lex_ge_map(isl::map map2) const
+{
+  if (!ptr || map2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_ge_map(copy(), map2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lex_gt(isl::space set_space)
+{
+  if (set_space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = set_space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_gt(set_space.release());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -12895,6 +18130,42 @@ isl::map map::lex_gt_at(isl::multi_pw_aff mpa) const
   return manage(res);
 }
 
+isl::map map::lex_gt_first(isl::space space, unsigned int n)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_gt_first(space.release(), n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lex_gt_map(isl::map map2) const
+{
+  if (!ptr || map2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_gt_map(copy(), map2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lex_le(isl::space set_space)
+{
+  if (set_space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = set_space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_le(set_space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map map::lex_le_at(isl::multi_pw_aff mpa) const
 {
   if (!ptr || mpa.is_null())
@@ -12907,6 +18178,42 @@ isl::map map::lex_le_at(isl::multi_pw_aff mpa) const
   return manage(res);
 }
 
+isl::map map::lex_le_first(isl::space space, unsigned int n)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_le_first(space.release(), n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lex_le_map(isl::map map2) const
+{
+  if (!ptr || map2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_le_map(copy(), map2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lex_lt(isl::space set_space)
+{
+  if (set_space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = set_space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_lt(set_space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map map::lex_lt_at(isl::multi_pw_aff mpa) const
 {
   if (!ptr || mpa.is_null())
@@ -12914,6 +18221,30 @@ isl::map map::lex_lt_at(isl::multi_pw_aff mpa) const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_map_lex_lt_at_multi_pw_aff(copy(), mpa.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lex_lt_first(isl::space space, unsigned int n)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_lt_first(space.release(), n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lex_lt_map(isl::map map2) const
+{
+  if (!ptr || map2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lex_lt_map(copy(), map2.release());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -12979,6 +18310,49 @@ isl::map map::lower_bound(isl::multi_pw_aff lower) const
   return manage(res);
 }
 
+isl::map map::lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lower_bound_si(copy(), type, pos, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const
+{
+  if (!ptr || value.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_lower_bound_val(copy(), type, pos, value.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->lower_bound_val(type, pos, isl::val(ctx(), value));
+}
+
+isl::map map::make_disjoint() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_make_disjoint(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map_list map::map_list() const
 {
   if (!ptr)
@@ -13010,6 +18384,18 @@ isl::multi_pw_aff map::min_multi_pw_aff() const
   return manage(res);
 }
 
+isl::map map::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 unsigned map::n_basic_map() const
 {
   if (!ptr)
@@ -13022,6 +18408,90 @@ unsigned map::n_basic_map() const
   return res;
 }
 
+isl::map map::nat_universe(isl::space space)
+{
+  if (space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = space.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_nat_universe(space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::neg() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_neg(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::oppose(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_oppose(copy(), type1, pos1, type2, pos2);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::order_ge(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_order_ge(copy(), type1, pos1, type2, pos2);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::order_gt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_order_gt(copy(), type1, pos1, type2, pos2);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::order_le(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_order_le(copy(), type1, pos1, type2, pos2);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::order_lt(enum isl_dim_type type1, int pos1, enum isl_dim_type type2, int pos2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_order_lt(copy(), type1, pos1, type2, pos2);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set map::params() const
 {
   if (!ptr)
@@ -13029,6 +18499,78 @@ isl::set map::params() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_map_params(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::val map::plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_plain_get_val_if_fixed(get(), type, pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+bool map::plain_is_empty() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_plain_is_empty(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool map::plain_is_injective() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_plain_is_injective(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool map::plain_is_single_valued() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_plain_is_single_valued(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool map::plain_is_universe() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_plain_is_universe(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::basic_map map::plain_unshifted_simple_hull() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_plain_unshifted_simple_hull(copy());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -13146,6 +18688,18 @@ isl::map map::product(const isl::basic_map &map2) const
   return this->product(isl::map(map2));
 }
 
+isl::map map::project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_project_out(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map map::project_out_all_params() const
 {
   if (!ptr)
@@ -13201,6 +18755,18 @@ isl::set map::range() const
   return manage(res);
 }
 
+isl::map map::range_curry() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_range_curry(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map map::range_factor_domain() const
 {
   if (!ptr)
@@ -13225,6 +18791,18 @@ isl::map map::range_factor_range() const
   return manage(res);
 }
 
+bool map::range_is_wrapping() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_range_is_wrapping(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 isl::fixed_box map::range_lattice_tile() const
 {
   if (!ptr)
@@ -13242,11 +18820,16 @@ isl::fixed_box map::get_range_lattice_tile() const
   return range_lattice_tile();
 }
 
-isl::union_map map::range_map() const
+isl::map map::range_map() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::union_map(*this).range_map();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_range_map(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map map::range_product(isl::map map2) const
@@ -13333,6 +18916,78 @@ isl::id map::get_range_tuple_id() const
   return range_tuple_id();
 }
 
+isl::map map::remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_remove_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::remove_divs() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_remove_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_remove_divs_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::remove_inputs(unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_remove_inputs(copy(), first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::remove_redundancies() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_remove_redundancies(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::remove_unknown_divs() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_remove_unknown_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map map::reverse() const
 {
   if (!ptr)
@@ -13352,6 +19007,37 @@ isl::basic_map map::sample() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_map_sample(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::set_dim_id(enum isl_dim_type type, unsigned int pos, isl::id id) const
+{
+  if (!ptr || id.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_set_dim_id(copy(), type, pos, id.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_dim_id(type, pos, isl::id(ctx(), id));
+}
+
+isl::map map::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_set_dim_name(copy(), type, pos, s.c_str());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -13393,6 +19079,49 @@ isl::map map::set_range_tuple(const std::string &id) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return this->set_range_tuple(isl::id(ctx(), id));
+}
+
+isl::map map::set_tuple_id(enum isl_dim_type type, isl::id id) const
+{
+  if (!ptr || id.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_set_tuple_id(copy(), type, id.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::set_tuple_id(enum isl_dim_type type, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_tuple_id(type, isl::id(ctx(), id));
+}
+
+isl::map map::set_tuple_name(enum isl_dim_type type, const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_set_tuple_name(copy(), type, s.c_str());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_map map::simple_hull() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_simple_hull(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::space map::space() const
@@ -13438,6 +19167,18 @@ isl::map map::subtract(const isl::basic_map &map2) const
   return this->subtract(isl::map(map2));
 }
 
+isl::map map::subtract_domain(isl::set dom) const
+{
+  if (!ptr || dom.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_subtract_domain(copy(), dom.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::union_map map::subtract_domain(const isl::union_set &dom) const
 {
   if (!ptr)
@@ -13445,11 +19186,63 @@ isl::union_map map::subtract_domain(const isl::union_set &dom) const
   return isl::union_map(*this).subtract_domain(dom);
 }
 
+isl::map map::subtract_domain(const isl::basic_set &dom) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->subtract_domain(isl::set(dom));
+}
+
+isl::map map::subtract_domain(const isl::point &dom) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->subtract_domain(isl::set(dom));
+}
+
+isl::map map::subtract_range(isl::set dom) const
+{
+  if (!ptr || dom.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_subtract_range(copy(), dom.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::union_map map::subtract_range(const isl::union_set &dom) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::union_map(*this).subtract_range(dom);
+}
+
+isl::map map::subtract_range(const isl::basic_set &dom) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->subtract_range(isl::set(dom));
+}
+
+isl::map map::subtract_range(const isl::point &dom) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->subtract_range(isl::set(dom));
+}
+
+isl::map map::sum(isl::map map2) const
+{
+  if (!ptr || map2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_sum(copy(), map2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::map_list map::to_list() const
@@ -13474,6 +19267,22 @@ isl::union_map map::to_union_map() const
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
+}
+
+std::string map::tuple_name(enum isl_dim_type type) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_get_tuple_name(get(), type);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string map::get_tuple_name(enum isl_dim_type type) const
+{
+  return tuple_name(type);
 }
 
 isl::map map::uncurry() const
@@ -13514,6 +19323,18 @@ isl::map map::unite(const isl::basic_map &map2) const
   return this->unite(isl::map(map2));
 }
 
+isl::map map::union_disjoint(isl::map map2) const
+{
+  if (!ptr || map2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_union_disjoint(copy(), map2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map map::universe(isl::space space)
 {
   if (space.is_null())
@@ -13538,6 +19359,18 @@ isl::basic_map map::unshifted_simple_hull() const
   return manage(res);
 }
 
+isl::basic_map map::unshifted_simple_hull_from_map_list(isl::map_list list) const
+{
+  if (!ptr || list.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_unshifted_simple_hull_from_map_list(copy(), list.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::map map::upper_bound(isl::multi_pw_aff upper) const
 {
   if (!ptr || upper.is_null())
@@ -13548,6 +19381,37 @@ isl::map map::upper_bound(isl::multi_pw_aff upper) const
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
+}
+
+isl::map map::upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_upper_bound_si(copy(), type, pos, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const
+{
+  if (!ptr || value.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_map_upper_bound_val(copy(), type, pos, value.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map map::upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->upper_bound_val(type, pos, isl::val(ctx(), value));
 }
 
 isl::set map::wrap() const
@@ -13872,6 +19736,491 @@ inline std::ostream &operator<<(std::ostream &os, const map_list &obj)
   os << str;
   free(str);
   return os;
+}
+
+// implementations for isl::mat
+mat manage(__isl_take isl_mat *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return mat(ptr);
+}
+mat manage_copy(__isl_keep isl_mat *ptr) {
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_mat_get_ctx(ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = isl_mat_copy(ptr);
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+  return mat(ptr);
+}
+
+mat::mat(__isl_take isl_mat *ptr)
+    : ptr(ptr) {}
+
+mat::mat()
+    : ptr(nullptr) {}
+
+mat::mat(const mat &obj)
+    : ptr(nullptr)
+{
+  if (!obj.ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = isl_mat_get_ctx(obj.ptr);
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  ptr = obj.copy();
+  if (!ptr)
+    exception::throw_last_error(saved_ctx);
+}
+
+mat &mat::operator=(mat obj) {
+  std::swap(this->ptr, obj.ptr);
+  return *this;
+}
+
+mat::~mat() {
+  if (ptr)
+    isl_mat_free(ptr);
+}
+
+__isl_give isl_mat *mat::copy() const & {
+  return isl_mat_copy(ptr);
+}
+
+__isl_keep isl_mat *mat::get() const {
+  return ptr;
+}
+
+__isl_give isl_mat *mat::release() {
+  isl_mat *tmp = ptr;
+  ptr = nullptr;
+  return tmp;
+}
+
+bool mat::is_null() const {
+  return ptr == nullptr;
+}
+
+isl::ctx mat::ctx() const {
+  return isl::ctx(isl_mat_get_ctx(ptr));
+}
+
+isl::mat mat::add_rows(unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_add_rows(copy(), n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::add_zero_cols(unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_add_zero_cols(copy(), n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::add_zero_rows(unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_add_zero_rows(copy(), n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::aff_direct_sum(isl::mat right) const
+{
+  if (!ptr || right.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_aff_direct_sum(copy(), right.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+unsigned mat::cols() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_cols(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::mat mat::concat(isl::mat bot) const
+{
+  if (!ptr || bot.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_concat(copy(), bot.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::diagonal(isl::mat mat2) const
+{
+  if (!ptr || mat2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_diagonal(copy(), mat2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::drop_cols(unsigned int col, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_drop_cols(copy(), col, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::drop_rows(unsigned int row, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_drop_rows(copy(), row, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::val mat::element_val(int row, int col) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_get_element_val(get(), row, col);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::val mat::get_element_val(int row, int col) const
+{
+  return element_val(row, col);
+}
+
+bool mat::has_linearly_independent_rows(const isl::mat &mat2) const
+{
+  if (!ptr || mat2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_has_linearly_independent_rows(get(), mat2.get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+int mat::initial_non_zero_cols() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_initial_non_zero_cols(get());
+  return res;
+}
+
+isl::mat mat::insert_cols(unsigned int col, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_insert_cols(copy(), col, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::insert_rows(unsigned int row, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_insert_rows(copy(), row, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::insert_zero_cols(unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_insert_zero_cols(copy(), first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::insert_zero_rows(unsigned int row, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_insert_zero_rows(copy(), row, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::inverse_product(isl::mat right) const
+{
+  if (!ptr || right.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_inverse_product(copy(), right.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::lin_to_aff() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_lin_to_aff(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::move_cols(unsigned int dst_col, unsigned int src_col, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_move_cols(copy(), dst_col, src_col, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::normalize() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_normalize(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::normalize_row(int row) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_normalize_row(copy(), row);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::product(isl::mat right) const
+{
+  if (!ptr || right.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_product(copy(), right.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+unsigned mat::rank() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_rank(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::mat mat::right_inverse() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_right_inverse(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::right_kernel() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_right_kernel(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::row_basis() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_row_basis(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::row_basis_extension(isl::mat mat2) const
+{
+  if (!ptr || mat2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_row_basis_extension(copy(), mat2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+unsigned mat::rows() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_rows(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::mat mat::set_element_si(int row, int col, int v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_set_element_si(copy(), row, col, v);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::set_element_val(int row, int col, isl::val v) const
+{
+  if (!ptr || v.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_set_element_val(copy(), row, col, v.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::set_element_val(int row, int col, long v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_element_val(row, col, isl::val(ctx(), v));
+}
+
+isl::mat mat::swap_cols(unsigned int i, unsigned int j) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_swap_cols(copy(), i, j);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::swap_rows(unsigned int i, unsigned int j) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_swap_rows(copy(), i, j);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::transpose() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_transpose(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::mat mat::unimodular_complete(int row) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_mat_unimodular_complete(copy(), row);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 // implementations for isl::multi_aff
@@ -17510,11 +23859,44 @@ isl::ctx point::ctx() const {
   return isl::ctx(isl_point_get_ctx(ptr));
 }
 
+isl::basic_set point::add_constraint(const isl::constraint &constraint) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).add_constraint(constraint);
+}
+
+isl::basic_set point::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).add_dims(type, n);
+}
+
+isl::point point::add_ui(enum isl_dim_type type, int pos, unsigned int val) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_point_add_ui(copy(), type, pos, val);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::basic_set point::affine_hull() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).affine_hull();
+}
+
+isl::basic_set point::align_params(const isl::space &model) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).align_params(model);
 }
 
 isl::basic_set point::apply(const isl::basic_map &bmap) const
@@ -17552,6 +23934,13 @@ isl::set point::as_set() const
   return isl::basic_set(*this).as_set();
 }
 
+isl::basic_set_list point::basic_set_list() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).basic_set_list();
+}
+
 isl::set point::bind(const isl::multi_id &tuple) const
 {
   if (!ptr)
@@ -17566,6 +23955,13 @@ isl::set point::coalesce() const
   return isl::basic_set(*this).coalesce();
 }
 
+isl::basic_set point::coefficients() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).coefficients();
+}
+
 isl::set point::complement() const
 {
   if (!ptr)
@@ -17573,11 +23969,42 @@ isl::set point::complement() const
   return isl::basic_set(*this).complement();
 }
 
-isl::union_set point::compute_divs() const
+isl::set point::compute_divs() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).compute_divs();
+}
+
+isl::constraint_list point::constraint_list() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).constraint_list();
+}
+
+isl::val point::coordinate_val(enum isl_dim_type type, int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_point_get_coordinate_val(get(), type, pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::val point::get_coordinate_val(enum isl_dim_type type, int pos) const
+{
+  return coordinate_val(type, pos);
+}
+
+isl::val point::count_val() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).count_val();
 }
 
 isl::basic_set point::detect_equalities() const
@@ -17587,11 +24014,74 @@ isl::basic_set point::detect_equalities() const
   return isl::basic_set(*this).detect_equalities();
 }
 
+unsigned point::dim(enum isl_dim_type type) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).dim(type);
+}
+
+bool point::dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).dim_has_any_lower_bound(type, pos);
+}
+
+bool point::dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).dim_has_any_upper_bound(type, pos);
+}
+
+bool point::dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).dim_has_lower_bound(type, pos);
+}
+
+bool point::dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).dim_has_upper_bound(type, pos);
+}
+
+isl::id point::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).dim_id(type, pos);
+}
+
+bool point::dim_is_bounded(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).dim_is_bounded(type, pos);
+}
+
+isl::pw_aff point::dim_max(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).dim_max(pos);
+}
+
 isl::val point::dim_max_val(int pos) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).dim_max_val(pos);
+}
+
+isl::pw_aff point::dim_min(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).dim_min(pos);
 }
 
 isl::val point::dim_min_val(int pos) const
@@ -17601,11 +24091,60 @@ isl::val point::dim_min_val(int pos) const
   return isl::basic_set(*this).dim_min_val(pos);
 }
 
-isl::set point::drop_unused_params() const
+std::string point::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).dim_name(type, pos);
+}
+
+isl::aff point::div(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).div(pos);
+}
+
+isl::basic_set point::drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).drop_constraints_involving_dims(type, first, n);
+}
+
+isl::basic_set point::drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).drop_constraints_not_involving_dims(type, first, n);
+}
+
+isl::basic_set point::drop_unused_params() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).drop_unused_params();
+}
+
+isl::basic_set point::eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).eliminate(type, first, n);
+}
+
+isl::set point::eliminate_dims(unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).eliminate_dims(first, n);
+}
+
+isl::mat point::equalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).equalities_matrix(c1, c2, c3, c4);
 }
 
 bool point::every_set(const std::function<bool(isl::set)> &test) const
@@ -17622,6 +24161,55 @@ isl::set point::extract_set(const isl::space &space) const
   return isl::basic_set(*this).extract_set(space);
 }
 
+int point::find_dim_by_id(enum isl_dim_type type, const isl::id &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).find_dim_by_id(type, id);
+}
+
+int point::find_dim_by_id(enum isl_dim_type type, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->find_dim_by_id(type, isl::id(ctx(), id));
+}
+
+int point::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).find_dim_by_name(type, name);
+}
+
+isl::set point::fix_dim_si(unsigned int dim, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).fix_dim_si(dim, value);
+}
+
+isl::basic_set point::fix_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).fix_si(type, pos, value);
+}
+
+isl::basic_set point::fix_val(enum isl_dim_type type, unsigned int pos, const isl::val &v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).fix_val(type, pos, v);
+}
+
+isl::basic_set point::fix_val(enum isl_dim_type type, unsigned int pos, long v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->fix_val(type, pos, isl::val(ctx(), v));
+}
+
 isl::basic_set point::flatten() const
 {
   if (!ptr)
@@ -17629,11 +24217,32 @@ isl::basic_set point::flatten() const
   return isl::basic_set(*this).flatten();
 }
 
+isl::map point::flatten_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).flatten_map();
+}
+
 void point::foreach_basic_set(const std::function<void(isl::basic_set)> &fn) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).foreach_basic_set(fn);
+}
+
+void point::foreach_bound_pair(enum isl_dim_type type, unsigned int pos, const std::function<void(isl::constraint, isl::constraint, isl::basic_set)> &fn) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).foreach_bound_pair(type, pos, fn);
+}
+
+void point::foreach_constraint(const std::function<void(isl::constraint)> &fn) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).foreach_constraint(fn);
 }
 
 void point::foreach_point(const std::function<void(isl::point)> &fn) const
@@ -17671,11 +24280,53 @@ isl::union_set point::gist(const isl::union_set &context) const
   return isl::basic_set(*this).gist(context);
 }
 
+isl::set point::gist_basic_set(const isl::basic_set &context) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).gist_basic_set(context);
+}
+
 isl::set point::gist_params(const isl::set &context) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).gist_params(context);
+}
+
+bool point::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).has_dim_id(type, pos);
+}
+
+bool point::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).has_dim_name(type, pos);
+}
+
+bool point::has_equal_space(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).has_equal_space(set2);
+}
+
+bool point::has_tuple_id() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).has_tuple_id();
+}
+
+bool point::has_tuple_name() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).has_tuple_name();
 }
 
 isl::map point::identity() const
@@ -17690,6 +24341,20 @@ isl::pw_aff point::indicator_function() const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).indicator_function();
+}
+
+isl::mat point::inequalities_matrix(enum isl_dim_type c1, enum isl_dim_type c2, enum isl_dim_type c3, enum isl_dim_type c4) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).inequalities_matrix(c1, c2, c3, c4);
+}
+
+isl::basic_set point::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).insert_dims(type, pos, n);
 }
 
 isl::map point::insert_domain(const isl::space &domain) const
@@ -17734,11 +24399,32 @@ isl::set point::intersect_params(const isl::set &params) const
   return isl::basic_set(*this).intersect_params(params);
 }
 
+bool point::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).involves_dims(type, first, n);
+}
+
 bool point::involves_locals() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).involves_locals();
+}
+
+bool point::is_bounded() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).is_bounded();
+}
+
+bool point::is_box() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).is_box();
 }
 
 bool point::is_disjoint(const isl::set &set2) const
@@ -17781,6 +24467,20 @@ bool point::is_equal(const isl::union_set &uset2) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).is_equal(uset2);
+}
+
+bool point::is_params() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).is_params();
+}
+
+int point::is_rational() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).is_rational();
 }
 
 bool point::is_singleton() const
@@ -17846,6 +24546,34 @@ isl::fixed_box point::lattice_tile() const
   return isl::basic_set(*this).lattice_tile();
 }
 
+isl::map point::lex_ge_set(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).lex_ge_set(set2);
+}
+
+isl::map point::lex_gt_set(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).lex_gt_set(set2);
+}
+
+isl::map point::lex_le_set(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).lex_le_set(set2);
+}
+
+isl::map point::lex_lt_set(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).lex_lt_set(set2);
+}
+
 isl::set point::lexmax() const
 {
   if (!ptr)
@@ -17874,6 +24602,20 @@ isl::pw_multi_aff point::lexmin_pw_multi_aff() const
   return isl::basic_set(*this).lexmin_pw_multi_aff();
 }
 
+isl::basic_set point::lift() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).lift();
+}
+
+isl::local_space point::local_space() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).local_space();
+}
+
 isl::set point::lower_bound(const isl::multi_pw_aff &lower) const
 {
   if (!ptr)
@@ -17886,6 +24628,34 @@ isl::set point::lower_bound(const isl::multi_val &lower) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).lower_bound(lower);
+}
+
+isl::set point::lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).lower_bound_si(type, pos, value);
+}
+
+isl::basic_set point::lower_bound_val(enum isl_dim_type type, unsigned int pos, const isl::val &value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).lower_bound_val(type, pos, value);
+}
+
+isl::basic_set point::lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->lower_bound_val(type, pos, isl::val(ctx(), value));
+}
+
+isl::set point::make_disjoint() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).make_disjoint();
 }
 
 isl::multi_pw_aff point::max_multi_pw_aff() const
@@ -17916,6 +24686,13 @@ isl::val point::min_val(const isl::aff &obj) const
   return isl::basic_set(*this).min_val(obj);
 }
 
+isl::basic_set point::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).move_dims(dst_type, dst_pos, src_type, src_pos, n);
+}
+
 isl::multi_val point::multi_val() const
 {
   if (!ptr)
@@ -17940,6 +24717,34 @@ unsigned point::n_basic_set() const
   return isl::basic_set(*this).n_basic_set();
 }
 
+unsigned point::n_constraint() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).n_constraint();
+}
+
+unsigned point::n_dim() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).n_dim();
+}
+
+unsigned point::n_param() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).n_param();
+}
+
+isl::basic_set point::neg() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).neg();
+}
+
 isl::pw_aff point::param_pw_aff_on_domain(const isl::id &id) const
 {
   if (!ptr)
@@ -17959,6 +24764,34 @@ isl::basic_set point::params() const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).params();
+}
+
+isl::val point::plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).plain_get_val_if_fixed(type, pos);
+}
+
+bool point::plain_is_disjoint(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).plain_is_disjoint(set2);
+}
+
+bool point::plain_is_empty() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).plain_is_empty();
+}
+
+bool point::plain_is_universe() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).plain_is_universe();
 }
 
 isl::multi_val point::plain_multi_val_if_fixed() const
@@ -18003,11 +24836,32 @@ isl::union_set point::preimage(const isl::union_pw_multi_aff &upma) const
   return isl::basic_set(*this).preimage(upma);
 }
 
+isl::basic_set point::preimage_multi_aff(const isl::multi_aff &ma) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).preimage_multi_aff(ma);
+}
+
 isl::set point::product(const isl::set &set2) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).product(set2);
+}
+
+isl::map point::project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).project_onto_map(type, first, n);
+}
+
+isl::basic_set point::project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).project_out(type, first, n);
 }
 
 isl::set point::project_out_all_params() const
@@ -18059,6 +24913,69 @@ isl::pw_multi_aff point::pw_multi_aff_on_domain(const isl::multi_val &mv) const
   return isl::basic_set(*this).pw_multi_aff_on_domain(mv);
 }
 
+isl::mat point::reduced_basis() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).reduced_basis();
+}
+
+isl::basic_set point::remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).remove_dims(type, first, n);
+}
+
+isl::basic_set point::remove_divs() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).remove_divs();
+}
+
+isl::basic_set point::remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).remove_divs_involving_dims(type, first, n);
+}
+
+isl::basic_set point::remove_redundancies() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).remove_redundancies();
+}
+
+isl::basic_set point::remove_unknown_divs() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).remove_unknown_divs();
+}
+
+isl::set point::reset_space(const isl::space &space) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).reset_space(space);
+}
+
+isl::set point::reset_tuple_id() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).reset_tuple_id();
+}
+
+isl::set point::reset_user() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).reset_user();
+}
+
 isl::basic_set point::sample() const
 {
   if (!ptr)
@@ -18073,11 +24990,72 @@ isl::point point::sample_point() const
   return isl::basic_set(*this).sample_point();
 }
 
+isl::point point::set_coordinate_val(enum isl_dim_type type, int pos, isl::val v) const
+{
+  if (!ptr || v.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_point_set_coordinate_val(copy(), type, pos, v.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::point point::set_coordinate_val(enum isl_dim_type type, int pos, long v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_coordinate_val(type, pos, isl::val(ctx(), v));
+}
+
+isl::set point::set_dim_id(enum isl_dim_type type, unsigned int pos, const isl::id &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).set_dim_id(type, pos, id);
+}
+
+isl::set point::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_dim_id(type, pos, isl::id(ctx(), id));
+}
+
+isl::basic_set point::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).set_dim_name(type, pos, s);
+}
+
 isl::set_list point::set_list() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).set_list();
+}
+
+isl::basic_set point::set_tuple_id(const isl::id &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).set_tuple_id(id);
+}
+
+isl::basic_set point::set_tuple_id(const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_tuple_id(isl::id(ctx(), id));
+}
+
+isl::basic_set point::set_tuple_name(const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).set_tuple_name(s);
 }
 
 isl::fixed_box point::simple_fixed_box_hull() const
@@ -18087,6 +25065,20 @@ isl::fixed_box point::simple_fixed_box_hull() const
   return isl::basic_set(*this).simple_fixed_box_hull();
 }
 
+int point::size() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).size();
+}
+
+isl::basic_set point::solutions() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).solutions();
+}
+
 isl::space point::space() const
 {
   if (!ptr)
@@ -18094,11 +25086,30 @@ isl::space point::space() const
   return isl::basic_set(*this).space();
 }
 
+isl::set point::split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).split_dims(type, first, n);
+}
+
 isl::val point::stride(int pos) const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).stride(pos);
+}
+
+isl::point point::sub_ui(enum isl_dim_type type, int pos, unsigned int val) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_point_sub_ui(copy(), type, pos, val);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::set point::subtract(const isl::set &set2) const
@@ -18115,7 +25126,14 @@ isl::union_set point::subtract(const isl::union_set &uset2) const
   return isl::basic_set(*this).subtract(uset2);
 }
 
-isl::set_list point::to_list() const
+isl::set point::sum(const isl::set &set2) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).sum(set2);
+}
+
+isl::basic_set_list point::to_list() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
@@ -18153,6 +25171,20 @@ unsigned point::tuple_dim() const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).tuple_dim();
+}
+
+isl::id point::tuple_id() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).tuple_id();
+}
+
+std::string point::tuple_name() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).tuple_name();
 }
 
 isl::set point::unbind_params(const isl::multi_id &tuple) const
@@ -18197,7 +25229,7 @@ isl::basic_set point::unshifted_simple_hull() const
   return isl::basic_set(*this).unshifted_simple_hull();
 }
 
-isl::map point::unwrap() const
+isl::basic_map point::unwrap() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
@@ -18216,6 +25248,34 @@ isl::set point::upper_bound(const isl::multi_val &upper) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::basic_set(*this).upper_bound(upper);
+}
+
+isl::set point::upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).upper_bound_si(type, pos, value);
+}
+
+isl::basic_set point::upper_bound_val(enum isl_dim_type type, unsigned int pos, const isl::val &value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).upper_bound_val(type, pos, value);
+}
+
+isl::basic_set point::upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->upper_bound_val(type, pos, isl::val(ctx(), value));
+}
+
+isl::map point::wrapped_domain_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return isl::basic_set(*this).wrapped_domain_map();
 }
 
 isl::set point::wrapped_reverse() const
@@ -23533,6 +30593,30 @@ isl::ctx set::ctx() const {
   return isl::ctx(isl_set_get_ctx(ptr));
 }
 
+isl::set set::add_constraint(isl::constraint constraint) const
+{
+  if (!ptr || constraint.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_add_constraint(copy(), constraint.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_add_dims(copy(), type, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::basic_set set::affine_hull() const
 {
   if (!ptr)
@@ -23540,6 +30624,18 @@ isl::basic_set set::affine_hull() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_set_affine_hull(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::align_params(isl::space model) const
+{
+  if (!ptr || model.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_align_params(copy(), model.release());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -23590,6 +30686,23 @@ isl::set set::as_set() const
   return isl::union_set(*this).as_set();
 }
 
+isl::basic_set_list set::basic_set_list() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_get_basic_set_list(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::basic_set_list set::get_basic_set_list() const
+{
+  return basic_set_list();
+}
+
 isl::set set::bind(isl::multi_id tuple) const
 {
   if (!ptr || tuple.is_null())
@@ -23597,6 +30710,18 @@ isl::set set::bind(isl::multi_id tuple) const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_set_bind(copy(), tuple.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::box_from_points(isl::point pnt1, isl::point pnt2)
+{
+  if (pnt1.is_null() || pnt2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = pnt1.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_box_from_points(pnt1.release(), pnt2.release());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -23614,6 +30739,18 @@ isl::set set::coalesce() const
   return manage(res);
 }
 
+isl::basic_set set::coefficients() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_coefficients(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set set::complement() const
 {
   if (!ptr)
@@ -23626,11 +30763,28 @@ isl::set set::complement() const
   return manage(res);
 }
 
-isl::union_set set::compute_divs() const
+isl::set set::compute_divs() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
-  return isl::union_set(*this).compute_divs();
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_compute_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::val set::count_val() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_count_val(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::set set::detect_equalities() const
@@ -23640,6 +30794,107 @@ isl::set set::detect_equalities() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_set_detect_equalities(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+unsigned set::dim(enum isl_dim_type type) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_dim(get(), type);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::dim_has_any_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_dim_has_any_lower_bound(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::dim_has_any_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_dim_has_any_upper_bound(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::dim_has_lower_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_dim_has_lower_bound(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::dim_has_upper_bound(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_dim_has_upper_bound(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::id set::dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_get_dim_id(get(), type, pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::id set::get_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_id(type, pos);
+}
+
+bool set::dim_is_bounded(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_dim_is_bounded(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::pw_aff set::dim_max(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_dim_max(copy(), pos);
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -23657,6 +30912,18 @@ isl::val set::dim_max_val(int pos) const
   return manage(res);
 }
 
+isl::pw_aff set::dim_min(int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_dim_min(copy(), pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::val set::dim_min_val(int pos) const
 {
   if (!ptr)
@@ -23669,6 +30936,46 @@ isl::val set::dim_min_val(int pos) const
   return manage(res);
 }
 
+std::string set::dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_get_dim_name(get(), type, pos);
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string set::get_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  return dim_name(type, pos);
+}
+
+isl::set set::drop_constraints_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_drop_constraints_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::drop_constraints_not_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_drop_constraints_not_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set set::drop_unused_params() const
 {
   if (!ptr)
@@ -23676,6 +30983,30 @@ isl::set set::drop_unused_params() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_set_drop_unused_params(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::eliminate(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_eliminate(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::eliminate_dims(unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_eliminate_dims(copy(), first, n);
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -23707,6 +31038,76 @@ isl::set set::extract_set(const isl::space &space) const
   return isl::union_set(*this).extract_set(space);
 }
 
+int set::find_dim_by_id(enum isl_dim_type type, const isl::id &id) const
+{
+  if (!ptr || id.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_find_dim_by_id(get(), type, id.get());
+  return res;
+}
+
+int set::find_dim_by_id(enum isl_dim_type type, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->find_dim_by_id(type, isl::id(ctx(), id));
+}
+
+int set::find_dim_by_name(enum isl_dim_type type, const std::string &name) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_find_dim_by_name(get(), type, name.c_str());
+  return res;
+}
+
+isl::set set::fix_dim_si(unsigned int dim, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_fix_dim_si(copy(), dim, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::fix_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_fix_si(copy(), type, pos, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::fix_val(enum isl_dim_type type, unsigned int pos, isl::val v) const
+{
+  if (!ptr || v.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_fix_val(copy(), type, pos, v.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::fix_val(enum isl_dim_type type, unsigned int pos, long v) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->fix_val(type, pos, isl::val(ctx(), v));
+}
+
 isl::set set::flatten() const
 {
   if (!ptr)
@@ -23714,6 +31115,18 @@ isl::set set::flatten() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_set_flatten(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map set::flatten_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_flatten_map(copy());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -23782,6 +31195,18 @@ void set::foreach_set(const std::function<void(isl::set)> &fn) const
   return isl::union_set(*this).foreach_set(fn);
 }
 
+isl::set set::from_multi_aff(isl::multi_aff ma)
+{
+  if (ma.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ma.ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_from_multi_aff(ma.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set set::gist(isl::set context) const
 {
   if (!ptr || context.is_null())
@@ -23815,6 +31240,18 @@ isl::set set::gist(const isl::point &context) const
   return this->gist(isl::set(context));
 }
 
+isl::set set::gist_basic_set(isl::basic_set context) const
+{
+  if (!ptr || context.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_gist_basic_set(copy(), context.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set set::gist_params(isl::set context) const
 {
   if (!ptr || context.is_null())
@@ -23825,6 +31262,66 @@ isl::set set::gist_params(isl::set context) const
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
+}
+
+bool set::has_dim_id(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_has_dim_id(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::has_dim_name(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_has_dim_name(get(), type, pos);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::has_equal_space(const isl::set &set2) const
+{
+  if (!ptr || set2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_has_equal_space(get(), set2.get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::has_tuple_id() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_has_tuple_id(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::has_tuple_name() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_has_tuple_name(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
 }
 
 isl::map set::identity() const
@@ -23846,6 +31343,18 @@ isl::pw_aff set::indicator_function() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_set_indicator_function(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_insert_dims(copy(), type, pos, n);
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -23908,6 +31417,18 @@ isl::set set::intersect_params(isl::set params) const
   return manage(res);
 }
 
+bool set::involves_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_involves_dims(get(), type, first, n);
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
 bool set::involves_locals() const
 {
   if (!ptr)
@@ -23915,6 +31436,30 @@ bool set::involves_locals() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_set_involves_locals(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::is_bounded() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_is_bounded(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::is_box() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_is_box(get());
   if (res < 0)
     exception::throw_last_error(saved_ctx);
   return res;
@@ -23996,6 +31541,18 @@ bool set::is_equal(const isl::point &set2) const
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return this->is_equal(isl::set(set2));
+}
+
+bool set::is_params() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_is_params(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
 }
 
 bool set::is_singleton() const
@@ -24112,6 +31669,54 @@ isl::fixed_box set::get_lattice_tile() const
   return lattice_tile();
 }
 
+isl::map set::lex_ge_set(isl::set set2) const
+{
+  if (!ptr || set2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_lex_ge_set(copy(), set2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map set::lex_gt_set(isl::set set2) const
+{
+  if (!ptr || set2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_lex_gt_set(copy(), set2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map set::lex_le_set(isl::set set2) const
+{
+  if (!ptr || set2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_lex_le_set(copy(), set2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::map set::lex_lt_set(isl::set set2) const
+{
+  if (!ptr || set2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_lex_lt_set(copy(), set2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set set::lexmax() const
 {
   if (!ptr)
@@ -24160,6 +31765,18 @@ isl::pw_multi_aff set::lexmin_pw_multi_aff() const
   return manage(res);
 }
 
+isl::set set::lift() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_lift(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set set::lower_bound(isl::multi_pw_aff lower) const
 {
   if (!ptr || lower.is_null())
@@ -24179,6 +31796,49 @@ isl::set set::lower_bound(isl::multi_val lower) const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_set_lower_bound_multi_val(copy(), lower.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::lower_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_lower_bound_si(copy(), type, pos, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::lower_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const
+{
+  if (!ptr || value.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_lower_bound_val(copy(), type, pos, value.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::lower_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->lower_bound_val(type, pos, isl::val(ctx(), value));
+}
+
+isl::set set::make_disjoint() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_make_disjoint(copy());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -24232,6 +31892,18 @@ isl::val set::min_val(const isl::aff &obj) const
   return manage(res);
 }
 
+isl::set set::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 unsigned set::n_basic_set() const
 {
   if (!ptr)
@@ -24242,6 +31914,42 @@ unsigned set::n_basic_set() const
   if (res < 0)
     exception::throw_last_error(saved_ctx);
   return res;
+}
+
+unsigned set::n_dim() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_n_dim(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+unsigned set::n_param() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_n_param(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+isl::set set::neg() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_neg(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::pw_aff set::param_pw_aff_on_domain(isl::id id) const
@@ -24273,6 +31981,54 @@ isl::set set::params() const
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
+}
+
+isl::val set::plain_get_val_if_fixed(enum isl_dim_type type, unsigned int pos) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_plain_get_val_if_fixed(get(), type, pos);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+bool set::plain_is_disjoint(const isl::set &set2) const
+{
+  if (!ptr || set2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_plain_is_disjoint(get(), set2.get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::plain_is_empty() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_plain_is_empty(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
+}
+
+bool set::plain_is_universe() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_plain_is_universe(get());
+  if (res < 0)
+    exception::throw_last_error(saved_ctx);
+  return res;
 }
 
 isl::multi_val set::plain_multi_val_if_fixed() const
@@ -24359,6 +32115,30 @@ isl::set set::product(isl::set set2) const
   return manage(res);
 }
 
+isl::map set::project_onto_map(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_project_onto_map(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::project_out(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_project_out(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set set::project_out_all_params() const
 {
   if (!ptr)
@@ -24433,6 +32213,102 @@ isl::pw_multi_aff set::pw_multi_aff_on_domain(isl::multi_val mv) const
   return manage(res);
 }
 
+isl::set set::remove_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_remove_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::remove_divs() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_remove_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::remove_divs_involving_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_remove_divs_involving_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::remove_redundancies() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_remove_redundancies(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::remove_unknown_divs() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_remove_unknown_divs(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::reset_space(isl::space space) const
+{
+  if (!ptr || space.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_reset_space(copy(), space.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::reset_tuple_id() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_reset_tuple_id(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::reset_user() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_reset_user(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::basic_set set::sample() const
 {
   if (!ptr)
@@ -24457,11 +32333,73 @@ isl::point set::sample_point() const
   return manage(res);
 }
 
+isl::set set::set_dim_id(enum isl_dim_type type, unsigned int pos, isl::id id) const
+{
+  if (!ptr || id.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_set_dim_id(copy(), type, pos, id.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::set_dim_id(enum isl_dim_type type, unsigned int pos, const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_dim_id(type, pos, isl::id(ctx(), id));
+}
+
+isl::set set::set_dim_name(enum isl_dim_type type, unsigned int pos, const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_set_dim_name(copy(), type, pos, s.c_str());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set_list set::set_list() const
 {
   if (!ptr)
     exception::throw_invalid("NULL input", __FILE__, __LINE__);
   return isl::union_set(*this).set_list();
+}
+
+isl::set set::set_tuple_id(isl::id id) const
+{
+  if (!ptr || id.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_set_tuple_id(copy(), id.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::set_tuple_id(const std::string &id) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->set_tuple_id(isl::id(ctx(), id));
+}
+
+isl::set set::set_tuple_name(const std::string &s) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_set_tuple_name(copy(), s.c_str());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::fixed_box set::simple_fixed_box_hull() const
@@ -24481,6 +32419,28 @@ isl::fixed_box set::get_simple_fixed_box_hull() const
   return simple_fixed_box_hull();
 }
 
+int set::size() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_size(get());
+  return res;
+}
+
+isl::basic_set set::solutions() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_solutions(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::space set::space() const
 {
   if (!ptr)
@@ -24496,6 +32456,18 @@ isl::space set::space() const
 isl::space set::get_space() const
 {
   return space();
+}
+
+isl::set set::split_dims(enum isl_dim_type type, unsigned int first, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_split_dims(copy(), type, first, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::val set::stride(int pos) const
@@ -24548,6 +32520,18 @@ isl::set set::subtract(const isl::point &set2) const
   return this->subtract(isl::set(set2));
 }
 
+isl::set set::sum(isl::set set2) const
+{
+  if (!ptr || set2.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_sum(copy(), set2.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::set_list set::to_list() const
 {
   if (!ptr)
@@ -24594,6 +32578,39 @@ unsigned set::tuple_dim() const
   if (res < 0)
     exception::throw_last_error(saved_ctx);
   return res;
+}
+
+isl::id set::tuple_id() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_get_tuple_id(get());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::id set::get_tuple_id() const
+{
+  return tuple_id();
+}
+
+std::string set::tuple_name() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_get_tuple_name(get());
+  std::string tmp(res);
+  return tmp;
+}
+
+std::string set::get_tuple_name() const
+{
+  return tuple_name();
 }
 
 isl::set set::unbind_params(isl::multi_id tuple) const
@@ -24708,6 +32725,49 @@ isl::set set::upper_bound(isl::multi_val upper) const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_set_upper_bound_multi_val(copy(), upper.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::upper_bound_si(enum isl_dim_type type, unsigned int pos, int value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_upper_bound_si(copy(), type, pos, value);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::upper_bound_val(enum isl_dim_type type, unsigned int pos, isl::val value) const
+{
+  if (!ptr || value.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_upper_bound_val(copy(), type, pos, value.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::set set::upper_bound_val(enum isl_dim_type type, unsigned int pos, long value) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  return this->upper_bound_val(type, pos, isl::val(ctx(), value));
+}
+
+isl::map set::wrapped_domain_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_wrapped_domain_map(copy());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -25011,6 +33071,18 @@ unsigned set_list::size() const
   return res;
 }
 
+isl::set set_list::unite() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_set_list_union(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 inline std::ostream &operator<<(std::ostream &os, const set_list &obj)
 {
   if (!obj.get())
@@ -25102,6 +33174,18 @@ isl::ctx space::ctx() const {
   return isl::ctx(isl_space_get_ctx(ptr));
 }
 
+isl::space space::add_dims(enum isl_dim_type type, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_add_dims(copy(), type, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::space space::add_named_tuple(isl::id tuple_id, unsigned int dim) const
 {
   if (!ptr || tuple_id.is_null())
@@ -25176,6 +33260,42 @@ isl::space space::domain() const
   return manage(res);
 }
 
+isl::space space::domain_factor_domain() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_domain_factor_domain(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::domain_factor_range() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_domain_factor_range(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::domain_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_domain_map(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::multi_aff space::domain_map_multi_aff() const
 {
   if (!ptr)
@@ -25195,6 +33315,18 @@ isl::pw_multi_aff space::domain_map_pw_multi_aff() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_space_domain_map_pw_multi_aff(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::domain_product(isl::space right) const
+{
+  if (!ptr || right.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_domain_product(copy(), right.release());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -25229,6 +33361,30 @@ isl::id space::get_domain_tuple_id() const
   return domain_tuple_id();
 }
 
+isl::space space::domain_wrapped_domain() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_domain_wrapped_domain(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::domain_wrapped_range() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_domain_wrapped_range(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::space space::drop_all_params() const
 {
   if (!ptr)
@@ -25236,6 +33392,42 @@ isl::space space::drop_all_params() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_space_drop_all_params(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::drop_dims(enum isl_dim_type type, unsigned int first, unsigned int num) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_drop_dims(copy(), type, first, num);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::factor_domain() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_factor_domain(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::factor_range() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_factor_range(copy());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -25260,6 +33452,30 @@ isl::space space::flatten_range() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_space_flatten_range(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::from_domain() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_from_domain(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::from_range() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_from_range(copy());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -25325,6 +33541,18 @@ isl::pw_multi_aff space::identity_pw_multi_aff_on_domain() const
   return manage(res);
 }
 
+isl::space space::insert_dims(enum isl_dim_type type, unsigned int pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_insert_dims(copy(), type, pos, n);
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 bool space::is_equal(const isl::space &space2) const
 {
   if (!ptr || space2.is_null())
@@ -25349,6 +33577,30 @@ bool space::is_wrapping() const
   return res;
 }
 
+isl::space space::join(isl::space right) const
+{
+  if (!ptr || right.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_join(copy(), right.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::map_from_domain_and_range(isl::space range) const
+{
+  if (!ptr || range.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_map_from_domain_and_range(copy(), range.release());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::space space::map_from_set() const
 {
   if (!ptr)
@@ -25356,6 +33608,18 @@ isl::space space::map_from_set() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_space_map_from_set(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::move_dims(enum isl_dim_type dst_type, unsigned int dst_pos, enum isl_dim_type src_type, unsigned int src_pos, unsigned int n) const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -25488,6 +33752,42 @@ isl::space space::range() const
   return manage(res);
 }
 
+isl::space space::range_factor_domain() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_range_factor_domain(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::range_factor_range() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_range_factor_range(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::range_map() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_range_map(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
 isl::multi_aff space::range_map_multi_aff() const
 {
   if (!ptr)
@@ -25507,6 +33807,18 @@ isl::pw_multi_aff space::range_map_pw_multi_aff() const
   auto saved_ctx = ctx();
   options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
   auto res = isl_space_range_map_pw_multi_aff(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::range_product(isl::space right) const
+{
+  if (!ptr || right.is_null())
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_range_product(copy(), right.release());
   if (!res)
     exception::throw_last_error(saved_ctx);
   return manage(res);
@@ -25539,6 +33851,30 @@ isl::id space::range_tuple_id() const
 isl::id space::get_range_tuple_id() const
 {
   return range_tuple_id();
+}
+
+isl::space space::range_wrapped_domain() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_range_wrapped_domain(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
+}
+
+isl::space space::range_wrapped_range() const
+{
+  if (!ptr)
+    exception::throw_invalid("NULL input", __FILE__, __LINE__);
+  auto saved_ctx = ctx();
+  options_scoped_set_on_error saved_on_error(saved_ctx, exception::on_error);
+  auto res = isl_space_range_wrapped_range(copy());
+  if (!res)
+    exception::throw_last_error(saved_ctx);
+  return manage(res);
 }
 
 isl::space space::reverse() const
