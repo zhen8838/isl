@@ -52,16 +52,26 @@ jobs:
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
     - name: Set up building tools (Windows, MSYS2)
+      shell: msys2 {0}
       run: |
         pacman --noconfirm -S --needed autotools
       if: runner.os == 'Windows'
     
-    - name: Build and Install
+    - name: Build and Install (Linux/MacOs)
       run: |
         ./autogen.sh
         ./configure --prefix=`pwd`/install --with-clang=no --with-int=imath
         make install -j
       shell: bash
+      if: runner.os != 'Windows'
+
+    - name: Build and Install (Windows)
+      run: |
+        ./autogen.sh
+        ./configure --prefix=`pwd`/install --with-clang=no --with-int=imath
+        make install -j
+      shell: msys2 {0}
+      if: runner.os != 'Windows'
 
     - name: Upload Native Build Artifact
       uses: actions/upload-artifact@v4
