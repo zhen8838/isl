@@ -52,7 +52,6 @@ jobs:
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
     - name: Set up building tools (Windows, MSYS2)
-      shell: msys2 {0}
       run: |
         pacman --noconfirm -S --needed autotools
       if: runner.os == 'Windows'
