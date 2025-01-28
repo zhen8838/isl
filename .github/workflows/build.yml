@@ -31,10 +31,8 @@ jobs:
       uses: msys2/setup-msys2@v2
       with:
         msystem: CLANG64
-        install: >-
-          autotools
       if: runner.os == 'Windows'
-
+    
     - name: Set up build environment (Linux)
       run: |
         echo "CC=gcc-14" >> $GITHUB_ENV
@@ -52,6 +50,12 @@ jobs:
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+
+    - name: Set up building tools (Windows, MSYS2)
+      shell: msys2 {0}
+      run: |
+        pacman --noconfirm -S --needed autotools
+      if: runner.os == 'Windows'
     
     - name: Build and Install
       run: |
