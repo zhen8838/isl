@@ -28,7 +28,7 @@ jobs:
         submodules: recursive
 
     - name: Set up build environment (Windows, MSYS2)
-      shell: C:\shells\msys2bash.cmd {0}
+      shell: C:\msys64\usr\bin\bash.exe
       run:
         pacman --noconfirm -S --needed autotools
       if: runner.os == 'Windows'
@@ -60,7 +60,7 @@ jobs:
       if: runner.os != 'Windows'
 
     - name: Build and Install (Windows)
-      shell: C:\shells\msys2bash.cmd {0}
+      shell: C:\msys64\usr\bin\bash.exe
       run: |
         ./autogen.sh
         mkdir install
