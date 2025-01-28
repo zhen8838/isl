@@ -372,7 +372,9 @@ void plain_csharp_generator::print_class_interops(ostream &os,
   for (auto &&method : clazz.methods) {
     for (auto &&it : method.second) {
       if (clazz.copied_from.find(it) == clazz.copied_from.end()) {
-        print_method_interop_type(os, it);
+        if (!clazz.is_try_get_method(it)) {      
+          print_method_interop_type(os, it);
+        }
       }
     }
   }

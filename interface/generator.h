@@ -113,11 +113,16 @@ struct isl_class {
 	}
 	/* The prefix of a "get" method. */
 	static const char *get_prefix;
+	static const char *try_get_prefix;
 	/* Is function "fd" with the given name a "get" method? */
 	bool is_get_method_name(FunctionDecl *fd, const string &name) const;
+	bool is_try_get_method_name(FunctionDecl *fd, const string &name) const;
 	/* Is function "fd" a "get" method? */
 	bool is_get_method(FunctionDecl *fd) const {
 		return is_get_method_name(fd, base_method_name(fd));
+	}
+	bool is_try_get_method(FunctionDecl *fd) const {
+		return is_try_get_method_name(fd, base_method_name(fd));
 	}
 	/* Extract the method name corresponding to "fd". */
 	string method_name(FunctionDecl *fd) const;

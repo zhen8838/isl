@@ -186,6 +186,7 @@ build/include/isl/vertices.h
 build/lib/libisl.23.dylib
 build/lib/libisl.23.dylib-gdb.py
 build/lib/libisl.dylib
+out
 interface/extract_interface
 .DS_Store
 isl_codegen

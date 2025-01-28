@@ -366,7 +366,11 @@ void csharp_generator::class_printer::print_method_variants(
   std::vector<bool> convert(method.num_params());
 
   if (method.clazz.copied_from.count(method.fd) == 0) {
-    print_method(method);
+    if (clazz.is_try_get_method(fd)) {
+      // note currently not support try get method.
+    } else {
+      print_method(method);
+    }
     // if (clazz.is_get_method(fd))
     //   print_get_method(fd);
   } else {
@@ -376,6 +380,9 @@ void csharp_generator::class_printer::print_method_variants(
   if (method.kind != CSharpMethod::Kind::member_method)
     return;
   while (next_variant(fd, convert)) {
+    if (clazz.is_try_get_method(fd)) {
+      continue;
+    }
     print_method(CSharpConversionMethod(
         method, [&](int pos) { return get_param(fd, pos, convert); }));
   }
@@ -862,12 +869,23 @@ std::string csharp_type_printer::param(int arg, QualType type,
     return csharp ? isl_enum_type(arg, type) : type.getAsString().substr(5);
   }
 
-  if (csharp_generator::is_long(type)) {
-    return "long";
-  } else if (type->isUnsignedIntegerType()) {
-    return "uint";
-  } else if (type->isSignedIntegerType()) {
-    return "int";
+  if (type->isBuiltinType()) {
+    auto builtinType = type->getAs<BuiltinType>();
+    auto kind = builtinType->getKind();
+    switch (kind) {
+    case BuiltinType::Long:
+      return "long";
+    case BuiltinType::UInt:
+      return "uint";
+    case BuiltinType::Int:
+      return "int";
+    case BuiltinType::Float:
+      return "float";
+    case BuiltinType::Double:
+      return "double";
+    default:
+      break;
+    }
   }
 
   if (csharp_generator::is_string(type))

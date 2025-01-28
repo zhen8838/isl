@@ -44,6 +44,7 @@
 #include "isl_config.h"
 
 const char *isl_class::get_prefix = "get_";
+const char *isl_class::try_get_prefix = "try_get";
 const char *isl_class::set_callback_prefix = "set_";
 
 /* Is the first argument an instance of the class?
@@ -819,6 +820,10 @@ string isl_class::name_without_type_suffixes(FunctionDecl *method) {
  */
 bool isl_class::is_get_method_name(FunctionDecl *fd, const string &name) const {
   return !is_static(fd) && prefixcmp(name.c_str(), get_prefix) == 0;
+}
+
+bool isl_class::is_try_get_method_name(FunctionDecl *fd, const string &name) const {
+  return !is_static(fd) && prefixcmp(name.c_str(), try_get_prefix) == 0;
 }
 
 /* Extract the method name corresponding to "fd".

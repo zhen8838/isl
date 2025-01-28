@@ -370,50 +370,56 @@ $(srcdir)/interface/isl.py.core: interface/extract_interface$(BUILD_EXEEXT) \
 		--language=python $(includes) $(srcdir)/all.h \
 		> interface/isl.py.Tcore && mv interface/isl.py.Tcore $@
 
-$(srcdir)/include/isl/cpp.h: interface/extract_interface$(BUILD_EXEEXT) \
-		libdep.a cpp/cpp.h.top cpp/cpp.h.bot
-	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
-	(cat $(srcdir)/cpp/cpp.h.top $(srcdir)/all.h && \
-		interface/extract_interface$(BUILD_EXEEXT) --language=cpp \
-			$(includes) $(srcdir)/all.h && \
-		cat $(srcdir)/cpp/cpp.h.bot) \
-			> interface/cpp.Th && mv interface/cpp.Th $@
+$(srcdir)/interface/Interop.cs: interface/extract_interface$(BUILD_EXEEXT) \
+		libdep.a
+	$(AM_V_GEN)interface/extract_interface$(BUILD_EXEEXT) \
+		--language=csharp $(includes) $(srcdir)/all.h \
+		> interface/Interop.cs && mv interface/Interop.cs $@
 
-$(srcdir)/include/isl/cpp-checked.h: \
-		interface/extract_interface$(BUILD_EXEEXT) libdep.a \
-		cpp/cpp-checked.h.top cpp/cpp-checked.h.bot
-	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
-	(cat $(srcdir)/cpp/cpp-checked.h.top $(srcdir)/all.h && \
-		interface/extract_interface$(BUILD_EXEEXT) \
-			--language=cpp-checked \
-			$(includes) $(srcdir)/all.h && \
-		cat $(srcdir)/cpp/cpp-checked.h.bot) \
-			> interface/cpp-checked.Th && \
-			mv interface/cpp-checked.Th $@
-
-$(srcdir)/include/isl/cpp-checked-conversion.h: \
-		interface/extract_interface$(BUILD_EXEEXT) \
-		libdep.a \
-		cpp/cpp-checked-conversion.h.top \
-		cpp/cpp-checked-conversion.h.bot
-	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
-	(cat $(srcdir)/cpp/cpp-checked-conversion.h.top && \
-		interface/extract_interface$(BUILD_EXEEXT) \
-			--language=cpp-checked-conversion \
-			$(includes) $(srcdir)/all.h && \
-		cat $(srcdir)/cpp/cpp-checked-conversion.h.bot) \
-			> interface/cpp-checked-conversion.Th && \
-			mv interface/cpp-checked-conversion.Th $@
-
-$(srcdir)/include/isl/typed_cpp.h: interface/extract_interface$(BUILD_EXEEXT) \
-		libdep.a cpp/typed_cpp.h.top cpp/typed_cpp.h.bot
-	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
-	(cat $(srcdir)/cpp/typed_cpp.h.top && \
-		interface/extract_interface$(BUILD_EXEEXT) \
-			--language=template-cpp \
-			$(includes) $(srcdir)/all.h && \
-		cat $(srcdir)/cpp/typed_cpp.h.bot) \
-			> interface/typed_cpp.Th && mv interface/typed_cpp.Th $@
+#$(srcdir)/include/isl/cpp.h: interface/extract_interface$(BUILD_EXEEXT) \
+#		libdep.a cpp/cpp.h.top cpp/cpp.h.bot
+#	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
+#	(cat $(srcdir)/cpp/cpp.h.top $(srcdir)/all.h && \
+#		interface/extract_interface$(BUILD_EXEEXT) --language=cpp \
+#			$(includes) $(srcdir)/all.h && \
+#		cat $(srcdir)/cpp/cpp.h.bot) \
+#			> interface/cpp.Th && mv interface/cpp.Th $@
+#
+#$(srcdir)/include/isl/cpp-checked.h: \
+#		interface/extract_interface$(BUILD_EXEEXT) libdep.a \
+#		cpp/cpp-checked.h.top cpp/cpp-checked.h.bot
+#	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
+#	(cat $(srcdir)/cpp/cpp-checked.h.top $(srcdir)/all.h && \
+#		interface/extract_interface$(BUILD_EXEEXT) \
+#			--language=cpp-checked \
+#			$(includes) $(srcdir)/all.h && \
+#		cat $(srcdir)/cpp/cpp-checked.h.bot) \
+#			> interface/cpp-checked.Th && \
+#			mv interface/cpp-checked.Th $@
+#
+#$(srcdir)/include/isl/cpp-checked-conversion.h: \
+#		interface/extract_interface$(BUILD_EXEEXT) \
+#		libdep.a \
+#		cpp/cpp-checked-conversion.h.top \
+#		cpp/cpp-checked-conversion.h.bot
+#	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
+#	(cat $(srcdir)/cpp/cpp-checked-conversion.h.top && \
+#		interface/extract_interface$(BUILD_EXEEXT) \
+#			--language=cpp-checked-conversion \
+#			$(includes) $(srcdir)/all.h && \
+#		cat $(srcdir)/cpp/cpp-checked-conversion.h.bot) \
+#			> interface/cpp-checked-conversion.Th && \
+#			mv interface/cpp-checked-conversion.Th $@
+#
+#$(srcdir)/include/isl/typed_cpp.h: interface/extract_interface$(BUILD_EXEEXT) \
+#		libdep.a cpp/typed_cpp.h.top cpp/typed_cpp.h.bot
+#	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
+#	(cat $(srcdir)/cpp/typed_cpp.h.top && \
+#		interface/extract_interface$(BUILD_EXEEXT) \
+#			--language=template-cpp \
+#			$(includes) $(srcdir)/all.h && \
+#		cat $(srcdir)/cpp/typed_cpp.h.bot) \
+#			> interface/typed_cpp.Th && mv interface/typed_cpp.Th $@
 endif
 endif
 
@@ -501,12 +507,13 @@ if HAVE_CXX11
     BUILT_CPP_INTERFACES = $(CPP_INTERFACES)
 endif
 endif
-BUILT_SOURCES = gitversion.h $(BUILT_CPP_INTERFACES) interface/isl.py
+BUILT_SOURCES = gitversion.h $(BUILT_CPP_INTERFACES) interface/isl.py interface/Interop.cs
 CLEANFILES = \
 	gitversion.h \
 	interface/isldlname.py \
 	interface/isl.py \
 	interface/isl.pyc \
+  interface/Interop.cs \
 	interface/__pycache__/*.pyc
 
 DISTCLEANFILES = \
@@ -686,6 +693,7 @@ EXTRA_DIST = \
 	imath/imrat.c \
 	imath/imrat.h \
 	interface/isl.py.core \
+  interface/Interop.cs \
 	all.h \
 	cpp \
 	python \
