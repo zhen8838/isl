@@ -32,7 +32,7 @@ jobs:
       with:
         msystem: CLANG64
         install: >-
-          autoreconf
+          autotools
       if: runner.os == 'Windows'
 
     - name: Set up build environment (Linux)

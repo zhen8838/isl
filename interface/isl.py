@@ -5504,6 +5504,8 @@ class ast_build(object):
         if hasattr(self, 'ptr'):
             isl.isl_ast_build_free(self.ptr)
     def copy_callbacks(self, obj):
+        if hasattr(obj, 'at_each_domain'):
+            self.at_each_domain = obj.at_each_domain
         if hasattr(obj, 'before_each_for'):
             self.before_each_for = obj.before_each_for
         if hasattr(obj, 'after_each_for'):
@@ -5514,29 +5516,33 @@ class ast_build(object):
             self.after_each_mark = obj.after_each_mark
         if hasattr(obj, 'create_leaf'):
             self.create_leaf = obj.create_leaf
-        if hasattr(obj, 'at_each_domain'):
-            self.at_each_domain = obj.at_each_domain
-    def set_before_each_for(arg0, arg1):
+    def set_at_each_domain(arg0, arg1):
         try:
             if not arg0.__class__ is ast_build:
                 arg0 = ast_build(arg0)
         except:
             raise
         exc_info = [None]
-        fn = CFUNCTYPE(c_void_p, c_void_p, c_void_p)
-        def cb_func(cb_arg0, cb_arg1):
-            cb_arg0 = ast_build(ctx=arg0.ctx, ptr=isl.isl_ast_build_copy(cb_arg0))
+        fn = CFUNCTYPE(c_void_p, c_void_p, c_void_p, c_void_p)
+        def cb_func(cb_arg0, cb_arg1, cb_arg2):
+            cb_arg0 = ast_node(ctx=arg0.ctx, ptr=(cb_arg0))
+            cb_arg1 = ast_build(ctx=arg0.ctx, ptr=isl.isl_ast_build_copy(cb_arg1))
             try:
-                res = arg1(cb_arg0)
+                res = arg1(cb_arg0, cb_arg1)
             except BaseException as e:
                 exc_info[0] = e
                 return None
-            return isl.isl_id_copy(res.ptr)
+            return isl.isl_ast_node_copy(res.ptr)
         cb1 = fn(cb_func)
         ctx = arg0.ctx
-        res = isl.isl_ast_build_set_before_each_for(isl.isl_ast_build_copy(arg0.ptr), cb1, None)
+        res = isl.isl_ast_build_set_at_each_domain(isl.isl_ast_build_copy(arg0.ptr), cb1, None)
         if exc_info[0] is not None:
             raise exc_info[0]
+        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
+            exc_info = arg0.at_each_domain['exc_info'][0]
+            arg0.at_each_domain['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
         if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
             exc_info = arg0.before_each_for['exc_info'][0]
             arg0.before_each_for['exc_info'][0] = None
@@ -5562,9 +5568,59 @@ class ast_build(object):
             arg0.create_leaf['exc_info'][0] = None
             if exc_info is not None:
                 raise exc_info
+        obj = ast_build(ctx=ctx, ptr=res)
+        obj.copy_callbacks(arg0)
+        obj.at_each_domain = { 'func': cb1, 'exc_info': exc_info }
+        return obj
+    def set_before_each_for(arg0, arg1):
+        try:
+            if not arg0.__class__ is ast_build:
+                arg0 = ast_build(arg0)
+        except:
+            raise
+        exc_info = [None]
+        fn = CFUNCTYPE(c_void_p, c_void_p, c_void_p)
+        def cb_func(cb_arg0, cb_arg1):
+            cb_arg0 = ast_build(ctx=arg0.ctx, ptr=isl.isl_ast_build_copy(cb_arg0))
+            try:
+                res = arg1(cb_arg0)
+            except BaseException as e:
+                exc_info[0] = e
+                return None
+            return isl.isl_id_copy(res.ptr)
+        cb1 = fn(cb_func)
+        ctx = arg0.ctx
+        res = isl.isl_ast_build_set_before_each_for(isl.isl_ast_build_copy(arg0.ptr), cb1, None)
+        if exc_info[0] is not None:
+            raise exc_info[0]
         if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
             exc_info = arg0.at_each_domain['exc_info'][0]
             arg0.at_each_domain['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
+        if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
+            exc_info = arg0.before_each_for['exc_info'][0]
+            arg0.before_each_for['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
+        if hasattr(arg0, 'after_each_for') and arg0.after_each_for['exc_info'] != None:
+            exc_info = arg0.after_each_for['exc_info'][0]
+            arg0.after_each_for['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
+        if hasattr(arg0, 'before_each_mark') and arg0.before_each_mark['exc_info'] != None:
+            exc_info = arg0.before_each_mark['exc_info'][0]
+            arg0.before_each_mark['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
+        if hasattr(arg0, 'after_each_mark') and arg0.after_each_mark['exc_info'] != None:
+            exc_info = arg0.after_each_mark['exc_info'][0]
+            arg0.after_each_mark['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
+        if hasattr(arg0, 'create_leaf') and arg0.create_leaf['exc_info'] != None:
+            exc_info = arg0.create_leaf['exc_info'][0]
+            arg0.create_leaf['exc_info'][0] = None
             if exc_info is not None:
                 raise exc_info
         obj = ast_build(ctx=ctx, ptr=res)
@@ -5593,6 +5649,11 @@ class ast_build(object):
         res = isl.isl_ast_build_set_after_each_for(isl.isl_ast_build_copy(arg0.ptr), cb1, None)
         if exc_info[0] is not None:
             raise exc_info[0]
+        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
+            exc_info = arg0.at_each_domain['exc_info'][0]
+            arg0.at_each_domain['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
         if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
             exc_info = arg0.before_each_for['exc_info'][0]
             arg0.before_each_for['exc_info'][0] = None
@@ -5616,11 +5677,6 @@ class ast_build(object):
         if hasattr(arg0, 'create_leaf') and arg0.create_leaf['exc_info'] != None:
             exc_info = arg0.create_leaf['exc_info'][0]
             arg0.create_leaf['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
-            exc_info = arg0.at_each_domain['exc_info'][0]
-            arg0.at_each_domain['exc_info'][0] = None
             if exc_info is not None:
                 raise exc_info
         obj = ast_build(ctx=ctx, ptr=res)
@@ -5649,6 +5705,11 @@ class ast_build(object):
         res = isl.isl_ast_build_set_before_each_mark(isl.isl_ast_build_copy(arg0.ptr), cb1, None)
         if exc_info[0] is not None:
             raise exc_info[0]
+        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
+            exc_info = arg0.at_each_domain['exc_info'][0]
+            arg0.at_each_domain['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
         if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
             exc_info = arg0.before_each_for['exc_info'][0]
             arg0.before_each_for['exc_info'][0] = None
@@ -5672,11 +5733,6 @@ class ast_build(object):
         if hasattr(arg0, 'create_leaf') and arg0.create_leaf['exc_info'] != None:
             exc_info = arg0.create_leaf['exc_info'][0]
             arg0.create_leaf['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
-            exc_info = arg0.at_each_domain['exc_info'][0]
-            arg0.at_each_domain['exc_info'][0] = None
             if exc_info is not None:
                 raise exc_info
         obj = ast_build(ctx=ctx, ptr=res)
@@ -5705,6 +5761,11 @@ class ast_build(object):
         res = isl.isl_ast_build_set_after_each_mark(isl.isl_ast_build_copy(arg0.ptr), cb1, None)
         if exc_info[0] is not None:
             raise exc_info[0]
+        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
+            exc_info = arg0.at_each_domain['exc_info'][0]
+            arg0.at_each_domain['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
         if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
             exc_info = arg0.before_each_for['exc_info'][0]
             arg0.before_each_for['exc_info'][0] = None
@@ -5728,11 +5789,6 @@ class ast_build(object):
         if hasattr(arg0, 'create_leaf') and arg0.create_leaf['exc_info'] != None:
             exc_info = arg0.create_leaf['exc_info'][0]
             arg0.create_leaf['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
-            exc_info = arg0.at_each_domain['exc_info'][0]
-            arg0.at_each_domain['exc_info'][0] = None
             if exc_info is not None:
                 raise exc_info
         obj = ast_build(ctx=ctx, ptr=res)
@@ -5760,6 +5816,11 @@ class ast_build(object):
         res = isl.isl_ast_build_set_create_leaf(isl.isl_ast_build_copy(arg0.ptr), cb1, None)
         if exc_info[0] is not None:
             raise exc_info[0]
+        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
+            exc_info = arg0.at_each_domain['exc_info'][0]
+            arg0.at_each_domain['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
         if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
             exc_info = arg0.before_each_for['exc_info'][0]
             arg0.before_each_for['exc_info'][0] = None
@@ -5783,72 +5844,11 @@ class ast_build(object):
         if hasattr(arg0, 'create_leaf') and arg0.create_leaf['exc_info'] != None:
             exc_info = arg0.create_leaf['exc_info'][0]
             arg0.create_leaf['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
-            exc_info = arg0.at_each_domain['exc_info'][0]
-            arg0.at_each_domain['exc_info'][0] = None
             if exc_info is not None:
                 raise exc_info
         obj = ast_build(ctx=ctx, ptr=res)
         obj.copy_callbacks(arg0)
         obj.create_leaf = { 'func': cb1, 'exc_info': exc_info }
-        return obj
-    def set_at_each_domain(arg0, arg1):
-        try:
-            if not arg0.__class__ is ast_build:
-                arg0 = ast_build(arg0)
-        except:
-            raise
-        exc_info = [None]
-        fn = CFUNCTYPE(c_void_p, c_void_p, c_void_p, c_void_p)
-        def cb_func(cb_arg0, cb_arg1, cb_arg2):
-            cb_arg0 = ast_node(ctx=arg0.ctx, ptr=(cb_arg0))
-            cb_arg1 = ast_build(ctx=arg0.ctx, ptr=isl.isl_ast_build_copy(cb_arg1))
-            try:
-                res = arg1(cb_arg0, cb_arg1)
-            except BaseException as e:
-                exc_info[0] = e
-                return None
-            return isl.isl_ast_node_copy(res.ptr)
-        cb1 = fn(cb_func)
-        ctx = arg0.ctx
-        res = isl.isl_ast_build_set_at_each_domain(isl.isl_ast_build_copy(arg0.ptr), cb1, None)
-        if exc_info[0] is not None:
-            raise exc_info[0]
-        if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
-            exc_info = arg0.before_each_for['exc_info'][0]
-            arg0.before_each_for['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'after_each_for') and arg0.after_each_for['exc_info'] != None:
-            exc_info = arg0.after_each_for['exc_info'][0]
-            arg0.after_each_for['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'before_each_mark') and arg0.before_each_mark['exc_info'] != None:
-            exc_info = arg0.before_each_mark['exc_info'][0]
-            arg0.before_each_mark['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'after_each_mark') and arg0.after_each_mark['exc_info'] != None:
-            exc_info = arg0.after_each_mark['exc_info'][0]
-            arg0.after_each_mark['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'create_leaf') and arg0.create_leaf['exc_info'] != None:
-            exc_info = arg0.create_leaf['exc_info'][0]
-            arg0.create_leaf['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
-            exc_info = arg0.at_each_domain['exc_info'][0]
-            arg0.at_each_domain['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        obj = ast_build(ctx=ctx, ptr=res)
-        obj.copy_callbacks(arg0)
-        obj.at_each_domain = { 'func': cb1, 'exc_info': exc_info }
         return obj
     def access_from(*args):
         if len(args) == 2 and args[1].__class__ is multi_pw_aff:
@@ -5860,6 +5860,11 @@ class ast_build(object):
                 raise
             ctx = args[0].ctx
             res = isl.isl_ast_build_access_from_multi_pw_aff(args[0].ptr, isl.isl_multi_pw_aff_copy(args[1].ptr))
+            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
+                exc_info = args[0].at_each_domain['exc_info'][0]
+                args[0].at_each_domain['exc_info'][0] = None
+                if exc_info is not None:
+                    raise exc_info
             if hasattr(args[0], 'before_each_for') and args[0].before_each_for['exc_info'] != None:
                 exc_info = args[0].before_each_for['exc_info'][0]
                 args[0].before_each_for['exc_info'][0] = None
@@ -5883,11 +5888,6 @@ class ast_build(object):
             if hasattr(args[0], 'create_leaf') and args[0].create_leaf['exc_info'] != None:
                 exc_info = args[0].create_leaf['exc_info'][0]
                 args[0].create_leaf['exc_info'][0] = None
-                if exc_info is not None:
-                    raise exc_info
-            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
-                exc_info = args[0].at_each_domain['exc_info'][0]
-                args[0].at_each_domain['exc_info'][0] = None
                 if exc_info is not None:
                     raise exc_info
             obj = ast_expr(ctx=ctx, ptr=res)
@@ -5901,6 +5901,11 @@ class ast_build(object):
                 raise
             ctx = args[0].ctx
             res = isl.isl_ast_build_access_from_pw_multi_aff(args[0].ptr, isl.isl_pw_multi_aff_copy(args[1].ptr))
+            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
+                exc_info = args[0].at_each_domain['exc_info'][0]
+                args[0].at_each_domain['exc_info'][0] = None
+                if exc_info is not None:
+                    raise exc_info
             if hasattr(args[0], 'before_each_for') and args[0].before_each_for['exc_info'] != None:
                 exc_info = args[0].before_each_for['exc_info'][0]
                 args[0].before_each_for['exc_info'][0] = None
@@ -5924,11 +5929,6 @@ class ast_build(object):
             if hasattr(args[0], 'create_leaf') and args[0].create_leaf['exc_info'] != None:
                 exc_info = args[0].create_leaf['exc_info'][0]
                 args[0].create_leaf['exc_info'][0] = None
-                if exc_info is not None:
-                    raise exc_info
-            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
-                exc_info = args[0].at_each_domain['exc_info'][0]
-                args[0].at_each_domain['exc_info'][0] = None
                 if exc_info is not None:
                     raise exc_info
             obj = ast_expr(ctx=ctx, ptr=res)
@@ -5944,6 +5944,11 @@ class ast_build(object):
                 raise
             ctx = args[0].ctx
             res = isl.isl_ast_build_call_from_multi_pw_aff(args[0].ptr, isl.isl_multi_pw_aff_copy(args[1].ptr))
+            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
+                exc_info = args[0].at_each_domain['exc_info'][0]
+                args[0].at_each_domain['exc_info'][0] = None
+                if exc_info is not None:
+                    raise exc_info
             if hasattr(args[0], 'before_each_for') and args[0].before_each_for['exc_info'] != None:
                 exc_info = args[0].before_each_for['exc_info'][0]
                 args[0].before_each_for['exc_info'][0] = None
@@ -5967,11 +5972,6 @@ class ast_build(object):
             if hasattr(args[0], 'create_leaf') and args[0].create_leaf['exc_info'] != None:
                 exc_info = args[0].create_leaf['exc_info'][0]
                 args[0].create_leaf['exc_info'][0] = None
-                if exc_info is not None:
-                    raise exc_info
-            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
-                exc_info = args[0].at_each_domain['exc_info'][0]
-                args[0].at_each_domain['exc_info'][0] = None
                 if exc_info is not None:
                     raise exc_info
             obj = ast_expr(ctx=ctx, ptr=res)
@@ -5985,6 +5985,11 @@ class ast_build(object):
                 raise
             ctx = args[0].ctx
             res = isl.isl_ast_build_call_from_pw_multi_aff(args[0].ptr, isl.isl_pw_multi_aff_copy(args[1].ptr))
+            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
+                exc_info = args[0].at_each_domain['exc_info'][0]
+                args[0].at_each_domain['exc_info'][0] = None
+                if exc_info is not None:
+                    raise exc_info
             if hasattr(args[0], 'before_each_for') and args[0].before_each_for['exc_info'] != None:
                 exc_info = args[0].before_each_for['exc_info'][0]
                 args[0].before_each_for['exc_info'][0] = None
@@ -6008,11 +6013,6 @@ class ast_build(object):
             if hasattr(args[0], 'create_leaf') and args[0].create_leaf['exc_info'] != None:
                 exc_info = args[0].create_leaf['exc_info'][0]
                 args[0].create_leaf['exc_info'][0] = None
-                if exc_info is not None:
-                    raise exc_info
-            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
-                exc_info = args[0].at_each_domain['exc_info'][0]
-                args[0].at_each_domain['exc_info'][0] = None
                 if exc_info is not None:
                     raise exc_info
             obj = ast_expr(ctx=ctx, ptr=res)
@@ -6028,6 +6028,11 @@ class ast_build(object):
                 raise
             ctx = args[0].ctx
             res = isl.isl_ast_build_expr_from_pw_aff(args[0].ptr, isl.isl_pw_aff_copy(args[1].ptr))
+            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
+                exc_info = args[0].at_each_domain['exc_info'][0]
+                args[0].at_each_domain['exc_info'][0] = None
+                if exc_info is not None:
+                    raise exc_info
             if hasattr(args[0], 'before_each_for') and args[0].before_each_for['exc_info'] != None:
                 exc_info = args[0].before_each_for['exc_info'][0]
                 args[0].before_each_for['exc_info'][0] = None
@@ -6051,11 +6056,6 @@ class ast_build(object):
             if hasattr(args[0], 'create_leaf') and args[0].create_leaf['exc_info'] != None:
                 exc_info = args[0].create_leaf['exc_info'][0]
                 args[0].create_leaf['exc_info'][0] = None
-                if exc_info is not None:
-                    raise exc_info
-            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
-                exc_info = args[0].at_each_domain['exc_info'][0]
-                args[0].at_each_domain['exc_info'][0] = None
                 if exc_info is not None:
                     raise exc_info
             obj = ast_expr(ctx=ctx, ptr=res)
@@ -6069,6 +6069,11 @@ class ast_build(object):
                 raise
             ctx = args[0].ctx
             res = isl.isl_ast_build_expr_from_set(args[0].ptr, isl.isl_set_copy(args[1].ptr))
+            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
+                exc_info = args[0].at_each_domain['exc_info'][0]
+                args[0].at_each_domain['exc_info'][0] = None
+                if exc_info is not None:
+                    raise exc_info
             if hasattr(args[0], 'before_each_for') and args[0].before_each_for['exc_info'] != None:
                 exc_info = args[0].before_each_for['exc_info'][0]
                 args[0].before_each_for['exc_info'][0] = None
@@ -6092,11 +6097,6 @@ class ast_build(object):
             if hasattr(args[0], 'create_leaf') and args[0].create_leaf['exc_info'] != None:
                 exc_info = args[0].create_leaf['exc_info'][0]
                 args[0].create_leaf['exc_info'][0] = None
-                if exc_info is not None:
-                    raise exc_info
-            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
-                exc_info = args[0].at_each_domain['exc_info'][0]
-                args[0].at_each_domain['exc_info'][0] = None
                 if exc_info is not None:
                     raise exc_info
             obj = ast_expr(ctx=ctx, ptr=res)
@@ -6123,6 +6123,11 @@ class ast_build(object):
                 raise
             ctx = args[0].ctx
             res = isl.isl_ast_build_node_from_schedule(args[0].ptr, isl.isl_schedule_copy(args[1].ptr))
+            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
+                exc_info = args[0].at_each_domain['exc_info'][0]
+                args[0].at_each_domain['exc_info'][0] = None
+                if exc_info is not None:
+                    raise exc_info
             if hasattr(args[0], 'before_each_for') and args[0].before_each_for['exc_info'] != None:
                 exc_info = args[0].before_each_for['exc_info'][0]
                 args[0].before_each_for['exc_info'][0] = None
@@ -6148,11 +6153,6 @@ class ast_build(object):
                 args[0].create_leaf['exc_info'][0] = None
                 if exc_info is not None:
                     raise exc_info
-            if hasattr(args[0], 'at_each_domain') and args[0].at_each_domain['exc_info'] != None:
-                exc_info = args[0].at_each_domain['exc_info'][0]
-                args[0].at_each_domain['exc_info'][0] = None
-                if exc_info is not None:
-                    raise exc_info
             obj = ast_node(ctx=ctx, ptr=res)
             return obj
         raise Error
@@ -6169,6 +6169,11 @@ class ast_build(object):
             raise
         ctx = arg0.ctx
         res = isl.isl_ast_build_node_from_schedule_map(arg0.ptr, isl.isl_union_map_copy(arg1.ptr))
+        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
+            exc_info = arg0.at_each_domain['exc_info'][0]
+            arg0.at_each_domain['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
         if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
             exc_info = arg0.before_each_for['exc_info'][0]
             arg0.before_each_for['exc_info'][0] = None
@@ -6192,11 +6197,6 @@ class ast_build(object):
         if hasattr(arg0, 'create_leaf') and arg0.create_leaf['exc_info'] != None:
             exc_info = arg0.create_leaf['exc_info'][0]
             arg0.create_leaf['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
-            exc_info = arg0.at_each_domain['exc_info'][0]
-            arg0.at_each_domain['exc_info'][0] = None
             if exc_info is not None:
                 raise exc_info
         obj = ast_node(ctx=ctx, ptr=res)
@@ -6209,6 +6209,11 @@ class ast_build(object):
             raise
         ctx = arg0.ctx
         res = isl.isl_ast_build_get_schedule(arg0.ptr)
+        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
+            exc_info = arg0.at_each_domain['exc_info'][0]
+            arg0.at_each_domain['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
         if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
             exc_info = arg0.before_each_for['exc_info'][0]
             arg0.before_each_for['exc_info'][0] = None
@@ -6232,11 +6237,6 @@ class ast_build(object):
         if hasattr(arg0, 'create_leaf') and arg0.create_leaf['exc_info'] != None:
             exc_info = arg0.create_leaf['exc_info'][0]
             arg0.create_leaf['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
-            exc_info = arg0.at_each_domain['exc_info'][0]
-            arg0.at_each_domain['exc_info'][0] = None
             if exc_info is not None:
                 raise exc_info
         obj = union_map(ctx=ctx, ptr=res)
@@ -6256,6 +6256,11 @@ class ast_build(object):
             raise
         ctx = arg0.ctx
         res = isl.isl_ast_build_set_iterators(isl.isl_ast_build_copy(arg0.ptr), isl.isl_id_list_copy(arg1.ptr))
+        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
+            exc_info = arg0.at_each_domain['exc_info'][0]
+            arg0.at_each_domain['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
         if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
             exc_info = arg0.before_each_for['exc_info'][0]
             arg0.before_each_for['exc_info'][0] = None
@@ -6279,11 +6284,6 @@ class ast_build(object):
         if hasattr(arg0, 'create_leaf') and arg0.create_leaf['exc_info'] != None:
             exc_info = arg0.create_leaf['exc_info'][0]
             arg0.create_leaf['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
-        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
-            exc_info = arg0.at_each_domain['exc_info'][0]
-            arg0.at_each_domain['exc_info'][0] = None
             if exc_info is not None:
                 raise exc_info
         obj = ast_build(ctx=ctx, ptr=res)
@@ -6302,6 +6302,11 @@ class ast_build(object):
             raise
         ctx = arg0.ctx
         res = isl.isl_ast_build_set_options(isl.isl_ast_build_copy(arg0.ptr), isl.isl_union_map_copy(arg1.ptr))
+        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
+            exc_info = arg0.at_each_domain['exc_info'][0]
+            arg0.at_each_domain['exc_info'][0] = None
+            if exc_info is not None:
+                raise exc_info
         if hasattr(arg0, 'before_each_for') and arg0.before_each_for['exc_info'] != None:
             exc_info = arg0.before_each_for['exc_info'][0]
             arg0.before_each_for['exc_info'][0] = None
@@ -6327,17 +6332,14 @@ class ast_build(object):
             arg0.create_leaf['exc_info'][0] = None
             if exc_info is not None:
                 raise exc_info
-        if hasattr(arg0, 'at_each_domain') and arg0.at_each_domain['exc_info'] != None:
-            exc_info = arg0.at_each_domain['exc_info'][0]
-            arg0.at_each_domain['exc_info'][0] = None
-            if exc_info is not None:
-                raise exc_info
         obj = ast_build(ctx=ctx, ptr=res)
         obj.copy_callbacks(arg0)
         return obj
 
 isl.isl_ast_build_alloc.restype = c_void_p
 isl.isl_ast_build_alloc.argtypes = [Context]
+isl.isl_ast_build_set_at_each_domain.restype = c_void_p
+isl.isl_ast_build_set_at_each_domain.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_ast_build_set_before_each_for.restype = c_void_p
 isl.isl_ast_build_set_before_each_for.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_ast_build_set_after_each_for.restype = c_void_p
@@ -6348,8 +6350,6 @@ isl.isl_ast_build_set_after_each_mark.restype = c_void_p
 isl.isl_ast_build_set_after_each_mark.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_ast_build_set_create_leaf.restype = c_void_p
 isl.isl_ast_build_set_create_leaf.argtypes = [c_void_p, c_void_p, c_void_p]
-isl.isl_ast_build_set_at_each_domain.restype = c_void_p
-isl.isl_ast_build_set_at_each_domain.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_ast_build_access_from_multi_pw_aff.restype = c_void_p
 isl.isl_ast_build_access_from_multi_pw_aff.argtypes = [c_void_p, c_void_p]
 isl.isl_ast_build_access_from_pw_multi_aff.restype = c_void_p
