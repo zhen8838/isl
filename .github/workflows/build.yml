@@ -30,7 +30,9 @@ jobs:
     - name: Set up build environment (Windows, MSYS2)
       uses: msys2/setup-msys2@v2
       with:
-        msystem: CLANG64
+        msystem: MINGW64
+        install: >-
+          autotools
       if: runner.os == 'Windows'
     
     - name: Set up build environment (Linux)
@@ -38,7 +40,7 @@ jobs:
         echo "CC=gcc-14" >> $GITHUB_ENV
         echo "CXX=g++-14" >> $GITHUB_ENV
       if: runner.os == 'Linux'
-    
+      
     - name: Set up build environment (MacOs)
       run: |
         brew install readline
@@ -51,12 +53,6 @@ jobs:
       uses: mxschmitt/action-tmate@v3
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
-    - name: Set up building tools (Windows, MSYS2)
-      shell: msys2 {0}
-      run: |
-        pacman --noconfirm -S --needed autotools
-      if: runner.os == 'Windows'
-    
     - name: Build and Install (Linux/MacOs)
       run: |
         ./autogen.sh
