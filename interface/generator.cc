@@ -731,8 +731,14 @@ static bool is_unsigned_int(QualType type) {
  * The input "type" is assumed to be a pointer type.
  */
 string generator::extract_type(QualType type) {
-  if (type->isPointerType())
-    return type->getPointeeType().getAsString();
+  if (type->isPointerType()) {
+    auto pointee_type = type->getPointeeType();
+    auto type_name = pointee_type.getAsString();
+    if (pointee_type.isConstQualified()) {
+      return type_name.substr(6);
+    }
+    return type_name;
+  }
   die("Cannot extract type from non-pointer type");
 }
 
@@ -822,7 +828,8 @@ bool isl_class::is_get_method_name(FunctionDecl *fd, const string &name) const {
   return !is_static(fd) && prefixcmp(name.c_str(), get_prefix) == 0;
 }
 
-bool isl_class::is_try_get_method_name(FunctionDecl *fd, const string &name) const {
+bool isl_class::is_try_get_method_name(FunctionDecl *fd,
+                                       const string &name) const {
   return !is_static(fd) && prefixcmp(name.c_str(), try_get_prefix) == 0;
 }
 

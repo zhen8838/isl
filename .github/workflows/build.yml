@@ -34,6 +34,8 @@ jobs:
         install: >-
           autotools
           make
+          git
+          base-devel
           mingw-w64-x86_64-clang
       if: runner.os == 'Windows'
     

@@ -1,15 +1,7 @@
-isl_dlname='libisl.23.dylib'
 import os
 from ctypes import *
 from ctypes.util import find_library
-
-isl_dyld_library_path = os.environ.get('ISL_DYLD_LIBRARY_PATH')
-if isl_dyld_library_path != None:
-    os.environ['DYLD_LIBRARY_PATH'] =  isl_dyld_library_path
-try:
-    isl = cdll.LoadLibrary(isl_dlname)
-except:
-    isl = cdll.LoadLibrary(find_library("isl"))
+isl = cdll.LoadLibrary(find_library("isl"))
 libc = cdll.LoadLibrary(find_library("c"))
 
 class Error(Exception):
@@ -14552,11 +14544,10 @@ class basic_map(map):
         res = isl.isl_basic_map_to_list(isl.isl_basic_map_copy(arg0.ptr))
         obj = basic_map_list(ctx=ctx, ptr=res)
         return obj
-    @staticmethod
     def total_dim(arg0):
         try:
-            if not arg0.__class__ is t isl_basic_map:
-                arg0 = t isl_basic_map(arg0)
+            if not arg0.__class__ is basic_map:
+                arg0 = basic_map(arg0)
         except:
             raise
         ctx = arg0.ctx
@@ -18698,11 +18689,10 @@ class basic_set(set):
         res = isl.isl_basic_set_to_set(isl.isl_basic_set_copy(arg0.ptr))
         obj = set(ctx=ctx, ptr=res)
         return obj
-    @staticmethod
     def total_dim(arg0):
         try:
-            if not arg0.__class__ is t isl_basic_set:
-                arg0 = t isl_basic_set(arg0)
+            if not arg0.__class__ is basic_set:
+                arg0 = basic_set(arg0)
         except:
             raise
         ctx = arg0.ctx
@@ -22525,12 +22515,6 @@ class printer(object):
         res = isl.isl_printer_free(isl.isl_printer_copy(arg0.ptr))
         obj = printer(ctx=ctx, ptr=res)
         return obj
-    @staticmethod
-    def from_file(arg0):
-        ctx = Context.getDefaultInstance()
-        res = isl.isl_printer_from_file(ctx, arg0.encode('ascii'))
-        obj = printer(ctx=ctx, ptr=res)
-        return obj
     def print_ast_expr(arg0, arg1):
         try:
             if not arg0.__class__ is printer:
@@ -22651,6 +22635,12 @@ class printer(object):
         res = isl.isl_printer_start_line(isl.isl_printer_copy(arg0.ptr))
         obj = printer(ctx=ctx, ptr=res)
         return obj
+    @staticmethod
+    def to_file_path(arg0):
+        ctx = Context.getDefaultInstance()
+        res = isl.isl_printer_to_file_path(ctx, arg0.encode('ascii'))
+        obj = printer(ctx=ctx, ptr=res)
+        return obj
 
 isl.isl_printer_end_line.restype = c_void_p
 isl.isl_printer_end_line.argtypes = [c_void_p]
@@ -22658,8 +22648,6 @@ isl.isl_printer_flush.restype = c_void_p
 isl.isl_printer_flush.argtypes = [c_void_p]
 isl.isl_printer_free.restype = c_void_p
 isl.isl_printer_free.argtypes = [c_void_p]
-isl.isl_printer_from_file.restype = c_void_p
-isl.isl_printer_from_file.argtypes = [Context, c_char_p]
 isl.isl_printer_print_ast_expr.restype = c_void_p
 isl.isl_printer_print_ast_expr.argtypes = [c_void_p, c_void_p]
 isl.isl_printer_print_ast_node.restype = c_void_p
@@ -22680,6 +22668,8 @@ isl.isl_printer_set_yaml_style.restype = c_void_p
 isl.isl_printer_set_yaml_style.argtypes = [c_void_p, c_int]
 isl.isl_printer_start_line.restype = c_void_p
 isl.isl_printer_start_line.argtypes = [c_void_p]
+isl.isl_printer_to_file_path.restype = c_void_p
+isl.isl_printer_to_file_path.argtypes = [Context, c_char_p]
 isl.isl_printer_copy.restype = c_void_p
 isl.isl_printer_copy.argtypes = [c_void_p]
 isl.isl_printer_free.restype = c_void_p

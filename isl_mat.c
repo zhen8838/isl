@@ -1230,6 +1230,60 @@ error:
 	return NULL;
 }
 
+__isl_give char *isl_mat_to_str(
+	__isl_keep isl_mat *mat)
+{
+	isl_printer *p;
+	char *s;
+  char tmp[256];
+  int indent = 0;
+
+	if (!mat)
+		return NULL;
+
+	p = isl_printer_to_str(isl_mat_get_ctx(mat));
+  int i, j;
+
+	if (!mat) {
+		return "null mat";
+	}
+
+	if (mat->n_row == 0) {
+    sprintf(tmp, "%*s[]\n", indent, "");
+    p = isl_printer_print_str(p, tmp);
+  }
+
+	for (i = 0; i < mat->n_row; ++i) {
+		if (!i) {
+      sprintf(tmp, "%*s[[", indent, "");
+      p = isl_printer_print_str(p, tmp);
+    }
+		else {
+      sprintf(tmp, "%*s[", indent+1, "");
+      p = isl_printer_print_str(p, tmp);
+    }
+		for (j = 0; j < mat->n_col; ++j) {
+			if (j) {
+        sprintf(tmp, ",");
+        p = isl_printer_print_str(p, tmp);
+      }
+      p = isl_printer_print_isl_int(p, mat->row[i][j]);
+		}
+		if (i == mat->n_row-1) {
+      sprintf(tmp, "]]");
+      p = isl_printer_print_str(p, tmp);
+    }
+		else {
+      sprintf(tmp, "]\n");
+      p = isl_printer_print_str(p, tmp);
+    }
+	}
+	s = isl_printer_get_str(p);
+	isl_printer_free(p);
+
+	return s;
+}
+
 __isl_give isl_mat *isl_mat_swap_cols(__isl_take isl_mat *mat,
 	unsigned i, unsigned j)
 {

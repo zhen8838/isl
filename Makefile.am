@@ -429,7 +429,7 @@ interface/isldlname.py: libisl.la
 		$(SED) -e 's/dlname/isl_dlname/' > $@
 interface/isl.py: python/isl.py.top interface/isldlname.py \
 		$(srcdir)/interface/isl.py.core
-	$(AM_V_GEN)cat interface/isldlname.py $(srcdir)/python/isl.py.top \
+	$(AM_V_GEN)cat $(srcdir)/python/isl.py.top \
 		$(srcdir)/interface/isl.py.core > interface/isl.Tpy && \
 		mv interface/isl.Tpy $@
 

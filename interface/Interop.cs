@@ -6802,13 +6802,13 @@ return new basic_map_list(res);
   return new map(get()).to_union_map();
 }
 
- public static int total_dim(basic_map bmap)
+ public int total_dim()
 {
-  if (bmap.is_null()) {
+  if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
 
   }
-  var res = Interop.isl_basic_map_total_dim(bmap.get());
+  var res = Interop.isl_basic_map_total_dim(get());
   if (res < 0) {
     throw new InvalidOperationException();
   }
@@ -9091,13 +9091,13 @@ return new set(res);
   return new set(get()).to_union_set();
 }
 
- public static int total_dim(basic_set bset)
+ public int total_dim()
 {
-  if (bset.is_null()) {
+  if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
 
   }
-  var res = Interop.isl_basic_set_total_dim(bset.get());
+  var res = Interop.isl_basic_set_total_dim(get());
   if (res < 0) {
     throw new InvalidOperationException();
   }
@@ -20423,6 +20423,14 @@ return new set(res);
   return new basic_set(get()).to_union_set();
 }
 
+ public int total_dim()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).total_dim();
+}
+
  public map translation()
 {
   if (get() == IntPtr.Zero) {
@@ -20661,15 +20669,6 @@ return new printer(res);
 return new printer(res);
 }
 
- public static printer from_file(ctx ctx, string file_path)
-{
-  var res = Interop.isl_printer_from_file(ctx.get(), file_path);
-  if (res == IntPtr.Zero) {
-    throw new InvalidOperationException();
-  }
-return new printer(res);
-}
-
  public printer print_ast_expr(ast_expr expr)
 {
   if (get() == IntPtr.Zero || expr.is_null()) {
@@ -20794,6 +20793,15 @@ return new printer(res);
 
   }
   var res = Interop.isl_printer_start_line(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new printer(res);
+}
+
+ public static printer to_file_path(ctx ctx, string file_path)
+{
+  var res = Interop.isl_printer_to_file_path(ctx.get(), file_path);
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -37848,9 +37856,6 @@ public static extern  IntPtr isl_printer_flush(IntPtr p);
 public static extern  IntPtr isl_printer_free(IntPtr printer);
 
 [DllImport(LibraryName)]
-public static extern  IntPtr isl_printer_from_file(IntPtr ctx, [MarshalAs(UnmanagedType.LPStr)] string file_path);
-
-[DllImport(LibraryName)]
 public static extern  IntPtr isl_printer_print_ast_expr(IntPtr p, IntPtr expr);
 
 [DllImport(LibraryName)]
@@ -37879,6 +37884,9 @@ public static extern  IntPtr isl_printer_set_yaml_style(IntPtr p, int yaml_style
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_printer_start_line(IntPtr p);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_printer_to_file_path(IntPtr ctx, [MarshalAs(UnmanagedType.LPStr)] string file_path);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_printer_copy(IntPtr printer);
