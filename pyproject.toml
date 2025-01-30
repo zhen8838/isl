@@ -1,0 +1,45 @@
+[project]
+name = "nncase"
+version = "0.1.0"
+requires-python = ">=3.8"
+authors = [{ name = "ZhengQiHang" }, { email = "597323109@qq.com" }]
+maintainers = [{ name = "ZhengQiHang" }, { email = "597323109@qq.com" }]
+readme = "README.md"
+description = "Python binding for ISL library"
+license = { file = "LICENSE" }
+classifiers = [
+    "Programming Language :: C",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+keywords = ["Polyhedral", "Integer Set Library"]
+
+[project.urls]
+homepage = "https://github.com/zhen8838/isl"
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+
+[tool.cibuildwheel]
+skip = ["[cp]p3[67]-*"]
+test-requires = "pytest"
+# test-command = [
+#   "pytest {project}/test/test_isl.py"
+# ]
+
+[tool.cibuildwheel.windows]
+archs = ["x86_64"]
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64"]
+
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "arm64"]
+
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "10.15"

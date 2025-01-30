@@ -1,20 +1,44 @@
-from setuptools import setup, find_packages
-import os
 from pathlib import Path
-import shutil
+from setuptools import setup, find_packages, Extension
+from setuptools.command.build_ext import build_ext
+from setuptools.command.install_lib import install_lib
 
-if os.path.exists('install/lib') and not os.path.exists('install/isl'):
-  shutil.move('install/lib', 'install/isl')
+class BuildSharedLibs(build_ext):
+  def run(self):
+    for ext in self.extensions:
+      if ext.name == 'isl':
+        self.build(ext)
 
-if not os.path.exists('install/isl/isl.py'):
-  shutil.copy('interface/isl.py', 'install/isl/isl.py')
-if not os.path.exists('install/isl/__init__.py'):
-  shutil.copy('interface/__init__.py', 'install/isl/__init__.py')
+  def build(self, ext: Extension):
+    self.announce("Auto Generating")
+    self.spawn(["./autogen.sh"])
+    self.announce("Configuring")
+    bin_dir = Path(self.build_temp).absolute()
+    self.distribution.bin_dir = bin_dir
+    self.spawn(["./configure", f"--prefix={bin_dir}",
+               "--with-clang=no", "--with-int=imath"])
+    self.announce("Compiling")
+    self.spawn(["make", "install", "-j"])
+    self.distribution.run_command("install_lib")
 
-libfiles = [os.path.join('install/isl', f) for f in os.listdir('install/isl') if f.startswith('libisl') and not f.endswith('.a') and not f.endswith('.py') and not f.endswith('.la')]
-setup(name='isl',
-      version='0.1.0',
-      packages=['isl'],
-      package_dir={'': 'install'},
-      data_files=[('lib', libfiles)],
-      )
+
+class InstallSharedLibs(install_lib):
+  def run(self):
+    self.skip_build = True
+    lib_dir = Path(self.distribution.bin_dir) / 'lib'
+    data_files = [str(file.absolute()) for file in lib_dir.iterdir()
+                  if file.name.startswith('libisl') and 
+                    sum(map(lambda suffix: suffix in file.name, [".dll", ".so", ".dylib"])) > 0 and
+                    not '.py' in file.name]
+    self.announce(f"Installing Files {' '.join(data_files)}")
+    self.distribution.data_files = [('lib', data_files)]
+    self.distribution.run_command("install_data")
+    super().run()
+
+setup(py_modules=['isl'],
+    package_dir={'': 'interface'},
+    ext_modules=[Extension('isl', [])],
+    cmdclass={
+        "build_ext": BuildSharedLibs,
+        'install_lib': InstallSharedLibs,
+    })

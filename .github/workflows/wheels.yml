@@ -1,8 +1,11 @@
-name: build isl
+name: Build wheels
 
-on: 
-  push: 
-    branches: [ "master" ]
+on:
+  push:
+    branches:
+    - master
+    tags:
+    - v*
 
   workflow_dispatch:
     inputs:
@@ -13,7 +16,7 @@ on:
         default: false
 
 jobs:
-  build-native:
+  build_wheels:
     runs-on: ${{ matrix.config.os }}
     strategy:
       matrix:
@@ -52,31 +55,31 @@ jobs:
         brew install autogen
         uname -m
       if: runner.os == 'macOS'
+    
+    - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+    - name: Install cibuildwheel
+      run: pip install cibuildwheel
 
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
-    - name: Build and Install (Linux/MacOs)
-      run: |
-        ./autogen.sh
-        ./configure --prefix=`pwd`/install --with-clang=no --with-int=imath
-        make install -j
+    - name: Build wheels (Linux/MacOs)
+      run: python -m cibuildwheel --output-dir wheelhouse
       shell: bash
       if: runner.os != 'Windows'
 
-    - name: Build and Install (Windows)
+    - name: Build wheels (Windows)
       shell: msys2 {0}
-      run: |
-        ./autogen.sh
-        mkdir install
-        ./configure --prefix=`pwd`/install --with-clang=no --with-int=imath
-        make install -j
+      run: python -m cibuildwheel --output-dir wheelhouse
       if: runner.os == 'Windows'
 
-    - name: Upload Native Build Artifact
+    - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: isl-native-${{matrix.config.name}}
-        path: ${{github.workspace}}/install
+        name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+        path: ./wheelhouse/*.whl
         if-no-files-found: error
