@@ -26,7 +26,7 @@ homepage = "https://github.com/zhen8838/isl"
 requires = ["setuptools>=42", "wheel"]
 
 [tool.cibuildwheel]
-skip = ["[cp]p3[67]-*"]
+skip = ["[cp]p3[67]-*", "*musllinux*"]
 test-requires = "pytest"
 # test-command = [
 #   "pytest {project}/test/test_isl.py"

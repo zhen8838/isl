@@ -1,6 +1,8 @@
-import os
 from ctypes import *
 from ctypes.util import find_library
+from enum import IntEnum
+import os
+
 isl = cdll.LoadLibrary(find_library("isl"))
 libc = cdll.LoadLibrary(find_library("c"))
 
