@@ -70,7 +70,7 @@ jobs:
     - name: Install cibuildwheel (Windows, MSYS2)
       shell: msys2 {0}
       run: python -m pip install cibuildwheel
-      if: runner.os != 'Windows'
+      if: runner.os == 'Windows'
 
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
