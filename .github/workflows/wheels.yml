@@ -21,8 +21,8 @@ jobs:
     strategy:
       matrix:
         config:
-          - { name: osx-arm64, os: macos-14, arch: 'arm64' }
-          - { name: osx-x64, os: macos-latest, arch: 'x86_64' }
+          - { name: osx-arm64, os: macos-13, arch: 'x86_64' }
+          - { name: osx-x64, os: macos-latest, arch: 'arm64' }
           - { name: linux-x64, os: ubuntu-latest, arch: 'x86_64' }
           # - { name: windows-x64, os: windows-latest}
     steps:
