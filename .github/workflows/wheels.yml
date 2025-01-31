@@ -33,6 +33,7 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.10'
+      if: runner.os != 'Windows'
 
     - name: Set up build environment (Windows, MSYS2)
       uses: msys2/setup-msys2@v2
@@ -44,6 +45,8 @@ jobs:
           git
           base-devel
           mingw-w64-x86_64-clang
+          mingw-w64-x86_64-python
+          mingw-w64-x86_64-python-pip
       if: runner.os == 'Windows'
     
     - name: Set up build environment (Linux)
@@ -60,8 +63,14 @@ jobs:
         uname -m
       if: runner.os == 'macOS'
 
-    - name: Install cibuildwheel
+    - name: Install cibuildwheel (Linux, Macos)
       run: pip install cibuildwheel
+      if: runner.os != 'Windows'
+
+    - name: Install cibuildwheel (Windows, MSYS2)
+      shell: msys2 {0}
+      run: pip install cibuildwheel
+      if: runner.os != 'Windows'
 
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
