@@ -1,5 +1,5 @@
 [project]
-name = "nncase"
+name = "isl"
 version = "0.1.0"
 requires-python = ">=3.8"
 authors = [{ name = "ZhengQiHang" }, { email = "597323109@qq.com" }]
