@@ -28,12 +28,12 @@ requires = ["setuptools>=42", "wheel"]
 [tool.cibuildwheel]
 skip = ["[cp]p3[67]-*"]
 test-requires = "pytest"
-# test-command = [
-#   "pytest {project}/test/test_isl.py"
-# ]
+test-command = [
+  "pytest {project}/test/test_isl.py"
+]
 
 [tool.cibuildwheel.windows]
-archs = ["x86_64"]
+archs = ["AMD64"]
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]
