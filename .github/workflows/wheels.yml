@@ -24,7 +24,7 @@ jobs:
           - { name: osx-arm64, os: macos-14 }
           - { name: osx-x64, os: macos-latest }
           - { name: linux-x64, os: ubuntu-latest }
-          - { name: windows-x64, os: windows-latest}
+          # - { name: windows-x64, os: windows-latest}
     steps:
     - uses: actions/checkout@v4
       with:
