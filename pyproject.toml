@@ -1,6 +1,6 @@
 [project]
 name = "isl-python"
-version = "0.1.0"
+version = "0.1.1"
 requires-python = ">=3.9"
 authors = [{ name = "ZhengQiHang" }, { email = "597323109@qq.com" }]
 maintainers = [{ name = "ZhengQiHang" }, { email = "597323109@qq.com" }]
