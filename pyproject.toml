@@ -27,9 +27,9 @@ requires = ["setuptools>=42", "wheel"]
 [tool.cibuildwheel]
 skip = ["[cp]p3[678]-*", "*musllinux*"]
 test-requires = "pytest"
-# test-command = [
-#   "pytest {project}/test/test_isl.py"
-# ]
+test-command = [
+  "pytest {project}/test/test_isl.py"
+]
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]

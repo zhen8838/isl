@@ -2,11 +2,14 @@
 
 this repository only for packaging ISL. For simplify the build process, the interface need to generate localy. 
 
-```sh
-./autogen.sh
-mkdir build
-# export DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:/Users/lisa/miniforge3/envs/ci/lib"  
-./configure --prefix=`pwd`/build --with-int=imath --with-clang-prefix=/xxx/llvm-project/build/install # the custom libclang install path.
-export CPATH="$(xcrun --show-sdk-path)/usr/include" # for macos
-make
-```
+# Todo List
+
+- [] python wheels on windows AMD64
+- [x] python wheels on linux x86_64
+- [x] python wheels on mac arm64
+- [] python wheels on mac x86_64
+- [] make isl_*_list iterable in python interface
+- [] export remove_map_if in python interface
+- [] export isl_pw_qpolynomial in python interface
+- [] fix export isl_printer_to_str in python interface
+- [] optimize get_xx method as property in python interface

@@ -1,7 +1,13 @@
 from pathlib import Path
 from setuptools import setup, find_packages, Extension
+from setuptools.command.build import build
 from setuptools.command.build_ext import build_ext
 from setuptools.command.install_lib import install_lib
+
+class CustomBuild(build):
+    def get_sub_commands(self):
+        sub_commands = super().get_sub_commands()
+        return [sub_commands[1], sub_commands[0]]
 
 class BuildSharedLibs(build_ext):
   def run(self):
@@ -39,6 +45,7 @@ setup(py_modules=['isl'],
     package_dir={'': 'interface'},
     ext_modules=[Extension('isl', [])],
     cmdclass={
+        "build": CustomBuild,
         "build_ext": BuildSharedLibs,
         'install_lib': InstallSharedLibs,
     })

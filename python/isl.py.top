@@ -2,8 +2,32 @@ from ctypes import *
 from ctypes.util import find_library
 from enum import IntEnum
 import os
+import sysconfig
+import platform
 
-isl = cdll.LoadLibrary(find_library("isl"))
+def configure_lib_path():
+    lib_dir = os.path.join(sysconfig.get_path('data'), 'lib')
+    system = platform.system()
+    if system == "Linux":
+        env_var = "LD_LIBRARY_PATH"
+    elif system == "Darwin":
+        env_var = "DYLD_LIBRARY_PATH"
+    elif system == "Windows":
+        env_var = "PATH"
+    else:
+        raise RuntimeError(f"Unsupported platform: {system}")
+
+    lib_dir = os.path.abspath(lib_dir)
+    existing_path = os.environ.get(env_var, "")
+    os.environ[env_var] = f"{lib_dir}{os.pathsep}{existing_path}"
+    return lib_dir
+
+isl_library_path = find_library("isl")
+if isl_library_path is None:
+  lib_dir = configure_lib_path()
+  isl_library_path = os.path.join(lib_dir, find_library("isl"))
+isl = cdll.LoadLibrary(isl_library_path)
+assert isl is not None, "can't find the isl shared library!"
 libc = cdll.LoadLibrary(find_library("c"))
 
 class format(IntEnum):
