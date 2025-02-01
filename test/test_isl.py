@@ -229,7 +229,7 @@ def test_schedule():
     print(f.read())
 
 
-def no_test_union_map():
+def test_union_map():
     d = isl.union_set("[start, num] -> {S[i,j] : start <= i,j < start + num}")
     s = isl.union_map("{S[i,j] -> [i,j]}").intersect_domain(d)
     aw = isl.union_map("{S[i,j] -> B[1024 i + j]}")
