@@ -31,10 +31,6 @@ test-command = [
   "pytest {project}/test/test_isl.py"
 ]
 
-[[tool.cibuildwheel.overrides]]
-select = "cp312-*"
-test-command = []
-
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]
 

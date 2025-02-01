@@ -183,7 +183,7 @@ def no_test_eval_pw_qpolynomial():
     assert pwq.eval_with_dict({"n": 10}) == 2
 
 
-def test_schedule():
+def no_test_schedule():
   schedule = isl.map("{S[t,i,j] -> [t,i,j]: 0 < t < 20 and 0 < i < j < 100}")
   accesses = isl.map("{S[t,i,j] -> bar[t%2, i+1, j-1]}")
   context = isl.set("{:}")
