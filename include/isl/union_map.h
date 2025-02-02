@@ -305,6 +305,7 @@ __isl_give isl_map_list *isl_union_map_get_map_list(
 __isl_export
 isl_bool isl_union_map_every_map(__isl_keep isl_union_map *umap,
 	isl_bool (*test)(__isl_keep isl_map *map, void *user), void *user);
+__isl_export
 __isl_give isl_union_map *isl_union_map_remove_map_if(
 	__isl_take isl_union_map *umap,
 	isl_bool (*fn)(__isl_keep isl_map *map, void *user), void *user);

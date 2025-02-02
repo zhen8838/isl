@@ -6541,6 +6541,14 @@ return new basic_map(res);
   return new map(get()).remove_inputs(first, n);
 }
 
+ public union_map remove_map_if(Func<map, bool> fn)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new map(get()).remove_map_if(fn);
+}
+
  public basic_map remove_redundancies()
 {
   if (get() == IntPtr.Zero) {
@@ -7425,6 +7433,14 @@ return new vertices(res);
     throw new InvalidOperationException();
   }
 return new constraint_list(res);
+}
+
+ public basic_set convex_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).convex_hull();
 }
 
  public val count_val()
@@ -14105,6 +14121,14 @@ return new map(res);
 return new map(res);
 }
 
+ public union_map remove_map_if(Func<map, bool> fn)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_map(get()).remove_map_if(fn);
+}
+
  public map remove_redundancies()
 {
   if (get() == IntPtr.Zero) {
@@ -19087,6 +19111,14 @@ return new point(res);
     throw new ArgumentNullException("NULL input");
   }
   return new basic_set(get()).constraint_list();
+}
+
+ public basic_set convex_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).convex_hull();
 }
 
  public val coordinate_val(dim_type type, int pos)
@@ -26018,6 +26050,19 @@ return new set(res);
 return new set(res);
 }
 
+ public basic_set convex_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_convex_hull(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
  public val count_val()
 {
   if (get() == IntPtr.Zero) {
@@ -31269,6 +31314,32 @@ return new union_map(res);
 
   }
   var res = Interop.isl_union_map_range_reverse(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_map(res);
+}
+
+ public union_map remove_map_if(Func<map, bool> fn)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+ (Func<map, bool> func,  Exception? eptr) fn_data = (func: fn, eptr: null);
+Func<IntPtr, IntPtr, isl_bool> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
+    try {
+      var ret = fn_data.func(new (arg_0));
+      return ret ? isl_bool.True : isl_bool.False;
+    } catch (Exception e) {
+      throw e;
+      return isl_bool.Error;
+    }
+  };
+  var res = Interop.isl_union_map_remove_map_if(copy(), fn_lambda, IntPtr.Zero);
+  if (fn_data.eptr is not null) {
+    throw fn_data.eptr;
+  }
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -38746,6 +38817,9 @@ public static extern  IntPtr isl_set_complement(IntPtr set);
 public static extern  IntPtr isl_set_compute_divs(IntPtr set);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_set_convex_hull(IntPtr set);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_set_count_val(IntPtr set);
 
 [DllImport(LibraryName)]
@@ -39879,6 +39953,9 @@ public static extern  IntPtr isl_union_map_range_product(IntPtr umap1, IntPtr um
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_map_range_reverse(IntPtr umap);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_map_remove_map_if(IntPtr umap, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, isl_bool> fn, IntPtr user);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_map_reverse(IntPtr umap);

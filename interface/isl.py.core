@@ -10267,6 +10267,29 @@ class union_map(object):
         res = isl.isl_union_map_range_reverse(isl.isl_union_map_copy(arg0.ptr))
         obj = union_map(ctx=ctx, ptr=res)
         return obj
+    def remove_map_if(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_map:
+                arg0 = union_map(arg0)
+        except:
+            raise
+        exc_info = [None]
+        fn = CFUNCTYPE(c_int, c_void_p, c_void_p)
+        def cb_func(cb_arg0, cb_arg1):
+            cb_arg0 = map(ctx=arg0.ctx, ptr=isl.isl_map_copy(cb_arg0))
+            try:
+                res = arg1(cb_arg0)
+            except BaseException as e:
+                exc_info[0] = e
+                return -1
+            return 1 if res else 0
+        cb1 = fn(cb_func)
+        ctx = arg0.ctx
+        res = isl.isl_union_map_remove_map_if(isl.isl_union_map_copy(arg0.ptr), cb1, None)
+        if exc_info[0] is not None:
+            raise exc_info[0]
+        obj = union_map(ctx=ctx, ptr=res)
+        return obj
     def reverse(arg0):
         try:
             if not arg0.__class__ is union_map:
@@ -10553,6 +10576,8 @@ isl.isl_union_map_range_product.restype = c_void_p
 isl.isl_union_map_range_product.argtypes = [c_void_p, c_void_p]
 isl.isl_union_map_range_reverse.restype = c_void_p
 isl.isl_union_map_range_reverse.argtypes = [c_void_p]
+isl.isl_union_map_remove_map_if.restype = c_void_p
+isl.isl_union_map_remove_map_if.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_union_map_reverse.restype = c_void_p
 isl.isl_union_map_reverse.argtypes = [c_void_p]
 isl.isl_union_map_get_space.restype = c_void_p
@@ -15822,6 +15847,16 @@ class set(union_set):
         res = isl.isl_set_compute_divs(isl.isl_set_copy(arg0.ptr))
         obj = set(ctx=ctx, ptr=res)
         return obj
+    def convex_hull(arg0):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_set_convex_hull(isl.isl_set_copy(arg0.ptr))
+        obj = basic_set(ctx=ctx, ptr=res)
+        return obj
     def count_val(arg0):
         try:
             if not arg0.__class__ is set:
@@ -17530,6 +17565,8 @@ isl.isl_set_complement.restype = c_void_p
 isl.isl_set_complement.argtypes = [c_void_p]
 isl.isl_set_compute_divs.restype = c_void_p
 isl.isl_set_compute_divs.argtypes = [c_void_p]
+isl.isl_set_convex_hull.restype = c_void_p
+isl.isl_set_convex_hull.argtypes = [c_void_p]
 isl.isl_set_count_val.restype = c_void_p
 isl.isl_set_count_val.argtypes = [c_void_p]
 isl.isl_set_detect_equalities.restype = c_void_p
