@@ -22,10 +22,22 @@ def configure_lib_path():
     os.environ[env_var] = f"{lib_dir}{os.pathsep}{existing_path}"
     return lib_dir
 
+def configure_lib_name():
+    if os.name == "nt":  # Windows
+        lib_name = "isl.dll"
+    elif os.name == "posix":  # Linux/Unix
+        lib_name = "libisl.so"
+    elif os.name == "darwin":  # macOS
+        lib_name = "libisl.dylib"
+    else:
+        raise OSError("Unsupported operating system")
+    return lib_name
+
 isl_library_path = find_library("isl")
 if isl_library_path is None:
   lib_dir = configure_lib_path()
-  isl_library_path = os.path.join(lib_dir, find_library("isl"))
+  lib_name = configure_lib_name()
+  isl_library_path = os.path.join(lib_dir, lib_name)
 isl = cdll.LoadLibrary(isl_library_path)
 assert isl is not None, "can't find the isl shared library!"
 libc = cdll.LoadLibrary(find_library("c"))
