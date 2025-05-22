@@ -104,6 +104,40 @@ return new aff(res);
   return new pw_aff(get()).add(upma2);
 }
 
+ public aff add_coefficient_si(dim_type type, int pos, int v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_add_coefficient_si(copy(), type, pos, v);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public aff add_coefficient_val(dim_type type, int pos, val v)
+{
+  if (get() == IntPtr.Zero || v.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_add_coefficient_val(copy(), type, pos, v.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public aff add_coefficient_val(dim_type type, int pos, long v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.add_coefficient_val(type, pos, new val(ctx.Instance, v));
+}
+
  public aff add_constant(val v)
 {
   if (get() == IntPtr.Zero || v.is_null()) {
@@ -131,6 +165,58 @@ return new aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new multi_aff(get()).add_constant(mv);
+}
+
+ public aff add_constant_num_si(int v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_add_constant_num_si(copy(), v);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public aff add_constant_si(int v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_add_constant_si(copy(), v);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public aff add_dims(dim_type type, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_add_dims(copy(), type, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public aff align_params(space model)
+{
+  if (get() == IntPtr.Zero || model.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_align_params(copy(), model.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
 }
 
  public union_pw_multi_aff apply(union_pw_multi_aff upma2)
@@ -271,6 +357,29 @@ return new aff(res);
   return new pw_aff(get()).coalesce();
 }
 
+ public int coefficient_sgn(dim_type type, int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_coefficient_sgn(get(), type, pos);
+  return res;
+}
+
+ public val coefficient_val(dim_type type, int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_get_coefficient_val(get(), type, pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new val(res);
+}
+
  public pw_aff cond(pw_aff pwaff_true, pw_aff pwaff_false)
 {
   if (get() == IntPtr.Zero) {
@@ -300,6 +409,19 @@ return new aff(res);
 return new val(res);
 }
 
+ public val denominator_val()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_get_denominator_val(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new val(res);
+}
+
  public int dim(dim_type type)
 {
   if (get() == IntPtr.Zero) {
@@ -311,6 +433,24 @@ return new val(res);
     throw new InvalidOperationException();
   }
   return res;
+}
+
+ public id dim_id(dim_type type, uint pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).dim_id(type, pos);
+}
+
+ public string dim_name(dim_type type, uint pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_get_dim_name(get(), type, pos);
+  return Marshal.PtrToStringAnsi(res);
 }
 
  public aff div(aff aff2)
@@ -342,6 +482,19 @@ return new aff(res);
   return new pw_aff(get()).domain();
 }
 
+ public local_space domain_local_space()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_get_domain_local_space(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new local_space(res);
+}
+
  public aff domain_reverse()
 {
   if (get() == IntPtr.Zero) {
@@ -355,12 +508,59 @@ return new aff(res);
 return new aff(res);
 }
 
+ public space domain_space()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_get_domain_space(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new space(res);
+}
+
+ public aff drop_dims(dim_type type, uint first, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_drop_dims(copy(), type, first, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
  public pw_aff drop_unused_params()
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).drop_unused_params();
+}
+
+ public basic_set eq_basic_set(aff aff2)
+{
+  if (get() == IntPtr.Zero || aff2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_eq_basic_set(copy(), aff2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
+ public map eq_map(pw_aff pa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).eq_map(pa2);
 }
 
  public set eq_set(aff aff2)
@@ -397,12 +597,28 @@ return new set(res);
 return new val(res);
 }
 
+ public bool every_piece(Func<set, aff, bool> test)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).every_piece(test);
+}
+
  public pw_multi_aff extract_pw_multi_aff(space space)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).extract_pw_multi_aff(space);
+}
+
+ public int find_dim_by_name(dim_type type, string name)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).find_dim_by_name(type, name);
 }
 
  public multi_aff flat_range_product(multi_aff multi2)
@@ -458,12 +674,49 @@ return new val(res);
 return new aff(res);
 }
 
+ public void foreach_piece(Action<set, aff> fn)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+new pw_aff(get()).foreach_piece(fn);
+}
+
  public void foreach_piece(Action<set, multi_aff> fn)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
 new pw_aff(get()).foreach_piece(fn);
+}
+
+ public pw_aff from_range()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).from_range();
+}
+
+ public basic_set ge_basic_set(aff aff2)
+{
+  if (get() == IntPtr.Zero || aff2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_ge_basic_set(copy(), aff2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
+ public map ge_map(pw_aff pa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).ge_map(pa2);
 }
 
  public set ge_set(aff aff2)
@@ -537,6 +790,14 @@ return new aff(res);
 return new aff(res);
 }
 
+ public map gt_map(pw_aff pa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).gt_map(pa2);
+}
+
  public set gt_set(aff aff2)
 {
   if (get() == IntPtr.Zero || aff2.is_null()) {
@@ -558,6 +819,14 @@ return new set(res);
   return new pw_aff(get()).gt_set(pwaff2);
 }
 
+ public bool has_dim_id(dim_type type, uint pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).has_dim_id(type, pos);
+}
+
  public bool has_range_tuple_id()
 {
   if (get() == IntPtr.Zero) {
@@ -566,12 +835,41 @@ return new set(res);
   return new multi_aff(get()).has_range_tuple_id();
 }
 
+ public bool has_tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).has_tuple_id(type);
+}
+
+ public bool has_tuple_name(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).has_tuple_name(type);
+}
+
  public multi_aff identity()
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new multi_aff(get()).identity();
+}
+
+ public aff insert_dims(dim_type type, uint first, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_insert_dims(copy(), type, first, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
 }
 
  public pw_aff insert_domain(space domain)
@@ -606,12 +904,28 @@ return new set(res);
   return new pw_aff(get()).intersect_domain(uset);
 }
 
+ public pw_aff intersect_domain_wrapped_domain(set set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).intersect_domain_wrapped_domain(set);
+}
+
  public union_pw_aff intersect_domain_wrapped_domain(union_set uset)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).intersect_domain_wrapped_domain(uset);
+}
+
+ public pw_aff intersect_domain_wrapped_range(set set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).intersect_domain_wrapped_range(set);
 }
 
  public union_pw_aff intersect_domain_wrapped_range(union_set uset)
@@ -630,12 +944,30 @@ return new set(res);
   return new pw_aff(get()).intersect_params(set);
 }
 
+ public bool involves_dims(dim_type type, uint first, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_involves_dims(get(), type, first, n);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
  public bool involves_locals()
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new multi_aff(get()).involves_locals();
+  var res = Interop.isl_aff_involves_locals(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
 }
 
  public bool involves_nan()
@@ -643,7 +975,7 @@ return new set(res);
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(get()).involves_nan();
+  return new pw_aff(get()).involves_nan();
 }
 
  public bool involves_param(id id)
@@ -670,6 +1002,22 @@ return new set(res);
   return new pw_aff(get()).involves_param(list);
 }
 
+ public bool involves_param_id(id id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).involves_param_id(id);
+}
+
+ public bool involves_param_id(string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.involves_param_id(new id(ctx.Instance, id));
+}
+
  public bool is_cst()
 {
   if (get() == IntPtr.Zero) {
@@ -677,6 +1025,27 @@ return new set(res);
 
   }
   var res = Interop.isl_aff_is_cst(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public bool is_empty()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).is_empty();
+}
+
+ public bool is_nan()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_is_nan(get());
   if (res < 0) {
     throw new InvalidOperationException();
   }
@@ -707,6 +1076,27 @@ return new set(res);
   return new pw_aff(get()).isa_pw_multi_aff();
 }
 
+ public basic_set le_basic_set(aff aff2)
+{
+  if (get() == IntPtr.Zero || aff2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_le_basic_set(copy(), aff2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
+ public map le_map(pw_aff pa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).le_map(pa2);
+}
+
  public set le_set(aff aff2)
 {
   if (get() == IntPtr.Zero || aff2.is_null()) {
@@ -728,12 +1118,78 @@ return new set(res);
   return new pw_aff(get()).le_set(pwaff2);
 }
 
+ public set lex_ge_set(multi_aff ma2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_aff(get()).lex_ge_set(ma2);
+}
+
+ public set lex_gt_set(multi_aff ma2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_aff(get()).lex_gt_set(ma2);
+}
+
+ public set lex_le_set(multi_aff ma2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_aff(get()).lex_le_set(ma2);
+}
+
+ public set lex_lt_set(multi_aff ma2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_aff(get()).lex_lt_set(ma2);
+}
+
  public aff_list list()
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new multi_aff(get()).list();
+}
+
+ public local_space local_space()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_get_local_space(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new local_space(res);
+}
+
+ public basic_set lt_basic_set(aff aff2)
+{
+  if (get() == IntPtr.Zero || aff2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_lt_basic_set(copy(), aff2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
+ public map lt_map(pw_aff pa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).lt_map(pa2);
 }
 
  public set lt_set(aff aff2)
@@ -842,6 +1298,19 @@ return new aff(res);
   return this.mod(new val(ctx.Instance, mod));
 }
 
+ public aff move_dims(dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
  public aff mul(aff aff2)
 {
   if (get() == IntPtr.Zero || aff2.is_null()) {
@@ -869,6 +1338,32 @@ return new aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).n_piece();
+}
+
+ public static aff nan_on_domain(local_space ls)
+{
+  if (ls.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_nan_on_domain(ls.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public static aff nan_on_domain_space(space space)
+{
+  if (space.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_nan_on_domain_space(space.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
 }
 
  public set ne_set(aff aff2)
@@ -903,6 +1398,35 @@ return new set(res);
     throw new InvalidOperationException();
   }
 return new aff(res);
+}
+
+ public basic_set neg_basic_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_neg_basic_set(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
+ public set non_zero_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).non_zero_set();
+}
+
+ public set nonneg_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).nonneg_set();
 }
 
  public set paramss()
@@ -990,6 +1514,27 @@ return new aff(res);
   return new pw_aff(get()).plain_is_equal(upma2);
 }
 
+ public bool plain_is_zero()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_plain_is_zero(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public set pos_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).pos_set();
+}
+
  public pw_multi_aff preimage_domain_wrapped_domain(pw_multi_aff pma2)
 {
   if (get() == IntPtr.Zero) {
@@ -1028,6 +1573,14 @@ return new aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).product(pma2);
+}
+
+ public pw_aff project_domain_on_params()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).project_domain_on_params();
 }
 
  public aff pullback(multi_aff ma)
@@ -1073,6 +1626,19 @@ return new aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.pullback(new multi_aff(ma));
+}
+
+ public aff pullback_aff(aff aff2)
+{
+  if (get() == IntPtr.Zero || aff2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_pullback_aff(copy(), aff2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
 }
 
  public pw_multi_aff_list pw_multi_aff_list()
@@ -1155,6 +1721,22 @@ return new aff(res);
   return new multi_aff(get()).reset_range_tuple_id();
 }
 
+ public pw_aff reset_tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).reset_tuple_id(type);
+}
+
+ public pw_multi_aff reset_user()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).reset_user();
+}
+
  public aff scale(val v)
 {
   if (get() == IntPtr.Zero || v.is_null()) {
@@ -1211,6 +1793,19 @@ return new aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new multi_aff(get()).scale_down(mv);
+}
+
+ public aff scale_down_ui(uint f)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_scale_down_ui(copy(), f);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
 }
 
  public multi_aff set_at(int pos, aff el)
@@ -1271,6 +1866,74 @@ return new aff(res);
   return this.set_coefficient_val(type, pos, new val(ctx.Instance, v));
 }
 
+ public aff set_constant_si(int v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_set_constant_si(copy(), v);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public aff set_constant_val(val v)
+{
+  if (get() == IntPtr.Zero || v.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_set_constant_val(copy(), v.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public aff set_constant_val(long v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_constant_val(new val(ctx.Instance, v));
+}
+
+ public aff set_dim_id(dim_type type, uint pos, id id)
+{
+  if (get() == IntPtr.Zero || id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_set_dim_id(copy(), type, pos, id.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public aff set_dim_id(dim_type type, uint pos, string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_dim_id(type, pos, new id(ctx.Instance, id));
+}
+
+ public aff set_dim_name(dim_type type, uint pos, string s)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_set_dim_name(copy(), type, pos, s);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
  public multi_aff set_range_tuple(id id)
 {
   if (get() == IntPtr.Zero) {
@@ -1287,6 +1950,27 @@ return new aff(res);
   return this.set_range_tuple(new id(ctx.Instance, id));
 }
 
+ public aff set_tuple_id(dim_type type, id id)
+{
+  if (get() == IntPtr.Zero || id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_set_tuple_id(copy(), type, id.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public aff set_tuple_id(dim_type type, string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_tuple_id(type, new id(ctx.Instance, id));
+}
+
  public int size()
 {
   if (get() == IntPtr.Zero) {
@@ -1299,8 +1983,13 @@ return new aff(res);
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new pw_aff(get()).space();
+  var res = Interop.isl_aff_get_space(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new space(res);
 }
 
  public aff sub(aff aff2)
@@ -1465,6 +2154,22 @@ return new aff_list(res);
   return new pw_aff(get()).to_union_pw_multi_aff();
 }
 
+ public id tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).tuple_id(type);
+}
+
+ public string tuple_name(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).tuple_name(type);
+}
+
  public aff unbind_params_insert_domain(multi_id domain)
 {
   if (get() == IntPtr.Zero || domain.is_null()) {
@@ -1526,6 +2231,74 @@ return new aff(res);
   return new pw_aff(get()).union_add(upma2);
 }
 
+ public pw_aff union_max(pw_aff pwaff2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).union_max(pwaff2);
+}
+
+ public pw_aff union_min(pw_aff pwaff2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).union_min(pwaff2);
+}
+
+ public static aff val_on_domain(local_space ls, val val)
+{
+  if (ls.is_null() || val.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_val_on_domain(ls.copy(), val.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public static aff val_on_domain_space(space space, val val)
+{
+  if (space.is_null() || val.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_val_on_domain_space(space.copy(), val.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public static aff var_on_domain(local_space ls, dim_type type, uint pos)
+{
+  if (ls.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_var_on_domain(ls.copy(), type, pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
+ public basic_set zero_basic_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_zero_basic_set(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
  public static aff zero_on_domain(local_space ls)
 {
   if (ls.is_null()) {
@@ -1550,6 +2323,14 @@ return new aff(res);
     throw new InvalidOperationException();
   }
 return new aff(res);
+}
+
+ public set zero_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).zero_set();
 }
 
 public override string ToString(){
@@ -2565,6 +3346,19 @@ return new ast_expr(res);
 return new ast_expr(res);
 }
 
+ public ast_expr and(ast_expr expr2)
+{
+  if (get() == IntPtr.Zero || expr2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_expr_and(copy(), expr2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new ast_expr(res);
+}
+
  public ast_expr and_then(ast_expr expr2)
 {
   if (get() == IntPtr.Zero || expr2.is_null()) {
@@ -2728,6 +3522,19 @@ return new ast_expr(res);
 
   }
   var res = Interop.isl_ast_expr_neg(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new ast_expr(res);
+}
+
+ public ast_expr or(ast_expr expr2)
+{
+  if (get() == IntPtr.Zero || expr2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_expr_or(copy(), expr2.copy());
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -3455,6 +4262,19 @@ public bool is_null() {
   return ptr == IntPtr.Zero;
 }
 
+ public static ast_node alloc_user(ast_expr expr)
+{
+  if (expr.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_node_alloc_user(expr.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new ast_node(res);
+}
+
  public id annotation()
 {
   if (get() == IntPtr.Zero) {
@@ -3466,6 +4286,32 @@ public bool is_null() {
     throw new InvalidOperationException();
   }
 return new id(res);
+}
+
+ public void foreach_descendant_top_down(Func<ast_node, bool> fn)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+ (Func<ast_node, bool> func,  Exception? eptr) fn_data = (func: fn, eptr: null);
+Func<IntPtr, IntPtr, isl_bool> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
+    try {
+      var ret = fn_data.func(new (arg_0));
+      return ret ? isl_bool.True : isl_bool.False;
+    } catch (Exception e) {
+      throw e;
+      return isl_bool.Error;
+    }
+  };
+  var res = Interop.isl_ast_node_foreach_descendant_top_down(get(), fn_lambda, IntPtr.Zero);
+  if (fn_data.eptr is not null) {
+    throw fn_data.eptr;
+  }
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
 }
 
  public ast_node map_descendant_bottom_up(Func<ast_node, ast_node> fn)
@@ -4067,6 +4913,16 @@ internal ast_print_options(/* __isl_take */ IntPtr ptr)
  public Exception? eptr;
 }
   print_for_tuple? print_for_data = null;
+ class print_block_tuple {
+ public Func<printer, ast_print_options, ast_node, printer> func;
+ public Exception? eptr;
+}
+  print_block_tuple? print_block_data = null;
+ class print_if_tuple {
+ public Func<printer, ast_print_options, ast_node, printer> func;
+ public Exception? eptr;
+}
+  print_if_tuple? print_if_data = null;
 
 public void Dispose() {
   if (!is_null()) {
@@ -4090,6 +4946,8 @@ public ast_print_options copy_callbacks(ast_print_options obj)
 {
   print_user_data = obj.print_user_data;
   print_for_data = obj.print_for_data;
+  print_block_data = obj.print_block_data;
+  print_if_data = obj.print_if_data;
   return this;
 }
 
@@ -4145,6 +5003,58 @@ public void set_print_for_data(Func<printer, ast_print_options, ast_node, printe
   return this;
 }
 
+private IntPtr print_block(IntPtr arg_0, IntPtr arg_1, IntPtr arg_2, IntPtr arg_3)
+{
+  try {
+    var ret = print_block_data.func(new (arg_0), new (arg_1), new (arg_2));
+    return ret.get();
+  } catch (Exception e) {
+    throw e;
+    return IntPtr.Zero;
+  }
+}
+
+public void set_print_block_data(Func<printer, ast_print_options, ast_node, printer> print_block)
+{
+  print_block_data = new();
+  print_block_data.func = print_block;
+  ptr = Interop.isl_ast_print_options_set_print_block(ptr, print_block, IntPtr.Zero);
+  if (ptr == IntPtr.Zero)
+    throw new InvalidOperationException();
+}
+
+ public ast_print_options set_print_block(Func<printer, ast_print_options, ast_node, printer> print_block)
+{
+  this.set_print_block_data(print_block);
+  return this;
+}
+
+private IntPtr print_if(IntPtr arg_0, IntPtr arg_1, IntPtr arg_2, IntPtr arg_3)
+{
+  try {
+    var ret = print_if_data.func(new (arg_0), new (arg_1), new (arg_2));
+    return ret.get();
+  } catch (Exception e) {
+    throw e;
+    return IntPtr.Zero;
+  }
+}
+
+public void set_print_if_data(Func<printer, ast_print_options, ast_node, printer> print_if)
+{
+  print_if_data = new();
+  print_if_data.func = print_if;
+  ptr = Interop.isl_ast_print_options_set_print_if(ptr, print_if, IntPtr.Zero);
+  if (ptr == IntPtr.Zero)
+    throw new InvalidOperationException();
+}
+
+ public ast_print_options set_print_if(Func<printer, ast_print_options, ast_node, printer> print_if)
+{
+  this.set_print_if_data(print_if);
+  return this;
+}
+
  public static ast_print_options alloc(ctx ctx)
 {
   var res = Interop.isl_ast_print_options_alloc(ctx.get());
@@ -4169,6 +5079,16 @@ return new ast_print_options(res);
   if (print_for_data is not null && print_for_data.eptr is not null) {
     var eptr = print_for_data.eptr!;
     print_for_data.eptr = null;
+    throw eptr;
+  }
+  if (print_block_data is not null && print_block_data.eptr is not null) {
+    var eptr = print_block_data.eptr!;
+    print_block_data.eptr = null;
+    throw eptr;
+  }
+  if (print_if_data is not null && print_if_data.eptr is not null) {
+    var eptr = print_if_data.eptr!;
+    print_if_data.eptr = null;
     throw eptr;
   }
   if (res == IntPtr.Zero) {
@@ -5237,6 +6157,14 @@ return new basic_map(res);
     throw new ArgumentNullException("NULL input");
   }
   return new map(get()).gist_params(context);
+}
+
+ public map gist_range(set context)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new map(get()).gist_range(context);
 }
 
  public union_map gist_range(union_set uset)
@@ -6478,6 +7406,14 @@ return new basic_map(res);
   return new map(get()).range_simple_fixed_box_hull();
 }
 
+ public stride_info range_stride_info(int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new map(get()).range_stride_info(pos);
+}
+
  public int range_tuple_dim()
 {
   if (get() == IntPtr.Zero) {
@@ -7407,6 +8343,14 @@ return new basic_set(res);
     throw new InvalidOperationException();
   }
 return new set(res);
+}
+
+ public schedule compute_schedule(union_map validity, union_map proximity)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).compute_schedule(validity, proximity);
 }
 
  public vertices compute_vertices()
@@ -12343,6 +13287,19 @@ return new map(res);
 return new map(res);
 }
 
+ public static map from_pw_aff(pw_aff pwaff)
+{
+  if (pwaff.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_map_from_pw_aff(pwaff.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
+}
+
  public static map from_range(set set)
 {
   if (set.is_null()) {
@@ -12448,12 +13405,41 @@ return new map(res);
 return new map(res);
 }
 
+ public map gist_range(set context)
+{
+  if (get() == IntPtr.Zero || context.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_map_gist_range(copy(), context.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
+}
+
  public union_map gist_range(union_set uset)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new union_map(get()).gist_range(uset);
+}
+
+ public map gist_range(basic_set context)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.gist_range(new set(context));
+}
+
+ public map gist_range(point context)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.gist_range(new set(context));
 }
 
  public bool has_dim_id(dim_type type, uint pos)
@@ -14041,6 +15027,19 @@ return new map(res);
     throw new InvalidOperationException();
   }
 return new fixed_box(res);
+}
+
+ public stride_info range_stride_info(int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_map_get_range_stride_info(get(), pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new stride_info(res);
 }
 
  public int range_tuple_dim()
@@ -15748,6 +16747,14 @@ return new multi_aff(res);
 return new multi_aff(res);
 }
 
+ public space domain_space()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).domain_space();
+}
+
  public pw_multi_aff drop_unused_params()
 {
   if (get() == IntPtr.Zero) {
@@ -15901,6 +16908,22 @@ return new multi_aff(res);
   return res == isl_bool.True;
 }
 
+ public bool has_tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).has_tuple_id(type);
+}
+
+ public bool has_tuple_name(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).has_tuple_name(type);
+}
+
  public multi_aff identity()
 {
   if (get() == IntPtr.Zero) {
@@ -15988,6 +17011,14 @@ return new multi_aff(res);
   return new pw_multi_aff(get()).intersect_params(set);
 }
 
+ public bool involves_dims(dim_type type, uint first, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).involves_dims(type, first, n);
+}
+
  public bool involves_locals()
 {
   if (get() == IntPtr.Zero) {
@@ -16038,6 +17069,22 @@ return new multi_aff(res);
   return new pw_multi_aff(get()).involves_param(list);
 }
 
+ public bool involves_param_id(id id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).involves_param_id(id);
+}
+
+ public bool involves_param_id(string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.involves_param_id(new id(ctx.Instance, id));
+}
+
  public bool isa_multi_aff()
 {
   if (get() == IntPtr.Zero) {
@@ -16052,6 +17099,58 @@ return new multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_multi_aff(get()).isa_pw_multi_aff();
+}
+
+ public set lex_ge_set(multi_aff ma2)
+{
+  if (get() == IntPtr.Zero || ma2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_aff_lex_ge_set(copy(), ma2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
+ public set lex_gt_set(multi_aff ma2)
+{
+  if (get() == IntPtr.Zero || ma2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_aff_lex_gt_set(copy(), ma2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
+ public set lex_le_set(multi_aff ma2)
+{
+  if (get() == IntPtr.Zero || ma2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_aff_lex_le_set(copy(), ma2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
+ public set lex_lt_set(multi_aff ma2)
+{
+  if (get() == IntPtr.Zero || ma2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_aff_lex_lt_set(copy(), ma2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
 }
 
  public aff_list list()
@@ -16097,6 +17196,19 @@ return new aff_list(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_multi_aff(get()).min_multi_val();
+}
+
+ public multi_aff move_dims(dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_aff_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_aff(res);
 }
 
  public static multi_aff multi_val_on_domain(space space, multi_val mv)
@@ -16245,6 +17357,19 @@ return new multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.product(new multi_aff(multi2));
+}
+
+ public static multi_aff project_out_map(space space, dim_type type, uint first, uint n)
+{
+  if (space.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_aff_project_out_map(space.copy(), type, first, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_aff(res);
 }
 
  public multi_aff pullback(multi_aff ma2)
@@ -16408,6 +17533,22 @@ return new id(res);
 return new multi_aff(res);
 }
 
+ public pw_multi_aff reset_tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).reset_tuple_id(type);
+}
+
+ public pw_multi_aff reset_user()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).reset_user();
+}
+
  public multi_aff scale(multi_val mv)
 {
   if (get() == IntPtr.Zero || mv.is_null()) {
@@ -16524,6 +17665,22 @@ return new multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.set_range_tuple(new id(ctx.Instance, id));
+}
+
+ public pw_multi_aff set_tuple_id(dim_type type, id id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).set_tuple_id(type, id);
+}
+
+ public pw_multi_aff set_tuple_id(dim_type type, string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_tuple_id(type, new id(ctx.Instance, id));
 }
 
  public int size()
@@ -16682,6 +17839,22 @@ return new pw_multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_multi_aff(get()).to_union_pw_multi_aff();
+}
+
+ public id tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).tuple_id(type);
+}
+
+ public string tuple_name(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).tuple_name(type);
 }
 
  public multi_aff unbind_params_insert_domain(multi_id domain)
@@ -19097,6 +20270,14 @@ return new point(res);
   return new basic_set(get()).compute_divs();
 }
 
+ public schedule compute_schedule(union_map validity, union_map proximity)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).compute_schedule(validity, proximity);
+}
+
  public vertices compute_vertices()
 {
   if (get() == IntPtr.Zero) {
@@ -20701,6 +21882,61 @@ return new printer(res);
 return new printer(res);
 }
 
+ public bool has_note(id id)
+{
+  if (get() == IntPtr.Zero || id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_printer_has_note(get(), id.get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public bool has_note(string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.has_note(new id(ctx.Instance, id));
+}
+
+ public printer indent(int indent)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_printer_indent(copy(), indent);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new printer(res);
+}
+
+ public id note(id id)
+{
+  if (get() == IntPtr.Zero || id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_printer_get_note(get(), id.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new id(res);
+}
+
+ public id note(string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.note(new id(ctx.Instance, id));
+}
+
  public printer print_ast_expr(ast_expr expr)
 {
   if (get() == IntPtr.Zero || expr.is_null()) {
@@ -20792,6 +22028,82 @@ return new printer(res);
 return new printer(res);
 }
 
+ public printer set_indent(int indent)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_printer_set_indent(copy(), indent);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new printer(res);
+}
+
+ public printer set_indent_prefix(string prefix)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_printer_set_indent_prefix(copy(), prefix);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new printer(res);
+}
+
+ public printer set_isl_int_width(int width)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_printer_set_isl_int_width(copy(), width);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new printer(res);
+}
+
+ public printer set_note(id id, id note)
+{
+  if (get() == IntPtr.Zero || id.is_null() || note.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_printer_set_note(copy(), id.copy(), note.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new printer(res);
+}
+
+ public printer set_note(id id, string note)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_note(id, new id(ctx.Instance, note));
+}
+
+ public printer set_note(string id, id note)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_note(new id(ctx.Instance, id), note);
+}
+
+ public printer set_note(string id, string note)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_note(new id(ctx.Instance, id), new id(ctx.Instance, note));
+}
+
  public printer set_output_format(int output_format)
 {
   if (get() == IntPtr.Zero) {
@@ -20799,6 +22111,32 @@ return new printer(res);
 
   }
   var res = Interop.isl_printer_set_output_format(copy(), output_format);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new printer(res);
+}
+
+ public printer set_prefix(string prefix)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_printer_set_prefix(copy(), prefix);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new printer(res);
+}
+
+ public printer set_suffix(string suffix)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_printer_set_suffix(copy(), suffix);
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -20979,6 +22317,45 @@ return new pw_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_multi_aff(get()).add_constant(mv);
+}
+
+ public pw_aff add_dims(dim_type type, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_add_dims(copy(), type, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public pw_aff align_params(space model)
+{
+  if (get() == IntPtr.Zero || model.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_align_params(copy(), model.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public static pw_aff alloc(set set, aff aff)
+{
+  if (set.is_null() || aff.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_alloc(set.copy(), aff.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
 }
 
  public union_pw_multi_aff apply(union_pw_multi_aff upma2)
@@ -21170,6 +22547,29 @@ return new pw_aff(res);
   return res;
 }
 
+ public id dim_id(dim_type type, uint pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_get_dim_id(get(), type, pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new id(res);
+}
+
+ public string dim_name(dim_type type, uint pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_get_dim_name(get(), type, pos);
+  return Marshal.PtrToStringAnsi(res);
+}
+
  public pw_aff div(pw_aff pa2)
 {
   if (get() == IntPtr.Zero || pa2.is_null()) {
@@ -21209,6 +22609,32 @@ return new set(res);
 return new pw_aff(res);
 }
 
+ public space domain_space()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_get_domain_space(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new space(res);
+}
+
+ public pw_aff drop_dims(dim_type type, uint first, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_drop_dims(copy(), type, first, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
  public pw_aff drop_unused_params()
 {
   if (get() == IntPtr.Zero) {
@@ -21220,6 +22646,32 @@ return new pw_aff(res);
     throw new InvalidOperationException();
   }
 return new pw_aff(res);
+}
+
+ public static pw_aff empty(space space)
+{
+  if (space.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_empty(space.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public map eq_map(pw_aff pa2)
+{
+  if (get() == IntPtr.Zero || pa2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_eq_map(copy(), pa2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
 }
 
  public set eq_set(pw_aff pwaff2)
@@ -21248,12 +22700,48 @@ return new set(res);
 return new val(res);
 }
 
+ public bool every_piece(Func<set, aff, bool> test)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+ (Func<set, aff, bool> func,  Exception? eptr) test_data = (func: test, eptr: null);
+Func<IntPtr, IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1, IntPtr arg_2) => {
+    try {
+      var ret = test_data.func(new (arg_0), new (arg_1));
+      return ret ? isl_bool.True : isl_bool.False;
+    } catch (Exception e) {
+      throw e;
+      return isl_bool.Error;
+    }
+  };
+  var res = Interop.isl_pw_aff_every_piece(get(), test_lambda, IntPtr.Zero);
+  if (test_data.eptr is not null) {
+    throw test_data.eptr;
+  }
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
  public pw_multi_aff extract_pw_multi_aff(space space)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new union_pw_aff(get()).extract_pw_multi_aff(space);
+}
+
+ public int find_dim_by_name(dim_type type, string name)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_find_dim_by_name(get(), type, name);
+  return res;
 }
 
  public multi_pw_aff flat_range_product(multi_pw_aff multi2)
@@ -21301,12 +22789,64 @@ return new val(res);
 return new pw_aff(res);
 }
 
+ public void foreach_piece(Action<set, aff> fn)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+ (Action<set, aff> func,  Exception? eptr) fn_data = (func: fn, eptr: null);
+Func<IntPtr, IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1, IntPtr arg_2) => {
+    try {
+      fn_data.func(new (arg_0), new (arg_1));
+      return isl_stat.Ok;
+    } catch (Exception e) {
+      throw e;
+      return isl_stat.Error;
+    }
+  };
+  var res = Interop.isl_pw_aff_foreach_piece(get(), fn_lambda, IntPtr.Zero);
+  if (fn_data.eptr is not null) {
+    throw fn_data.eptr;
+  }
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
  public void foreach_piece(Action<set, multi_aff> fn)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
 new pw_multi_aff(get()).foreach_piece(fn);
+}
+
+ public pw_aff from_range()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_from_range(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public map ge_map(pw_aff pa2)
+{
+  if (get() == IntPtr.Zero || pa2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_ge_map(copy(), pa2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
 }
 
  public set ge_set(pw_aff pwaff2)
@@ -21372,6 +22912,19 @@ return new pw_aff(res);
 return new pw_aff(res);
 }
 
+ public map gt_map(pw_aff pa2)
+{
+  if (get() == IntPtr.Zero || pa2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_gt_map(copy(), pa2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
+}
+
  public set gt_set(pw_aff pwaff2)
 {
   if (get() == IntPtr.Zero || pwaff2.is_null()) {
@@ -21385,6 +22938,19 @@ return new pw_aff(res);
 return new set(res);
 }
 
+ public bool has_dim_id(dim_type type, uint pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_has_dim_id(get(), type, pos);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
  public bool has_range_tuple_id()
 {
   if (get() == IntPtr.Zero) {
@@ -21393,12 +22959,46 @@ return new set(res);
   return new pw_multi_aff(get()).has_range_tuple_id();
 }
 
+ public bool has_tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_has_tuple_id(get(), type);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public bool has_tuple_name(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).has_tuple_name(type);
+}
+
  public multi_pw_aff identity()
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new pw_multi_aff(get()).identity();
+}
+
+ public pw_aff insert_dims(dim_type type, uint first, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_insert_dims(copy(), type, first, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
 }
 
  public pw_aff insert_domain(space domain)
@@ -21459,6 +23059,19 @@ return new pw_aff(res);
   return this.intersect_domain(new set(set));
 }
 
+ public pw_aff intersect_domain_wrapped_domain(set set)
+{
+  if (get() == IntPtr.Zero || set.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_intersect_domain_wrapped_domain(copy(), set.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
  public union_pw_aff intersect_domain_wrapped_domain(union_set uset)
 {
   if (get() == IntPtr.Zero) {
@@ -21467,12 +23080,57 @@ return new pw_aff(res);
   return new union_pw_aff(get()).intersect_domain_wrapped_domain(uset);
 }
 
+ public pw_aff intersect_domain_wrapped_domain(basic_set set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.intersect_domain_wrapped_domain(new set(set));
+}
+
+ public pw_aff intersect_domain_wrapped_domain(point set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.intersect_domain_wrapped_domain(new set(set));
+}
+
+ public pw_aff intersect_domain_wrapped_range(set set)
+{
+  if (get() == IntPtr.Zero || set.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_intersect_domain_wrapped_range(copy(), set.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
  public union_pw_aff intersect_domain_wrapped_range(union_set uset)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new union_pw_aff(get()).intersect_domain_wrapped_range(uset);
+}
+
+ public pw_aff intersect_domain_wrapped_range(basic_set set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.intersect_domain_wrapped_range(new set(set));
+}
+
+ public pw_aff intersect_domain_wrapped_range(point set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.intersect_domain_wrapped_range(new set(set));
 }
 
  public pw_aff intersect_params(set set)
@@ -21488,6 +23146,19 @@ return new pw_aff(res);
 return new pw_aff(res);
 }
 
+ public bool involves_dims(dim_type type, uint first, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_involves_dims(get(), type, first, n);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
  public bool involves_locals()
 {
   if (get() == IntPtr.Zero) {
@@ -21500,8 +23171,13 @@ return new pw_aff(res);
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new multi_pw_aff(get()).involves_nan();
+  var res = Interop.isl_pw_aff_involves_nan(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
 }
 
  public bool involves_param(id id)
@@ -21526,6 +23202,53 @@ return new pw_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_multi_aff(get()).involves_param(list);
+}
+
+ public bool involves_param_id(id id)
+{
+  if (get() == IntPtr.Zero || id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_involves_param_id(get(), id.get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public bool involves_param_id(string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.involves_param_id(new id(ctx.Instance, id));
+}
+
+ public bool is_cst()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_is_cst(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public bool is_empty()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_is_empty(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
 }
 
  public bool isa_aff()
@@ -21557,6 +23280,19 @@ return new pw_aff(res);
   return new union_pw_aff(get()).isa_pw_multi_aff();
 }
 
+ public map le_map(pw_aff pa2)
+{
+  if (get() == IntPtr.Zero || pa2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_le_map(copy(), pa2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
+}
+
  public set le_set(pw_aff pwaff2)
 {
   if (get() == IntPtr.Zero || pwaff2.is_null()) {
@@ -21576,6 +23312,19 @@ return new set(res);
     throw new ArgumentNullException("NULL input");
   }
   return new multi_pw_aff(get()).list();
+}
+
+ public map lt_map(pw_aff pa2)
+{
+  if (get() == IntPtr.Zero || pa2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_lt_map(copy(), pa2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
 }
 
  public set lt_set(pw_aff pwaff2)
@@ -21712,6 +23461,19 @@ return new pw_aff(res);
   return this.mod(new val(ctx.Instance, mod));
 }
 
+ public pw_aff move_dims(dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
  public pw_aff mul(pw_aff pwaff2)
 {
   if (get() == IntPtr.Zero || pwaff2.is_null()) {
@@ -21729,8 +23491,39 @@ return new pw_aff(res);
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new pw_multi_aff(get()).n_piece();
+  var res = Interop.isl_pw_aff_n_piece(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
+ public static pw_aff nan_on_domain(local_space ls)
+{
+  if (ls.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_nan_on_domain(ls.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public static pw_aff nan_on_domain_space(space space)
+{
+  if (space.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_nan_on_domain_space(space.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
 }
 
  public set ne_set(pw_aff pwaff2)
@@ -21757,6 +23550,32 @@ return new set(res);
     throw new InvalidOperationException();
   }
 return new pw_aff(res);
+}
+
+ public set non_zero_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_non_zero_set(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
+ public set nonneg_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_nonneg_set(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
 }
 
  public static pw_aff param_on_domain(set domain, id id)
@@ -21854,6 +23673,19 @@ return new set(res);
   return this.plain_is_equal(new pw_aff(pwaff2));
 }
 
+ public set pos_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_pos_set(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
  public pw_multi_aff preimage_domain_wrapped_domain(pw_multi_aff pma2)
 {
   if (get() == IntPtr.Zero) {
@@ -21884,6 +23716,19 @@ return new set(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_multi_aff(get()).product(pma2);
+}
+
+ public pw_aff project_domain_on_params()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_project_domain_on_params(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
 }
 
  public pw_aff pullback(multi_aff ma)
@@ -22005,6 +23850,27 @@ return new pw_aff(res);
   return new multi_pw_aff(get()).reset_range_tuple_id();
 }
 
+ public pw_aff reset_tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_reset_tuple_id(copy(), type);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public pw_multi_aff reset_user()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).reset_user();
+}
+
  public pw_aff scale(val v)
 {
   if (get() == IntPtr.Zero || v.is_null()) {
@@ -22079,6 +23945,27 @@ return new pw_aff(res);
   return new union_pw_aff(get()).set_at(pos, el);
 }
 
+ public pw_aff set_dim_id(dim_type type, uint pos, id id)
+{
+  if (get() == IntPtr.Zero || id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_set_dim_id(copy(), type, pos, id.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public pw_aff set_dim_id(dim_type type, uint pos, string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_dim_id(type, pos, new id(ctx.Instance, id));
+}
+
  public pw_multi_aff set_range_tuple(id id)
 {
   if (get() == IntPtr.Zero) {
@@ -22093,6 +23980,27 @@ return new pw_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.set_range_tuple(new id(ctx.Instance, id));
+}
+
+ public pw_aff set_tuple_id(dim_type type, id id)
+{
+  if (get() == IntPtr.Zero || id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_set_tuple_id(copy(), type, id.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public pw_aff set_tuple_id(dim_type type, string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_tuple_id(type, new id(ctx.Instance, id));
 }
 
  public int size()
@@ -22290,6 +24198,27 @@ return new union_pw_aff(res);
   return new pw_multi_aff(get()).to_union_pw_multi_aff();
 }
 
+ public id tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_get_tuple_id(get(), type);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new id(res);
+}
+
+ public string tuple_name(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).tuple_name(type);
+}
+
  public multi_pw_aff unbind_params_insert_domain(multi_id domain)
 {
   if (get() == IntPtr.Zero) {
@@ -22357,6 +24286,84 @@ return new pw_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.union_add(new pw_aff(pwaff2));
+}
+
+ public pw_aff union_max(pw_aff pwaff2)
+{
+  if (get() == IntPtr.Zero || pwaff2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_union_max(copy(), pwaff2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public pw_aff union_min(pw_aff pwaff2)
+{
+  if (get() == IntPtr.Zero || pwaff2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_union_min(copy(), pwaff2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public static pw_aff val_on_domain(set domain, val v)
+{
+  if (domain.is_null() || v.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_val_on_domain(domain.copy(), v.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public static pw_aff var_on_domain(local_space ls, dim_type type, uint pos)
+{
+  if (ls.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_var_on_domain(ls.copy(), type, pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public static pw_aff zero_on_domain(local_space ls)
+{
+  if (ls.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_zero_on_domain(ls.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public set zero_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_zero_set(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
 }
 
 public override string ToString(){
@@ -22484,6 +24491,19 @@ return new pw_aff_list(res);
 return new pw_aff_list(res);
 }
 
+ public set eq_set(pw_aff_list list2)
+{
+  if (get() == IntPtr.Zero || list2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_list_eq_set(copy(), list2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
  public void Foreach(Action<pw_aff> fn)
 {
   if (get() == IntPtr.Zero) {
@@ -22549,6 +24569,32 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
   return;
 }
 
+ public set ge_set(pw_aff_list list2)
+{
+  if (get() == IntPtr.Zero || list2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_list_ge_set(copy(), list2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
+ public set gt_set(pw_aff_list list2)
+{
+  if (get() == IntPtr.Zero || list2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_list_gt_set(copy(), list2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
  public pw_aff_list insert(uint pos, pw_aff el)
 {
   if (get() == IntPtr.Zero || el.is_null()) {
@@ -22560,6 +24606,71 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
     throw new InvalidOperationException();
   }
 return new pw_aff_list(res);
+}
+
+ public set le_set(pw_aff_list list2)
+{
+  if (get() == IntPtr.Zero || list2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_list_le_set(copy(), list2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
+ public set lt_set(pw_aff_list list2)
+{
+  if (get() == IntPtr.Zero || list2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_list_lt_set(copy(), list2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
+ public pw_aff max()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_list_max(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public pw_aff min()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_list_min(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
+}
+
+ public set ne_set(pw_aff_list list2)
+{
+  if (get() == IntPtr.Zero || list2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_list_ne_set(copy(), list2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
 }
 
  public pw_aff_list set_at(int index, pw_aff el)
@@ -22922,6 +25033,19 @@ return new pw_multi_aff(res);
 return new pw_multi_aff(res);
 }
 
+ public space domain_space()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_get_domain_space(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new space(res);
+}
+
  public pw_multi_aff drop_unused_params()
 {
   if (get() == IntPtr.Zero) {
@@ -23085,6 +25209,32 @@ return new pw_multi_aff(res);
   return res == isl_bool.True;
 }
 
+ public bool has_tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_has_tuple_id(get(), type);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public bool has_tuple_name(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_has_tuple_name(get(), type);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
  public multi_pw_aff identity()
 {
   if (get() == IntPtr.Zero) {
@@ -23193,6 +25343,19 @@ return new pw_multi_aff(res);
 return new pw_multi_aff(res);
 }
 
+ public bool involves_dims(dim_type type, uint first, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_involves_dims(get(), type, first, n);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
  public bool involves_locals()
 {
   if (get() == IntPtr.Zero) {
@@ -23236,6 +25399,27 @@ return new pw_multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new multi_pw_aff(get()).involves_param(list);
+}
+
+ public bool involves_param_id(id id)
+{
+  if (get() == IntPtr.Zero || id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_involves_param_id(get(), id.get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public bool involves_param_id(string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.involves_param_id(new id(ctx.Instance, id));
 }
 
  public bool isa_multi_aff()
@@ -23641,6 +25825,32 @@ return new id(res);
   return new multi_pw_aff(get()).reset_range_tuple_id();
 }
 
+ public pw_multi_aff reset_tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_reset_tuple_id(copy(), type);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_multi_aff(res);
+}
+
+ public pw_multi_aff reset_user()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_reset_user(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_multi_aff(res);
+}
+
  public pw_multi_aff scale(multi_val mv)
 {
   if (get() == IntPtr.Zero || mv.is_null()) {
@@ -23744,6 +25954,27 @@ return new pw_multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.set_range_tuple(new id(ctx.Instance, id));
+}
+
+ public pw_multi_aff set_tuple_id(dim_type type, id id)
+{
+  if (get() == IntPtr.Zero || id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_set_tuple_id(copy(), type, id.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_multi_aff(res);
+}
+
+ public pw_multi_aff set_tuple_id(dim_type type, string id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_tuple_id(type, new id(ctx.Instance, id));
 }
 
  public int size()
@@ -23902,6 +26133,29 @@ return new multi_pw_aff(res);
     throw new InvalidOperationException();
   }
 return new union_pw_multi_aff(res);
+}
+
+ public id tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_get_tuple_id(get(), type);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new id(res);
+}
+
+ public string tuple_name(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_get_tuple_name(get(), type);
+  return Marshal.PtrToStringAnsi(res);
 }
 
  public multi_pw_aff unbind_params_insert_domain(multi_id domain)
@@ -24806,6 +27060,19 @@ return new schedule_node(res);
 return new schedule_node(res);
 }
 
+ public schedule_node child(int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_get_child(get(), pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new schedule_node(res);
+}
+
  public int child_position()
 {
   if (get() == IntPtr.Zero) {
@@ -24843,6 +27110,19 @@ return new schedule_node(res);
     throw new InvalidOperationException();
   }
 return new schedule_node(res);
+}
+
+ public union_set domain()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_get_domain(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_set(res);
 }
 
  public bool every_descendant(Func<schedule_node, bool> test)
@@ -24986,6 +27266,53 @@ return new schedule_node(res);
     throw new InvalidOperationException();
   }
 return new schedule_node(res);
+}
+
+ public schedule_node grandchild(int pos1, int pos2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_grandchild(copy(), pos1, pos2);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new schedule_node(res);
+}
+
+ public schedule_node grandparent()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_grandparent(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new schedule_node(res);
+}
+
+ public schedule_node group(id group_id)
+{
+  if (get() == IntPtr.Zero || group_id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_group(copy(), group_id.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new schedule_node(res);
+}
+
+ public schedule_node group(string group_id)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.group(new id(ctx.Instance, group_id));
 }
 
  public bool has_children()
@@ -25269,6 +27596,19 @@ return new schedule_node(res);
 return new multi_union_pw_aff(res);
 }
 
+ public union_map prefix_schedule_relation()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_get_prefix_schedule_relation(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_map(res);
+}
+
  public union_map prefix_schedule_union_map()
 {
   if (get() == IntPtr.Zero) {
@@ -25334,6 +27674,19 @@ return new schedule_node(res);
 return new schedule(res);
 }
 
+ public int schedule_depth()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_get_schedule_depth(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public schedule_node shared_ancestor(schedule_node node2)
 {
   if (get() == IntPtr.Zero || node2.is_null()) {
@@ -25347,6 +27700,45 @@ return new schedule(res);
 return new schedule_node(res);
 }
 
+ public union_pw_multi_aff subtree_contraction()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_get_subtree_contraction(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_multi_aff(res);
+}
+
+ public union_map subtree_expansion()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_get_subtree_expansion(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_map(res);
+}
+
+ public union_map subtree_schedule_union_map()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_get_subtree_schedule_union_map(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_map(res);
+}
+
  public int tree_depth()
 {
   if (get() == IntPtr.Zero) {
@@ -25358,6 +27750,19 @@ return new schedule_node(res);
     throw new InvalidOperationException();
   }
   return res;
+}
+
+ public union_set universe_domain()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_get_universe_domain(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_set(res);
 }
 
 public override string ToString(){
@@ -25397,6 +27802,16 @@ return new union_set(res);
 return new set(res);
 }
 
+ public ast_loop_type member_get_ast_loop_type(int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_band_member_get_ast_loop_type(get(), pos);
+  return res;
+}
+
  public bool member_get_coincident(int pos)
 {
   if (get() == IntPtr.Zero) {
@@ -25408,6 +27823,16 @@ return new set(res);
     throw new InvalidOperationException();
   }
   return res == isl_bool.True;
+}
+
+ public ast_loop_type member_get_isolate_ast_loop_type(int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_band_member_get_isolate_ast_loop_type(get(), pos);
+  return res;
 }
 
  public schedule_node_band member_set_coincident(int pos, int coincident)
@@ -25460,6 +27885,19 @@ return new schedule_node_band(res);
     throw new InvalidOperationException();
   }
 return new multi_union_pw_aff(res);
+}
+
+ public union_map partial_schedule_union_map()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_band_get_partial_schedule_union_map(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_map(res);
 }
 
  public bool permutable()
@@ -25540,6 +27978,19 @@ return new schedule_node_band(res);
 return new schedule_node_band(res);
 }
 
+ public schedule_node_band sink()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_band_sink(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new schedule_node_band(res);
+}
+
  public space space()
 {
   if (get() == IntPtr.Zero) {
@@ -25586,6 +28037,19 @@ return new schedule_node_band(res);
 
   }
   var res = Interop.isl_schedule_node_band_member_set_ast_loop_type(copy(), pos, type);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new schedule_node_band(res);
+}
+
+ public schedule_node_band member_set_isolate_ast_loop_type(int pos, ast_loop_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_band_member_set_isolate_ast_loop_type(copy(), pos, type);
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -25771,6 +28235,19 @@ public class schedule_node_mark : schedule_node , IDisposable, IObject {
 internal schedule_node_mark(/* __isl_take */ IntPtr ptr)
     : base(ptr) {}
 
+ public id id()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_mark_get_id(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new id(res);
+}
+
 public override string ToString(){
   var str = Interop.isl_schedule_node_to_str(get());
   return str;
@@ -25781,6 +28258,32 @@ public class schedule_node_sequence : schedule_node , IDisposable, IObject {
 
 internal schedule_node_sequence(/* __isl_take */ IntPtr ptr)
     : base(ptr) {}
+
+ public schedule_node_sequence splice_child(int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_sequence_splice_child(copy(), pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new schedule_node_sequence(res);
+}
+
+ public schedule_node_sequence splice_children()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_schedule_node_sequence_splice_children(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new schedule_node_sequence(res);
+}
 
 public override string ToString(){
   var str = Interop.isl_schedule_node_to_str(get());
@@ -26048,6 +28551,14 @@ return new set(res);
     throw new InvalidOperationException();
   }
 return new set(res);
+}
+
+ public schedule compute_schedule(union_map validity, union_map proximity)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_set(get()).compute_schedule(validity, proximity);
 }
 
  public basic_set convex_hull()
@@ -33089,6 +35600,19 @@ return new union_set(res);
 return new union_set(res);
 }
 
+ public schedule compute_schedule(union_map validity, union_map proximity)
+{
+  if (get() == IntPtr.Zero || validity.is_null() || proximity.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_set_compute_schedule(copy(), validity.copy(), proximity.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new schedule(res);
+}
+
  public union_set detect_equalities()
 {
   if (get() == IntPtr.Zero) {
@@ -34898,7 +37422,25 @@ public static extern  IntPtr isl_aff_read_from_str(IntPtr ctx, [MarshalAs(Unmana
 public static extern  IntPtr isl_aff_add(IntPtr aff1, IntPtr aff2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_add_coefficient_si(IntPtr aff, dim_type type, int pos, int v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_add_coefficient_val(IntPtr aff, dim_type type, int pos, IntPtr v);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_add_constant_val(IntPtr aff, IntPtr v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_add_constant_num_si(IntPtr aff, int v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_add_constant_si(IntPtr aff, int v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_add_dims(IntPtr aff, dim_type type, uint n);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_align_params(IntPtr aff, IntPtr model);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_bind_id(IntPtr aff, IntPtr id);
@@ -34907,16 +37449,40 @@ public static extern  IntPtr isl_aff_bind_id(IntPtr aff, IntPtr id);
 public static extern  IntPtr isl_aff_ceil(IntPtr aff);
 
 [DllImport(LibraryName)]
+public static extern  int isl_aff_coefficient_sgn(IntPtr aff, dim_type type, int pos);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_get_coefficient_val(IntPtr aff, dim_type type, int pos);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_get_constant_val(IntPtr aff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_get_denominator_val(IntPtr aff);
 
 [DllImport(LibraryName)]
 public static extern  int isl_aff_dim(IntPtr aff, dim_type type);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_get_dim_name(IntPtr aff, dim_type type, uint pos);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_div(IntPtr aff1, IntPtr aff2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_get_domain_local_space(IntPtr aff);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_domain_reverse(IntPtr aff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_get_domain_space(IntPtr aff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_drop_dims(IntPtr aff, dim_type type, uint first, uint n);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_eq_basic_set(IntPtr aff1, IntPtr aff2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_eq_set(IntPtr aff1, IntPtr aff2);
@@ -34926,6 +37492,9 @@ public static extern  IntPtr isl_aff_eval(IntPtr aff, IntPtr pnt);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_floor(IntPtr aff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_ge_basic_set(IntPtr aff1, IntPtr aff2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_ge_set(IntPtr aff1, IntPtr aff2);
@@ -34940,10 +37509,31 @@ public static extern  IntPtr isl_aff_gist_params(IntPtr aff, IntPtr context);
 public static extern  IntPtr isl_aff_gt_set(IntPtr aff1, IntPtr aff2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_insert_dims(IntPtr aff, dim_type type, uint first, uint n);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_aff_involves_dims(IntPtr aff, dim_type type, uint first, uint n);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_aff_involves_locals(IntPtr aff);
+
+[DllImport(LibraryName)]
 public static extern  isl_bool isl_aff_is_cst(IntPtr aff);
 
 [DllImport(LibraryName)]
+public static extern  isl_bool isl_aff_is_nan(IntPtr aff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_le_basic_set(IntPtr aff1, IntPtr aff2);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_le_set(IntPtr aff1, IntPtr aff2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_get_local_space(IntPtr aff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_lt_basic_set(IntPtr aff1, IntPtr aff2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_lt_set(IntPtr aff1, IntPtr aff2);
@@ -34952,7 +37542,16 @@ public static extern  IntPtr isl_aff_lt_set(IntPtr aff1, IntPtr aff2);
 public static extern  IntPtr isl_aff_mod_val(IntPtr aff, IntPtr mod);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_move_dims(IntPtr aff, dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_mul(IntPtr aff1, IntPtr aff2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_nan_on_domain(IntPtr ls);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_nan_on_domain_space(IntPtr space);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_ne_set(IntPtr aff1, IntPtr aff2);
@@ -34961,10 +37560,19 @@ public static extern  IntPtr isl_aff_ne_set(IntPtr aff1, IntPtr aff2);
 public static extern  IntPtr isl_aff_neg(IntPtr aff);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_neg_basic_set(IntPtr aff);
+
+[DllImport(LibraryName)]
 public static extern  isl_bool isl_aff_plain_is_equal(IntPtr aff1, IntPtr aff2);
 
 [DllImport(LibraryName)]
+public static extern  isl_bool isl_aff_plain_is_zero(IntPtr aff);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_pullback_multi_aff(IntPtr aff, IntPtr ma);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_pullback_aff(IntPtr aff1, IntPtr aff2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_scale_val(IntPtr aff, IntPtr v);
@@ -34973,10 +37581,31 @@ public static extern  IntPtr isl_aff_scale_val(IntPtr aff, IntPtr v);
 public static extern  IntPtr isl_aff_scale_down_val(IntPtr aff, IntPtr v);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_scale_down_ui(IntPtr aff, uint f);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_set_coefficient_si(IntPtr aff, dim_type type, int pos, int v);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_set_coefficient_val(IntPtr aff, dim_type type, int pos, IntPtr v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_set_constant_si(IntPtr aff, int v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_set_constant_val(IntPtr aff, IntPtr v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_set_dim_id(IntPtr aff, dim_type type, uint pos, IntPtr id);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_set_dim_name(IntPtr aff, dim_type type, uint pos, [MarshalAs(UnmanagedType.LPStr)] string s);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_set_tuple_id(IntPtr aff, dim_type type, IntPtr id);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_get_space(IntPtr aff);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_sub(IntPtr aff1, IntPtr aff2);
@@ -34986,6 +37615,18 @@ public static extern  IntPtr isl_aff_to_list(IntPtr el);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_unbind_params_insert_domain(IntPtr aff, IntPtr domain);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_val_on_domain(IntPtr ls, IntPtr val);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_val_on_domain_space(IntPtr space, IntPtr val);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_var_on_domain(IntPtr ls, dim_type type, uint pos);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_zero_basic_set(IntPtr aff);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_zero_on_domain(IntPtr ls);
@@ -35128,6 +37769,9 @@ public static extern  IntPtr isl_ast_expr_add(IntPtr expr1, IntPtr expr2);
 public static extern  IntPtr isl_ast_expr_address_of(IntPtr expr);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_ast_expr_and(IntPtr expr1, IntPtr expr2);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_expr_and_then(IntPtr expr1, IntPtr expr2);
 
 [DllImport(LibraryName)]
@@ -35165,6 +37809,9 @@ public static extern  IntPtr isl_ast_expr_mul(IntPtr expr1, IntPtr expr2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_expr_neg(IntPtr expr);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_ast_expr_or(IntPtr expr1, IntPtr expr2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_expr_or_else(IntPtr expr1, IntPtr expr2);
@@ -35297,7 +37944,13 @@ public static extern  ast_expr_op_type isl_ast_expr_op_get_type(IntPtr expr);
 
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_ast_node_alloc_user(IntPtr expr);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_node_get_annotation(IntPtr node);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_ast_node_foreach_descendant_top_down(IntPtr node, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, isl_bool> fn, IntPtr user);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_node_map_descendant_bottom_up(IntPtr node, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, IntPtr> fn, IntPtr user);
@@ -35437,6 +38090,12 @@ public static extern  IntPtr isl_ast_print_options_set_print_user(IntPtr options
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_print_options_set_print_for(IntPtr options, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr> print_for, IntPtr user);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_ast_print_options_set_print_block(IntPtr options, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr> print_block, IntPtr user);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_ast_print_options_set_print_if(IntPtr options, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr> print_if, IntPtr user);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_print_options_alloc(IntPtr ctx);
@@ -36694,6 +39353,9 @@ public static extern  IntPtr isl_map_from_domain_and_range(IntPtr domain, IntPtr
 public static extern  IntPtr isl_map_from_multi_aff(IntPtr maff);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_map_from_pw_aff(IntPtr pwaff);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_map_from_range(IntPtr set);
 
 [DllImport(LibraryName)]
@@ -36707,6 +39369,9 @@ public static extern  IntPtr isl_map_gist_domain(IntPtr map, IntPtr context);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_map_gist_params(IntPtr map, IntPtr context);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_map_gist_range(IntPtr map, IntPtr context);
 
 [DllImport(LibraryName)]
 public static extern  isl_bool isl_map_has_dim_id(IntPtr map, dim_type type, uint pos);
@@ -36989,6 +39654,9 @@ public static extern  IntPtr isl_map_range_reverse(IntPtr map);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_map_get_range_simple_fixed_box_hull(IntPtr map);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_map_get_range_stride_info(IntPtr map, int pos);
 
 [DllImport(LibraryName)]
 public static extern  int isl_map_range_tuple_dim(IntPtr map);
@@ -37366,7 +40034,22 @@ public static extern  isl_bool isl_multi_aff_involves_locals(IntPtr multi);
 public static extern  isl_bool isl_multi_aff_involves_nan(IntPtr multi);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_aff_lex_ge_set(IntPtr ma1, IntPtr ma2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_aff_lex_gt_set(IntPtr ma1, IntPtr ma2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_aff_lex_le_set(IntPtr ma1, IntPtr ma2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_aff_lex_lt_set(IntPtr ma1, IntPtr ma2);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_aff_get_list(IntPtr multi);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_aff_move_dims(IntPtr ma, dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_aff_multi_val_on_domain_space(IntPtr space, IntPtr mv);
@@ -37379,6 +40062,9 @@ public static extern  isl_bool isl_multi_aff_plain_is_equal(IntPtr multi1, IntPt
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_aff_product(IntPtr multi1, IntPtr multi2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_aff_project_out_map(IntPtr space, dim_type type, uint first, uint n);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_aff_pullback_multi_aff(IntPtr ma1, IntPtr ma2);
@@ -37927,6 +40613,15 @@ public static extern  IntPtr isl_printer_flush(IntPtr p);
 public static extern  IntPtr isl_printer_free(IntPtr printer);
 
 [DllImport(LibraryName)]
+public static extern  isl_bool isl_printer_has_note(IntPtr p, IntPtr id);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_printer_indent(IntPtr p, int indent);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_printer_get_note(IntPtr p, IntPtr id);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_printer_print_ast_expr(IntPtr p, IntPtr expr);
 
 [DllImport(LibraryName)]
@@ -37948,7 +40643,25 @@ public static extern  IntPtr isl_printer_print_schedule(IntPtr p, IntPtr schedul
 public static extern  IntPtr isl_printer_print_str(IntPtr p, [MarshalAs(UnmanagedType.LPStr)] string s);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_printer_set_indent(IntPtr p, int indent);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_printer_set_indent_prefix(IntPtr p, [MarshalAs(UnmanagedType.LPStr)] string prefix);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_printer_set_isl_int_width(IntPtr p, int width);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_printer_set_note(IntPtr p, IntPtr id, IntPtr note);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_printer_set_output_format(IntPtr p, int output_format);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_printer_set_prefix(IntPtr p, [MarshalAs(UnmanagedType.LPStr)] string prefix);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_printer_set_suffix(IntPtr p, [MarshalAs(UnmanagedType.LPStr)] string suffix);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_printer_set_yaml_style(IntPtr p, int yaml_style);
@@ -37982,6 +40695,15 @@ public static extern  IntPtr isl_pw_aff_add(IntPtr pwaff1, IntPtr pwaff2);
 public static extern  IntPtr isl_pw_aff_add_constant_val(IntPtr pa, IntPtr v);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_add_dims(IntPtr pwaff, dim_type type, uint n);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_align_params(IntPtr pwaff, IntPtr model);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_alloc(IntPtr set, IntPtr aff);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_as_aff(IntPtr pa);
 
 [DllImport(LibraryName)]
@@ -38009,6 +40731,12 @@ public static extern  IntPtr isl_pw_aff_cond(IntPtr cond, IntPtr pwaff_true, Int
 public static extern  int isl_pw_aff_dim(IntPtr pwaff, dim_type type);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_get_dim_id(IntPtr pa, dim_type type, uint pos);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_get_dim_name(IntPtr pa, dim_type type, uint pos);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_div(IntPtr pa1, IntPtr pa2);
 
 [DllImport(LibraryName)]
@@ -38018,7 +40746,19 @@ public static extern  IntPtr isl_pw_aff_domain(IntPtr pwaff);
 public static extern  IntPtr isl_pw_aff_domain_reverse(IntPtr pa);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_get_domain_space(IntPtr pwaff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_drop_dims(IntPtr pwaff, dim_type type, uint first, uint n);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_drop_unused_params(IntPtr pa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_empty(IntPtr space);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_eq_map(IntPtr pa1, IntPtr pa2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_eq_set(IntPtr pwaff1, IntPtr pwaff2);
@@ -38027,7 +40767,22 @@ public static extern  IntPtr isl_pw_aff_eq_set(IntPtr pwaff1, IntPtr pwaff2);
 public static extern  IntPtr isl_pw_aff_eval(IntPtr pa, IntPtr pnt);
 
 [DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_aff_every_piece(IntPtr pa, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, IntPtr, isl_bool> test, IntPtr user);
+
+[DllImport(LibraryName)]
+public static extern  int isl_pw_aff_find_dim_by_name(IntPtr pa, dim_type type, [MarshalAs(UnmanagedType.LPStr)] string name);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_floor(IntPtr pwaff);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_pw_aff_foreach_piece(IntPtr pwaff, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, IntPtr, isl_stat> fn, IntPtr user);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_from_range(IntPtr pwa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_ge_map(IntPtr pa1, IntPtr pa2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_ge_set(IntPtr pwaff1, IntPtr pwaff2);
@@ -38039,7 +40794,19 @@ public static extern  IntPtr isl_pw_aff_gist(IntPtr pwaff, IntPtr context);
 public static extern  IntPtr isl_pw_aff_gist_params(IntPtr pwaff, IntPtr context);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_gt_map(IntPtr pa1, IntPtr pa2);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_gt_set(IntPtr pwaff1, IntPtr pwaff2);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_aff_has_dim_id(IntPtr pa, dim_type type, uint pos);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_aff_has_tuple_id(IntPtr pa, dim_type type);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_insert_dims(IntPtr pwaff, dim_type type, uint first, uint n);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_insert_domain(IntPtr pa, IntPtr domain);
@@ -38048,13 +40815,40 @@ public static extern  IntPtr isl_pw_aff_insert_domain(IntPtr pa, IntPtr domain);
 public static extern  IntPtr isl_pw_aff_intersect_domain(IntPtr pa, IntPtr set);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_intersect_domain_wrapped_domain(IntPtr pa, IntPtr set);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_intersect_domain_wrapped_range(IntPtr pa, IntPtr set);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_intersect_params(IntPtr pa, IntPtr set);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_aff_involves_dims(IntPtr pwaff, dim_type type, uint first, uint n);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_aff_involves_nan(IntPtr pa);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_aff_involves_param_id(IntPtr pa, IntPtr id);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_aff_is_cst(IntPtr pwaff);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_aff_is_empty(IntPtr pwaff);
 
 [DllImport(LibraryName)]
 public static extern  isl_bool isl_pw_aff_isa_aff(IntPtr pa);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_le_map(IntPtr pa1, IntPtr pa2);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_le_set(IntPtr pwaff1, IntPtr pwaff2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_lt_map(IntPtr pa1, IntPtr pa2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_lt_set(IntPtr pwaff1, IntPtr pwaff2);
@@ -38075,13 +40869,31 @@ public static extern  IntPtr isl_pw_aff_min_val(IntPtr pa);
 public static extern  IntPtr isl_pw_aff_mod_val(IntPtr pa, IntPtr mod);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_move_dims(IntPtr pa, dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_mul(IntPtr pwaff1, IntPtr pwaff2);
+
+[DllImport(LibraryName)]
+public static extern  int isl_pw_aff_n_piece(IntPtr pwaff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_nan_on_domain(IntPtr ls);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_nan_on_domain_space(IntPtr space);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_ne_set(IntPtr pwaff1, IntPtr pwaff2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_neg(IntPtr pwaff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_non_zero_set(IntPtr pwaff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_nonneg_set(IntPtr pwaff);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_param_on_domain_id(IntPtr domain, IntPtr id);
@@ -38093,6 +40905,12 @@ public static extern  IntPtr isl_pw_aff_params(IntPtr pwa);
 public static extern  isl_bool isl_pw_aff_plain_is_equal(IntPtr pwaff1, IntPtr pwaff2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_pos_set(IntPtr pa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_project_domain_on_params(IntPtr pa);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_pullback_multi_aff(IntPtr pa, IntPtr ma);
 
 [DllImport(LibraryName)]
@@ -38102,10 +40920,19 @@ public static extern  IntPtr isl_pw_aff_pullback_multi_pw_aff(IntPtr pa, IntPtr 
 public static extern  IntPtr isl_pw_aff_pullback_pw_multi_aff(IntPtr pa, IntPtr pma);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_reset_tuple_id(IntPtr pa, dim_type type);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_scale_val(IntPtr pa, IntPtr v);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_scale_down_val(IntPtr pa, IntPtr f);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_set_dim_id(IntPtr pma, dim_type type, uint pos, IntPtr id);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_set_tuple_id(IntPtr pwaff, dim_type type, IntPtr id);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_get_space(IntPtr pwaff);
@@ -38129,7 +40956,28 @@ public static extern  IntPtr isl_pw_aff_to_list(IntPtr el);
 public static extern  IntPtr isl_pw_aff_to_union_pw_aff(IntPtr pa);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_get_tuple_id(IntPtr pa, dim_type type);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_union_add(IntPtr pwaff1, IntPtr pwaff2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_union_max(IntPtr pwaff1, IntPtr pwaff2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_union_min(IntPtr pwaff1, IntPtr pwaff2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_val_on_domain(IntPtr domain, IntPtr v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_var_on_domain(IntPtr ls, dim_type type, uint pos);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_zero_on_domain(IntPtr ls);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_zero_set(IntPtr pwaff);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_copy(IntPtr pwaff);
@@ -38167,13 +41015,37 @@ public static extern  IntPtr isl_pw_aff_list_concat(IntPtr list1, IntPtr list2);
 public static extern  IntPtr isl_pw_aff_list_drop(IntPtr list, uint first, uint n);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_list_eq_set(IntPtr list1, IntPtr list2);
+
+[DllImport(LibraryName)]
 public static extern  isl_stat isl_pw_aff_list_foreach(IntPtr list, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, isl_stat> fn, IntPtr user);
 
 [DllImport(LibraryName)]
 public static extern  isl_stat isl_pw_aff_list_foreach_scc(IntPtr list, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, IntPtr, isl_bool> follows, IntPtr follows_user, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, isl_stat> fn, IntPtr fn_user);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_list_ge_set(IntPtr list1, IntPtr list2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_list_gt_set(IntPtr list1, IntPtr list2);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_list_insert(IntPtr list, uint pos, IntPtr el);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_list_le_set(IntPtr list1, IntPtr list2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_list_lt_set(IntPtr list1, IntPtr list2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_list_max(IntPtr list);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_list_min(IntPtr list);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_aff_list_ne_set(IntPtr list1, IntPtr list2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_list_set_at(IntPtr list, int index, IntPtr el);
@@ -38244,6 +41116,9 @@ public static extern  IntPtr isl_pw_multi_aff_domain_map(IntPtr space);
 public static extern  IntPtr isl_pw_multi_aff_domain_reverse(IntPtr pma);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_multi_aff_get_domain_space(IntPtr pma);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_drop_unused_params(IntPtr pma);
 
 [DllImport(LibraryName)]
@@ -38262,6 +41137,12 @@ public static extern  IntPtr isl_pw_multi_aff_gist_params(IntPtr pma, IntPtr set
 public static extern  isl_bool isl_pw_multi_aff_has_range_tuple_id(IntPtr pma);
 
 [DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_multi_aff_has_tuple_id(IntPtr pma, dim_type type);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_multi_aff_has_tuple_name(IntPtr pma, dim_type type);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_identity_on_domain_space(IntPtr space);
 
 [DllImport(LibraryName)]
@@ -38274,7 +41155,13 @@ public static extern  IntPtr isl_pw_multi_aff_intersect_domain(IntPtr pma, IntPt
 public static extern  IntPtr isl_pw_multi_aff_intersect_params(IntPtr pma, IntPtr set);
 
 [DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_multi_aff_involves_dims(IntPtr pma, dim_type type, uint first, uint n);
+
+[DllImport(LibraryName)]
 public static extern  isl_bool isl_pw_multi_aff_involves_locals(IntPtr pma);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_pw_multi_aff_involves_param_id(IntPtr pma, IntPtr id);
 
 [DllImport(LibraryName)]
 public static extern  isl_bool isl_pw_multi_aff_isa_multi_aff(IntPtr pma);
@@ -38322,6 +41209,12 @@ public static extern  IntPtr isl_pw_multi_aff_range_product(IntPtr pma1, IntPtr 
 public static extern  IntPtr isl_pw_multi_aff_get_range_tuple_id(IntPtr pma);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_multi_aff_reset_tuple_id(IntPtr pma, dim_type type);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_multi_aff_reset_user(IntPtr pma);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_scale_multi_val(IntPtr pma, IntPtr mv);
 
 [DllImport(LibraryName)]
@@ -38335,6 +41228,9 @@ public static extern  IntPtr isl_pw_multi_aff_scale_down_val(IntPtr pma, IntPtr 
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_set_range_tuple_id(IntPtr pma, IntPtr id);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_multi_aff_set_tuple_id(IntPtr pma, dim_type type, IntPtr id);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_get_space(IntPtr pma);
@@ -38353,6 +41249,12 @@ public static extern  IntPtr isl_pw_multi_aff_to_multi_pw_aff(IntPtr pma);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_to_union_pw_multi_aff(IntPtr pma);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_multi_aff_get_tuple_id(IntPtr pma, dim_type type);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_multi_aff_get_tuple_name(IntPtr pma, dim_type type);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_union_add(IntPtr pma1, IntPtr pma2);
@@ -38558,6 +41460,9 @@ public static extern  int isl_schedule_node_get_ancestor_child_position(IntPtr n
 public static extern  IntPtr isl_schedule_node_child(IntPtr node, int pos);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_get_child(IntPtr node, int pos);
+
+[DllImport(LibraryName)]
 public static extern  int isl_schedule_node_get_child_position(IntPtr node);
 
 [DllImport(LibraryName)]
@@ -38565,6 +41470,9 @@ public static extern  IntPtr isl_schedule_node_cut(IntPtr node);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_schedule_node_delete(IntPtr node);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_get_domain(IntPtr node);
 
 [DllImport(LibraryName)]
 public static extern  isl_bool isl_schedule_node_every_descendant(IntPtr node, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, isl_bool> test, IntPtr user);
@@ -38589,6 +41497,15 @@ public static extern  IntPtr isl_schedule_node_graft_after(IntPtr node, IntPtr g
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_schedule_node_graft_before(IntPtr node, IntPtr graft);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_grandchild(IntPtr node, int pos1, int pos2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_grandparent(IntPtr node);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_group(IntPtr node, IntPtr group_id);
 
 [DllImport(LibraryName)]
 public static extern  isl_bool isl_schedule_node_has_children(IntPtr node);
@@ -38651,6 +41568,9 @@ public static extern  IntPtr isl_schedule_node_parent(IntPtr node);
 public static extern  IntPtr isl_schedule_node_get_prefix_schedule_multi_union_pw_aff(IntPtr node);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_get_prefix_schedule_relation(IntPtr node);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_schedule_node_get_prefix_schedule_union_map(IntPtr node);
 
 [DllImport(LibraryName)]
@@ -38666,10 +41586,25 @@ public static extern  IntPtr isl_schedule_node_root(IntPtr node);
 public static extern  IntPtr isl_schedule_node_get_schedule(IntPtr node);
 
 [DllImport(LibraryName)]
+public static extern  int isl_schedule_node_get_schedule_depth(IntPtr node);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_schedule_node_get_shared_ancestor(IntPtr node1, IntPtr node2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_get_subtree_contraction(IntPtr node);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_get_subtree_expansion(IntPtr node);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_get_subtree_schedule_union_map(IntPtr node);
+
+[DllImport(LibraryName)]
 public static extern  int isl_schedule_node_get_tree_depth(IntPtr node);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_get_universe_domain(IntPtr node);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_schedule_node_copy(IntPtr node);
@@ -38692,7 +41627,13 @@ public static extern  IntPtr isl_schedule_node_band_get_ast_build_options(IntPtr
 public static extern  IntPtr isl_schedule_node_band_get_ast_isolate_option(IntPtr node);
 
 [DllImport(LibraryName)]
+public static extern  ast_loop_type isl_schedule_node_band_member_get_ast_loop_type(IntPtr node, int pos);
+
+[DllImport(LibraryName)]
 public static extern  isl_bool isl_schedule_node_band_member_get_coincident(IntPtr node, int pos);
+
+[DllImport(LibraryName)]
+public static extern  ast_loop_type isl_schedule_node_band_member_get_isolate_ast_loop_type(IntPtr node, int pos);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_schedule_node_band_member_set_coincident(IntPtr node, int pos, int coincident);
@@ -38705,6 +41646,9 @@ public static extern  int isl_schedule_node_band_n_member(IntPtr node);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_schedule_node_band_get_partial_schedule(IntPtr node);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_band_get_partial_schedule_union_map(IntPtr node);
 
 [DllImport(LibraryName)]
 public static extern  isl_bool isl_schedule_node_band_get_permutable(IntPtr node);
@@ -38725,6 +41669,9 @@ public static extern  IntPtr isl_schedule_node_band_set_permutable(IntPtr node, 
 public static extern  IntPtr isl_schedule_node_band_shift(IntPtr node, IntPtr shift);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_band_sink(IntPtr node);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_schedule_node_band_get_space(IntPtr node);
 
 [DllImport(LibraryName)]
@@ -38735,6 +41682,9 @@ public static extern  IntPtr isl_schedule_node_band_tile(IntPtr node, IntPtr siz
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_schedule_node_band_member_set_ast_loop_type(IntPtr node, int pos, ast_loop_type type);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_band_member_set_isolate_ast_loop_type(IntPtr node, int pos, ast_loop_type type);
 
 
 [DllImport(LibraryName)]
@@ -38765,6 +41715,15 @@ public static extern  IntPtr isl_schedule_node_guard_get_guard(IntPtr node);
 
 
 
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_mark_get_id(IntPtr node);
+
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_sequence_splice_child(IntPtr node, int pos);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_schedule_node_sequence_splice_children(IntPtr node);
 
 
 
@@ -40276,6 +43235,9 @@ public static extern  IntPtr isl_union_set_coalesce(IntPtr uset);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_set_compute_divs(IntPtr uset);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_set_compute_schedule(IntPtr domain, IntPtr validity, IntPtr proximity);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_set_detect_equalities(IntPtr uset);

@@ -125,6 +125,14 @@ struct isl_ast_print_options {
 		__isl_take isl_ast_print_options *options,
 		__isl_keep isl_ast_node *node, void *user);
 	void *print_user_user;
+	__isl_give isl_printer *(*print_block)(__isl_take isl_printer *p,
+		__isl_take isl_ast_print_options *options,
+		__isl_keep isl_ast_node *node, void *user);
+	void *print_block_user;
+	__isl_give isl_printer *(*print_if)(__isl_take isl_printer *p,
+		__isl_take isl_ast_print_options *options,
+		__isl_keep isl_ast_node *node, void *user);
+	void *print_if_user;
 };
 
 __isl_give isl_printer *isl_ast_node_list_print(

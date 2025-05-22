@@ -46,11 +46,13 @@ __isl_give isl_ast_expr *isl_ast_expr_pdiv_q(__isl_take isl_ast_expr *expr1,
 __isl_export
 __isl_give isl_ast_expr *isl_ast_expr_pdiv_r(__isl_take isl_ast_expr *expr1,
 	__isl_take isl_ast_expr *expr2);
+__isl_export
 __isl_give isl_ast_expr *isl_ast_expr_and(__isl_take isl_ast_expr *expr1,
 	__isl_take isl_ast_expr *expr2);
 __isl_export
 __isl_give isl_ast_expr *isl_ast_expr_and_then(__isl_take isl_ast_expr *expr1,
 	__isl_take isl_ast_expr *expr2);
+__isl_export
 __isl_give isl_ast_expr *isl_ast_expr_or(__isl_take isl_ast_expr *expr1,
 	__isl_take isl_ast_expr *expr2);
 __isl_export
@@ -127,6 +129,7 @@ __isl_give char *isl_ast_expr_to_C_str(__isl_keep isl_ast_expr *expr);
 __isl_constructor
 __isl_give isl_ast_node *isl_ast_node_user_from_expr(
 	__isl_take isl_ast_expr *expr);
+__isl_export
 __isl_give isl_ast_node *isl_ast_node_alloc_user(__isl_take isl_ast_expr *expr);
 __isl_give isl_ast_node *isl_ast_node_copy(__isl_keep isl_ast_node *node);
 __isl_null isl_ast_node *isl_ast_node_free(__isl_take isl_ast_node *node);
@@ -192,7 +195,7 @@ __isl_give isl_ast_node *isl_ast_node_mark_get_node(
 __isl_export
 __isl_give isl_ast_expr *isl_ast_node_user_get_expr(
 	__isl_keep isl_ast_node *node);
-
+__isl_export
 isl_stat isl_ast_node_foreach_descendant_top_down(
 	__isl_keep isl_ast_node *node,
 	isl_bool (*fn)(__isl_keep isl_ast_node *node, void *user), void *user);
@@ -225,6 +228,20 @@ __isl_export
 __isl_give isl_ast_print_options *isl_ast_print_options_set_print_for(
 	__isl_take isl_ast_print_options *options,
 	__isl_give isl_printer *(*print_for)(__isl_take isl_printer *p,
+		__isl_take isl_ast_print_options *options,
+		__isl_keep isl_ast_node *node, void *user),
+	void *user);
+__isl_export
+__isl_give isl_ast_print_options *isl_ast_print_options_set_print_block(
+  __isl_take isl_ast_print_options *options,
+  __isl_give isl_printer *(*print_block)(__isl_take isl_printer *p,
+    __isl_take isl_ast_print_options *options,
+    __isl_keep isl_ast_node *node, void *user),
+  void *user);
+__isl_export
+__isl_give isl_ast_print_options *isl_ast_print_options_set_print_if(
+	__isl_take isl_ast_print_options *options,
+	__isl_give isl_printer *(*print_if)(__isl_take isl_printer *p,
 		__isl_take isl_ast_print_options *options,
 		__isl_keep isl_ast_node *node, void *user),
 	void *user);

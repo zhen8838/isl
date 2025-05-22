@@ -435,6 +435,21 @@ def test_sched_constraints_set_validity():
 
     assert str(validity) == str(validity2)
 
+def test_set_ast_print_options():
+    def print_user_block(printer: isl.printer, options: isl.ast_print_options, node: isl.ast_node_block):
+      pass
+
+    def print_user_py(printer: isl.printer, options: isl.ast_print_options, node: isl.ast_node_user):
+      pass
+
+    def print_for_py(printer: isl.printer, options: isl.ast_print_options, node: isl.ast_node_for):
+      pass
+
+    options = isl.ast_print_options.alloc()
+    options = options.set_print_block(print_user_block)
+    options = options.set_print_user(print_user_py)
+    options = options.set_print_for(print_for_py)
+
 
 if __name__ == "__main__":
   pytest.main(['-vvs', __file__])
