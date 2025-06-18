@@ -84,8 +84,14 @@ static void print_method_def(bool is_static, const string &name)
 		printf("    @staticmethod\n");
 
 	s = name.c_str();
-	if (name == "from")
-		s = "convert_from";
+	if (name == "from") 
+    s = "convert_from";
+  
+  if (name == "and") 
+    s = "and_";
+
+  if (name == "or") 
+    s = "or_";
 
 	printf("    def %s", s);
 }
@@ -563,7 +569,7 @@ static void print_argument_check(QualType type, int i)
 		string type_str;
 		type_str = generator::extract_type(type);
 		type_str = type2python(type_str);
-		printf("args[%d].__class__ is %s", i, type_str.c_str());
+		printf("isinstance(args[%d], %s)", i, type_str.c_str());
 	} else if (type->isPointerType()) {
 		printf("type(args[%d]) == str", i);
 	} else {

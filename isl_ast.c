@@ -65,6 +65,10 @@ __isl_give isl_ast_print_options *isl_ast_print_options_dup(
 	dup->print_for_user = options->print_for_user;
 	dup->print_user = options->print_user;
 	dup->print_user_user = options->print_user_user;
+	dup->print_block = options->print_block;
+	dup->print_block_user = options->print_block_user;
+	dup->print_if = options->print_if;
+	dup->print_if_user = options->print_if_user;
 
 	return dup;
 }
@@ -145,6 +149,48 @@ __isl_give isl_ast_print_options *isl_ast_print_options_set_print_for(
 
 	options->print_for = print_for;
 	options->print_for_user = user;
+
+	return options;
+}
+
+/* Set the print_block callback of "options" to "print_block".
+ *
+ * If this callback is set, then it used to print block nodes in the AST.
+ */
+__isl_give isl_ast_print_options *isl_ast_print_options_set_print_block(
+	__isl_take isl_ast_print_options *options,
+	__isl_give isl_printer *(*print_block)(__isl_take isl_printer *p,
+		__isl_take isl_ast_print_options *options,
+		__isl_keep isl_ast_node *node, void *user),
+	void *user)
+{
+	options = isl_ast_print_options_cow(options);
+	if (!options)
+		return NULL;
+
+	options->print_block = print_block;
+	options->print_block_user = user;
+
+	return options;
+}
+
+/* Set the print_if callback of "options" to "print_if".
+ *
+ * If this callback is set, then it used to print if nodes in the AST.
+ */
+__isl_give isl_ast_print_options *isl_ast_print_options_set_print_if(
+	__isl_take isl_ast_print_options *options,
+	__isl_give isl_printer *(*print_if)(__isl_take isl_printer *p,
+		__isl_take isl_ast_print_options *options,
+		__isl_keep isl_ast_node *node, void *user),
+	void *user)
+{
+	options = isl_ast_print_options_cow(options);
+	if (!options)
+		return NULL;
+
+	options->print_if = print_if;
+	options->print_if_user = user;
 
 	return options;
 }
@@ -3139,9 +3185,17 @@ static __isl_give isl_printer *print_ast_node_c(__isl_take isl_printer *p,
 		p = print_for_c(p, node, options, in_block, in_list);
 		break;
 	case isl_ast_node_if:
+		if (options->print_if)
+			return options->print_if(p,
+					isl_ast_print_options_copy(options),
+					node, options->print_if_user);
 		p = print_if_c(p, node, options, 1, 0);
 		break;
 	case isl_ast_node_block:
+		if (options->print_block)
+			return options->print_block(p,
+					isl_ast_print_options_copy(options),
+					node, options->print_block_user);
 		if (!in_block)
 			p = start_block(p);
 		p = isl_ast_node_list_print(node->u.b.children, p, options);
@@ -3178,7 +3232,7 @@ __isl_give isl_printer *isl_ast_node_for_print(__isl_keep isl_ast_node *node,
 {
 	if (isl_ast_node_check_for(node) < 0 || !options)
 		goto error;
-	p = print_for_c(p, node, options, 0, 0);
+	p = print_ast_node_c(p, node, options, 0, 0);
 	isl_ast_print_options_free(options);
 	return p;
 error:
@@ -3194,7 +3248,7 @@ __isl_give isl_printer *isl_ast_node_if_print(__isl_keep isl_ast_node *node,
 {
 	if (isl_ast_node_check_if(node) < 0 || !options)
 		goto error;
-	p = print_if_c(p, node, options, 1, 0);
+	p = print_ast_node_c(p, node, options, 1, 0);
 	isl_ast_print_options_free(options);
 	return p;
 error:

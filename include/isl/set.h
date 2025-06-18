@@ -126,6 +126,7 @@ int isl_basic_set_is_rational(__isl_keep isl_basic_set *bset);
 
 __isl_null isl_basic_set *isl_basic_set_free(__isl_take isl_basic_set *bset);
 __isl_give isl_basic_set *isl_basic_set_copy(__isl_keep isl_basic_set *bset);
+__isl_export
 __isl_give isl_basic_set *isl_basic_set_empty(__isl_take isl_space *space);
 __isl_export
 __isl_give isl_basic_set *isl_basic_set_universe(__isl_take isl_space *space);
@@ -236,6 +237,7 @@ __isl_give isl_set *isl_set_equate(__isl_take isl_set *set,
 __isl_export
 isl_bool isl_basic_set_is_equal(__isl_keep isl_basic_set *bset1,
 	__isl_keep isl_basic_set *bset2);
+__isl_export
 isl_bool isl_basic_set_is_disjoint(__isl_keep isl_basic_set *bset1,
 	__isl_keep isl_basic_set *bset2);
 
@@ -280,18 +282,20 @@ __isl_export
 __isl_give isl_set *isl_basic_set_union(
 		__isl_take isl_basic_set *bset1,
 		__isl_take isl_basic_set *bset2);
-
+__isl_export
 int isl_basic_set_compare_at(__isl_keep isl_basic_set *bset1,
 	__isl_keep isl_basic_set *bset2, int pos);
+__isl_export
 int isl_set_follows_at(__isl_keep isl_set *set1,
 	__isl_keep isl_set *set2, int pos);
 
 __isl_export
-__isl_give isl_basic_set *isl_basic_set_params(__isl_take isl_basic_set *bset);
+__isl_give isl_basic_set *isl_basic_set_params(__isl_take isl_basic_set *bset);__isl_export
 __isl_give isl_basic_set *isl_basic_set_from_params(
 	__isl_take isl_basic_set *bset);
 __isl_export
 __isl_give isl_set *isl_set_params(__isl_take isl_set *set);
+__isl_export
 __isl_give isl_set *isl_set_from_params(__isl_take isl_set *set);
 
 __isl_export
@@ -306,16 +310,20 @@ __isl_give isl_map *isl_set_unbind_params_insert_domain(
 
 isl_stat isl_basic_set_dims_get_sign(__isl_keep isl_basic_set *bset,
 	enum isl_dim_type type, unsigned pos, unsigned n, int *signs);
-
+__isl_export
 isl_bool isl_basic_set_plain_is_universe(__isl_keep isl_basic_set *bset);
+__isl_export
 isl_bool isl_basic_set_is_universe(__isl_keep isl_basic_set *bset);
+__isl_export
 isl_bool isl_basic_set_plain_is_empty(__isl_keep isl_basic_set *bset);
 __isl_export
 isl_bool isl_basic_set_is_empty(__isl_keep isl_basic_set *bset);
+__isl_export
 isl_bool isl_basic_set_is_bounded(__isl_keep isl_basic_set *bset);
 __isl_export
 isl_bool isl_basic_set_is_subset(__isl_keep isl_basic_set *bset1,
 	__isl_keep isl_basic_set *bset2);
+__isl_export
 isl_bool isl_basic_set_plain_is_equal(__isl_keep isl_basic_set *bset1,
 	__isl_keep isl_basic_set *bset2);
 
@@ -325,6 +333,7 @@ __isl_export
 __isl_give isl_set *isl_set_universe(__isl_take isl_space *space);
 __isl_export
 __isl_give isl_set *isl_space_universe_set(__isl_take isl_space *space);
+__isl_export
 __isl_give isl_set *isl_set_nat_universe(__isl_take isl_space *space);
 __isl_give isl_set *isl_set_copy(__isl_keep isl_set *set);
 __isl_null isl_set *isl_set_free(__isl_take isl_set *set);
@@ -346,18 +355,23 @@ __isl_export
 __isl_give isl_basic_set *isl_set_convex_hull(__isl_take isl_set *set);
 __isl_export
 __isl_give isl_basic_set *isl_set_polyhedral_hull(__isl_take isl_set *set);
+__isl_export
 __isl_give isl_basic_set *isl_set_simple_hull(__isl_take isl_set *set);
 __isl_export
 __isl_give isl_basic_set *isl_set_unshifted_simple_hull(
 	__isl_take isl_set *set);
+__isl_export
 __isl_give isl_basic_set *isl_set_plain_unshifted_simple_hull(
 	__isl_take isl_set *set);
+__isl_export
 __isl_give isl_basic_set *isl_set_unshifted_simple_hull_from_set_list(
 	__isl_take isl_set *set, __isl_take isl_set_list *list);
+__isl_export
 __isl_give isl_basic_set *isl_set_bounded_simple_hull(__isl_take isl_set *set);
 
 __isl_export
 __isl_give isl_set *isl_set_wrapped_reverse(__isl_take isl_set *set);
+__isl_export
 __isl_give isl_set *isl_set_union_disjoint(
 	__isl_take isl_set *set1, __isl_take isl_set *set2);
 __isl_export
@@ -367,8 +381,10 @@ __isl_give isl_set *isl_set_union(
 __isl_export
 __isl_give isl_set *isl_set_product(__isl_take isl_set *set1,
 	__isl_take isl_set *set2);
+__isl_export
 __isl_give isl_basic_set *isl_basic_set_flat_product(
 	__isl_take isl_basic_set *bset1, __isl_take isl_basic_set *bset2);
+__isl_export
 __isl_give isl_set *isl_set_flat_product(__isl_take isl_set *set1,
 	__isl_take isl_set *set2);
 __isl_export
@@ -599,8 +615,9 @@ __isl_give isl_fixed_box *isl_set_get_simple_fixed_box_hull(
 
 __isl_export
 __isl_give isl_set *isl_set_coalesce(__isl_take isl_set *set);
-
+__isl_export
 int isl_set_plain_cmp(__isl_keep isl_set *set1, __isl_keep isl_set *set2);
+__isl_export
 isl_bool isl_set_plain_is_equal(__isl_keep isl_set *set1,
 	__isl_keep isl_set *set2);
 __isl_export

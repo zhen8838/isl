@@ -122,7 +122,7 @@ __isl_give char *isl_schedule_constraints_to_str(
 __isl_export
 __isl_give isl_schedule *isl_schedule_constraints_compute_schedule(
 	__isl_take isl_schedule_constraints *sc);
-
+__isl_export
 __isl_give isl_schedule *isl_union_set_compute_schedule(
 	__isl_take isl_union_set *domain,
 	__isl_take isl_union_map *validity,

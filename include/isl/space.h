@@ -257,7 +257,8 @@ isl_bool isl_space_match(__isl_keep isl_space *space1, enum isl_dim_type type1,
 	__isl_keep isl_space *space2, enum isl_dim_type type2);
 __isl_export
 isl_size isl_space_dim(__isl_keep isl_space *space, enum isl_dim_type type);
-
+__isl_export
+__isl_give isl_space *isl_space_flatten(__isl_take isl_space *space);
 __isl_export
 __isl_give isl_space *isl_space_flatten_domain(__isl_take isl_space *space);
 __isl_export

@@ -2981,9 +2981,13 @@ static __isl_give isl_ast_expr *isl_ast_build_from_multi_pw_aff(
 	isl_space_free(space_mpa);
 	if (is_domain < 0)
 		goto error;
-	if (!is_domain)
-		isl_die(isl_ast_build_get_ctx(build), isl_error_invalid,
-			"spaces don't match", goto error);
+	if (!is_domain) {
+    fprintf(stderr, "space_build %s, space_mpa %s\n",
+            isl_space_to_str(space_build),
+            isl_space_to_str(space_mpa));
+    isl_die(isl_ast_build_get_ctx(build), isl_error_invalid,
+    "spaces don't match", goto error);
+  }
 
 	needs_map = isl_ast_build_need_schedule_map(build);
 	if (needs_map < 0)

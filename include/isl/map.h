@@ -123,6 +123,7 @@ __isl_export
 __isl_give isl_id *isl_map_get_domain_tuple_id(__isl_keep isl_map *map);
 __isl_export
 __isl_give isl_id *isl_map_get_range_tuple_id(__isl_keep isl_map *map);
+__isl_export
 __isl_give isl_id *isl_map_get_tuple_id(__isl_keep isl_map *map,
 	enum isl_dim_type type);
 __isl_give isl_map *isl_map_reset_user(__isl_take isl_map *map);
@@ -332,7 +333,7 @@ __isl_give isl_multi_pw_aff *isl_map_max_multi_pw_aff(__isl_take isl_map *map);
 
 void isl_basic_map_print_internal(__isl_keep isl_basic_map *bmap,
 	FILE *out, int indent);
-
+__isl_export
 __isl_give isl_val *isl_basic_map_plain_get_val_if_fixed(
 	__isl_keep isl_basic_map *bmap,
 	enum isl_dim_type type, unsigned pos);
@@ -447,13 +448,16 @@ __isl_give isl_map *isl_map_preimage_range_pw_multi_aff(
 __isl_overload
 __isl_give isl_map *isl_map_preimage_domain_multi_pw_aff(
 	__isl_take isl_map *map, __isl_take isl_multi_pw_aff *mpa);
+__isl_export
 __isl_give isl_basic_map *isl_basic_map_product(
 	__isl_take isl_basic_map *bmap1, __isl_take isl_basic_map *bmap2);
 __isl_export
 __isl_give isl_map *isl_map_product(__isl_take isl_map *map1,
 	__isl_take isl_map *map2);
+__isl_export
 __isl_give isl_basic_map *isl_basic_map_domain_product(
 	__isl_take isl_basic_map *bmap1, __isl_take isl_basic_map *bmap2);
+__isl_export
 __isl_give isl_basic_map *isl_basic_map_range_product(
 	__isl_take isl_basic_map *bmap1, __isl_take isl_basic_map *bmap2);
 __isl_export
@@ -837,6 +841,7 @@ __isl_give isl_map *isl_map_gist(__isl_take isl_map *map,
 __isl_export
 __isl_give isl_map *isl_map_gist_domain(__isl_take isl_map *map,
 	__isl_take isl_set *context);
+__isl_export
 __isl_give isl_map *isl_map_gist_range(__isl_take isl_map *map,
 	__isl_take isl_set *context);
 __isl_export
@@ -845,6 +850,7 @@ __isl_give isl_map *isl_map_gist_params(__isl_take isl_map *map,
 __isl_export
 __isl_give isl_map *isl_map_gist_basic_map(__isl_take isl_map *map,
 	__isl_take isl_basic_map *context);
+__isl_export
 __isl_give isl_stride_info *isl_map_get_range_stride_info(
 	__isl_keep isl_map *map, int pos);
 __isl_export
