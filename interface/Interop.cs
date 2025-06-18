@@ -206,6 +206,14 @@ return new aff(res);
 return new aff(res);
 }
 
+ public union_pw_aff add_pw_aff(pw_aff pa)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).add_pw_aff(pa);
+}
+
  public aff align_params(space model)
 {
   if (get() == IntPtr.Zero || model.is_null()) {
@@ -225,6 +233,38 @@ return new aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).apply(upma2);
+}
+
+ public union_pw_aff apply_aff(aff aff)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).apply_aff(aff);
+}
+
+ public multi_union_pw_aff apply_multi_aff(multi_aff ma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).apply_multi_aff(ma);
+}
+
+ public union_pw_aff apply_pw_aff(pw_aff pa)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).apply_pw_aff(pa);
+}
+
+ public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).apply_pw_multi_aff(pma);
 }
 
  public aff as_aff()
@@ -466,6 +506,19 @@ return new val(res);
 return new aff(res);
 }
 
+ public aff div(int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_get_div(get(), pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
+}
+
  public pw_aff div(pw_aff pa2)
 {
   if (get() == IntPtr.Zero) {
@@ -555,6 +608,14 @@ return new aff(res);
 return new basic_set(res);
 }
 
+ public map eq_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).eq_map(mpa2);
+}
+
  public map eq_map(pw_aff pa2)
 {
   if (get() == IntPtr.Zero) {
@@ -605,6 +666,30 @@ return new val(res);
   return new pw_aff(get()).every_piece(test);
 }
 
+ public bool every_pw_aff(Func<pw_aff, bool> test)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).every_pw_aff(test);
+}
+
+ public multi_pw_aff extract_multi_pw_aff(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).extract_multi_pw_aff(space);
+}
+
+ public pw_aff extract_pw_aff(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).extract_pw_aff(space);
+}
+
  public pw_multi_aff extract_pw_multi_aff(space space)
 {
   if (get() == IntPtr.Zero) {
@@ -617,8 +702,10 @@ return new val(res);
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new pw_aff(get()).find_dim_by_name(type, name);
+  var res = Interop.isl_aff_find_dim_by_name(get(), type, name);
+  return res;
 }
 
  public multi_aff flat_range_product(multi_aff multi2)
@@ -690,12 +777,25 @@ new pw_aff(get()).foreach_piece(fn);
 new pw_aff(get()).foreach_piece(fn);
 }
 
- public pw_aff from_range()
+ public void foreach_pw_aff(Action<pw_aff> fn)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(get()).from_range();
+new pw_aff(get()).foreach_pw_aff(fn);
+}
+
+ public aff from_range()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_from_range(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
 }
 
  public basic_set ge_basic_set(aff aff2)
@@ -888,20 +988,20 @@ return new aff(res);
   return new pw_aff(get()).intersect_domain(set);
 }
 
- public union_pw_aff intersect_domain(space space)
-{
-  if (get() == IntPtr.Zero) {
-    throw new ArgumentNullException("NULL input");
-  }
-  return new pw_aff(get()).intersect_domain(space);
-}
-
  public union_pw_aff intersect_domain(union_set uset)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).intersect_domain(uset);
+}
+
+ public union_pw_aff intersect_domain(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).intersect_domain(space);
 }
 
  public pw_aff intersect_domain_wrapped_domain(set set)
@@ -942,6 +1042,14 @@ return new aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).intersect_params(set);
+}
+
+ public multi_union_pw_aff intersect_range(set set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).intersect_range(set);
 }
 
  public bool involves_dims(dim_type type, uint first, uint n)
@@ -1118,12 +1226,28 @@ return new set(res);
   return new pw_aff(get()).le_set(pwaff2);
 }
 
+ public map lex_ge_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).lex_ge_map(mpa2);
+}
+
  public set lex_ge_set(multi_aff ma2)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new multi_aff(get()).lex_ge_set(ma2);
+}
+
+ public map lex_gt_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).lex_gt_map(mpa2);
 }
 
  public set lex_gt_set(multi_aff ma2)
@@ -1134,12 +1258,28 @@ return new set(res);
   return new multi_aff(get()).lex_gt_set(ma2);
 }
 
+ public map lex_le_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).lex_le_map(mpa2);
+}
+
  public set lex_le_set(multi_aff ma2)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new multi_aff(get()).lex_le_set(ma2);
+}
+
+ public map lex_lt_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).lex_lt_map(mpa2);
 }
 
  public set lex_lt_set(multi_aff ma2)
@@ -1298,6 +1438,22 @@ return new aff(res);
   return this.mod(new val(ctx.Instance, mod));
 }
 
+ public union_pw_aff mod_val(val f)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).mod_val(f);
+}
+
+ public union_pw_aff mod_val(long f)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.mod_val(new val(ctx.Instance, f));
+}
+
  public aff move_dims(dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n)
 {
   if (get() == IntPtr.Zero) {
@@ -1338,6 +1494,14 @@ return new aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).n_piece();
+}
+
+ public int n_pw_aff()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).n_pw_aff();
 }
 
  public static aff nan_on_domain(local_space ls)
@@ -1427,6 +1591,19 @@ return new basic_set(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).nonneg_set();
+}
+
+ public static aff param_on_domain_space_id(space space, id id)
+{
+  if (space.is_null() || id.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_param_on_domain_space_id(space.copy(), id.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new aff(res);
 }
 
  public set paramss()
@@ -1641,6 +1818,14 @@ return new aff(res);
 return new aff(res);
 }
 
+ public pw_aff_list pw_aff_list()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).pw_aff_list();
+}
+
  public pw_multi_aff_list pw_multi_aff_list()
 {
   if (get() == IntPtr.Zero) {
@@ -1806,6 +1991,38 @@ return new aff(res);
     throw new InvalidOperationException();
   }
 return new aff(res);
+}
+
+ public union_pw_aff scale_down_val(val v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).scale_down_val(v);
+}
+
+ public union_pw_aff scale_down_val(long v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.scale_down_val(new val(ctx.Instance, v));
+}
+
+ public union_pw_aff scale_val(val v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).scale_val(v);
+}
+
+ public union_pw_aff scale_val(long v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.scale_val(new val(ctx.Instance, v));
 }
 
  public multi_aff set_at(int pos, aff el)
@@ -2069,20 +2286,20 @@ return new aff(res);
   return new pw_aff(get()).subtract_domain(set);
 }
 
- public union_pw_aff subtract_domain(space space)
-{
-  if (get() == IntPtr.Zero) {
-    throw new ArgumentNullException("NULL input");
-  }
-  return new pw_aff(get()).subtract_domain(space);
-}
-
  public union_pw_aff subtract_domain(union_set uset)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).subtract_domain(uset);
+}
+
+ public union_pw_aff subtract_domain(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).subtract_domain(space);
 }
 
  public pw_aff tdiv_q(pw_aff pa2)
@@ -2331,6 +2548,14 @@ return new aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_aff(get()).zero_set();
+}
+
+ public union_set zero_union_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_aff(get()).zero_union_set();
 }
 
 public override string ToString(){
@@ -3574,6 +3799,19 @@ return new ast_expr(res);
 
   }
   var res = Interop.isl_ast_expr_pdiv_r(copy(), expr2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new ast_expr(res);
+}
+
+ public ast_expr set_op_arg(int pos, ast_expr arg)
+{
+  if (get() == IntPtr.Zero || arg.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_expr_set_op_arg(copy(), pos, arg.copy());
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -5563,6 +5801,19 @@ return new basic_map(res);
   return new map(get()).domain_map_union_pw_multi_aff();
 }
 
+ public basic_map domain_product(basic_map bmap2)
+{
+  if (get() == IntPtr.Zero || bmap2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_map_domain_product(copy(), bmap2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_map(res);
+}
+
  public map domain_product(map map2)
 {
   if (get() == IntPtr.Zero) {
@@ -7129,8 +7380,13 @@ return new basic_map(res);
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new map(get()).plain_get_val_if_fixed(type, pos);
+  var res = Interop.isl_basic_map_plain_get_val_if_fixed(get(), type, pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new val(res);
 }
 
  public bool plain_is_empty()
@@ -7245,6 +7501,19 @@ return new basic_map(res);
     throw new ArgumentNullException("NULL input");
   }
   return new map(get()).preimage_range(upma);
+}
+
+ public basic_map product(basic_map bmap2)
+{
+  if (get() == IntPtr.Zero || bmap2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_map_product(copy(), bmap2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_map(res);
 }
 
  public map product(map map2)
@@ -7368,6 +7637,19 @@ return new basic_set(res);
 
   }
   var res = Interop.isl_basic_map_range_map(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_map(res);
+}
+
+ public basic_map range_product(basic_map bmap2)
+{
+  if (get() == IntPtr.Zero || bmap2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_map_range_product(copy(), bmap2.copy());
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -7757,6 +8039,14 @@ return new basic_map_list(res);
     throw new InvalidOperationException();
   }
   return res;
+}
+
+ public id tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new map(get()).tuple_id(type);
 }
 
  public string tuple_name(dim_type type)
@@ -8290,6 +8580,14 @@ return new basic_set(res);
   return new set(get()).bind(tuple);
 }
 
+ public basic_set bounded_simple_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).bounded_simple_hull();
+}
+
  public static basic_set box_from_points(point pnt1, point pnt2)
 {
   if (pnt1.is_null() || pnt2.is_null()) {
@@ -8322,6 +8620,16 @@ return new basic_set(res);
     throw new InvalidOperationException();
   }
 return new basic_set(res);
+}
+
+ public int compare_at(basic_set bset2, int pos)
+{
+  if (get() == IntPtr.Zero || bset2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_set_compare_at(get(), bset2.get(), pos);
+  return res;
 }
 
  public set complement()
@@ -8594,6 +8902,19 @@ return new basic_set(res);
   return new set(get()).eliminate_dims(first, n);
 }
 
+ public static basic_set empty(space space)
+{
+  if (space.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_set_empty(space.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
  public mat equalities_matrix(dim_type c1, dim_type c2, dim_type c3, dim_type c4)
 {
   if (get() == IntPtr.Zero) {
@@ -8689,6 +9010,35 @@ return new basic_set(res);
   return this.fix_val(type, pos, new val(ctx.Instance, v));
 }
 
+ public basic_set flat_product(basic_set bset2)
+{
+  if (get() == IntPtr.Zero || bset2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_set_flat_product(copy(), bset2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
+ public set flat_product(set set2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).flat_product(set2);
+}
+
+ public basic_set flat_product(point bset2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.flat_product(new basic_set(bset2));
+}
+
  public basic_set flatten()
 {
   if (get() == IntPtr.Zero) {
@@ -8708,6 +9058,14 @@ return new basic_set(res);
     throw new ArgumentNullException("NULL input");
   }
   return new set(get()).flatten_map();
+}
+
+ public int follows_at(set set2, int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).follows_at(set2, pos);
 }
 
  public void foreach_basic_set(Action<basic_set> fn)
@@ -8819,6 +9177,19 @@ return new basic_set(res);
 
   }
   var res = Interop.isl_basic_set_from_multi_aff(ma.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
+ public basic_set from_params()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_set_from_params(copy());
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -9059,8 +9430,13 @@ return new basic_set(res);
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new set(get()).is_bounded();
+  var res = Interop.isl_basic_set_is_bounded(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
 }
 
  public bool is_box()
@@ -9069,6 +9445,19 @@ return new basic_set(res);
     throw new ArgumentNullException("NULL input");
   }
   return new set(get()).is_box();
+}
+
+ public bool is_disjoint(basic_set bset2)
+{
+  if (get() == IntPtr.Zero || bset2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_set_is_disjoint(get(), bset2.get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
 }
 
  public bool is_disjoint(set set2)
@@ -9085,6 +9474,14 @@ return new basic_set(res);
     throw new ArgumentNullException("NULL input");
   }
   return new set(get()).is_disjoint(uset2);
+}
+
+ public bool is_disjoint(point bset2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.is_disjoint(new basic_set(bset2));
 }
 
  public bool is_empty()
@@ -9214,6 +9611,19 @@ return new basic_set(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.is_subset(new basic_set(bset2));
+}
+
+ public bool is_universe()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_set_is_universe(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
 }
 
  public bool is_wrapping()
@@ -9545,6 +9955,14 @@ return new basic_set(res);
 return new basic_set(res);
 }
 
+ public int plain_cmp(set set2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).plain_cmp(set2);
+}
+
  public val plain_get_val_if_fixed(dim_type type, uint pos)
 {
   if (get() == IntPtr.Zero) {
@@ -9565,16 +9983,55 @@ return new basic_set(res);
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new set(get()).plain_is_empty();
+  var res = Interop.isl_basic_set_plain_is_empty(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public bool plain_is_equal(basic_set bset2)
+{
+  if (get() == IntPtr.Zero || bset2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_set_plain_is_equal(get(), bset2.get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public bool plain_is_equal(set set2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).plain_is_equal(set2);
+}
+
+ public bool plain_is_equal(point bset2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.plain_is_equal(new basic_set(bset2));
 }
 
  public bool plain_is_universe()
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new set(get()).plain_is_universe();
+  var res = Interop.isl_basic_set_plain_is_universe(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
 }
 
  public multi_val plain_multi_val_if_fixed()
@@ -9583,6 +10040,14 @@ return new basic_set(res);
     throw new ArgumentNullException("NULL input");
   }
   return new set(get()).plain_multi_val_if_fixed();
+}
+
+ public basic_set plain_unshifted_simple_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).plain_unshifted_simple_hull();
 }
 
  public basic_set polyhedral_hull()
@@ -9943,6 +10408,14 @@ return new basic_set(res);
   return new set(get()).simple_fixed_box_hull();
 }
 
+ public basic_set simple_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).simple_hull();
+}
+
  public int size()
 {
   if (get() == IntPtr.Zero) {
@@ -10151,6 +10624,14 @@ return new set(res);
   return this.union(new basic_set(bset2));
 }
 
+ public set union_disjoint(set set2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).union_disjoint(set2);
+}
+
  public static basic_set universe(space space)
 {
   if (space.is_null()) {
@@ -10170,6 +10651,14 @@ return new basic_set(res);
     throw new ArgumentNullException("NULL input");
   }
   return new set(get()).unshifted_simple_hull();
+}
+
+ public basic_set unshifted_simple_hull_from_set_list(set_list list)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new set(get()).unshifted_simple_hull_from_set_list(list);
 }
 
  public basic_map unwrap()
@@ -12255,6 +12744,19 @@ internal map(/* __isl_take */ IntPtr ptr)
 
   }
   var res = Interop.isl_map_from_basic_map(bmap.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+  ptr = res;
+}
+
+ public /* explicit */ map(multi_pw_aff mpa)
+{
+  if (mpa.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_map_from_multi_pw_aff(mpa.copy());
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -15471,6 +15973,19 @@ return new map_list(res);
 return new union_map(res);
 }
 
+ public id tuple_id(dim_type type)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_map_get_tuple_id(get(), type);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new id(res);
+}
+
  public string tuple_name(dim_type type)
 {
   if (get() == IntPtr.Zero) {
@@ -16574,6 +17089,38 @@ return new multi_aff(res);
   return new pw_multi_aff(get()).apply(upma2);
 }
 
+ public union_pw_aff apply_aff(aff aff)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).apply_aff(aff);
+}
+
+ public multi_union_pw_aff apply_multi_aff(multi_aff ma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).apply_multi_aff(ma);
+}
+
+ public union_pw_aff apply_pw_aff(pw_aff pa)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).apply_pw_aff(pa);
+}
+
+ public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).apply_pw_multi_aff(pma);
+}
+
  public map as_map()
 {
   if (get() == IntPtr.Zero) {
@@ -16761,6 +17308,22 @@ return new multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_multi_aff(get()).drop_unused_params();
+}
+
+ public map eq_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).eq_map(mpa2);
+}
+
+ public multi_pw_aff extract_multi_pw_aff(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).extract_multi_pw_aff(space);
 }
 
  public pw_multi_aff extract_pw_multi_aff(space space)
@@ -17011,6 +17574,14 @@ return new multi_aff(res);
   return new pw_multi_aff(get()).intersect_params(set);
 }
 
+ public multi_union_pw_aff intersect_range(set set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).intersect_range(set);
+}
+
  public bool involves_dims(dim_type type, uint first, uint n)
 {
   if (get() == IntPtr.Zero) {
@@ -17085,6 +17656,14 @@ return new multi_aff(res);
   return this.involves_param_id(new id(ctx.Instance, id));
 }
 
+ public bool is_cst()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).is_cst();
+}
+
  public bool isa_multi_aff()
 {
   if (get() == IntPtr.Zero) {
@@ -17101,6 +17680,14 @@ return new multi_aff(res);
   return new pw_multi_aff(get()).isa_pw_multi_aff();
 }
 
+ public map lex_ge_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).lex_ge_map(mpa2);
+}
+
  public set lex_ge_set(multi_aff ma2)
 {
   if (get() == IntPtr.Zero || ma2.is_null()) {
@@ -17112,6 +17699,14 @@ return new multi_aff(res);
     throw new InvalidOperationException();
   }
 return new set(res);
+}
+
+ public map lex_gt_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).lex_gt_map(mpa2);
 }
 
  public set lex_gt_set(multi_aff ma2)
@@ -17127,6 +17722,14 @@ return new set(res);
 return new set(res);
 }
 
+ public map lex_le_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).lex_le_map(mpa2);
+}
+
  public set lex_le_set(multi_aff ma2)
 {
   if (get() == IntPtr.Zero || ma2.is_null()) {
@@ -17138,6 +17741,14 @@ return new set(res);
     throw new InvalidOperationException();
   }
 return new set(res);
+}
+
+ public map lex_lt_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).lex_lt_map(mpa2);
 }
 
  public set lex_lt_set(multi_aff ma2)
@@ -17915,6 +18526,14 @@ return new multi_aff(res);
 return new multi_aff(res);
 }
 
+ public union_set zero_union_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).zero_union_set();
+}
+
 public override string ToString(){
   var str = Interop.isl_multi_aff_to_str(get());
   return str;
@@ -18268,6 +18887,38 @@ return new multi_pw_aff(res);
   return this.add_constant(new val(ctx.Instance, v));
 }
 
+ public union_pw_aff apply_aff(aff aff)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).apply_aff(aff);
+}
+
+ public multi_union_pw_aff apply_multi_aff(multi_aff ma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).apply_multi_aff(ma);
+}
+
+ public union_pw_aff apply_pw_aff(pw_aff pa)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).apply_pw_aff(pa);
+}
+
+ public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).apply_pw_multi_aff(pma);
+}
+
  public map as_map()
 {
   if (get() == IntPtr.Zero) {
@@ -18398,6 +19049,27 @@ return new set(res);
 return new multi_pw_aff(res);
 }
 
+ public map eq_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero || mpa2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_pw_aff_eq_map(copy(), mpa2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
+}
+
+ public multi_pw_aff extract_multi_pw_aff(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).extract_multi_pw_aff(space);
+}
+
  public multi_pw_aff flat_range_product(multi_pw_aff multi2)
 {
   if (get() == IntPtr.Zero || multi2.is_null()) {
@@ -18449,6 +19121,14 @@ return new multi_pw_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.flat_range_product(new multi_pw_aff(multi2));
+}
+
+ public multi_union_pw_aff floor()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).floor();
 }
 
  public multi_pw_aff gist(set set)
@@ -18603,6 +19283,14 @@ return new multi_pw_aff(res);
 return new multi_pw_aff(res);
 }
 
+ public multi_union_pw_aff intersect_range(set set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).intersect_range(set);
+}
+
  public bool involves_nan()
 {
   if (get() == IntPtr.Zero) {
@@ -18650,6 +19338,19 @@ return new multi_pw_aff(res);
   return res == isl_bool.True;
 }
 
+ public bool is_cst()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_pw_aff_is_cst(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
  public bool isa_multi_aff()
 {
   if (get() == IntPtr.Zero) {
@@ -18661,6 +19362,58 @@ return new multi_pw_aff(res);
     throw new InvalidOperationException();
   }
   return res == isl_bool.True;
+}
+
+ public map lex_ge_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero || mpa2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_pw_aff_lex_ge_map(copy(), mpa2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
+}
+
+ public map lex_gt_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero || mpa2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_pw_aff_lex_gt_map(copy(), mpa2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
+}
+
+ public map lex_le_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero || mpa2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_pw_aff_lex_le_map(copy(), mpa2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
+}
+
+ public map lex_lt_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero || mpa2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_pw_aff_lex_lt_map(copy(), mpa2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new map(res);
 }
 
  public pw_aff_list list()
@@ -18726,6 +19479,19 @@ return new multi_pw_aff(res);
     throw new InvalidOperationException();
   }
 return new multi_val(res);
+}
+
+ public multi_pw_aff move_dims(dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_pw_aff_move_dims(copy(), dst_type, dst_pos, src_type, src_pos, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_pw_aff(res);
 }
 
  public multi_pw_aff neg()
@@ -19201,6 +19967,14 @@ return new multi_pw_aff(res);
 return new multi_pw_aff(res);
 }
 
+ public union_set zero_union_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).zero_union_set();
+}
+
 public override string ToString(){
   var str = Interop.isl_multi_pw_aff_to_str(get());
   return str;
@@ -19291,6 +20065,58 @@ public bool is_null() {
 return new multi_union_pw_aff(res);
 }
 
+ public union_pw_aff apply_aff(aff aff)
+{
+  if (get() == IntPtr.Zero || aff.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_apply_aff(copy(), aff.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public multi_union_pw_aff apply_multi_aff(multi_aff ma)
+{
+  if (get() == IntPtr.Zero || ma.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_apply_multi_aff(copy(), ma.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_union_pw_aff(res);
+}
+
+ public union_pw_aff apply_pw_aff(pw_aff pa)
+{
+  if (get() == IntPtr.Zero || pa.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_apply_pw_aff(copy(), pa.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
+{
+  if (get() == IntPtr.Zero || pma.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_apply_pw_multi_aff(copy(), pma.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_union_pw_aff(res);
+}
+
  public union_pw_aff at(int pos)
 {
   if (get() == IntPtr.Zero) {
@@ -19343,6 +20169,19 @@ return new multi_union_pw_aff(res);
 return new union_set(res);
 }
 
+ public multi_pw_aff extract_multi_pw_aff(space space)
+{
+  if (get() == IntPtr.Zero || space.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_extract_multi_pw_aff(get(), space.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_pw_aff(res);
+}
+
  public multi_union_pw_aff flat_range_product(multi_union_pw_aff multi2)
 {
   if (get() == IntPtr.Zero || multi2.is_null()) {
@@ -19350,6 +20189,45 @@ return new union_set(res);
 
   }
   var res = Interop.isl_multi_union_pw_aff_flat_range_product(copy(), multi2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_union_pw_aff(res);
+}
+
+ public multi_union_pw_aff floor()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_floor(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_union_pw_aff(res);
+}
+
+ public static multi_union_pw_aff from_union_map(union_map umap)
+{
+  if (umap.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_from_union_map(umap.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_union_pw_aff(res);
+}
+
+ public static multi_union_pw_aff from_union_pw_multi_aff(union_pw_multi_aff upma)
+{
+  if (upma.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_from_union_pw_multi_aff(upma.copy());
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -19421,6 +20299,19 @@ return new multi_union_pw_aff(res);
 return new multi_union_pw_aff(res);
 }
 
+ public multi_union_pw_aff intersect_range(set set)
+{
+  if (get() == IntPtr.Zero || set.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_intersect_range(copy(), set.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_union_pw_aff(res);
+}
+
  public bool involves_nan()
 {
   if (get() == IntPtr.Zero) {
@@ -19445,6 +20336,32 @@ return new multi_union_pw_aff(res);
     throw new InvalidOperationException();
   }
 return new union_pw_aff_list(res);
+}
+
+ public static multi_union_pw_aff multi_aff_on_domain(union_set domain, multi_aff ma)
+{
+  if (domain.is_null() || ma.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_multi_aff_on_domain(domain.copy(), ma.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_union_pw_aff(res);
+}
+
+ public static multi_union_pw_aff multi_val_on_domain(union_set domain, multi_val mv)
+{
+  if (domain.is_null() || mv.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_multi_val_on_domain(domain.copy(), mv.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_union_pw_aff(res);
 }
 
  public multi_union_pw_aff neg()
@@ -19480,6 +20397,19 @@ return new multi_union_pw_aff(res);
 
   }
   var res = Interop.isl_multi_union_pw_aff_pullback_union_pw_multi_aff(copy(), upma.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new multi_union_pw_aff(res);
+}
+
+ public static multi_union_pw_aff pw_multi_aff_on_domain(union_set domain, pw_multi_aff pma)
+{
+  if (domain.is_null() || pma.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_pw_multi_aff_on_domain(domain.copy(), pma.copy());
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -19690,6 +20620,19 @@ return new multi_union_pw_aff(res);
     throw new InvalidOperationException();
   }
 return new multi_union_pw_aff(res);
+}
+
+ public union_set zero_union_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_multi_union_pw_aff_zero_union_set(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_set(res);
 }
 
 public override string ToString(){
@@ -20238,6 +21181,14 @@ return new point(res);
   return new basic_set(get()).bind(tuple);
 }
 
+ public basic_set bounded_simple_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).bounded_simple_hull();
+}
+
  public set coalesce()
 {
   if (get() == IntPtr.Zero) {
@@ -20252,6 +21203,14 @@ return new point(res);
     throw new ArgumentNullException("NULL input");
   }
   return new basic_set(get()).coefficients();
+}
+
+ public int compare_at(basic_set bset2, int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).compare_at(bset2, pos);
 }
 
  public set complement()
@@ -20555,6 +21514,22 @@ return new val(res);
   return this.fix_val(type, pos, new val(ctx.Instance, v));
 }
 
+ public basic_set flat_product(basic_set bset2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).flat_product(bset2);
+}
+
+ public set flat_product(set set2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).flat_product(set2);
+}
+
  public basic_set flatten()
 {
   if (get() == IntPtr.Zero) {
@@ -20569,6 +21544,14 @@ return new val(res);
     throw new ArgumentNullException("NULL input");
   }
   return new basic_set(get()).flatten_map();
+}
+
+ public int follows_at(set set2, int pos)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).follows_at(set2, pos);
 }
 
  public void foreach_basic_set(Action<basic_set> fn)
@@ -20609,6 +21592,14 @@ new basic_set(get()).foreach_point(fn);
     throw new ArgumentNullException("NULL input");
   }
 new basic_set(get()).foreach_set(fn);
+}
+
+ public basic_set from_params()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).from_params();
 }
 
  public basic_set gist(basic_set context)
@@ -20803,6 +21794,14 @@ new basic_set(get()).foreach_set(fn);
   return new basic_set(get()).is_box();
 }
 
+ public bool is_disjoint(basic_set bset2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).is_disjoint(bset2);
+}
+
  public bool is_disjoint(set set2)
 {
   if (get() == IntPtr.Zero) {
@@ -20913,6 +21912,14 @@ new basic_set(get()).foreach_set(fn);
     throw new ArgumentNullException("NULL input");
   }
   return new basic_set(get()).is_subset(uset2);
+}
+
+ public bool is_universe()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).is_universe();
 }
 
  public bool is_wrapping()
@@ -21184,6 +22191,14 @@ return new multi_val(res);
   return new basic_set(get()).paramss();
 }
 
+ public int plain_cmp(set set2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).plain_cmp(set2);
+}
+
  public val plain_get_val_if_fixed(dim_type type, uint pos)
 {
   if (get() == IntPtr.Zero) {
@@ -21208,6 +22223,22 @@ return new multi_val(res);
   return new basic_set(get()).plain_is_empty();
 }
 
+ public bool plain_is_equal(basic_set bset2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).plain_is_equal(bset2);
+}
+
+ public bool plain_is_equal(set set2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).plain_is_equal(set2);
+}
+
  public bool plain_is_universe()
 {
   if (get() == IntPtr.Zero) {
@@ -21222,6 +22253,14 @@ return new multi_val(res);
     throw new ArgumentNullException("NULL input");
   }
   return new basic_set(get()).plain_multi_val_if_fixed();
+}
+
+ public basic_set plain_unshifted_simple_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).plain_unshifted_simple_hull();
 }
 
  public basic_set polyhedral_hull()
@@ -21525,6 +22564,14 @@ return new point(res);
   return new basic_set(get()).simple_fixed_box_hull();
 }
 
+ public basic_set simple_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).simple_hull();
+}
+
  public int size()
 {
   if (get() == IntPtr.Zero) {
@@ -21716,12 +22763,28 @@ return new set(res);
   return new basic_set(get()).union(uset2);
 }
 
+ public set union_disjoint(set set2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).union_disjoint(set2);
+}
+
  public basic_set unshifted_simple_hull()
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new basic_set(get()).unshifted_simple_hull();
+}
+
+ public basic_set unshifted_simple_hull_from_set_list(set_list list)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new basic_set(get()).unshifted_simple_hull_from_set_list(list);
 }
 
  public basic_map unwrap()
@@ -22332,6 +23395,14 @@ return new pw_aff(res);
 return new pw_aff(res);
 }
 
+ public union_pw_aff add_pw_aff(pw_aff pa)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).add_pw_aff(pa);
+}
+
  public pw_aff align_params(space model)
 {
   if (get() == IntPtr.Zero || model.is_null()) {
@@ -22364,6 +23435,38 @@ return new pw_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new union_pw_aff(get()).apply(upma2);
+}
+
+ public union_pw_aff apply_aff(aff aff)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).apply_aff(aff);
+}
+
+ public multi_union_pw_aff apply_multi_aff(multi_aff ma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).apply_multi_aff(ma);
+}
+
+ public union_pw_aff apply_pw_aff(pw_aff pa)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).apply_pw_aff(pa);
+}
+
+ public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).apply_pw_multi_aff(pma);
 }
 
  public aff as_aff()
@@ -22661,6 +23764,14 @@ return new pw_aff(res);
 return new pw_aff(res);
 }
 
+ public map eq_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).eq_map(mpa2);
+}
+
  public map eq_map(pw_aff pa2)
 {
   if (get() == IntPtr.Zero || pa2.is_null()) {
@@ -22672,6 +23783,14 @@ return new pw_aff(res);
     throw new InvalidOperationException();
   }
 return new map(res);
+}
+
+ public map eq_map(aff pa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.eq_map(new pw_aff(pa2));
 }
 
  public set eq_set(pw_aff pwaff2)
@@ -22724,6 +23843,30 @@ Func<IntPtr, IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1
     throw new InvalidOperationException();
   }
   return res == isl_bool.True;
+}
+
+ public bool every_pw_aff(Func<pw_aff, bool> test)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).every_pw_aff(test);
+}
+
+ public multi_pw_aff extract_multi_pw_aff(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).extract_multi_pw_aff(space);
+}
+
+ public pw_aff extract_pw_aff(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).extract_pw_aff(space);
 }
 
  public pw_multi_aff extract_pw_multi_aff(space space)
@@ -22821,6 +23964,14 @@ Func<IntPtr, IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1, 
     throw new ArgumentNullException("NULL input");
   }
 new pw_multi_aff(get()).foreach_piece(fn);
+}
+
+ public void foreach_pw_aff(Action<pw_aff> fn)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+new union_pw_aff(get()).foreach_pw_aff(fn);
 }
 
  public pw_aff from_range()
@@ -23027,20 +24178,20 @@ return new pw_aff(res);
 return new pw_aff(res);
 }
 
- public union_pw_aff intersect_domain(space space)
-{
-  if (get() == IntPtr.Zero) {
-    throw new ArgumentNullException("NULL input");
-  }
-  return new union_pw_aff(get()).intersect_domain(space);
-}
-
  public union_pw_aff intersect_domain(union_set uset)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new union_pw_aff(get()).intersect_domain(uset);
+}
+
+ public union_pw_aff intersect_domain(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).intersect_domain(space);
 }
 
  public pw_aff intersect_domain(basic_set set)
@@ -23144,6 +24295,14 @@ return new pw_aff(res);
     throw new InvalidOperationException();
   }
 return new pw_aff(res);
+}
+
+ public multi_union_pw_aff intersect_range(set set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).intersect_range(set);
 }
 
  public bool involves_dims(dim_type type, uint first, uint n)
@@ -23306,6 +24465,38 @@ return new map(res);
 return new set(res);
 }
 
+ public map lex_ge_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).lex_ge_map(mpa2);
+}
+
+ public map lex_gt_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).lex_gt_map(mpa2);
+}
+
+ public map lex_le_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).lex_le_map(mpa2);
+}
+
+ public map lex_lt_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(get()).lex_lt_map(mpa2);
+}
+
  public pw_aff_list list()
 {
   if (get() == IntPtr.Zero) {
@@ -23461,6 +24652,22 @@ return new pw_aff(res);
   return this.mod(new val(ctx.Instance, mod));
 }
 
+ public union_pw_aff mod_val(val f)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).mod_val(f);
+}
+
+ public union_pw_aff mod_val(long f)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.mod_val(new val(ctx.Instance, f));
+}
+
  public pw_aff move_dims(dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n)
 {
   if (get() == IntPtr.Zero) {
@@ -23498,6 +24705,14 @@ return new pw_aff(res);
     throw new InvalidOperationException();
   }
   return res;
+}
+
+ public int n_pw_aff()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).n_pw_aff();
 }
 
  public static pw_aff nan_on_domain(local_space ls)
@@ -23778,6 +24993,14 @@ return new pw_aff(res);
   return new union_pw_aff(get()).pullback(upma);
 }
 
+ public pw_aff_list pw_aff_list()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).pw_aff_list();
+}
+
  public pw_multi_aff_list pw_multi_aff_list()
 {
   if (get() == IntPtr.Zero) {
@@ -23929,6 +25152,38 @@ return new pw_aff(res);
   return new pw_multi_aff(get()).scale_down(mv);
 }
 
+ public union_pw_aff scale_down_val(val v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).scale_down_val(v);
+}
+
+ public union_pw_aff scale_down_val(long v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.scale_down_val(new val(ctx.Instance, v));
+}
+
+ public union_pw_aff scale_val(val v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).scale_val(v);
+}
+
+ public union_pw_aff scale_val(long v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.scale_val(new val(ctx.Instance, v));
+}
+
  public multi_pw_aff set_at(int pos, pw_aff el)
 {
   if (get() == IntPtr.Zero) {
@@ -23964,6 +25219,14 @@ return new pw_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.set_dim_id(type, pos, new id(ctx.Instance, id));
+}
+
+ public union_pw_aff set_dim_name(dim_type type, uint pos, string s)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).set_dim_name(type, pos, s);
 }
 
  public pw_multi_aff set_range_tuple(id id)
@@ -24098,20 +25361,20 @@ return new pw_aff(res);
 return new pw_aff(res);
 }
 
- public union_pw_aff subtract_domain(space space)
-{
-  if (get() == IntPtr.Zero) {
-    throw new ArgumentNullException("NULL input");
-  }
-  return new union_pw_aff(get()).subtract_domain(space);
-}
-
  public union_pw_aff subtract_domain(union_set uset)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new union_pw_aff(get()).subtract_domain(uset);
+}
+
+ public union_pw_aff subtract_domain(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).subtract_domain(space);
 }
 
  public pw_aff subtract_domain(basic_set set)
@@ -24364,6 +25627,14 @@ return new pw_aff(res);
     throw new InvalidOperationException();
   }
 return new set(res);
+}
+
+ public union_set zero_union_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new union_pw_aff(get()).zero_union_set();
 }
 
 public override string ToString(){
@@ -24723,6 +25994,19 @@ internal pw_multi_aff(/* __isl_take */ IntPtr ptr)
   ptr = res;
 }
 
+ public /* explicit */ pw_multi_aff(multi_pw_aff mpa)
+{
+  if (mpa.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_from_multi_pw_aff(mpa.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+  ptr = res;
+}
+
  public /* implicit */ pw_multi_aff(pw_aff pa)
 {
   if (pa.is_null()) {
@@ -24856,6 +26140,38 @@ return new pw_multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new union_pw_multi_aff(get()).apply(upma2);
+}
+
+ public union_pw_aff apply_aff(aff aff)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).apply_aff(aff);
+}
+
+ public multi_union_pw_aff apply_multi_aff(multi_aff ma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).apply_multi_aff(ma);
+}
+
+ public union_pw_aff apply_pw_aff(pw_aff pa)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).apply_pw_aff(pa);
+}
+
+ public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).apply_pw_multi_aff(pma);
 }
 
  public map as_map()
@@ -25059,6 +26375,22 @@ return new space(res);
 return new pw_multi_aff(res);
 }
 
+ public map eq_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).eq_map(mpa2);
+}
+
+ public multi_pw_aff extract_multi_pw_aff(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).extract_multi_pw_aff(space);
+}
+
  public pw_multi_aff extract_pw_multi_aff(space space)
 {
   if (get() == IntPtr.Zero) {
@@ -25118,6 +26450,14 @@ return new pw_multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.flat_range_product(new pw_multi_aff(pma2));
+}
+
+ public multi_union_pw_aff floor()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).floor();
 }
 
  public void foreach_piece(Action<set, multi_aff> fn)
@@ -25343,6 +26683,14 @@ return new pw_multi_aff(res);
 return new pw_multi_aff(res);
 }
 
+ public multi_union_pw_aff intersect_range(set set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).intersect_range(set);
+}
+
  public bool involves_dims(dim_type type, uint first, uint n)
 {
   if (get() == IntPtr.Zero) {
@@ -25422,6 +26770,14 @@ return new pw_multi_aff(res);
   return this.involves_param_id(new id(ctx.Instance, id));
 }
 
+ public bool is_cst()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).is_cst();
+}
+
  public bool isa_multi_aff()
 {
   if (get() == IntPtr.Zero) {
@@ -25441,6 +26797,38 @@ return new pw_multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new union_pw_multi_aff(get()).isa_pw_multi_aff();
+}
+
+ public map lex_ge_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).lex_ge_map(mpa2);
+}
+
+ public map lex_gt_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).lex_gt_map(mpa2);
+}
+
+ public map lex_le_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).lex_le_map(mpa2);
+}
+
+ public map lex_lt_map(multi_pw_aff mpa2)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).lex_lt_map(mpa2);
 }
 
  public pw_aff_list list()
@@ -25491,6 +26879,14 @@ return new multi_val(res);
     throw new InvalidOperationException();
   }
 return new multi_val(res);
+}
+
+ public multi_pw_aff move_dims(dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).move_dims(dst_type, dst_pos, src_type, src_pos, n);
 }
 
  public static pw_multi_aff multi_val_on_domain(set domain, multi_val mv)
@@ -26230,6 +27626,14 @@ return new pw_multi_aff(res);
     throw new InvalidOperationException();
   }
 return new pw_multi_aff(res);
+}
+
+ public union_set zero_union_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_pw_aff(get()).zero_union_set();
 }
 
 public override string ToString(){
@@ -28320,6 +29724,19 @@ internal set(/* __isl_take */ IntPtr ptr)
   ptr = res;
 }
 
+ public /* explicit */ set(multi_pw_aff mpa)
+{
+  if (mpa.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_from_multi_pw_aff(mpa.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+  ptr = res;
+}
+
  public /* implicit */ set(point pnt)
 {
   if (pnt.is_null()) {
@@ -28486,6 +29903,19 @@ return new basic_set_list(res);
     throw new InvalidOperationException();
   }
 return new set(res);
+}
+
+ public basic_set bounded_simple_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_bounded_simple_hull(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
 }
 
  public static set box_from_points(point pnt1, point pnt2)
@@ -28922,6 +30352,19 @@ return new set(res);
   return this.fix_val(type, pos, new val(ctx.Instance, v));
 }
 
+ public set flat_product(set set2)
+{
+  if (get() == IntPtr.Zero || set2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_flat_product(copy(), set2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
  public set flatten()
 {
   if (get() == IntPtr.Zero) {
@@ -28946,6 +30389,16 @@ return new set(res);
     throw new InvalidOperationException();
   }
 return new map(res);
+}
+
+ public int follows_at(set set2, int pos)
+{
+  if (get() == IntPtr.Zero || set2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_follows_at(get(), set2.get(), pos);
+  return res;
 }
 
  public void foreach_basic_set(Action<basic_set> fn)
@@ -29015,6 +30468,19 @@ new union_set(get()).foreach_set(fn);
 
   }
   var res = Interop.isl_set_from_multi_aff(ma.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
+ public set from_params()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_from_params(copy());
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -29831,6 +31297,19 @@ return new set(res);
   return res;
 }
 
+ public static set nat_universe(space space)
+{
+  if (space.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_nat_universe(space.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
  public set neg()
 {
   if (get() == IntPtr.Zero) {
@@ -29878,6 +31357,16 @@ return new pw_aff(res);
 return new set(res);
 }
 
+ public int plain_cmp(set set2)
+{
+  if (get() == IntPtr.Zero || set2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_plain_cmp(get(), set2.get());
+  return res;
+}
+
  public val plain_get_val_if_fixed(dim_type type, uint pos)
 {
   if (get() == IntPtr.Zero) {
@@ -29917,6 +31406,19 @@ return new val(res);
   return res == isl_bool.True;
 }
 
+ public bool plain_is_equal(set set2)
+{
+  if (get() == IntPtr.Zero || set2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_plain_is_equal(get(), set2.get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
  public bool plain_is_universe()
 {
   if (get() == IntPtr.Zero) {
@@ -29941,6 +31443,19 @@ return new val(res);
     throw new InvalidOperationException();
   }
 return new multi_val(res);
+}
+
+ public basic_set plain_unshifted_simple_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_plain_unshifted_simple_hull(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
 }
 
  public basic_set polyhedral_hull()
@@ -30342,6 +31857,19 @@ return new set(res);
 return new fixed_box(res);
 }
 
+ public basic_set simple_hull()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_simple_hull(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
  public int size()
 {
   if (get() == IntPtr.Zero) {
@@ -30592,6 +32120,19 @@ return new set(res);
   return this.union(new set(set2));
 }
 
+ public set union_disjoint(set set2)
+{
+  if (get() == IntPtr.Zero || set2.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_union_disjoint(copy(), set2.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new set(res);
+}
+
  public static set universe(space space)
 {
   if (space.is_null()) {
@@ -30612,6 +32153,19 @@ return new set(res);
 
   }
   var res = Interop.isl_set_unshifted_simple_hull(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new basic_set(res);
+}
+
+ public basic_set unshifted_simple_hull_from_set_list(set_list list)
+{
+  if (get() == IntPtr.Zero || list.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_unshifted_simple_hull_from_set_list(copy(), list.copy());
   if (res == IntPtr.Zero) {
     throw new InvalidOperationException();
   }
@@ -31413,6 +32967,19 @@ return new space(res);
   }
   var res = Interop.isl_space_find_dim_by_name(get(), type, name);
   return res;
+}
+
+ public space flatten()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_space_flatten(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new space(res);
 }
 
  public space flatten_domain()
@@ -33160,6 +34727,19 @@ return new union_map(res);
 return new union_map(res);
 }
 
+ public static union_map from_union_pw_aff(union_pw_aff upa)
+{
+  if (upa.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_map_from_union_pw_aff(upa.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_map(res);
+}
+
  public union_map gist(union_map context)
 {
   if (get() == IntPtr.Zero || context.is_null()) {
@@ -34096,12 +35676,83 @@ return new union_pw_aff(res);
   return this.add(new union_pw_aff(upa2));
 }
 
+ public union_pw_aff add_pw_aff(pw_aff pa)
+{
+  if (get() == IntPtr.Zero || pa.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_add_pw_aff(copy(), pa.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public static union_pw_aff aff_on_domain(union_set domain, aff aff)
+{
+  if (domain.is_null() || aff.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_aff_on_domain(domain.copy(), aff.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public union_pw_aff align_params(space model)
+{
+  if (get() == IntPtr.Zero || model.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_align_params(copy(), model.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
  public union_pw_multi_aff apply(union_pw_multi_aff upma2)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
   return new union_pw_multi_aff(get()).apply(upma2);
+}
+
+ public union_pw_aff apply_aff(aff aff)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).apply_aff(aff);
+}
+
+ public multi_union_pw_aff apply_multi_aff(multi_aff ma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).apply_multi_aff(ma);
+}
+
+ public union_pw_aff apply_pw_aff(pw_aff pa)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).apply_pw_aff(pa);
+}
+
+ public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).apply_pw_multi_aff(pma);
 }
 
  public multi_union_pw_aff as_multi_union_pw_aff()
@@ -34204,6 +35855,19 @@ return new union_pw_aff(res);
 return new union_set(res);
 }
 
+ public union_pw_aff drop_dims(dim_type type, uint first, uint n)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_drop_dims(copy(), type, first, n);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
  public union_pw_aff drop_unused_params()
 {
   if (get() == IntPtr.Zero) {
@@ -34215,6 +35879,79 @@ return new union_set(res);
     throw new InvalidOperationException();
   }
 return new union_pw_aff(res);
+}
+
+ public static union_pw_aff empty(space space)
+{
+  if (space.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_empty(space.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public static union_pw_aff empty_space(space space)
+{
+  if (space.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_empty_space(space.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public bool every_pw_aff(Func<pw_aff, bool> test)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+ (Func<pw_aff, bool> func,  Exception? eptr) test_data = (func: test, eptr: null);
+Func<IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1) => {
+    try {
+      var ret = test_data.func(new (arg_0));
+      return ret ? isl_bool.True : isl_bool.False;
+    } catch (Exception e) {
+      throw e;
+      return isl_bool.Error;
+    }
+  };
+  var res = Interop.isl_union_pw_aff_every_pw_aff(get(), test_lambda, IntPtr.Zero);
+  if (test_data.eptr is not null) {
+    throw test_data.eptr;
+  }
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
+}
+
+ public multi_pw_aff extract_multi_pw_aff(space space)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).extract_multi_pw_aff(space);
+}
+
+ public pw_aff extract_pw_aff(space space)
+{
+  if (get() == IntPtr.Zero || space.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_extract_pw_aff(get(), space.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff(res);
 }
 
  public pw_multi_aff extract_pw_multi_aff(space space)
@@ -34241,6 +35978,45 @@ return new union_pw_aff(res);
   return new union_pw_multi_aff(get()).flat_range_product(upma2);
 }
 
+ public union_pw_aff floor()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_floor(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public void foreach_pw_aff(Action<pw_aff> fn)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+ (Action<pw_aff> func,  Exception? eptr) fn_data = (func: fn, eptr: null);
+Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
+    try {
+      fn_data.func(new (arg_0));
+      return isl_stat.Ok;
+    } catch (Exception e) {
+      throw e;
+      return isl_stat.Error;
+    }
+  };
+  var res = Interop.isl_union_pw_aff_foreach_pw_aff(get(), fn_lambda, IntPtr.Zero);
+  if (fn_data.eptr is not null) {
+    throw fn_data.eptr;
+  }
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
  public union_pw_aff gist(union_set context)
 {
   if (get() == IntPtr.Zero || context.is_null()) {
@@ -34254,12 +36030,17 @@ return new union_pw_aff(res);
 return new union_pw_aff(res);
 }
 
- public multi_union_pw_aff gist_params(set context)
+ public union_pw_aff gist_params(set context)
 {
-  if (get() == IntPtr.Zero) {
+  if (get() == IntPtr.Zero || context.is_null()) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new multi_union_pw_aff(get()).gist_params(context);
+  var res = Interop.isl_union_pw_aff_gist_params(copy(), context.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
 }
 
  public bool has_range_tuple_id()
@@ -34268,6 +36049,19 @@ return new union_pw_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new multi_union_pw_aff(get()).has_range_tuple_id();
+}
+
+ public union_pw_aff intersect_domain(union_set uset)
+{
+  if (get() == IntPtr.Zero || uset.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_intersect_domain(copy(), uset.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
 }
 
  public union_pw_aff intersect_domain(space space)
@@ -34335,6 +36129,14 @@ return new union_pw_aff(res);
 return new union_pw_aff(res);
 }
 
+ public multi_union_pw_aff intersect_range(set set)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new multi_union_pw_aff(get()).intersect_range(set);
+}
+
  public bool involves_locals()
 {
   if (get() == IntPtr.Zero) {
@@ -34347,8 +36149,13 @@ return new union_pw_aff(res);
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
+
   }
-  return new multi_union_pw_aff(get()).involves_nan();
+  var res = Interop.isl_union_pw_aff_involves_nan(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res == isl_bool.True;
 }
 
  public bool isa_pw_multi_aff()
@@ -34367,12 +36174,51 @@ return new union_pw_aff(res);
   return new multi_union_pw_aff(get()).list();
 }
 
- public multi_union_pw_aff neg()
+ public union_pw_aff mod_val(val f)
+{
+  if (get() == IntPtr.Zero || f.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_mod_val(copy(), f.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public union_pw_aff mod_val(long f)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(get()).neg();
+  return this.mod_val(new val(ctx.Instance, f));
+}
+
+ public int n_pw_aff()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_n_pw_aff(get());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
+ public union_pw_aff neg()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_neg(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
 }
 
  public bool plain_is_empty()
@@ -34449,6 +36295,32 @@ return new union_pw_aff(res);
 return new union_pw_aff(res);
 }
 
+ public pw_aff_list pw_aff_list()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_get_pw_aff_list(get());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_aff_list(res);
+}
+
+ public static union_pw_aff pw_aff_on_domain(union_set domain, pw_aff pa)
+{
+  if (domain.is_null() || pa.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_pw_aff_on_domain(domain.copy(), pa.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
  public pw_multi_aff_list pw_multi_aff_list()
 {
   if (get() == IntPtr.Zero) {
@@ -34505,28 +36377,28 @@ return new union_pw_aff(res);
   return new multi_union_pw_aff(get()).reset_range_tuple_id();
 }
 
- public multi_union_pw_aff scale(multi_val mv)
+ public union_pw_multi_aff scale(multi_val mv)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(get()).scale(mv);
+  return new union_pw_multi_aff(get()).scale(mv);
 }
 
- public multi_union_pw_aff scale(val v)
+ public union_pw_multi_aff scale(val val)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(get()).scale(v);
+  return new union_pw_multi_aff(get()).scale(val);
 }
 
- public multi_union_pw_aff scale(long v)
+ public union_pw_multi_aff scale(long val)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return this.scale(new val(ctx.Instance, v));
+  return this.scale(new val(ctx.Instance, val));
 }
 
  public multi_union_pw_aff scale_down(multi_val mv)
@@ -34537,20 +36409,62 @@ return new union_pw_aff(res);
   return new multi_union_pw_aff(get()).scale_down(mv);
 }
 
- public multi_union_pw_aff scale_down(val v)
+ public union_pw_multi_aff scale_down(val val)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(get()).scale_down(v);
+  return new union_pw_multi_aff(get()).scale_down(val);
 }
 
- public multi_union_pw_aff scale_down(long v)
+ public union_pw_multi_aff scale_down(long val)
 {
   if (get() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return this.scale_down(new val(ctx.Instance, v));
+  return this.scale_down(new val(ctx.Instance, val));
+}
+
+ public union_pw_aff scale_down_val(val v)
+{
+  if (get() == IntPtr.Zero || v.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_scale_down_val(copy(), v.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public union_pw_aff scale_down_val(long v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.scale_down_val(new val(ctx.Instance, v));
+}
+
+ public union_pw_aff scale_val(val v)
+{
+  if (get() == IntPtr.Zero || v.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_scale_val(copy(), v.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public union_pw_aff scale_val(long v)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.scale_val(new val(ctx.Instance, v));
 }
 
  public multi_union_pw_aff set_at(int pos, union_pw_aff el)
@@ -34559,6 +36473,19 @@ return new union_pw_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new multi_union_pw_aff(get()).set_at(pos, el);
+}
+
+ public union_pw_aff set_dim_name(dim_type type, uint pos, string s)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_set_dim_name(copy(), type, pos, s);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
 }
 
  public multi_union_pw_aff set_range_tuple(id id)
@@ -34643,6 +36570,19 @@ return new union_pw_aff(res);
   return this.sub(new union_pw_aff(upa2));
 }
 
+ public union_pw_aff subtract_domain(union_set uset)
+{
+  if (get() == IntPtr.Zero || uset.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_subtract_domain(copy(), uset.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
  public union_pw_aff subtract_domain(space space)
 {
   if (get() == IntPtr.Zero || space.is_null()) {
@@ -34725,6 +36665,32 @@ return new union_pw_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.union_add(new union_pw_aff(upa2));
+}
+
+ public static union_pw_aff val_on_domain(union_set domain, val v)
+{
+  if (domain.is_null() || v.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_val_on_domain(domain.copy(), v.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_aff(res);
+}
+
+ public union_set zero_union_set()
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_zero_union_set(copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_set(res);
 }
 
 public override string ToString(){
@@ -35185,6 +37151,19 @@ return new pw_multi_aff(res);
 return new union_pw_multi_aff(res);
 }
 
+ public static union_pw_multi_aff from_multi_union_pw_aff(multi_union_pw_aff mupa)
+{
+  if (mupa.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_multi_aff_from_multi_union_pw_aff(mupa.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_multi_aff(res);
+}
+
  public union_pw_multi_aff gist(union_set context)
 {
   if (get() == IntPtr.Zero || context.is_null()) {
@@ -35391,6 +37370,61 @@ return new union_pw_multi_aff(res);
     throw new InvalidOperationException();
   }
 return new union_pw_multi_aff(res);
+}
+
+ public union_pw_multi_aff scale(multi_val mv)
+{
+  if (get() == IntPtr.Zero || mv.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_multi_aff_scale_multi_val(copy(), mv.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_multi_aff(res);
+}
+
+ public union_pw_multi_aff scale(val val)
+{
+  if (get() == IntPtr.Zero || val.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_multi_aff_scale_val(copy(), val.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_multi_aff(res);
+}
+
+ public union_pw_multi_aff scale(long val)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.scale(new val(ctx.Instance, val));
+}
+
+ public union_pw_multi_aff scale_down(val val)
+{
+  if (get() == IntPtr.Zero || val.is_null()) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_multi_aff_scale_down_val(copy(), val.copy());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new union_pw_multi_aff(res);
+}
+
+ public union_pw_multi_aff scale_down(long val)
+{
+  if (get() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.scale_down(new val(ctx.Instance, val));
 }
 
  public space space()
@@ -37470,6 +39504,9 @@ public static extern  IntPtr isl_aff_get_dim_name(IntPtr aff, dim_type type, uin
 public static extern  IntPtr isl_aff_div(IntPtr aff1, IntPtr aff2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_get_div(IntPtr aff, int pos);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_get_domain_local_space(IntPtr aff);
 
 [DllImport(LibraryName)]
@@ -37491,7 +39528,13 @@ public static extern  IntPtr isl_aff_eq_set(IntPtr aff1, IntPtr aff2);
 public static extern  IntPtr isl_aff_eval(IntPtr aff, IntPtr pnt);
 
 [DllImport(LibraryName)]
+public static extern  int isl_aff_find_dim_by_name(IntPtr aff, dim_type type, [MarshalAs(UnmanagedType.LPStr)] string name);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_floor(IntPtr aff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_from_range(IntPtr aff);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_ge_basic_set(IntPtr aff1, IntPtr aff2);
@@ -37561,6 +39604,9 @@ public static extern  IntPtr isl_aff_neg(IntPtr aff);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_neg_basic_set(IntPtr aff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_aff_param_on_domain_space_id(IntPtr space, IntPtr id);
 
 [DllImport(LibraryName)]
 public static extern  isl_bool isl_aff_plain_is_equal(IntPtr aff1, IntPtr aff2);
@@ -37821,6 +39867,9 @@ public static extern  IntPtr isl_ast_expr_pdiv_q(IntPtr expr1, IntPtr expr2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_expr_pdiv_r(IntPtr expr1, IntPtr expr2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_ast_expr_set_op_arg(IntPtr expr, int pos, IntPtr arg);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_expr_sub(IntPtr expr1, IntPtr expr2);
@@ -38174,6 +40223,9 @@ public static extern  IntPtr isl_basic_map_domain(IntPtr bmap);
 public static extern  IntPtr isl_basic_map_domain_map(IntPtr bmap);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_basic_map_domain_product(IntPtr bmap1, IntPtr bmap2);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_map_drop_constraints_involving_dims(IntPtr bmap, dim_type type, uint first, uint n);
 
 [DllImport(LibraryName)]
@@ -38342,10 +40394,16 @@ public static extern  IntPtr isl_basic_map_order_ge(IntPtr bmap, dim_type type1,
 public static extern  IntPtr isl_basic_map_order_gt(IntPtr bmap, dim_type type1, int pos1, dim_type type2, int pos2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_basic_map_plain_get_val_if_fixed(IntPtr bmap, dim_type type, uint pos);
+
+[DllImport(LibraryName)]
 public static extern  isl_bool isl_basic_map_plain_is_empty(IntPtr bmap);
 
 [DllImport(LibraryName)]
 public static extern  isl_bool isl_basic_map_plain_is_universe(IntPtr bmap);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_basic_map_product(IntPtr bmap1, IntPtr bmap2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_map_project_out(IntPtr bmap, dim_type type, uint first, uint n);
@@ -38355,6 +40413,9 @@ public static extern  IntPtr isl_basic_map_range(IntPtr bmap);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_map_range_map(IntPtr bmap);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_basic_map_range_product(IntPtr bmap1, IntPtr bmap2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_map_remove_dims(IntPtr bmap, dim_type type, uint first, uint n);
@@ -38499,6 +40560,9 @@ public static extern  IntPtr isl_basic_set_box_from_points(IntPtr pnt1, IntPtr p
 public static extern  IntPtr isl_basic_set_coefficients(IntPtr bset);
 
 [DllImport(LibraryName)]
+public static extern  int isl_basic_set_compare_at(IntPtr bset1, IntPtr bset2, int pos);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_set_compute_divs(IntPtr bset);
 
 [DllImport(LibraryName)]
@@ -38538,6 +40602,9 @@ public static extern  IntPtr isl_basic_set_drop_unused_params(IntPtr bset);
 public static extern  IntPtr isl_basic_set_eliminate(IntPtr bset, dim_type type, uint first, uint n);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_basic_set_empty(IntPtr space);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_set_equalities_matrix(IntPtr bset, dim_type c1, dim_type c2, dim_type c3, dim_type c4);
 
 [DllImport(LibraryName)]
@@ -38545,6 +40612,9 @@ public static extern  IntPtr isl_basic_set_fix_si(IntPtr bset, dim_type type, ui
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_set_fix_val(IntPtr bset, dim_type type, uint pos, IntPtr v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_basic_set_flat_product(IntPtr bset1, IntPtr bset2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_set_flatten(IntPtr bset);
@@ -38565,6 +40635,9 @@ public static extern  IntPtr isl_basic_set_from_constraint_matrices(IntPtr space
 public static extern  IntPtr isl_basic_set_from_multi_aff(IntPtr ma);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_basic_set_from_params(IntPtr bset);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_set_gist(IntPtr bset, IntPtr context);
 
 [DllImport(LibraryName)]
@@ -38583,6 +40656,12 @@ public static extern  IntPtr isl_basic_set_intersect_params(IntPtr bset1, IntPtr
 public static extern  isl_bool isl_basic_set_involves_dims(IntPtr bset, dim_type type, uint first, uint n);
 
 [DllImport(LibraryName)]
+public static extern  isl_bool isl_basic_set_is_bounded(IntPtr bset);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_basic_set_is_disjoint(IntPtr bset1, IntPtr bset2);
+
+[DllImport(LibraryName)]
 public static extern  isl_bool isl_basic_set_is_empty(IntPtr bset);
 
 [DllImport(LibraryName)]
@@ -38593,6 +40672,9 @@ public static extern  int isl_basic_set_is_rational(IntPtr bset);
 
 [DllImport(LibraryName)]
 public static extern  isl_bool isl_basic_set_is_subset(IntPtr bset1, IntPtr bset2);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_basic_set_is_universe(IntPtr bset);
 
 [DllImport(LibraryName)]
 public static extern  isl_bool isl_basic_set_is_wrapping(IntPtr bset);
@@ -38632,6 +40714,15 @@ public static extern  IntPtr isl_basic_set_neg(IntPtr bset);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_set_params(IntPtr bset);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_basic_set_plain_is_empty(IntPtr bset);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_basic_set_plain_is_equal(IntPtr bset1, IntPtr bset2);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_basic_set_plain_is_universe(IntPtr bset);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_set_positive_orthant(IntPtr space);
@@ -39159,6 +41250,9 @@ public static extern  IntPtr isl_local_space_free(IntPtr ls);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_map_from_basic_map(IntPtr bmap);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_map_from_multi_pw_aff(IntPtr mpa);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_map_read_from_str(IntPtr ctx, [MarshalAs(UnmanagedType.LPStr)] string str);
@@ -39734,6 +41828,9 @@ public static extern  IntPtr isl_map_to_list(IntPtr el);
 public static extern  IntPtr isl_map_to_union_map(IntPtr map);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_map_get_tuple_id(IntPtr map, dim_type type);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_map_get_tuple_name(IntPtr map, dim_type type);
 
 [DllImport(LibraryName)]
@@ -40233,6 +42330,9 @@ public static extern  IntPtr isl_multi_pw_aff_domain(IntPtr mpa);
 public static extern  IntPtr isl_multi_pw_aff_domain_reverse(IntPtr multi);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_pw_aff_eq_map(IntPtr mpa1, IntPtr mpa2);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_pw_aff_flat_range_product(IntPtr multi1, IntPtr multi2);
 
 [DllImport(LibraryName)]
@@ -40269,7 +42369,22 @@ public static extern  isl_bool isl_multi_pw_aff_involves_param_id(IntPtr multi, 
 public static extern  isl_bool isl_multi_pw_aff_involves_param_id_list(IntPtr multi, IntPtr list);
 
 [DllImport(LibraryName)]
+public static extern  isl_bool isl_multi_pw_aff_is_cst(IntPtr mpa);
+
+[DllImport(LibraryName)]
 public static extern  isl_bool isl_multi_pw_aff_isa_multi_aff(IntPtr mpa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_pw_aff_lex_ge_map(IntPtr mpa1, IntPtr mpa2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_pw_aff_lex_gt_map(IntPtr mpa1, IntPtr mpa2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_pw_aff_lex_le_map(IntPtr mpa1, IntPtr mpa2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_pw_aff_lex_lt_map(IntPtr mpa1, IntPtr mpa2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_pw_aff_get_list(IntPtr multi);
@@ -40285,6 +42400,9 @@ public static extern  IntPtr isl_multi_pw_aff_min(IntPtr multi1, IntPtr multi2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_pw_aff_min_multi_val(IntPtr mpa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_pw_aff_move_dims(IntPtr pma, dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_pw_aff_neg(IntPtr multi);
@@ -40376,6 +42494,18 @@ public static extern  IntPtr isl_multi_union_pw_aff_read_from_str(IntPtr ctx, [M
 public static extern  IntPtr isl_multi_union_pw_aff_add(IntPtr multi1, IntPtr multi2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_apply_aff(IntPtr mupa, IntPtr aff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_apply_multi_aff(IntPtr mupa, IntPtr ma);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_apply_pw_aff(IntPtr mupa, IntPtr pa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_apply_pw_multi_aff(IntPtr mupa, IntPtr pma);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_union_pw_aff_get_at(IntPtr multi, int pos);
 
 [DllImport(LibraryName)]
@@ -40388,7 +42518,19 @@ public static extern  IntPtr isl_multi_union_pw_aff_coalesce(IntPtr mupa);
 public static extern  IntPtr isl_multi_union_pw_aff_domain(IntPtr mupa);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_extract_multi_pw_aff(IntPtr mupa, IntPtr space);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_union_pw_aff_flat_range_product(IntPtr multi1, IntPtr multi2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_floor(IntPtr mupa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_from_union_map(IntPtr umap);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_from_union_pw_multi_aff(IntPtr upma);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_union_pw_aff_gist(IntPtr mupa, IntPtr context);
@@ -40406,10 +42548,19 @@ public static extern  IntPtr isl_multi_union_pw_aff_intersect_domain(IntPtr mupa
 public static extern  IntPtr isl_multi_union_pw_aff_intersect_params(IntPtr mupa, IntPtr params_);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_intersect_range(IntPtr mupa, IntPtr set);
+
+[DllImport(LibraryName)]
 public static extern  isl_bool isl_multi_union_pw_aff_involves_nan(IntPtr multi);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_union_pw_aff_get_list(IntPtr multi);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_multi_aff_on_domain(IntPtr domain, IntPtr ma);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_multi_val_on_domain(IntPtr domain, IntPtr mv);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_union_pw_aff_neg(IntPtr multi);
@@ -40419,6 +42570,9 @@ public static extern  isl_bool isl_multi_union_pw_aff_plain_is_equal(IntPtr mult
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_union_pw_aff_pullback_union_pw_multi_aff(IntPtr mupa, IntPtr upma);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_pw_multi_aff_on_domain(IntPtr domain, IntPtr pma);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_union_pw_aff_range_product(IntPtr multi1, IntPtr multi2);
@@ -40461,6 +42615,9 @@ public static extern  IntPtr isl_multi_union_pw_aff_union_add(IntPtr mupa1, IntP
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_union_pw_aff_zero(IntPtr space);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_multi_union_pw_aff_zero_union_set(IntPtr mupa);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_multi_union_pw_aff_copy(IntPtr multi);
@@ -41066,6 +43223,9 @@ public static extern  IntPtr isl_pw_aff_list_free(IntPtr list);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_from_multi_aff(IntPtr ma);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_multi_aff_from_multi_pw_aff(IntPtr mpa);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_from_pw_aff(IntPtr pa);
@@ -41731,6 +43891,9 @@ public static extern  IntPtr isl_schedule_node_sequence_splice_children(IntPtr n
 public static extern  IntPtr isl_set_from_basic_set(IntPtr bset);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_set_from_multi_pw_aff(IntPtr mpa);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_set_from_point(IntPtr pnt);
 
 [DllImport(LibraryName)]
@@ -41759,6 +43922,9 @@ public static extern  IntPtr isl_set_get_basic_set_list(IntPtr set);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_bind(IntPtr set, IntPtr tuple);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_set_bounded_simple_hull(IntPtr set);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_box_from_points(IntPtr pnt1, IntPtr pnt2);
@@ -41854,10 +44020,16 @@ public static extern  IntPtr isl_set_fix_si(IntPtr set, dim_type type, uint pos,
 public static extern  IntPtr isl_set_fix_val(IntPtr set, dim_type type, uint pos, IntPtr v);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_set_flat_product(IntPtr set1, IntPtr set2);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_set_flatten(IntPtr set);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_flatten_map(IntPtr set);
+
+[DllImport(LibraryName)]
+public static extern  int isl_set_follows_at(IntPtr set1, IntPtr set2, int pos);
 
 [DllImport(LibraryName)]
 public static extern  isl_stat isl_set_foreach_basic_set(IntPtr set, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, isl_stat> fn, IntPtr user);
@@ -41867,6 +44039,9 @@ public static extern  isl_stat isl_set_foreach_point(IntPtr set, [MarshalAs(Unma
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_from_multi_aff(IntPtr ma);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_set_from_params(IntPtr set);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_from_pw_aff(IntPtr pwaff);
@@ -42019,6 +44194,9 @@ public static extern  int isl_set_n_dim(IntPtr set);
 public static extern  int isl_set_n_param(IntPtr set);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_set_nat_universe(IntPtr space);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_set_neg(IntPtr set);
 
 [DllImport(LibraryName)]
@@ -42026,6 +44204,9 @@ public static extern  IntPtr isl_set_param_pw_aff_on_domain_id(IntPtr domain, In
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_params(IntPtr set);
+
+[DllImport(LibraryName)]
+public static extern  int isl_set_plain_cmp(IntPtr set1, IntPtr set2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_plain_get_val_if_fixed(IntPtr set, dim_type type, uint pos);
@@ -42037,10 +44218,16 @@ public static extern  isl_bool isl_set_plain_is_disjoint(IntPtr set1, IntPtr set
 public static extern  isl_bool isl_set_plain_is_empty(IntPtr set);
 
 [DllImport(LibraryName)]
+public static extern  isl_bool isl_set_plain_is_equal(IntPtr set1, IntPtr set2);
+
+[DllImport(LibraryName)]
 public static extern  isl_bool isl_set_plain_is_universe(IntPtr set);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_get_plain_multi_val_if_fixed(IntPtr set);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_set_plain_unshifted_simple_hull(IntPtr set);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_polyhedral_hull(IntPtr set);
@@ -42124,6 +44311,9 @@ public static extern  IntPtr isl_set_set_tuple_name(IntPtr set, [MarshalAs(Unman
 public static extern  IntPtr isl_set_get_simple_fixed_box_hull(IntPtr set);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_set_simple_hull(IntPtr set);
+
+[DllImport(LibraryName)]
 public static extern  int isl_set_size(IntPtr set);
 
 [DllImport(LibraryName)]
@@ -42172,10 +44362,16 @@ public static extern  IntPtr isl_set_unbind_params_insert_domain(IntPtr set, Int
 public static extern  IntPtr isl_set_union(IntPtr set1, IntPtr set2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_set_union_disjoint(IntPtr set1, IntPtr set2);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_set_universe(IntPtr space);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_unshifted_simple_hull(IntPtr set);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_set_unshifted_simple_hull_from_set_list(IntPtr set, IntPtr list);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_set_unwrap(IntPtr set);
@@ -42357,6 +44553,9 @@ public static extern  int isl_space_find_dim_by_id(IntPtr space, dim_type type, 
 
 [DllImport(LibraryName)]
 public static extern  int isl_space_find_dim_by_name(IntPtr space, dim_type type, [MarshalAs(UnmanagedType.LPStr)] string name);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_space_flatten(IntPtr space);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_space_flatten_domain(IntPtr space);
@@ -42761,6 +44960,9 @@ public static extern  IntPtr isl_union_map_from_domain_and_range(IntPtr domain, 
 public static extern  IntPtr isl_union_map_from_range(IntPtr uset);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_union_map_from_union_pw_aff(IntPtr upa);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_union_map_gist(IntPtr umap, IntPtr context);
 
 [DllImport(LibraryName)]
@@ -42970,6 +45172,15 @@ public static extern  IntPtr isl_union_pw_aff_read_from_str(IntPtr ctx, [Marshal
 public static extern  IntPtr isl_union_pw_aff_add(IntPtr upa1, IntPtr upa2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_add_pw_aff(IntPtr upa, IntPtr pa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_aff_on_domain(IntPtr domain, IntPtr aff);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_align_params(IntPtr upa, IntPtr model);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_bind_id(IntPtr upa, IntPtr id);
 
 [DllImport(LibraryName)]
@@ -42982,10 +45193,37 @@ public static extern  int isl_union_pw_aff_dim(IntPtr upa, dim_type type);
 public static extern  IntPtr isl_union_pw_aff_domain(IntPtr upa);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_drop_dims(IntPtr upa, dim_type type, uint first, uint n);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_drop_unused_params(IntPtr upa);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_empty(IntPtr space);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_empty_space(IntPtr space);
+
+[DllImport(LibraryName)]
+public static extern  isl_bool isl_union_pw_aff_every_pw_aff(IntPtr upa, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, isl_bool> test, IntPtr user);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_extract_pw_aff(IntPtr upa, IntPtr space);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_floor(IntPtr upa);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_union_pw_aff_foreach_pw_aff(IntPtr upa, [MarshalAs(UnmanagedType.FunctionPtr)] Func<IntPtr, IntPtr, isl_stat> fn, IntPtr user);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_gist(IntPtr upa, IntPtr context);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_gist_params(IntPtr upa, IntPtr context);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_intersect_domain(IntPtr upa, IntPtr uset);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_intersect_domain_space(IntPtr upa, IntPtr space);
@@ -43003,16 +45241,46 @@ public static extern  IntPtr isl_union_pw_aff_intersect_domain_wrapped_range(Int
 public static extern  IntPtr isl_union_pw_aff_intersect_params(IntPtr upa, IntPtr set);
 
 [DllImport(LibraryName)]
+public static extern  isl_bool isl_union_pw_aff_involves_nan(IntPtr upa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_mod_val(IntPtr upa, IntPtr f);
+
+[DllImport(LibraryName)]
+public static extern  int isl_union_pw_aff_n_pw_aff(IntPtr upa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_neg(IntPtr upa);
+
+[DllImport(LibraryName)]
 public static extern  isl_bool isl_union_pw_aff_plain_is_equal(IntPtr upa1, IntPtr upa2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_pullback_union_pw_multi_aff(IntPtr upa, IntPtr upma);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_get_pw_aff_list(IntPtr upa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_pw_aff_on_domain(IntPtr domain, IntPtr pa);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_scale_down_val(IntPtr upa, IntPtr v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_scale_val(IntPtr upa, IntPtr v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_set_dim_name(IntPtr upa, dim_type type, uint pos, [MarshalAs(UnmanagedType.LPStr)] string s);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_get_space(IntPtr upa);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_sub(IntPtr upa1, IntPtr upa2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_subtract_domain(IntPtr upa, IntPtr uset);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_subtract_domain_space(IntPtr upa, IntPtr space);
@@ -43025,6 +45293,12 @@ public static extern  IntPtr isl_union_pw_aff_to_list(IntPtr el);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_union_add(IntPtr upa1, IntPtr upa2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_val_on_domain(IntPtr domain, IntPtr v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_aff_zero_union_set(IntPtr upa);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_copy(IntPtr upa);
@@ -43136,6 +45410,9 @@ public static extern  IntPtr isl_union_pw_multi_aff_extract_pw_multi_aff(IntPtr 
 public static extern  IntPtr isl_union_pw_multi_aff_flat_range_product(IntPtr upma1, IntPtr upma2);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_multi_aff_from_multi_union_pw_aff(IntPtr mupa);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_multi_aff_gist(IntPtr upma, IntPtr context);
 
 [DllImport(LibraryName)]
@@ -43182,6 +45459,15 @@ public static extern  IntPtr isl_union_pw_multi_aff_range_factor_range(IntPtr up
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_multi_aff_range_product(IntPtr upma1, IntPtr upma2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_multi_aff_scale_multi_val(IntPtr upma, IntPtr mv);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_multi_aff_scale_val(IntPtr upma, IntPtr val);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_union_pw_multi_aff_scale_down_val(IntPtr upma, IntPtr val);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_multi_aff_get_space(IntPtr upma);

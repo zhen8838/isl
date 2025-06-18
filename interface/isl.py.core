@@ -178,6 +178,17 @@ class union_pw_multi_aff(object):
         res = isl.isl_union_pw_multi_aff_flat_range_product(isl.isl_union_pw_multi_aff_copy(arg0.ptr), isl.isl_union_pw_multi_aff_copy(arg1.ptr))
         obj = union_pw_multi_aff(ctx=ctx, ptr=res)
         return obj
+    @staticmethod
+    def from_multi_union_pw_aff(arg0):
+        try:
+            if not arg0.__class__ is multi_union_pw_aff:
+                arg0 = multi_union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_multi_aff_from_multi_union_pw_aff(isl.isl_multi_union_pw_aff_copy(arg0.ptr))
+        obj = union_pw_multi_aff(ctx=ctx, ptr=res)
+        return obj
     def gist(arg0, arg1):
         try:
             if not arg0.__class__ is union_pw_multi_aff:
@@ -384,6 +395,53 @@ class union_pw_multi_aff(object):
         res = isl.isl_union_pw_multi_aff_range_product(isl.isl_union_pw_multi_aff_copy(arg0.ptr), isl.isl_union_pw_multi_aff_copy(arg1.ptr))
         obj = union_pw_multi_aff(ctx=ctx, ptr=res)
         return obj
+    def scale(*args):
+        if len(args) == 2 and isinstance(args[1], multi_val):
+            args = list(args)
+            try:
+                if not args[0].__class__ is union_pw_multi_aff:
+                    args[0] = union_pw_multi_aff(args[0])
+            except:
+                raise
+            ctx = args[0].ctx
+            res = isl.isl_union_pw_multi_aff_scale_multi_val(isl.isl_union_pw_multi_aff_copy(args[0].ptr), isl.isl_multi_val_copy(args[1].ptr))
+            obj = union_pw_multi_aff(ctx=ctx, ptr=res)
+            return obj
+        if len(args) == 2 and (isinstance(args[1], val) or type(args[1]) == int):
+            args = list(args)
+            try:
+                if not args[0].__class__ is union_pw_multi_aff:
+                    args[0] = union_pw_multi_aff(args[0])
+            except:
+                raise
+            try:
+                if not args[1].__class__ is val:
+                    args[1] = val(args[1])
+            except:
+                raise
+            ctx = args[0].ctx
+            res = isl.isl_union_pw_multi_aff_scale_val(isl.isl_union_pw_multi_aff_copy(args[0].ptr), isl.isl_val_copy(args[1].ptr))
+            obj = union_pw_multi_aff(ctx=ctx, ptr=res)
+            return obj
+        raise Error
+    def scale_down(*args):
+        if len(args) == 2 and (isinstance(args[1], val) or type(args[1]) == int):
+            args = list(args)
+            try:
+                if not args[0].__class__ is union_pw_multi_aff:
+                    args[0] = union_pw_multi_aff(args[0])
+            except:
+                raise
+            try:
+                if not args[1].__class__ is val:
+                    args[1] = val(args[1])
+            except:
+                raise
+            ctx = args[0].ctx
+            res = isl.isl_union_pw_multi_aff_scale_down_val(isl.isl_union_pw_multi_aff_copy(args[0].ptr), isl.isl_val_copy(args[1].ptr))
+            obj = union_pw_multi_aff(ctx=ctx, ptr=res)
+            return obj
+        raise Error
     def space(arg0):
         try:
             if not arg0.__class__ is union_pw_multi_aff:
@@ -482,6 +540,8 @@ isl.isl_union_pw_multi_aff_extract_pw_multi_aff.restype = c_void_p
 isl.isl_union_pw_multi_aff_extract_pw_multi_aff.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_multi_aff_flat_range_product.restype = c_void_p
 isl.isl_union_pw_multi_aff_flat_range_product.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_multi_aff_from_multi_union_pw_aff.restype = c_void_p
+isl.isl_union_pw_multi_aff_from_multi_union_pw_aff.argtypes = [c_void_p]
 isl.isl_union_pw_multi_aff_gist.restype = c_void_p
 isl.isl_union_pw_multi_aff_gist.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_multi_aff_intersect_domain_space.restype = c_void_p
@@ -510,6 +570,12 @@ isl.isl_union_pw_multi_aff_range_factor_range.restype = c_void_p
 isl.isl_union_pw_multi_aff_range_factor_range.argtypes = [c_void_p]
 isl.isl_union_pw_multi_aff_range_product.restype = c_void_p
 isl.isl_union_pw_multi_aff_range_product.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_multi_aff_scale_multi_val.restype = c_void_p
+isl.isl_union_pw_multi_aff_scale_multi_val.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_multi_aff_scale_val.restype = c_void_p
+isl.isl_union_pw_multi_aff_scale_val.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_multi_aff_scale_down_val.restype = c_void_p
+isl.isl_union_pw_multi_aff_scale_down_val.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_multi_aff_get_space.restype = c_void_p
 isl.isl_union_pw_multi_aff_get_space.argtypes = [c_void_p]
 isl.isl_union_pw_multi_aff_sub.restype = c_void_p
@@ -584,6 +650,66 @@ class multi_union_pw_aff(object):
         res = isl.isl_multi_union_pw_aff_add(isl.isl_multi_union_pw_aff_copy(arg0.ptr), isl.isl_multi_union_pw_aff_copy(arg1.ptr))
         obj = multi_union_pw_aff(ctx=ctx, ptr=res)
         return obj
+    def apply_aff(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_union_pw_aff:
+                arg0 = multi_union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is aff:
+                arg1 = aff(arg1)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_apply_aff(isl.isl_multi_union_pw_aff_copy(arg0.ptr), isl.isl_aff_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def apply_multi_aff(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_union_pw_aff:
+                arg0 = multi_union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is multi_aff:
+                arg1 = multi_aff(arg1)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_apply_multi_aff(isl.isl_multi_union_pw_aff_copy(arg0.ptr), isl.isl_multi_aff_copy(arg1.ptr))
+        obj = multi_union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def apply_pw_aff(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_union_pw_aff:
+                arg0 = multi_union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is pw_aff:
+                arg1 = pw_aff(arg1)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_apply_pw_aff(isl.isl_multi_union_pw_aff_copy(arg0.ptr), isl.isl_pw_aff_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def apply_pw_multi_aff(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_union_pw_aff:
+                arg0 = multi_union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is pw_multi_aff:
+                arg1 = pw_multi_aff(arg1)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_apply_pw_multi_aff(isl.isl_multi_union_pw_aff_copy(arg0.ptr), isl.isl_pw_multi_aff_copy(arg1.ptr))
+        obj = multi_union_pw_aff(ctx=ctx, ptr=res)
+        return obj
     def at(arg0, arg1):
         try:
             if not arg0.__class__ is multi_union_pw_aff:
@@ -631,6 +757,21 @@ class multi_union_pw_aff(object):
         res = isl.isl_multi_union_pw_aff_domain(isl.isl_multi_union_pw_aff_copy(arg0.ptr))
         obj = union_set(ctx=ctx, ptr=res)
         return obj
+    def extract_multi_pw_aff(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_union_pw_aff:
+                arg0 = multi_union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is space:
+                arg1 = space(arg1)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_extract_multi_pw_aff(arg0.ptr, isl.isl_space_copy(arg1.ptr))
+        obj = multi_pw_aff(ctx=ctx, ptr=res)
+        return obj
     def flat_range_product(arg0, arg1):
         try:
             if not arg0.__class__ is multi_union_pw_aff:
@@ -644,6 +785,38 @@ class multi_union_pw_aff(object):
             raise
         ctx = arg0.ctx
         res = isl.isl_multi_union_pw_aff_flat_range_product(isl.isl_multi_union_pw_aff_copy(arg0.ptr), isl.isl_multi_union_pw_aff_copy(arg1.ptr))
+        obj = multi_union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def floor(arg0):
+        try:
+            if not arg0.__class__ is multi_union_pw_aff:
+                arg0 = multi_union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_floor(isl.isl_multi_union_pw_aff_copy(arg0.ptr))
+        obj = multi_union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    @staticmethod
+    def from_union_map(arg0):
+        try:
+            if not arg0.__class__ is union_map:
+                arg0 = union_map(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_from_union_map(isl.isl_union_map_copy(arg0.ptr))
+        obj = multi_union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    @staticmethod
+    def from_union_pw_multi_aff(arg0):
+        try:
+            if not arg0.__class__ is union_pw_multi_aff:
+                arg0 = union_pw_multi_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_from_union_pw_multi_aff(isl.isl_union_pw_multi_aff_copy(arg0.ptr))
         obj = multi_union_pw_aff(ctx=ctx, ptr=res)
         return obj
     def gist(arg0, arg1):
@@ -717,6 +890,21 @@ class multi_union_pw_aff(object):
         res = isl.isl_multi_union_pw_aff_intersect_params(isl.isl_multi_union_pw_aff_copy(arg0.ptr), isl.isl_set_copy(arg1.ptr))
         obj = multi_union_pw_aff(ctx=ctx, ptr=res)
         return obj
+    def intersect_range(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_union_pw_aff:
+                arg0 = multi_union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is set:
+                arg1 = set(arg1)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_intersect_range(isl.isl_multi_union_pw_aff_copy(arg0.ptr), isl.isl_set_copy(arg1.ptr))
+        obj = multi_union_pw_aff(ctx=ctx, ptr=res)
+        return obj
     def involves_nan(arg0):
         try:
             if not arg0.__class__ is multi_union_pw_aff:
@@ -740,6 +928,38 @@ class multi_union_pw_aff(object):
         return obj
     def get_list(arg0):
         return arg0.list()
+    @staticmethod
+    def multi_aff_on_domain(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_set:
+                arg0 = union_set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is multi_aff:
+                arg1 = multi_aff(arg1)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_multi_aff_on_domain(isl.isl_union_set_copy(arg0.ptr), isl.isl_multi_aff_copy(arg1.ptr))
+        obj = multi_union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    @staticmethod
+    def multi_val_on_domain(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_set:
+                arg0 = union_set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is multi_val:
+                arg1 = multi_val(arg1)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_multi_val_on_domain(isl.isl_union_set_copy(arg0.ptr), isl.isl_multi_val_copy(arg1.ptr))
+        obj = multi_union_pw_aff(ctx=ctx, ptr=res)
+        return obj
     def neg(arg0):
         try:
             if not arg0.__class__ is multi_union_pw_aff:
@@ -779,6 +999,22 @@ class multi_union_pw_aff(object):
             obj = multi_union_pw_aff(ctx=ctx, ptr=res)
             return obj
         raise Error
+    @staticmethod
+    def pw_multi_aff_on_domain(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_set:
+                arg0 = union_set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is pw_multi_aff:
+                arg1 = pw_multi_aff(arg1)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_pw_multi_aff_on_domain(isl.isl_union_set_copy(arg0.ptr), isl.isl_pw_multi_aff_copy(arg1.ptr))
+        obj = multi_union_pw_aff(ctx=ctx, ptr=res)
+        return obj
     def range_product(arg0, arg1):
         try:
             if not arg0.__class__ is multi_union_pw_aff:
@@ -971,6 +1207,16 @@ class multi_union_pw_aff(object):
         res = isl.isl_multi_union_pw_aff_zero(isl.isl_space_copy(arg0.ptr))
         obj = multi_union_pw_aff(ctx=ctx, ptr=res)
         return obj
+    def zero_union_set(arg0):
+        try:
+            if not arg0.__class__ is multi_union_pw_aff:
+                arg0 = multi_union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_union_pw_aff_zero_union_set(isl.isl_multi_union_pw_aff_copy(arg0.ptr))
+        obj = union_set(ctx=ctx, ptr=res)
+        return obj
 
 isl.isl_multi_union_pw_aff_from_multi_pw_aff.restype = c_void_p
 isl.isl_multi_union_pw_aff_from_multi_pw_aff.argtypes = [c_void_p]
@@ -982,6 +1228,14 @@ isl.isl_multi_union_pw_aff_read_from_str.restype = c_void_p
 isl.isl_multi_union_pw_aff_read_from_str.argtypes = [Context, c_char_p]
 isl.isl_multi_union_pw_aff_add.restype = c_void_p
 isl.isl_multi_union_pw_aff_add.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_union_pw_aff_apply_aff.restype = c_void_p
+isl.isl_multi_union_pw_aff_apply_aff.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_union_pw_aff_apply_multi_aff.restype = c_void_p
+isl.isl_multi_union_pw_aff_apply_multi_aff.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_union_pw_aff_apply_pw_aff.restype = c_void_p
+isl.isl_multi_union_pw_aff_apply_pw_aff.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_union_pw_aff_apply_pw_multi_aff.restype = c_void_p
+isl.isl_multi_union_pw_aff_apply_pw_multi_aff.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_union_pw_aff_get_at.restype = c_void_p
 isl.isl_multi_union_pw_aff_get_at.argtypes = [c_void_p, c_int]
 isl.isl_multi_union_pw_aff_bind.restype = c_void_p
@@ -990,8 +1244,16 @@ isl.isl_multi_union_pw_aff_coalesce.restype = c_void_p
 isl.isl_multi_union_pw_aff_coalesce.argtypes = [c_void_p]
 isl.isl_multi_union_pw_aff_domain.restype = c_void_p
 isl.isl_multi_union_pw_aff_domain.argtypes = [c_void_p]
+isl.isl_multi_union_pw_aff_extract_multi_pw_aff.restype = c_void_p
+isl.isl_multi_union_pw_aff_extract_multi_pw_aff.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_union_pw_aff_flat_range_product.restype = c_void_p
 isl.isl_multi_union_pw_aff_flat_range_product.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_union_pw_aff_floor.restype = c_void_p
+isl.isl_multi_union_pw_aff_floor.argtypes = [c_void_p]
+isl.isl_multi_union_pw_aff_from_union_map.restype = c_void_p
+isl.isl_multi_union_pw_aff_from_union_map.argtypes = [c_void_p]
+isl.isl_multi_union_pw_aff_from_union_pw_multi_aff.restype = c_void_p
+isl.isl_multi_union_pw_aff_from_union_pw_multi_aff.argtypes = [c_void_p]
 isl.isl_multi_union_pw_aff_gist.restype = c_void_p
 isl.isl_multi_union_pw_aff_gist.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_union_pw_aff_gist_params.restype = c_void_p
@@ -1001,14 +1263,22 @@ isl.isl_multi_union_pw_aff_intersect_domain.restype = c_void_p
 isl.isl_multi_union_pw_aff_intersect_domain.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_union_pw_aff_intersect_params.restype = c_void_p
 isl.isl_multi_union_pw_aff_intersect_params.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_union_pw_aff_intersect_range.restype = c_void_p
+isl.isl_multi_union_pw_aff_intersect_range.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_union_pw_aff_involves_nan.argtypes = [c_void_p]
 isl.isl_multi_union_pw_aff_get_list.restype = c_void_p
 isl.isl_multi_union_pw_aff_get_list.argtypes = [c_void_p]
+isl.isl_multi_union_pw_aff_multi_aff_on_domain.restype = c_void_p
+isl.isl_multi_union_pw_aff_multi_aff_on_domain.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_union_pw_aff_multi_val_on_domain.restype = c_void_p
+isl.isl_multi_union_pw_aff_multi_val_on_domain.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_union_pw_aff_neg.restype = c_void_p
 isl.isl_multi_union_pw_aff_neg.argtypes = [c_void_p]
 isl.isl_multi_union_pw_aff_plain_is_equal.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_union_pw_aff_pullback_union_pw_multi_aff.restype = c_void_p
 isl.isl_multi_union_pw_aff_pullback_union_pw_multi_aff.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_union_pw_aff_pw_multi_aff_on_domain.restype = c_void_p
+isl.isl_multi_union_pw_aff_pw_multi_aff_on_domain.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_union_pw_aff_range_product.restype = c_void_p
 isl.isl_multi_union_pw_aff_range_product.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_union_pw_aff_get_range_tuple_id.restype = c_void_p
@@ -1036,6 +1306,8 @@ isl.isl_multi_union_pw_aff_union_add.restype = c_void_p
 isl.isl_multi_union_pw_aff_union_add.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_union_pw_aff_zero.restype = c_void_p
 isl.isl_multi_union_pw_aff_zero.argtypes = [c_void_p]
+isl.isl_multi_union_pw_aff_zero_union_set.restype = c_void_p
+isl.isl_multi_union_pw_aff_zero_union_set.argtypes = [c_void_p]
 isl.isl_multi_union_pw_aff_copy.restype = c_void_p
 isl.isl_multi_union_pw_aff_copy.argtypes = [c_void_p]
 isl.isl_multi_union_pw_aff_free.restype = c_void_p
@@ -1096,6 +1368,52 @@ class union_pw_aff(union_pw_multi_aff, multi_union_pw_aff):
         res = isl.isl_union_pw_aff_add(isl.isl_union_pw_aff_copy(arg0.ptr), isl.isl_union_pw_aff_copy(arg1.ptr))
         obj = union_pw_aff(ctx=ctx, ptr=res)
         return obj
+    def add_pw_aff(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is pw_aff:
+                arg1 = pw_aff(arg1)
+        except:
+            return union_pw_multi_aff(arg0).add_pw_aff(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_add_pw_aff(isl.isl_union_pw_aff_copy(arg0.ptr), isl.isl_pw_aff_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    @staticmethod
+    def aff_on_domain(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_set:
+                arg0 = union_set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is aff:
+                arg1 = aff(arg1)
+        except:
+            return union_pw_multi_aff(arg0).aff_on_domain(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_aff_on_domain(isl.isl_union_set_copy(arg0.ptr), isl.isl_aff_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def align_params(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is space:
+                arg1 = space(arg1)
+        except:
+            return union_pw_multi_aff(arg0).align_params(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_align_params(isl.isl_union_pw_aff_copy(arg0.ptr), isl.isl_space_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
     def bind(*args):
         if len(args) == 2 and (isinstance(args[1], id) or type(args[1]) == str):
             args = list(args)
@@ -1145,6 +1463,16 @@ class union_pw_aff(union_pw_multi_aff, multi_union_pw_aff):
         res = isl.isl_union_pw_aff_domain(isl.isl_union_pw_aff_copy(arg0.ptr))
         obj = union_set(ctx=ctx, ptr=res)
         return obj
+    def drop_dims(arg0, arg1, arg2, arg3):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_drop_dims(isl.isl_union_pw_aff_copy(arg0.ptr), arg1, arg2, arg3)
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
     def drop_unused_params(arg0):
         try:
             if not arg0.__class__ is union_pw_aff:
@@ -1155,6 +1483,100 @@ class union_pw_aff(union_pw_multi_aff, multi_union_pw_aff):
         res = isl.isl_union_pw_aff_drop_unused_params(isl.isl_union_pw_aff_copy(arg0.ptr))
         obj = union_pw_aff(ctx=ctx, ptr=res)
         return obj
+    @staticmethod
+    def empty(arg0):
+        try:
+            if not arg0.__class__ is space:
+                arg0 = space(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_empty(isl.isl_space_copy(arg0.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    @staticmethod
+    def empty_space(arg0):
+        try:
+            if not arg0.__class__ is space:
+                arg0 = space(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_empty_space(isl.isl_space_copy(arg0.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def every_pw_aff(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        exc_info = [None]
+        fn = CFUNCTYPE(c_int, c_void_p, c_void_p)
+        def cb_func(cb_arg0, cb_arg1):
+            cb_arg0 = pw_aff(ctx=arg0.ctx, ptr=isl.isl_pw_aff_copy(cb_arg0))
+            try:
+                res = arg1(cb_arg0)
+            except BaseException as e:
+                exc_info[0] = e
+                return -1
+            return 1 if res else 0
+        cb1 = fn(cb_func)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_every_pw_aff(arg0.ptr, cb1, None)
+        if exc_info[0] is not None:
+            raise exc_info[0]
+        if res < 0:
+            raise Error
+        return bool(res)
+    def extract_pw_aff(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is space:
+                arg1 = space(arg1)
+        except:
+            return union_pw_multi_aff(arg0).extract_pw_aff(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_extract_pw_aff(arg0.ptr, isl.isl_space_copy(arg1.ptr))
+        obj = pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def floor(arg0):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_floor(isl.isl_union_pw_aff_copy(arg0.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def foreach_pw_aff(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        exc_info = [None]
+        fn = CFUNCTYPE(c_int, c_void_p, c_void_p)
+        def cb_func(cb_arg0, cb_arg1):
+            cb_arg0 = pw_aff(ctx=arg0.ctx, ptr=(cb_arg0))
+            try:
+                arg1(cb_arg0)
+            except BaseException as e:
+                exc_info[0] = e
+                return -1
+            return 0
+        cb1 = fn(cb_func)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_foreach_pw_aff(arg0.ptr, cb1, None)
+        if exc_info[0] is not None:
+            raise exc_info[0]
+        if res < 0:
+            raise Error
     def gist(arg0, arg1):
         try:
             if not arg0.__class__ is union_pw_aff:
@@ -1170,7 +1592,33 @@ class union_pw_aff(union_pw_multi_aff, multi_union_pw_aff):
         res = isl.isl_union_pw_aff_gist(isl.isl_union_pw_aff_copy(arg0.ptr), isl.isl_union_set_copy(arg1.ptr))
         obj = union_pw_aff(ctx=ctx, ptr=res)
         return obj
+    def gist_params(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is set:
+                arg1 = set(arg1)
+        except:
+            return union_pw_multi_aff(arg0).gist_params(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_gist_params(isl.isl_union_pw_aff_copy(arg0.ptr), isl.isl_set_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
     def intersect_domain(*args):
+        if len(args) == 2 and isinstance(args[1], union_set):
+            args = list(args)
+            try:
+                if not args[0].__class__ is union_pw_aff:
+                    args[0] = union_pw_aff(args[0])
+            except:
+                raise
+            ctx = args[0].ctx
+            res = isl.isl_union_pw_aff_intersect_domain(isl.isl_union_pw_aff_copy(args[0].ptr), isl.isl_union_set_copy(args[1].ptr))
+            obj = union_pw_aff(ctx=ctx, ptr=res)
+            return obj
         if len(args) == 2 and isinstance(args[1], space):
             args = list(args)
             try:
@@ -1239,6 +1687,53 @@ class union_pw_aff(union_pw_multi_aff, multi_union_pw_aff):
         res = isl.isl_union_pw_aff_intersect_params(isl.isl_union_pw_aff_copy(arg0.ptr), isl.isl_set_copy(arg1.ptr))
         obj = union_pw_aff(ctx=ctx, ptr=res)
         return obj
+    def involves_nan(arg0):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_involves_nan(arg0.ptr)
+        if res < 0:
+            raise Error
+        return bool(res)
+    def mod_val(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is val:
+                arg1 = val(arg1)
+        except:
+            return union_pw_multi_aff(arg0).mod_val(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_mod_val(isl.isl_union_pw_aff_copy(arg0.ptr), isl.isl_val_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def n_pw_aff(arg0):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_n_pw_aff(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
+    def neg(arg0):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_neg(isl.isl_union_pw_aff_copy(arg0.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
     def plain_is_equal(arg0, arg1):
         try:
             if not arg0.__class__ is union_pw_aff:
@@ -1268,6 +1763,74 @@ class union_pw_aff(union_pw_multi_aff, multi_union_pw_aff):
             obj = union_pw_aff(ctx=ctx, ptr=res)
             return obj
         raise Error
+    def pw_aff_list(arg0):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_get_pw_aff_list(arg0.ptr)
+        obj = pw_aff_list(ctx=ctx, ptr=res)
+        return obj
+    def get_pw_aff_list(arg0):
+        return arg0.pw_aff_list()
+    @staticmethod
+    def pw_aff_on_domain(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_set:
+                arg0 = union_set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is pw_aff:
+                arg1 = pw_aff(arg1)
+        except:
+            return union_pw_multi_aff(arg0).pw_aff_on_domain(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_pw_aff_on_domain(isl.isl_union_set_copy(arg0.ptr), isl.isl_pw_aff_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def scale_down_val(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is val:
+                arg1 = val(arg1)
+        except:
+            return union_pw_multi_aff(arg0).scale_down_val(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_scale_down_val(isl.isl_union_pw_aff_copy(arg0.ptr), isl.isl_val_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def scale_val(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is val:
+                arg1 = val(arg1)
+        except:
+            return union_pw_multi_aff(arg0).scale_val(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_scale_val(isl.isl_union_pw_aff_copy(arg0.ptr), isl.isl_val_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def set_dim_name(arg0, arg1, arg2, arg3):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_set_dim_name(isl.isl_union_pw_aff_copy(arg0.ptr), arg1, arg2, arg3.encode('ascii'))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
     def space(arg0):
         try:
             if not arg0.__class__ is union_pw_aff:
@@ -1296,6 +1859,17 @@ class union_pw_aff(union_pw_multi_aff, multi_union_pw_aff):
         obj = union_pw_aff(ctx=ctx, ptr=res)
         return obj
     def subtract_domain(*args):
+        if len(args) == 2 and isinstance(args[1], union_set):
+            args = list(args)
+            try:
+                if not args[0].__class__ is union_pw_aff:
+                    args[0] = union_pw_aff(args[0])
+            except:
+                raise
+            ctx = args[0].ctx
+            res = isl.isl_union_pw_aff_subtract_domain(isl.isl_union_pw_aff_copy(args[0].ptr), isl.isl_union_set_copy(args[1].ptr))
+            obj = union_pw_aff(ctx=ctx, ptr=res)
+            return obj
         if len(args) == 2 and isinstance(args[1], space):
             args = list(args)
             try:
@@ -1344,6 +1918,32 @@ class union_pw_aff(union_pw_multi_aff, multi_union_pw_aff):
         res = isl.isl_union_pw_aff_union_add(isl.isl_union_pw_aff_copy(arg0.ptr), isl.isl_union_pw_aff_copy(arg1.ptr))
         obj = union_pw_aff(ctx=ctx, ptr=res)
         return obj
+    @staticmethod
+    def val_on_domain(arg0, arg1):
+        try:
+            if not arg0.__class__ is union_set:
+                arg0 = union_set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is val:
+                arg1 = val(arg1)
+        except:
+            return union_pw_multi_aff(arg0).val_on_domain(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_val_on_domain(isl.isl_union_set_copy(arg0.ptr), isl.isl_val_copy(arg1.ptr))
+        obj = union_pw_aff(ctx=ctx, ptr=res)
+        return obj
+    def zero_union_set(arg0):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_zero_union_set(isl.isl_union_pw_aff_copy(arg0.ptr))
+        obj = union_set(ctx=ctx, ptr=res)
+        return obj
 
 isl.isl_union_pw_aff_from_aff.restype = c_void_p
 isl.isl_union_pw_aff_from_aff.argtypes = [c_void_p]
@@ -1353,6 +1953,12 @@ isl.isl_union_pw_aff_read_from_str.restype = c_void_p
 isl.isl_union_pw_aff_read_from_str.argtypes = [Context, c_char_p]
 isl.isl_union_pw_aff_add.restype = c_void_p
 isl.isl_union_pw_aff_add.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_add_pw_aff.restype = c_void_p
+isl.isl_union_pw_aff_add_pw_aff.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_aff_on_domain.restype = c_void_p
+isl.isl_union_pw_aff_aff_on_domain.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_align_params.restype = c_void_p
+isl.isl_union_pw_aff_align_params.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_aff_bind_id.restype = c_void_p
 isl.isl_union_pw_aff_bind_id.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_aff_coalesce.restype = c_void_p
@@ -1360,10 +1966,26 @@ isl.isl_union_pw_aff_coalesce.argtypes = [c_void_p]
 isl.isl_union_pw_aff_dim.argtypes = [c_void_p, c_int]
 isl.isl_union_pw_aff_domain.restype = c_void_p
 isl.isl_union_pw_aff_domain.argtypes = [c_void_p]
+isl.isl_union_pw_aff_drop_dims.restype = c_void_p
+isl.isl_union_pw_aff_drop_dims.argtypes = [c_void_p, c_int, c_int, c_int]
 isl.isl_union_pw_aff_drop_unused_params.restype = c_void_p
 isl.isl_union_pw_aff_drop_unused_params.argtypes = [c_void_p]
+isl.isl_union_pw_aff_empty.restype = c_void_p
+isl.isl_union_pw_aff_empty.argtypes = [c_void_p]
+isl.isl_union_pw_aff_empty_space.restype = c_void_p
+isl.isl_union_pw_aff_empty_space.argtypes = [c_void_p]
+isl.isl_union_pw_aff_every_pw_aff.argtypes = [c_void_p, c_void_p, c_void_p]
+isl.isl_union_pw_aff_extract_pw_aff.restype = c_void_p
+isl.isl_union_pw_aff_extract_pw_aff.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_floor.restype = c_void_p
+isl.isl_union_pw_aff_floor.argtypes = [c_void_p]
+isl.isl_union_pw_aff_foreach_pw_aff.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_union_pw_aff_gist.restype = c_void_p
 isl.isl_union_pw_aff_gist.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_gist_params.restype = c_void_p
+isl.isl_union_pw_aff_gist_params.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_intersect_domain.restype = c_void_p
+isl.isl_union_pw_aff_intersect_domain.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_aff_intersect_domain_space.restype = c_void_p
 isl.isl_union_pw_aff_intersect_domain_space.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_aff_intersect_domain_union_set.restype = c_void_p
@@ -1374,13 +1996,31 @@ isl.isl_union_pw_aff_intersect_domain_wrapped_range.restype = c_void_p
 isl.isl_union_pw_aff_intersect_domain_wrapped_range.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_aff_intersect_params.restype = c_void_p
 isl.isl_union_pw_aff_intersect_params.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_involves_nan.argtypes = [c_void_p]
+isl.isl_union_pw_aff_mod_val.restype = c_void_p
+isl.isl_union_pw_aff_mod_val.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_n_pw_aff.argtypes = [c_void_p]
+isl.isl_union_pw_aff_neg.restype = c_void_p
+isl.isl_union_pw_aff_neg.argtypes = [c_void_p]
 isl.isl_union_pw_aff_plain_is_equal.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_aff_pullback_union_pw_multi_aff.restype = c_void_p
 isl.isl_union_pw_aff_pullback_union_pw_multi_aff.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_get_pw_aff_list.restype = c_void_p
+isl.isl_union_pw_aff_get_pw_aff_list.argtypes = [c_void_p]
+isl.isl_union_pw_aff_pw_aff_on_domain.restype = c_void_p
+isl.isl_union_pw_aff_pw_aff_on_domain.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_scale_down_val.restype = c_void_p
+isl.isl_union_pw_aff_scale_down_val.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_scale_val.restype = c_void_p
+isl.isl_union_pw_aff_scale_val.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_set_dim_name.restype = c_void_p
+isl.isl_union_pw_aff_set_dim_name.argtypes = [c_void_p, c_int, c_int, c_char_p]
 isl.isl_union_pw_aff_get_space.restype = c_void_p
 isl.isl_union_pw_aff_get_space.argtypes = [c_void_p]
 isl.isl_union_pw_aff_sub.restype = c_void_p
 isl.isl_union_pw_aff_sub.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_subtract_domain.restype = c_void_p
+isl.isl_union_pw_aff_subtract_domain.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_aff_subtract_domain_space.restype = c_void_p
 isl.isl_union_pw_aff_subtract_domain_space.argtypes = [c_void_p, c_void_p]
 isl.isl_union_pw_aff_subtract_domain_union_set.restype = c_void_p
@@ -1389,6 +2029,10 @@ isl.isl_union_pw_aff_to_list.restype = c_void_p
 isl.isl_union_pw_aff_to_list.argtypes = [c_void_p]
 isl.isl_union_pw_aff_union_add.restype = c_void_p
 isl.isl_union_pw_aff_union_add.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_val_on_domain.restype = c_void_p
+isl.isl_union_pw_aff_val_on_domain.argtypes = [c_void_p, c_void_p]
+isl.isl_union_pw_aff_zero_union_set.restype = c_void_p
+isl.isl_union_pw_aff_zero_union_set.argtypes = [c_void_p]
 isl.isl_union_pw_aff_copy.restype = c_void_p
 isl.isl_union_pw_aff_copy.argtypes = [c_void_p]
 isl.isl_union_pw_aff_free.restype = c_void_p
@@ -1607,6 +2251,21 @@ class multi_pw_aff(multi_union_pw_aff):
         res = isl.isl_multi_pw_aff_domain_reverse(isl.isl_multi_pw_aff_copy(arg0.ptr))
         obj = multi_pw_aff(ctx=ctx, ptr=res)
         return obj
+    def eq_map(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_pw_aff:
+                arg0 = multi_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is multi_pw_aff:
+                arg1 = multi_pw_aff(arg1)
+        except:
+            return multi_union_pw_aff(arg0).eq_map(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_multi_pw_aff_eq_map(isl.isl_multi_pw_aff_copy(arg0.ptr), isl.isl_multi_pw_aff_copy(arg1.ptr))
+        obj = map(ctx=ctx, ptr=res)
+        return obj
     def flat_range_product(arg0, arg1):
         try:
             if not arg0.__class__ is multi_pw_aff:
@@ -1771,6 +2430,17 @@ class multi_pw_aff(multi_union_pw_aff):
                 raise Error
             return bool(res)
         raise Error
+    def is_cst(arg0):
+        try:
+            if not arg0.__class__ is multi_pw_aff:
+                arg0 = multi_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_pw_aff_is_cst(arg0.ptr)
+        if res < 0:
+            raise Error
+        return bool(res)
     def isa_multi_aff(arg0):
         try:
             if not arg0.__class__ is multi_pw_aff:
@@ -1782,6 +2452,66 @@ class multi_pw_aff(multi_union_pw_aff):
         if res < 0:
             raise Error
         return bool(res)
+    def lex_ge_map(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_pw_aff:
+                arg0 = multi_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is multi_pw_aff:
+                arg1 = multi_pw_aff(arg1)
+        except:
+            return multi_union_pw_aff(arg0).lex_ge_map(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_multi_pw_aff_lex_ge_map(isl.isl_multi_pw_aff_copy(arg0.ptr), isl.isl_multi_pw_aff_copy(arg1.ptr))
+        obj = map(ctx=ctx, ptr=res)
+        return obj
+    def lex_gt_map(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_pw_aff:
+                arg0 = multi_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is multi_pw_aff:
+                arg1 = multi_pw_aff(arg1)
+        except:
+            return multi_union_pw_aff(arg0).lex_gt_map(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_multi_pw_aff_lex_gt_map(isl.isl_multi_pw_aff_copy(arg0.ptr), isl.isl_multi_pw_aff_copy(arg1.ptr))
+        obj = map(ctx=ctx, ptr=res)
+        return obj
+    def lex_le_map(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_pw_aff:
+                arg0 = multi_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is multi_pw_aff:
+                arg1 = multi_pw_aff(arg1)
+        except:
+            return multi_union_pw_aff(arg0).lex_le_map(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_multi_pw_aff_lex_le_map(isl.isl_multi_pw_aff_copy(arg0.ptr), isl.isl_multi_pw_aff_copy(arg1.ptr))
+        obj = map(ctx=ctx, ptr=res)
+        return obj
+    def lex_lt_map(arg0, arg1):
+        try:
+            if not arg0.__class__ is multi_pw_aff:
+                arg0 = multi_pw_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is multi_pw_aff:
+                arg1 = multi_pw_aff(arg1)
+        except:
+            return multi_union_pw_aff(arg0).lex_lt_map(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_multi_pw_aff_lex_lt_map(isl.isl_multi_pw_aff_copy(arg0.ptr), isl.isl_multi_pw_aff_copy(arg1.ptr))
+        obj = map(ctx=ctx, ptr=res)
+        return obj
     def list(arg0):
         try:
             if not arg0.__class__ is multi_pw_aff:
@@ -1843,6 +2573,16 @@ class multi_pw_aff(multi_union_pw_aff):
         ctx = arg0.ctx
         res = isl.isl_multi_pw_aff_min_multi_val(isl.isl_multi_pw_aff_copy(arg0.ptr))
         obj = multi_val(ctx=ctx, ptr=res)
+        return obj
+    def move_dims(arg0, arg1, arg2, arg3, arg4, arg5):
+        try:
+            if not arg0.__class__ is multi_pw_aff:
+                arg0 = multi_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_multi_pw_aff_move_dims(isl.isl_multi_pw_aff_copy(arg0.ptr), arg1, arg2, arg3, arg4, arg5)
+        obj = multi_pw_aff(ctx=ctx, ptr=res)
         return obj
     def neg(arg0):
         try:
@@ -2166,6 +2906,8 @@ isl.isl_multi_pw_aff_domain.restype = c_void_p
 isl.isl_multi_pw_aff_domain.argtypes = [c_void_p]
 isl.isl_multi_pw_aff_domain_reverse.restype = c_void_p
 isl.isl_multi_pw_aff_domain_reverse.argtypes = [c_void_p]
+isl.isl_multi_pw_aff_eq_map.restype = c_void_p
+isl.isl_multi_pw_aff_eq_map.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_pw_aff_flat_range_product.restype = c_void_p
 isl.isl_multi_pw_aff_flat_range_product.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_pw_aff_gist.restype = c_void_p
@@ -2186,7 +2928,16 @@ isl.isl_multi_pw_aff_intersect_params.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_pw_aff_involves_nan.argtypes = [c_void_p]
 isl.isl_multi_pw_aff_involves_param_id.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_pw_aff_involves_param_id_list.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_pw_aff_is_cst.argtypes = [c_void_p]
 isl.isl_multi_pw_aff_isa_multi_aff.argtypes = [c_void_p]
+isl.isl_multi_pw_aff_lex_ge_map.restype = c_void_p
+isl.isl_multi_pw_aff_lex_ge_map.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_pw_aff_lex_gt_map.restype = c_void_p
+isl.isl_multi_pw_aff_lex_gt_map.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_pw_aff_lex_le_map.restype = c_void_p
+isl.isl_multi_pw_aff_lex_le_map.argtypes = [c_void_p, c_void_p]
+isl.isl_multi_pw_aff_lex_lt_map.restype = c_void_p
+isl.isl_multi_pw_aff_lex_lt_map.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_pw_aff_get_list.restype = c_void_p
 isl.isl_multi_pw_aff_get_list.argtypes = [c_void_p]
 isl.isl_multi_pw_aff_max.restype = c_void_p
@@ -2197,6 +2948,8 @@ isl.isl_multi_pw_aff_min.restype = c_void_p
 isl.isl_multi_pw_aff_min.argtypes = [c_void_p, c_void_p]
 isl.isl_multi_pw_aff_min_multi_val.restype = c_void_p
 isl.isl_multi_pw_aff_min_multi_val.argtypes = [c_void_p]
+isl.isl_multi_pw_aff_move_dims.restype = c_void_p
+isl.isl_multi_pw_aff_move_dims.argtypes = [c_void_p, c_int, c_int, c_int, c_int, c_int]
 isl.isl_multi_pw_aff_neg.restype = c_void_p
 isl.isl_multi_pw_aff_neg.argtypes = [c_void_p]
 isl.isl_multi_pw_aff_plain_is_equal.argtypes = [c_void_p, c_void_p]
@@ -2253,6 +3006,10 @@ class pw_multi_aff(union_pw_multi_aff, multi_pw_aff):
         if len(args) == 1 and isinstance(args[0], multi_aff):
             self.ctx = Context.getDefaultInstance()
             self.ptr = isl.isl_pw_multi_aff_from_multi_aff(isl.isl_multi_aff_copy(args[0].ptr))
+            return
+        if len(args) == 1 and isinstance(args[0], multi_pw_aff):
+            self.ctx = Context.getDefaultInstance()
+            self.ptr = isl.isl_pw_multi_aff_from_multi_pw_aff(isl.isl_multi_pw_aff_copy(args[0].ptr))
             return
         if len(args) == 1 and isinstance(args[0], pw_aff):
             self.ctx = Context.getDefaultInstance()
@@ -3087,6 +3844,8 @@ class pw_multi_aff(union_pw_multi_aff, multi_pw_aff):
 
 isl.isl_pw_multi_aff_from_multi_aff.restype = c_void_p
 isl.isl_pw_multi_aff_from_multi_aff.argtypes = [c_void_p]
+isl.isl_pw_multi_aff_from_multi_pw_aff.restype = c_void_p
+isl.isl_pw_multi_aff_from_multi_pw_aff.argtypes = [c_void_p]
 isl.isl_pw_multi_aff_from_pw_aff.restype = c_void_p
 isl.isl_pw_multi_aff_from_pw_aff.argtypes = [c_void_p]
 isl.isl_pw_multi_aff_read_from_str.restype = c_void_p
@@ -5774,21 +6533,30 @@ class aff(pw_aff, multi_aff):
         return string
     def get_dim_name(arg0, arg1, arg2):
         return arg0.dim_name(arg1, arg2)
-    def div(arg0, arg1):
-        try:
-            if not arg0.__class__ is aff:
-                arg0 = aff(arg0)
-        except:
-            raise
-        try:
-            if not arg1.__class__ is aff:
-                arg1 = aff(arg1)
-        except:
-            return pw_aff(arg0).div(arg1)
-        ctx = arg0.ctx
-        res = isl.isl_aff_div(isl.isl_aff_copy(arg0.ptr), isl.isl_aff_copy(arg1.ptr))
-        obj = aff(ctx=ctx, ptr=res)
-        return obj
+    def div(*args):
+        if len(args) == 2 and isinstance(args[1], aff):
+            args = list(args)
+            try:
+                if not args[0].__class__ is aff:
+                    args[0] = aff(args[0])
+            except:
+                raise
+            ctx = args[0].ctx
+            res = isl.isl_aff_div(isl.isl_aff_copy(args[0].ptr), isl.isl_aff_copy(args[1].ptr))
+            obj = aff(ctx=ctx, ptr=res)
+            return obj
+        if len(args) == 2 and type(args[1]) == int:
+            args = list(args)
+            try:
+                if not args[0].__class__ is aff:
+                    args[0] = aff(args[0])
+            except:
+                raise
+            ctx = args[0].ctx
+            res = isl.isl_aff_get_div(args[0].ptr, args[1])
+            obj = aff(ctx=ctx, ptr=res)
+            return obj
+        raise Error
     def domain_local_space(arg0):
         try:
             if not arg0.__class__ is aff:
@@ -5878,6 +6646,15 @@ class aff(pw_aff, multi_aff):
         res = isl.isl_aff_eval(isl.isl_aff_copy(arg0.ptr), isl.isl_point_copy(arg1.ptr))
         obj = val(ctx=ctx, ptr=res)
         return obj
+    def find_dim_by_name(arg0, arg1, arg2):
+        try:
+            if not arg0.__class__ is aff:
+                arg0 = aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_aff_find_dim_by_name(arg0.ptr, arg1, arg2.encode('ascii'))
+        return res
     def floor(arg0):
         try:
             if not arg0.__class__ is aff:
@@ -5886,6 +6663,16 @@ class aff(pw_aff, multi_aff):
             raise
         ctx = arg0.ctx
         res = isl.isl_aff_floor(isl.isl_aff_copy(arg0.ptr))
+        obj = aff(ctx=ctx, ptr=res)
+        return obj
+    def from_range(arg0):
+        try:
+            if not arg0.__class__ is aff:
+                arg0 = aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_aff_from_range(isl.isl_aff_copy(arg0.ptr))
         obj = aff(ctx=ctx, ptr=res)
         return obj
     def ge_basic_set(arg0, arg1):
@@ -6188,6 +6975,22 @@ class aff(pw_aff, multi_aff):
         ctx = arg0.ctx
         res = isl.isl_aff_neg_basic_set(isl.isl_aff_copy(arg0.ptr))
         obj = basic_set(ctx=ctx, ptr=res)
+        return obj
+    @staticmethod
+    def param_on_domain_space_id(arg0, arg1):
+        try:
+            if not arg0.__class__ is space:
+                arg0 = space(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is id:
+                arg1 = id(arg1)
+        except:
+            return pw_aff(arg0).param_on_domain_space_id(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_aff_param_on_domain_space_id(isl.isl_space_copy(arg0.ptr), isl.isl_id_copy(arg1.ptr))
+        obj = aff(ctx=ctx, ptr=res)
         return obj
     def plain_is_equal(arg0, arg1):
         try:
@@ -6533,6 +7336,8 @@ isl.isl_aff_get_dim_name.restype = POINTER(c_char)
 isl.isl_aff_get_dim_name.argtypes = [c_void_p, c_int, c_int]
 isl.isl_aff_div.restype = c_void_p
 isl.isl_aff_div.argtypes = [c_void_p, c_void_p]
+isl.isl_aff_get_div.restype = c_void_p
+isl.isl_aff_get_div.argtypes = [c_void_p, c_int]
 isl.isl_aff_get_domain_local_space.restype = c_void_p
 isl.isl_aff_get_domain_local_space.argtypes = [c_void_p]
 isl.isl_aff_domain_reverse.restype = c_void_p
@@ -6547,8 +7352,11 @@ isl.isl_aff_eq_set.restype = c_void_p
 isl.isl_aff_eq_set.argtypes = [c_void_p, c_void_p]
 isl.isl_aff_eval.restype = c_void_p
 isl.isl_aff_eval.argtypes = [c_void_p, c_void_p]
+isl.isl_aff_find_dim_by_name.argtypes = [c_void_p, c_int, c_char_p]
 isl.isl_aff_floor.restype = c_void_p
 isl.isl_aff_floor.argtypes = [c_void_p]
+isl.isl_aff_from_range.restype = c_void_p
+isl.isl_aff_from_range.argtypes = [c_void_p]
 isl.isl_aff_ge_basic_set.restype = c_void_p
 isl.isl_aff_ge_basic_set.argtypes = [c_void_p, c_void_p]
 isl.isl_aff_ge_set.restype = c_void_p
@@ -6591,6 +7399,8 @@ isl.isl_aff_neg.restype = c_void_p
 isl.isl_aff_neg.argtypes = [c_void_p]
 isl.isl_aff_neg_basic_set.restype = c_void_p
 isl.isl_aff_neg_basic_set.argtypes = [c_void_p]
+isl.isl_aff_param_on_domain_space_id.restype = c_void_p
+isl.isl_aff_param_on_domain_space_id.argtypes = [c_void_p, c_void_p]
 isl.isl_aff_plain_is_equal.argtypes = [c_void_p, c_void_p]
 isl.isl_aff_plain_is_zero.argtypes = [c_void_p]
 isl.isl_aff_pullback_multi_aff.restype = c_void_p
@@ -11250,6 +12060,17 @@ class union_map(object):
         res = isl.isl_union_map_from_range(isl.isl_union_set_copy(arg0.ptr))
         obj = union_map(ctx=ctx, ptr=res)
         return obj
+    @staticmethod
+    def from_union_pw_aff(arg0):
+        try:
+            if not arg0.__class__ is union_pw_aff:
+                arg0 = union_pw_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_map_from_union_pw_aff(isl.isl_union_pw_aff_copy(arg0.ptr))
+        obj = union_map(ctx=ctx, ptr=res)
+        return obj
     def gist(arg0, arg1):
         try:
             if not arg0.__class__ is union_map:
@@ -12121,6 +12942,8 @@ isl.isl_union_map_from_domain_and_range.restype = c_void_p
 isl.isl_union_map_from_domain_and_range.argtypes = [c_void_p, c_void_p]
 isl.isl_union_map_from_range.restype = c_void_p
 isl.isl_union_map_from_range.argtypes = [c_void_p]
+isl.isl_union_map_from_union_pw_aff.restype = c_void_p
+isl.isl_union_map_from_union_pw_aff.argtypes = [c_void_p]
 isl.isl_union_map_gist.restype = c_void_p
 isl.isl_union_map_gist.argtypes = [c_void_p, c_void_p]
 isl.isl_union_map_gist_domain.restype = c_void_p
@@ -12252,6 +13075,10 @@ class map(union_map):
         if len(args) == 1 and isinstance(args[0], basic_map):
             self.ctx = Context.getDefaultInstance()
             self.ptr = isl.isl_map_from_basic_map(isl.isl_basic_map_copy(args[0].ptr))
+            return
+        if len(args) == 1 and isinstance(args[0], multi_pw_aff):
+            self.ctx = Context.getDefaultInstance()
+            self.ptr = isl.isl_map_from_multi_pw_aff(isl.isl_multi_pw_aff_copy(args[0].ptr))
             return
         if len(args) == 1 and type(args[0]) == str:
             self.ctx = Context.getDefaultInstance()
@@ -14551,6 +15378,18 @@ class map(union_map):
         res = isl.isl_map_to_union_map(isl.isl_map_copy(arg0.ptr))
         obj = union_map(ctx=ctx, ptr=res)
         return obj
+    def tuple_id(arg0, arg1):
+        try:
+            if not arg0.__class__ is map:
+                arg0 = map(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_map_get_tuple_id(arg0.ptr, arg1)
+        obj = id(ctx=ctx, ptr=res)
+        return obj
+    def get_tuple_id(arg0, arg1):
+        return arg0.tuple_id(arg1)
     def tuple_name(arg0, arg1):
         try:
             if not arg0.__class__ is map:
@@ -14702,6 +15541,8 @@ class map(union_map):
 
 isl.isl_map_from_basic_map.restype = c_void_p
 isl.isl_map_from_basic_map.argtypes = [c_void_p]
+isl.isl_map_from_multi_pw_aff.restype = c_void_p
+isl.isl_map_from_multi_pw_aff.argtypes = [c_void_p]
 isl.isl_map_read_from_str.restype = c_void_p
 isl.isl_map_read_from_str.argtypes = [Context, c_char_p]
 isl.isl_map_add_constraint.restype = c_void_p
@@ -15048,6 +15889,8 @@ isl.isl_map_to_list.restype = c_void_p
 isl.isl_map_to_list.argtypes = [c_void_p]
 isl.isl_map_to_union_map.restype = c_void_p
 isl.isl_map_to_union_map.argtypes = [c_void_p]
+isl.isl_map_get_tuple_id.restype = c_void_p
+isl.isl_map_get_tuple_id.argtypes = [c_void_p, c_int]
 isl.isl_map_get_tuple_name.restype = POINTER(c_char)
 isl.isl_map_get_tuple_name.argtypes = [c_void_p, c_int]
 isl.isl_map_uncurry.restype = c_void_p
@@ -15339,6 +16182,21 @@ class basic_map(map):
             raise
         ctx = arg0.ctx
         res = isl.isl_basic_map_domain_map(isl.isl_basic_map_copy(arg0.ptr))
+        obj = basic_map(ctx=ctx, ptr=res)
+        return obj
+    def domain_product(arg0, arg1):
+        try:
+            if not arg0.__class__ is basic_map:
+                arg0 = basic_map(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is basic_map:
+                arg1 = basic_map(arg1)
+        except:
+            return map(arg0).domain_product(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_basic_map_domain_product(isl.isl_basic_map_copy(arg0.ptr), isl.isl_basic_map_copy(arg1.ptr))
         obj = basic_map(ctx=ctx, ptr=res)
         return obj
     def drop_constraints_involving_dims(arg0, arg1, arg2, arg3):
@@ -16025,6 +16883,16 @@ class basic_map(map):
         res = isl.isl_basic_map_order_gt(isl.isl_basic_map_copy(arg0.ptr), arg1, arg2, arg3, arg4)
         obj = basic_map(ctx=ctx, ptr=res)
         return obj
+    def plain_get_val_if_fixed(arg0, arg1, arg2):
+        try:
+            if not arg0.__class__ is basic_map:
+                arg0 = basic_map(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_basic_map_plain_get_val_if_fixed(arg0.ptr, arg1, arg2)
+        obj = val(ctx=ctx, ptr=res)
+        return obj
     def plain_is_empty(arg0):
         try:
             if not arg0.__class__ is basic_map:
@@ -16047,6 +16915,21 @@ class basic_map(map):
         if res < 0:
             raise Error
         return bool(res)
+    def product(arg0, arg1):
+        try:
+            if not arg0.__class__ is basic_map:
+                arg0 = basic_map(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is basic_map:
+                arg1 = basic_map(arg1)
+        except:
+            return map(arg0).product(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_basic_map_product(isl.isl_basic_map_copy(arg0.ptr), isl.isl_basic_map_copy(arg1.ptr))
+        obj = basic_map(ctx=ctx, ptr=res)
+        return obj
     def project_out(arg0, arg1, arg2, arg3):
         try:
             if not arg0.__class__ is basic_map:
@@ -16075,6 +16958,21 @@ class basic_map(map):
             raise
         ctx = arg0.ctx
         res = isl.isl_basic_map_range_map(isl.isl_basic_map_copy(arg0.ptr))
+        obj = basic_map(ctx=ctx, ptr=res)
+        return obj
+    def range_product(arg0, arg1):
+        try:
+            if not arg0.__class__ is basic_map:
+                arg0 = basic_map(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is basic_map:
+                arg1 = basic_map(arg1)
+        except:
+            return map(arg0).range_product(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_basic_map_range_product(isl.isl_basic_map_copy(arg0.ptr), isl.isl_basic_map_copy(arg1.ptr))
         obj = basic_map(ctx=ctx, ptr=res)
         return obj
     def remove_dims(arg0, arg1, arg2, arg3):
@@ -16329,6 +17227,8 @@ isl.isl_basic_map_domain.restype = c_void_p
 isl.isl_basic_map_domain.argtypes = [c_void_p]
 isl.isl_basic_map_domain_map.restype = c_void_p
 isl.isl_basic_map_domain_map.argtypes = [c_void_p]
+isl.isl_basic_map_domain_product.restype = c_void_p
+isl.isl_basic_map_domain_product.argtypes = [c_void_p, c_void_p]
 isl.isl_basic_map_drop_constraints_involving_dims.restype = c_void_p
 isl.isl_basic_map_drop_constraints_involving_dims.argtypes = [c_void_p, c_int, c_int, c_int]
 isl.isl_basic_map_drop_constraints_not_involving_dims.restype = c_void_p
@@ -16427,14 +17327,20 @@ isl.isl_basic_map_order_ge.restype = c_void_p
 isl.isl_basic_map_order_ge.argtypes = [c_void_p, c_int, c_int, c_int, c_int]
 isl.isl_basic_map_order_gt.restype = c_void_p
 isl.isl_basic_map_order_gt.argtypes = [c_void_p, c_int, c_int, c_int, c_int]
+isl.isl_basic_map_plain_get_val_if_fixed.restype = c_void_p
+isl.isl_basic_map_plain_get_val_if_fixed.argtypes = [c_void_p, c_int, c_int]
 isl.isl_basic_map_plain_is_empty.argtypes = [c_void_p]
 isl.isl_basic_map_plain_is_universe.argtypes = [c_void_p]
+isl.isl_basic_map_product.restype = c_void_p
+isl.isl_basic_map_product.argtypes = [c_void_p, c_void_p]
 isl.isl_basic_map_project_out.restype = c_void_p
 isl.isl_basic_map_project_out.argtypes = [c_void_p, c_int, c_int, c_int]
 isl.isl_basic_map_range.restype = c_void_p
 isl.isl_basic_map_range.argtypes = [c_void_p]
 isl.isl_basic_map_range_map.restype = c_void_p
 isl.isl_basic_map_range_map.argtypes = [c_void_p]
+isl.isl_basic_map_range_product.restype = c_void_p
+isl.isl_basic_map_range_product.argtypes = [c_void_p, c_void_p]
 isl.isl_basic_map_remove_dims.restype = c_void_p
 isl.isl_basic_map_remove_dims.argtypes = [c_void_p, c_int, c_int, c_int]
 isl.isl_basic_map_remove_divs.restype = c_void_p
@@ -17365,6 +18271,10 @@ class set(union_set):
             self.ctx = Context.getDefaultInstance()
             self.ptr = isl.isl_set_from_basic_set(isl.isl_basic_set_copy(args[0].ptr))
             return
+        if len(args) == 1 and isinstance(args[0], multi_pw_aff):
+            self.ctx = Context.getDefaultInstance()
+            self.ptr = isl.isl_set_from_multi_pw_aff(isl.isl_multi_pw_aff_copy(args[0].ptr))
+            return
         if len(args) == 1 and isinstance(args[0], point):
             self.ctx = Context.getDefaultInstance()
             self.ptr = isl.isl_set_from_point(isl.isl_point_copy(args[0].ptr))
@@ -17494,6 +18404,16 @@ class set(union_set):
         ctx = arg0.ctx
         res = isl.isl_set_bind(isl.isl_set_copy(arg0.ptr), isl.isl_multi_id_copy(arg1.ptr))
         obj = set(ctx=ctx, ptr=res)
+        return obj
+    def bounded_simple_hull(arg0):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_set_bounded_simple_hull(isl.isl_set_copy(arg0.ptr))
+        obj = basic_set(ctx=ctx, ptr=res)
         return obj
     @staticmethod
     def box_from_points(arg0, arg1):
@@ -17832,6 +18752,21 @@ class set(union_set):
         res = isl.isl_set_fix_val(isl.isl_set_copy(arg0.ptr), arg1, arg2, isl.isl_val_copy(arg3.ptr))
         obj = set(ctx=ctx, ptr=res)
         return obj
+    def flat_product(arg0, arg1):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is set:
+                arg1 = set(arg1)
+        except:
+            return union_set(arg0).flat_product(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_set_flat_product(isl.isl_set_copy(arg0.ptr), isl.isl_set_copy(arg1.ptr))
+        obj = set(ctx=ctx, ptr=res)
+        return obj
     def flatten(arg0):
         try:
             if not arg0.__class__ is set:
@@ -17852,6 +18787,20 @@ class set(union_set):
         res = isl.isl_set_flatten_map(isl.isl_set_copy(arg0.ptr))
         obj = map(ctx=ctx, ptr=res)
         return obj
+    def follows_at(arg0, arg1, arg2):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is set:
+                arg1 = set(arg1)
+        except:
+            return union_set(arg0).follows_at(arg1, arg2)
+        ctx = arg0.ctx
+        res = isl.isl_set_follows_at(arg0.ptr, arg1.ptr, arg2)
+        return res
     def foreach_basic_set(arg0, arg1):
         try:
             if not arg0.__class__ is set:
@@ -17907,6 +18856,16 @@ class set(union_set):
             raise
         ctx = arg0.ctx
         res = isl.isl_set_from_multi_aff(isl.isl_multi_aff_copy(arg0.ptr))
+        obj = set(ctx=ctx, ptr=res)
+        return obj
+    def from_params(arg0):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_set_from_params(isl.isl_set_copy(arg0.ptr))
         obj = set(ctx=ctx, ptr=res)
         return obj
     @staticmethod
@@ -18526,6 +19485,17 @@ class set(union_set):
         if res < 0:
             raise Error
         return int(res)
+    @staticmethod
+    def nat_universe(arg0):
+        try:
+            if not arg0.__class__ is space:
+                arg0 = space(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_set_nat_universe(isl.isl_space_copy(arg0.ptr))
+        obj = set(ctx=ctx, ptr=res)
+        return obj
     def neg(arg0):
         try:
             if not arg0.__class__ is set:
@@ -18564,6 +19534,20 @@ class set(union_set):
         res = isl.isl_set_params(isl.isl_set_copy(arg0.ptr))
         obj = set(ctx=ctx, ptr=res)
         return obj
+    def plain_cmp(arg0, arg1):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is set:
+                arg1 = set(arg1)
+        except:
+            return union_set(arg0).plain_cmp(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_set_plain_cmp(arg0.ptr, arg1.ptr)
+        return res
     def plain_get_val_if_fixed(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is set:
@@ -18601,6 +19585,22 @@ class set(union_set):
         if res < 0:
             raise Error
         return bool(res)
+    def plain_is_equal(arg0, arg1):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is set:
+                arg1 = set(arg1)
+        except:
+            return union_set(arg0).plain_is_equal(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_set_plain_is_equal(arg0.ptr, arg1.ptr)
+        if res < 0:
+            raise Error
+        return bool(res)
     def plain_is_universe(arg0):
         try:
             if not arg0.__class__ is set:
@@ -18624,6 +19624,16 @@ class set(union_set):
         return obj
     def get_plain_multi_val_if_fixed(arg0):
         return arg0.plain_multi_val_if_fixed()
+    def plain_unshifted_simple_hull(arg0):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_set_plain_unshifted_simple_hull(isl.isl_set_copy(arg0.ptr))
+        obj = basic_set(ctx=ctx, ptr=res)
+        return obj
     def polyhedral_hull(arg0):
         try:
             if not arg0.__class__ is set:
@@ -18941,6 +19951,16 @@ class set(union_set):
         return obj
     def get_simple_fixed_box_hull(arg0):
         return arg0.simple_fixed_box_hull()
+    def simple_hull(arg0):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_set_simple_hull(isl.isl_set_copy(arg0.ptr))
+        obj = basic_set(ctx=ctx, ptr=res)
+        return obj
     def size(arg0):
         try:
             if not arg0.__class__ is set:
@@ -19136,6 +20156,21 @@ class set(union_set):
         res = isl.isl_set_union(isl.isl_set_copy(arg0.ptr), isl.isl_set_copy(arg1.ptr))
         obj = set(ctx=ctx, ptr=res)
         return obj
+    def union_disjoint(arg0, arg1):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is set:
+                arg1 = set(arg1)
+        except:
+            return union_set(arg0).union_disjoint(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_set_union_disjoint(isl.isl_set_copy(arg0.ptr), isl.isl_set_copy(arg1.ptr))
+        obj = set(ctx=ctx, ptr=res)
+        return obj
     @staticmethod
     def universe(arg0):
         try:
@@ -19155,6 +20190,21 @@ class set(union_set):
             raise
         ctx = arg0.ctx
         res = isl.isl_set_unshifted_simple_hull(isl.isl_set_copy(arg0.ptr))
+        obj = basic_set(ctx=ctx, ptr=res)
+        return obj
+    def unshifted_simple_hull_from_set_list(arg0, arg1):
+        try:
+            if not arg0.__class__ is set:
+                arg0 = set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is set_list:
+                arg1 = set_list(arg1)
+        except:
+            return union_set(arg0).unshifted_simple_hull_from_set_list(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_set_unshifted_simple_hull_from_set_list(isl.isl_set_copy(arg0.ptr), isl.isl_set_list_copy(arg1.ptr))
         obj = basic_set(ctx=ctx, ptr=res)
         return obj
     def unwrap(arg0):
@@ -19239,6 +20289,8 @@ class set(union_set):
 
 isl.isl_set_from_basic_set.restype = c_void_p
 isl.isl_set_from_basic_set.argtypes = [c_void_p]
+isl.isl_set_from_multi_pw_aff.restype = c_void_p
+isl.isl_set_from_multi_pw_aff.argtypes = [c_void_p]
 isl.isl_set_from_point.restype = c_void_p
 isl.isl_set_from_point.argtypes = [c_void_p]
 isl.isl_set_read_from_str.restype = c_void_p
@@ -19259,6 +20311,8 @@ isl.isl_set_get_basic_set_list.restype = c_void_p
 isl.isl_set_get_basic_set_list.argtypes = [c_void_p]
 isl.isl_set_bind.restype = c_void_p
 isl.isl_set_bind.argtypes = [c_void_p, c_void_p]
+isl.isl_set_bounded_simple_hull.restype = c_void_p
+isl.isl_set_bounded_simple_hull.argtypes = [c_void_p]
 isl.isl_set_box_from_points.restype = c_void_p
 isl.isl_set_box_from_points.argtypes = [c_void_p, c_void_p]
 isl.isl_set_coalesce.restype = c_void_p
@@ -19313,14 +20367,19 @@ isl.isl_set_fix_si.restype = c_void_p
 isl.isl_set_fix_si.argtypes = [c_void_p, c_int, c_int, c_int]
 isl.isl_set_fix_val.restype = c_void_p
 isl.isl_set_fix_val.argtypes = [c_void_p, c_int, c_int, c_void_p]
+isl.isl_set_flat_product.restype = c_void_p
+isl.isl_set_flat_product.argtypes = [c_void_p, c_void_p]
 isl.isl_set_flatten.restype = c_void_p
 isl.isl_set_flatten.argtypes = [c_void_p]
 isl.isl_set_flatten_map.restype = c_void_p
 isl.isl_set_flatten_map.argtypes = [c_void_p]
+isl.isl_set_follows_at.argtypes = [c_void_p, c_void_p, c_int]
 isl.isl_set_foreach_basic_set.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_set_foreach_point.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_set_from_multi_aff.restype = c_void_p
 isl.isl_set_from_multi_aff.argtypes = [c_void_p]
+isl.isl_set_from_params.restype = c_void_p
+isl.isl_set_from_params.argtypes = [c_void_p]
 isl.isl_set_from_pw_aff.restype = c_void_p
 isl.isl_set_from_pw_aff.argtypes = [c_void_p]
 isl.isl_set_gist.restype = c_void_p
@@ -19401,19 +20460,25 @@ isl.isl_set_move_dims.argtypes = [c_void_p, c_int, c_int, c_int, c_int, c_int]
 isl.isl_set_n_basic_set.argtypes = [c_void_p]
 isl.isl_set_n_dim.argtypes = [c_void_p]
 isl.isl_set_n_param.argtypes = [c_void_p]
+isl.isl_set_nat_universe.restype = c_void_p
+isl.isl_set_nat_universe.argtypes = [c_void_p]
 isl.isl_set_neg.restype = c_void_p
 isl.isl_set_neg.argtypes = [c_void_p]
 isl.isl_set_param_pw_aff_on_domain_id.restype = c_void_p
 isl.isl_set_param_pw_aff_on_domain_id.argtypes = [c_void_p, c_void_p]
 isl.isl_set_params.restype = c_void_p
 isl.isl_set_params.argtypes = [c_void_p]
+isl.isl_set_plain_cmp.argtypes = [c_void_p, c_void_p]
 isl.isl_set_plain_get_val_if_fixed.restype = c_void_p
 isl.isl_set_plain_get_val_if_fixed.argtypes = [c_void_p, c_int, c_int]
 isl.isl_set_plain_is_disjoint.argtypes = [c_void_p, c_void_p]
 isl.isl_set_plain_is_empty.argtypes = [c_void_p]
+isl.isl_set_plain_is_equal.argtypes = [c_void_p, c_void_p]
 isl.isl_set_plain_is_universe.argtypes = [c_void_p]
 isl.isl_set_get_plain_multi_val_if_fixed.restype = c_void_p
 isl.isl_set_get_plain_multi_val_if_fixed.argtypes = [c_void_p]
+isl.isl_set_plain_unshifted_simple_hull.restype = c_void_p
+isl.isl_set_plain_unshifted_simple_hull.argtypes = [c_void_p]
 isl.isl_set_polyhedral_hull.restype = c_void_p
 isl.isl_set_polyhedral_hull.argtypes = [c_void_p]
 isl.isl_set_preimage_multi_aff.restype = c_void_p
@@ -19468,6 +20533,8 @@ isl.isl_set_set_tuple_name.restype = c_void_p
 isl.isl_set_set_tuple_name.argtypes = [c_void_p, c_char_p]
 isl.isl_set_get_simple_fixed_box_hull.restype = c_void_p
 isl.isl_set_get_simple_fixed_box_hull.argtypes = [c_void_p]
+isl.isl_set_simple_hull.restype = c_void_p
+isl.isl_set_simple_hull.argtypes = [c_void_p]
 isl.isl_set_size.argtypes = [c_void_p]
 isl.isl_set_solutions.restype = c_void_p
 isl.isl_set_solutions.argtypes = [c_void_p]
@@ -19498,10 +20565,14 @@ isl.isl_set_unbind_params_insert_domain.restype = c_void_p
 isl.isl_set_unbind_params_insert_domain.argtypes = [c_void_p, c_void_p]
 isl.isl_set_union.restype = c_void_p
 isl.isl_set_union.argtypes = [c_void_p, c_void_p]
+isl.isl_set_union_disjoint.restype = c_void_p
+isl.isl_set_union_disjoint.argtypes = [c_void_p, c_void_p]
 isl.isl_set_universe.restype = c_void_p
 isl.isl_set_universe.argtypes = [c_void_p]
 isl.isl_set_unshifted_simple_hull.restype = c_void_p
 isl.isl_set_unshifted_simple_hull.argtypes = [c_void_p]
+isl.isl_set_unshifted_simple_hull_from_set_list.restype = c_void_p
+isl.isl_set_unshifted_simple_hull_from_set_list.argtypes = [c_void_p, c_void_p]
 isl.isl_set_unwrap.restype = c_void_p
 isl.isl_set_unwrap.argtypes = [c_void_p]
 isl.isl_set_upper_bound_multi_pw_aff.restype = c_void_p
@@ -19648,6 +20719,20 @@ class basic_set(set):
         res = isl.isl_basic_set_coefficients(isl.isl_basic_set_copy(arg0.ptr))
         obj = basic_set(ctx=ctx, ptr=res)
         return obj
+    def compare_at(arg0, arg1, arg2):
+        try:
+            if not arg0.__class__ is basic_set:
+                arg0 = basic_set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is basic_set:
+                arg1 = basic_set(arg1)
+        except:
+            return set(arg0).compare_at(arg1, arg2)
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_compare_at(arg0.ptr, arg1.ptr, arg2)
+        return res
     def compute_divs(arg0):
         try:
             if not arg0.__class__ is basic_set:
@@ -19789,6 +20874,17 @@ class basic_set(set):
         res = isl.isl_basic_set_eliminate(isl.isl_basic_set_copy(arg0.ptr), arg1, arg2, arg3)
         obj = basic_set(ctx=ctx, ptr=res)
         return obj
+    @staticmethod
+    def empty(arg0):
+        try:
+            if not arg0.__class__ is space:
+                arg0 = space(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_empty(isl.isl_space_copy(arg0.ptr))
+        obj = basic_set(ctx=ctx, ptr=res)
+        return obj
     def equalities_matrix(arg0, arg1, arg2, arg3, arg4):
         try:
             if not arg0.__class__ is basic_set:
@@ -19822,6 +20918,21 @@ class basic_set(set):
             return set(arg0).fix_val(arg1, arg2, arg3)
         ctx = arg0.ctx
         res = isl.isl_basic_set_fix_val(isl.isl_basic_set_copy(arg0.ptr), arg1, arg2, isl.isl_val_copy(arg3.ptr))
+        obj = basic_set(ctx=ctx, ptr=res)
+        return obj
+    def flat_product(arg0, arg1):
+        try:
+            if not arg0.__class__ is basic_set:
+                arg0 = basic_set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is basic_set:
+                arg1 = basic_set(arg1)
+        except:
+            return set(arg0).flat_product(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_flat_product(isl.isl_basic_set_copy(arg0.ptr), isl.isl_basic_set_copy(arg1.ptr))
         obj = basic_set(ctx=ctx, ptr=res)
         return obj
     def flatten(arg0):
@@ -19925,6 +21036,16 @@ class basic_set(set):
         res = isl.isl_basic_set_from_multi_aff(isl.isl_multi_aff_copy(arg0.ptr))
         obj = basic_set(ctx=ctx, ptr=res)
         return obj
+    def from_params(arg0):
+        try:
+            if not arg0.__class__ is basic_set:
+                arg0 = basic_set(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_from_params(isl.isl_basic_set_copy(arg0.ptr))
+        obj = basic_set(ctx=ctx, ptr=res)
+        return obj
     def gist(arg0, arg1):
         try:
             if not arg0.__class__ is basic_set:
@@ -20001,6 +21122,33 @@ class basic_set(set):
         if res < 0:
             raise Error
         return bool(res)
+    def is_bounded(arg0):
+        try:
+            if not arg0.__class__ is basic_set:
+                arg0 = basic_set(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_is_bounded(arg0.ptr)
+        if res < 0:
+            raise Error
+        return bool(res)
+    def is_disjoint(arg0, arg1):
+        try:
+            if not arg0.__class__ is basic_set:
+                arg0 = basic_set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is basic_set:
+                arg1 = basic_set(arg1)
+        except:
+            return set(arg0).is_disjoint(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_is_disjoint(arg0.ptr, arg1.ptr)
+        if res < 0:
+            raise Error
+        return bool(res)
     def is_empty(arg0):
         try:
             if not arg0.__class__ is basic_set:
@@ -20050,6 +21198,17 @@ class basic_set(set):
             return set(arg0).is_subset(arg1)
         ctx = arg0.ctx
         res = isl.isl_basic_set_is_subset(arg0.ptr, arg1.ptr)
+        if res < 0:
+            raise Error
+        return bool(res)
+    def is_universe(arg0):
+        try:
+            if not arg0.__class__ is basic_set:
+                arg0 = basic_set(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_is_universe(arg0.ptr)
         if res < 0:
             raise Error
         return bool(res)
@@ -20195,6 +21354,44 @@ class basic_set(set):
         res = isl.isl_basic_set_params(isl.isl_basic_set_copy(arg0.ptr))
         obj = basic_set(ctx=ctx, ptr=res)
         return obj
+    def plain_is_empty(arg0):
+        try:
+            if not arg0.__class__ is basic_set:
+                arg0 = basic_set(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_plain_is_empty(arg0.ptr)
+        if res < 0:
+            raise Error
+        return bool(res)
+    def plain_is_equal(arg0, arg1):
+        try:
+            if not arg0.__class__ is basic_set:
+                arg0 = basic_set(arg0)
+        except:
+            raise
+        try:
+            if not arg1.__class__ is basic_set:
+                arg1 = basic_set(arg1)
+        except:
+            return set(arg0).plain_is_equal(arg1)
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_plain_is_equal(arg0.ptr, arg1.ptr)
+        if res < 0:
+            raise Error
+        return bool(res)
+    def plain_is_universe(arg0):
+        try:
+            if not arg0.__class__ is basic_set:
+                arg0 = basic_set(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_plain_is_universe(arg0.ptr)
+        if res < 0:
+            raise Error
+        return bool(res)
     @staticmethod
     def positive_orthant(arg0):
         try:
@@ -20483,6 +21680,7 @@ isl.isl_basic_set_box_from_points.restype = c_void_p
 isl.isl_basic_set_box_from_points.argtypes = [c_void_p, c_void_p]
 isl.isl_basic_set_coefficients.restype = c_void_p
 isl.isl_basic_set_coefficients.argtypes = [c_void_p]
+isl.isl_basic_set_compare_at.argtypes = [c_void_p, c_void_p, c_int]
 isl.isl_basic_set_compute_divs.restype = c_void_p
 isl.isl_basic_set_compute_divs.argtypes = [c_void_p]
 isl.isl_basic_set_compute_vertices.restype = c_void_p
@@ -20508,12 +21706,16 @@ isl.isl_basic_set_drop_unused_params.restype = c_void_p
 isl.isl_basic_set_drop_unused_params.argtypes = [c_void_p]
 isl.isl_basic_set_eliminate.restype = c_void_p
 isl.isl_basic_set_eliminate.argtypes = [c_void_p, c_int, c_int, c_int]
+isl.isl_basic_set_empty.restype = c_void_p
+isl.isl_basic_set_empty.argtypes = [c_void_p]
 isl.isl_basic_set_equalities_matrix.restype = c_void_p
 isl.isl_basic_set_equalities_matrix.argtypes = [c_void_p, c_int, c_int, c_int, c_int]
 isl.isl_basic_set_fix_si.restype = c_void_p
 isl.isl_basic_set_fix_si.argtypes = [c_void_p, c_int, c_int, c_int]
 isl.isl_basic_set_fix_val.restype = c_void_p
 isl.isl_basic_set_fix_val.argtypes = [c_void_p, c_int, c_int, c_void_p]
+isl.isl_basic_set_flat_product.restype = c_void_p
+isl.isl_basic_set_flat_product.argtypes = [c_void_p, c_void_p]
 isl.isl_basic_set_flatten.restype = c_void_p
 isl.isl_basic_set_flatten.argtypes = [c_void_p]
 isl.isl_basic_set_foreach_bound_pair.argtypes = [c_void_p, c_int, c_int, c_void_p, c_void_p]
@@ -20524,6 +21726,8 @@ isl.isl_basic_set_from_constraint_matrices.restype = c_void_p
 isl.isl_basic_set_from_constraint_matrices.argtypes = [c_void_p, c_void_p, c_void_p, c_int, c_int, c_int, c_int]
 isl.isl_basic_set_from_multi_aff.restype = c_void_p
 isl.isl_basic_set_from_multi_aff.argtypes = [c_void_p]
+isl.isl_basic_set_from_params.restype = c_void_p
+isl.isl_basic_set_from_params.argtypes = [c_void_p]
 isl.isl_basic_set_gist.restype = c_void_p
 isl.isl_basic_set_gist.argtypes = [c_void_p, c_void_p]
 isl.isl_basic_set_inequalities_matrix.restype = c_void_p
@@ -20535,10 +21739,13 @@ isl.isl_basic_set_intersect.argtypes = [c_void_p, c_void_p]
 isl.isl_basic_set_intersect_params.restype = c_void_p
 isl.isl_basic_set_intersect_params.argtypes = [c_void_p, c_void_p]
 isl.isl_basic_set_involves_dims.argtypes = [c_void_p, c_int, c_int, c_int]
+isl.isl_basic_set_is_bounded.argtypes = [c_void_p]
+isl.isl_basic_set_is_disjoint.argtypes = [c_void_p, c_void_p]
 isl.isl_basic_set_is_empty.argtypes = [c_void_p]
 isl.isl_basic_set_is_equal.argtypes = [c_void_p, c_void_p]
 isl.isl_basic_set_is_rational.argtypes = [c_void_p]
 isl.isl_basic_set_is_subset.argtypes = [c_void_p, c_void_p]
+isl.isl_basic_set_is_universe.argtypes = [c_void_p]
 isl.isl_basic_set_is_wrapping.argtypes = [c_void_p]
 isl.isl_basic_set_lexmax.restype = c_void_p
 isl.isl_basic_set_lexmax.argtypes = [c_void_p]
@@ -20561,6 +21768,9 @@ isl.isl_basic_set_neg.restype = c_void_p
 isl.isl_basic_set_neg.argtypes = [c_void_p]
 isl.isl_basic_set_params.restype = c_void_p
 isl.isl_basic_set_params.argtypes = [c_void_p]
+isl.isl_basic_set_plain_is_empty.argtypes = [c_void_p]
+isl.isl_basic_set_plain_is_equal.argtypes = [c_void_p, c_void_p]
+isl.isl_basic_set_plain_is_universe.argtypes = [c_void_p]
 isl.isl_basic_set_positive_orthant.restype = c_void_p
 isl.isl_basic_set_positive_orthant.argtypes = [c_void_p]
 isl.isl_basic_set_preimage_multi_aff.restype = c_void_p
@@ -28117,6 +29327,16 @@ class space(object):
         ctx = arg0.ctx
         res = isl.isl_space_find_dim_by_name(arg0.ptr, arg1, arg2.encode('ascii'))
         return res
+    def flatten(arg0):
+        try:
+            if not arg0.__class__ is space:
+                arg0 = space(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_space_flatten(isl.isl_space_copy(arg0.ptr))
+        obj = space(ctx=ctx, ptr=res)
+        return obj
     def flatten_domain(arg0):
         try:
             if not arg0.__class__ is space:
@@ -29047,6 +30267,8 @@ isl.isl_space_factor_range.restype = c_void_p
 isl.isl_space_factor_range.argtypes = [c_void_p]
 isl.isl_space_find_dim_by_id.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_space_find_dim_by_name.argtypes = [c_void_p, c_int, c_char_p]
+isl.isl_space_flatten.restype = c_void_p
+isl.isl_space_flatten.argtypes = [c_void_p]
 isl.isl_space_flatten_domain.restype = c_void_p
 isl.isl_space_flatten_domain.argtypes = [c_void_p]
 isl.isl_space_flatten_range.restype = c_void_p
