@@ -79,7 +79,6 @@ __isl_export
 isl_size isl_schedule_node_get_ancestor_child_position(
 	__isl_keep isl_schedule_node *node,
 	__isl_keep isl_schedule_node *ancestor);
-__isl_export
 __isl_give isl_schedule_node *isl_schedule_node_get_child(
 	__isl_keep isl_schedule_node *node, int pos);
 __isl_export

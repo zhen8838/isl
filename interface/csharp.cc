@@ -499,6 +499,11 @@ void CSharpMethod::print_param_use(ostream &os, int pos) const {
     return;
   }
 
+  if (type->isFloatingType()) {
+    os << name;
+    return;
+  }
+
   if (generator::is_string(type)) {
     os << name; // << ".c_str()";
     return;
@@ -520,12 +525,12 @@ void CSharpMethod::print_param_use(ostream &os, int pos) const {
   }
 
   if (generator::keeps(param)) {
-    os << "get()";
+    os << "DangerousGetHandle()";
   } else {
     if (generator::is_isl_ctx(type))
-      os << "get()";
+      os << "DangerousGetHandle()";
     else
-      os << "copy()";
+      os << "IncreaseReference()";
   }
 }
 
@@ -652,8 +657,7 @@ void csharp_generator::class_printer::print_method_header(
     }
   });
 
-  if (method.kind == CSharpEnumMethod::Kind::constructor &&
-      clazz.is_type_subclass()) {
+  if (method.kind == CSharpEnumMethod::Kind::constructor) {
     os << " : base(IntPtr.Zero) ";
   }
 
@@ -750,9 +754,7 @@ std::string csharp_type_printer::generate_callback_type(int arg, QualType type,
  * match a reserved C++ keyword, which is not allowed in C++.
  */
 static const char *rename_map[][2] = {
-    {"params", "paramss"},
-    {"foreach", "Foreach"},
-};
+    {"params", "paramss"}, {"foreach", "Foreach"}, {"void", "void_"}};
 
 /* Rename method "name" in case the method name in the C++ bindings should not
  * match the name in the C bindings. We do this for example to avoid
@@ -898,7 +900,7 @@ std::string csharp_type_printer::param(int arg, QualType type,
     return "void";
   }
 
-  generator::die("Cannot convert type to C++ type");
+  generator::die("Cannot convert type to C# type");
 }
 
 /* Check if "subclass_type" is a subclass of "class_type".
@@ -1254,7 +1256,7 @@ void CSharpConversionMethod::print_call(std::ostream &os,
     os << "this.";
   } else {
     auto csharp_type = ns + csharp_generator::type2csharp(this_type);
-    os << "new " << csharp_type << "(get()).";
+    os << "new " << csharp_type << "(DangerousGetHandle()).";
   }
   os << name;
 }

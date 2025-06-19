@@ -15,7 +15,6 @@ __isl_export
 __isl_give isl_printer *isl_printer_to_file_path(isl_ctx *ctx, char *file_path);
 __isl_give isl_printer *isl_printer_to_str(isl_ctx *ctx);
 __isl_give isl_printer *isl_printer_copy(__isl_keep isl_printer *printer);
-__isl_export
 __isl_null isl_printer *isl_printer_free(__isl_take isl_printer *printer);
 
 isl_ctx *isl_printer_get_ctx(__isl_keep isl_printer *printer);

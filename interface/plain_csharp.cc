@@ -332,6 +332,8 @@ void plain_csharp_generator::print_interop_argtypes(ostream &os,
       osprintf(os, "[MarshalAs(UnmanagedType.LPStr)] string");
     else if (is_long(type))
       osprintf(os, "long");
+    else if (is_double(type))
+      osprintf(os, "double");
     else if (type->isEnumeralType())
       osprintf(os, type2csharp(type.getAsString().substr(5)).c_str());
     else if (type->isVoidPointerType())
@@ -372,7 +374,7 @@ void plain_csharp_generator::print_class_interops(ostream &os,
   for (auto &&method : clazz.methods) {
     for (auto &&it : method.second) {
       if (clazz.copied_from.find(it) == clazz.copied_from.end()) {
-        if (!clazz.is_try_get_method(it)) {      
+        if (!clazz.is_try_get_method(it)) {
           print_method_interop_type(os, it);
         }
       }
@@ -650,7 +652,7 @@ static string add_space_to_return_type(const string &type) {
  */
 void plain_csharp_generator::plain_printer::print_persistent_callback_prototype(
     FunctionDecl *method) {
-  string callback_name, rettype, c_args;
+  string callback_prototype_name, rettype, c_args;
   ParmVarDecl *param = persistent_callback_arg(method);
   const FunctionProtoType *callback;
   QualType ptype;
@@ -664,14 +666,15 @@ void plain_csharp_generator::plain_printer::print_persistent_callback_prototype(
   if (*rettype.rbegin() == '*') {
     rettype = "IntPtr";
   }
-  callback_name = clazz.persistent_callback_name(method);
+  callback_prototype_name =
+      clazz.persistent_callback_name(method) + "_prototype";
   c_args = generator.generate_callback_args(ptype, false, true);
 
   // if (!declarations)
   //   classname = type2csharp(clazz) + "::";
 
   osprintf(os, "private %s%s %s(%s)", rettype.c_str(), classname.c_str(),
-           callback_name.c_str(), c_args.c_str());
+           callback_prototype_name.c_str(), c_args.c_str());
 }
 
 /* Print the prototype of the method for setting the callback function
@@ -765,13 +768,15 @@ void plain_csharp_generator::print_class_impl(ostream &os,
 
   // osprintf(os, "// implementations for isl::%s", csharpname);
   // 1. class decl
-  osprintf(os, "public class %s : ", csharpname); /* TODO seald */
+  osprintf(os, "public class %s : ", csharpname); /* TODO sealed */
   if (clazz.is_type_subclass())
-    osprintf(os, "%s , ", type2csharp(clazz.superclass_name).c_str());
-  osprintf(os, "IDisposable, IObject {\n");
-  if (!clazz.is_type_subclass()) {
-    osprintf(os, "  protected IntPtr ptr = IntPtr.Zero;");
+    osprintf(os, "%s {\n", type2csharp(clazz.superclass_name).c_str());
+  else {
+    osprintf(os, "IntrusiveHandle {\n");
   }
+  // if (!clazz.is_type_subclass()) {
+  //   osprintf(os, "  protected IntPtr ptr = IntPtr.Zero;");
+  // }
   // impl_p.print_class_factory(); /* remove manage and manage copy */
   impl_p.print_protected_constructors();
   for (const auto &callback : clazz.persistent_callbacks)
@@ -837,14 +842,15 @@ void plain_csharp_generator::impl_printer::print_stream_insertion() {
   const char *name = clazz.name.c_str();
   const char *csharpname = csharpstring.c_str();
 
-  if (!clazz.fn_to_str)
+  // the printer_to_str is not a method for to string.
+  if (!clazz.fn_to_str || !is_string(clazz.fn_to_str->getReturnType()))
     return;
 
   osprintf(os, "\n");
   osprintf(os, "public override string ToString()");
   osprintf(os, "{\n");
-  print_check_ptr_start("get()");
-  osprintf(os, "  var str = Interop.%s_to_str(get());\n", name);
+  print_check_ptr_start("DangerousGetHandle()");
+  osprintf(os, "  var str = Interop.%s_to_str(DangerousGetHandle());\n", name);
   // print_check_ptr_end("str");
   // if (generator.checked) {
   //   osprintf(os, "  if (!str) {\n");
@@ -882,7 +888,7 @@ void plain_csharp_generator::impl_printer::print_check_ptr_start(
   if (generator.checked)
     return;
 
-  // print_check_ptr(ptr);
+  print_check_ptr(ptr);
   // print_save_ctx("Interop." + clazz.name + "_get_ctx(" + ptr + ")");
   // print_on_error_continue();
 }
@@ -929,12 +935,12 @@ void plain_csharp_generator::impl_printer::print_class_factory() {
 
   osprintf(os, "\n");
   osprintf(os, "%s manage(__isl_take %s *ptr) {\n", csharpname, name);
-  print_check_ptr("ptr");
+  print_check_ptr("handle");
   osprintf(os, "  return %s(ptr);\n", csharpname);
   osprintf(os, "}\n");
 
   osprintf(os, "%s manage_copy(__isl_keep %s *ptr) {\n", csharpname, name);
-  print_check_ptr_start("ptr");
+  print_check_ptr_start("handle");
   osprintf(os, "  ptr = %s_copy(ptr);\n", name);
   print_check_ptr_end("ptr");
   osprintf(os, "  return %s(ptr);\n", csharpname);
@@ -952,11 +958,12 @@ void plain_csharp_generator::impl_printer::print_protected_constructors() {
   bool subclass = clazz.is_type_subclass();
 
   osprintf(os, "\n");
-  osprintf(os, "internal %s(/* __isl_take */ IntPtr ptr)\n", csharpname);
-  if (subclass)
-    osprintf(os, "    : base(ptr) {}\n");
-  else
-    osprintf(os, " { this.ptr = ptr; }\n");
+  osprintf(os, "internal %s(/* __isl_take */ IntPtr handle)\n", csharpname);
+  osprintf(os, "  : base(handle) {}\n");
+  // if (subclass)
+  //   osprintf(os, "    : base(ptr) {}\n");
+  // else
+  //   osprintf(os, " { this.ptr = ptr; }\n");
 }
 
 /* Print implementations of public constructors.
@@ -1041,7 +1048,10 @@ void plain_csharp_generator::impl_printer::print_method(
   for (const auto &callback : method.callbacks)
     print_callback_local(callback);
 
-  osprintf(os, "  var res = Interop.%s", methodname.c_str());
+  if (!is_void(method.fd->getReturnType())) {
+    osprintf(os, "  var res = ");
+  }
+  osprintf(os, "Interop.%s", methodname.c_str());
 
   method.print_fd_arg_list(os, 0, num_params, [&](int i, int arg) {
     method.print_param_use(os, i);
@@ -1050,7 +1060,7 @@ void plain_csharp_generator::impl_printer::print_method(
 
   print_exceptional_execution_check(method);
   if (method.kind == CSharpMethod::Kind::constructor) {
-    osprintf(os, "  ptr = res;\n");
+    osprintf(os, "  SetHandle(res);\n");
   } else {
     print_method_return(method);
   }
@@ -1081,7 +1091,8 @@ void plain_csharp_generator::impl_printer::print_arg_conversion(
   else if (is_isl_type(src->getOriginalType()))
     os << "new " << csharptype << "(" << name << ")";
   else
-    os << "new " << csharptype << "(ctx.Instance, " << name << ")";
+    os << "new " << csharptype << "(ctx.Current, " << name
+       << ")";
 }
 
 /* Print a definition for "method",
@@ -1109,7 +1120,7 @@ void plain_csharp_generator::impl_printer::print_method(
   osprintf(os, "\n");
   print_full_method_header(method);
   osprintf(os, "{\n");
-  print_check_ptr("get()");
+  print_check_ptr("handle");
   if (!is_isl_stat(method.fd->getReturnType())) {
     osprintf(os, "  return ");
   }
@@ -1184,11 +1195,11 @@ void plain_csharp_generator::impl_printer::print_id_user(bool optional) {
   os << "\n";
   print_id_user_header(optional);
   os << "{\n";
-  print_check_ptr("get()");
-  os << "  std::any *p = (std::any *) isl_id_get_user(ptr);\n";
+  print_check_ptr("handle");
+  os << "  std::any *p = (std::any *) isl_id_get_user(handle);\n";
   os << "  if (!p)\n";
   fail("no user pointer");
-  os << "  if (isl_id_get_free_user(ptr) != &ctx::free_user)\n";
+  os << "  if (isl_id_get_free_user(handle) != &ctx::free_user)\n";
   fail("user pointer not attached by C++ interface");
   os << "  T *res = std::any_cast<T>(p);\n";
   os << "  if (!res)\n";
@@ -1228,10 +1239,9 @@ void plain_csharp_generator::impl_printer::print_destructor() {
     return;
 
   osprintf(os, "\n");
-  osprintf(os, "public void Dispose() {\n");
-  osprintf(os, "  if (!is_null()) {\n");
-  osprintf(os, "    Interop.%s_free(ptr);\n", name);
-  osprintf(os, "  }\n");
+  osprintf(os, "protected override bool ReleaseHandle() {\n");
+  osprintf(os, "  Interop.%s_free(handle);\n", name);
+  osprintf(os, "  return true;\n");
   osprintf(os, "}\n");
 }
 
@@ -1266,22 +1276,10 @@ void plain_csharp_generator::impl_printer::print_ptr() {
     return;
 
   osprintf(os, "\n");
-  osprintf(os, "public IntPtr copy() {\n");
-  osprintf(os, "  return Interop.%s_copy(ptr);\n", name);
+  osprintf(os, "internal override IntPtr IncreaseReference() {\n");
+  print_check_ptr("handle");
+  osprintf(os, "  return Interop.%s_copy(handle);\n", name);
   osprintf(os, "}\n\n");
-  osprintf(os, "public IntPtr get() {\n", name, csharpname);
-  osprintf(os, "  return ptr;\n");
-  osprintf(os, "}\n\n");
-  // osprintf(os, "public IntPtr release() {\n");
-  // for (in = callbacks.begin(); in != callbacks.end(); ++in)
-  //   generator.print_check_no_persistent_callback(os, clazz, *in);
-  // osprintf(os, "  IntPtr tmp = ptr;\n", name);
-  // osprintf(os, "  ptr = IntPtr.Zero;\n");
-  // osprintf(os, "  return tmp;\n");
-  // osprintf(os, "}\n\n");
-  osprintf(os, "public bool is_null() {\n", csharpname);
-  osprintf(os, "  return ptr == IntPtr.Zero;\n");
-  osprintf(os, "}\n");
 }
 
 /* Print implementations for the "as" and "isa" methods, if the printed class
@@ -1446,9 +1444,9 @@ void plain_csharp_generator::impl_printer::print_argument_validity_check(
       osprintf(os, " || ");
 
     if (is_this)
-      osprintf(os, "get() == IntPtr.Zero");
+      osprintf(os, "IsInvalid");
     else
-      osprintf(os, "%s.is_null()", name_str);
+      osprintf(os, "%s.IsInvalid", name_str);
 
     first = false;
   }
@@ -1636,6 +1634,7 @@ void plain_csharp_generator::impl_printer::print_set_persistent_callback(
   ParmVarDecl *param = persistent_callback_arg(method.fd);
   string pname;
   string callback_name = clazz.persistent_callback_name(method.fd);
+  string callback_prototype_name = callback_name + "_prototype";
 
   osprintf(os, "\n");
   print_persistent_callback_prototype(method.fd);
@@ -1648,12 +1647,13 @@ void plain_csharp_generator::impl_printer::print_set_persistent_callback(
   print_persistent_callback_setter_prototype(method.fd);
   osprintf(os, "\n");
   osprintf(os, "{\n");
-  print_check_ptr_start("ptr");
+  print_check_ptr_start("handle");
   osprintf(os, "  %s_data = new();\n", callback_name.c_str());
   osprintf(os, "  %s_data.func = %s;\n", callback_name.c_str(), pname.c_str());
-  osprintf(os, "  ptr = Interop.%s(ptr, %s, IntPtr.Zero);\n", fullname.c_str(),
-           callback_name.c_str(), callback_name.c_str());
-  print_check_ptr_end("ptr");
+  osprintf(os, "  handle = Interop.%s(handle, %s, IntPtr.Zero);\n",
+           fullname.c_str(), callback_prototype_name.c_str(),
+           callback_name.c_str());
+  print_check_ptr_end("handle");
   osprintf(os, "}\n\n");
 
   print_full_method_header(method);
@@ -1693,7 +1693,7 @@ void plain_csharp_generator::impl_printer::print_method_return(
       (generator.checked && is_isl_neg_error(return_type))) {
     osprintf(os, "return new %s(res)", rettype_str.c_str());
     if (is_mutator(clazz, method.fd) && clazz.has_persistent_callbacks())
-      osprintf(os, "copy_callbacks(this)");
+      osprintf(os, ".copy_callbacks(this)");
     osprintf(os, ";\n");
   } else if (is_isl_stat(return_type)) {
     osprintf(os, "  return;\n");
@@ -1705,6 +1705,7 @@ void plain_csharp_generator::impl_printer::print_method_return(
     } else {
       osprintf(os, "  return Marshal.PtrToStringAnsi(res);\n");
     }
+  } else if (is_void(return_type)) {
   } else {
     osprintf(os, "  return res;\n");
   }
@@ -1820,7 +1821,7 @@ void plain_csharp_generator::impl_printer::print_wrapped_call(
   else if (is_isl_bool(rtype))
     osprintf(os, indent, "  return ret ? isl_bool.True : isl_bool.False;\n");
   else
-    osprintf(os, indent, "  return ret.get();\n");
+    osprintf(os, indent, "  return ret.DangerousGetHandle();\n");
   osprintf(os, indent, "} catch (Exception e) {\n");
   osprintf(os, indent, "  throw e;\n");
   if (is_isl_stat(rtype))
