@@ -213,7 +213,6 @@ __isl_export
 __isl_give isl_ast_print_options *isl_ast_print_options_alloc(isl_ctx *ctx);
 __isl_give isl_ast_print_options *isl_ast_print_options_copy(
 	__isl_keep isl_ast_print_options *options);
-__isl_export
 __isl_null isl_ast_print_options *isl_ast_print_options_free(
 	__isl_take isl_ast_print_options *options);
 isl_ctx *isl_ast_print_options_get_ctx(
