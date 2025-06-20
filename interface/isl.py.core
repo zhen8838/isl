@@ -3150,6 +3150,32 @@ class pw_multi_aff(union_pw_multi_aff, multi_pw_aff):
         if res < 0:
             raise Error
         return int(res)
+    def dim_id(arg0, arg1, arg2):
+        try:
+            if not arg0.__class__ is pw_multi_aff:
+                arg0 = pw_multi_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_pw_multi_aff_get_dim_id(arg0.ptr, arg1, arg2)
+        obj = id(ctx=ctx, ptr=res)
+        return obj
+    def get_dim_id(arg0, arg1, arg2):
+        return arg0.dim_id(arg1, arg2)
+    def dim_name(arg0, arg1, arg2):
+        try:
+            if not arg0.__class__ is pw_multi_aff:
+                arg0 = pw_multi_aff(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_pw_multi_aff_get_dim_name(arg0.ptr, arg1, arg2)
+        if res == 0:
+            raise Error
+        string = cast(res, c_char_p).value.decode('ascii')
+        return string
+    def get_dim_name(arg0, arg1, arg2):
+        return arg0.dim_name(arg1, arg2)
     def domain(arg0):
         try:
             if not arg0.__class__ is pw_multi_aff:
@@ -3658,6 +3684,21 @@ class pw_multi_aff(union_pw_multi_aff, multi_pw_aff):
             obj = pw_multi_aff(ctx=ctx, ptr=res)
             return obj
         raise Error
+    def set_dim_id(arg0, arg1, arg2, arg3):
+        try:
+            if not arg0.__class__ is pw_multi_aff:
+                arg0 = pw_multi_aff(arg0)
+        except:
+            raise
+        try:
+            if not arg3.__class__ is id:
+                arg3 = id(arg3)
+        except:
+            return union_pw_multi_aff(arg0).set_dim_id(arg1, arg2, arg3)
+        ctx = arg0.ctx
+        res = isl.isl_pw_multi_aff_set_dim_id(isl.isl_pw_multi_aff_copy(arg0.ptr), arg1, arg2, isl.isl_id_copy(arg3.ptr))
+        obj = pw_multi_aff(ctx=ctx, ptr=res)
+        return obj
     def set_range_tuple(*args):
         if len(args) == 2 and (isinstance(args[1], id) or type(args[1]) == str):
             args = list(args)
@@ -3845,6 +3886,10 @@ isl.isl_pw_multi_aff_bind_domain_wrapped_domain.argtypes = [c_void_p, c_void_p]
 isl.isl_pw_multi_aff_coalesce.restype = c_void_p
 isl.isl_pw_multi_aff_coalesce.argtypes = [c_void_p]
 isl.isl_pw_multi_aff_dim.argtypes = [c_void_p, c_int]
+isl.isl_pw_multi_aff_get_dim_id.restype = c_void_p
+isl.isl_pw_multi_aff_get_dim_id.argtypes = [c_void_p, c_int, c_int]
+isl.isl_pw_multi_aff_get_dim_name.restype = POINTER(c_char)
+isl.isl_pw_multi_aff_get_dim_name.argtypes = [c_void_p, c_int, c_int]
 isl.isl_pw_multi_aff_domain.restype = c_void_p
 isl.isl_pw_multi_aff_domain.argtypes = [c_void_p]
 isl.isl_pw_multi_aff_domain_map.restype = c_void_p
@@ -3915,6 +3960,8 @@ isl.isl_pw_multi_aff_scale_down_multi_val.restype = c_void_p
 isl.isl_pw_multi_aff_scale_down_multi_val.argtypes = [c_void_p, c_void_p]
 isl.isl_pw_multi_aff_scale_down_val.restype = c_void_p
 isl.isl_pw_multi_aff_scale_down_val.argtypes = [c_void_p, c_void_p]
+isl.isl_pw_multi_aff_set_dim_id.restype = c_void_p
+isl.isl_pw_multi_aff_set_dim_id.argtypes = [c_void_p, c_int, c_int, c_void_p]
 isl.isl_pw_multi_aff_set_range_tuple_id.restype = c_void_p
 isl.isl_pw_multi_aff_set_range_tuple_id.argtypes = [c_void_p, c_void_p]
 isl.isl_pw_multi_aff_set_tuple_id.restype = c_void_p

@@ -813,12 +813,14 @@ __isl_give isl_pw_multi_aff *isl_pw_multi_aff_multi_val_on_domain(
 __isl_overload
 __isl_give isl_pw_multi_aff *isl_set_pw_multi_aff_on_domain_multi_val(
 	__isl_take isl_set *domain, __isl_take isl_multi_val *mv);
-
+__isl_export
 const char *isl_pw_multi_aff_get_dim_name(__isl_keep isl_pw_multi_aff *pma,
 	enum isl_dim_type type, unsigned pos);
+__isl_export
 __isl_give isl_id *isl_pw_multi_aff_get_dim_id(
 	__isl_keep isl_pw_multi_aff *pma, enum isl_dim_type type,
 	unsigned pos);
+__isl_export
 __isl_give isl_pw_multi_aff *isl_pw_multi_aff_set_dim_id(
 	__isl_take isl_pw_multi_aff *pma,
 	enum isl_dim_type type, unsigned pos, __isl_take isl_id *id);

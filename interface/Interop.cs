@@ -17301,6 +17301,22 @@ return new multi_val(res);
   return new pw_multi_aff(DangerousGetHandle()).dim(type);
 }
 
+ public id dim_id(dim_type type, uint pos)
+{
+  if (handle == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(DangerousGetHandle()).dim_id(type, pos);
+}
+
+ public string dim_name(dim_type type, uint pos)
+{
+  if (handle == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(DangerousGetHandle()).dim_name(type, pos);
+}
+
  public set domain()
 {
   if (handle == IntPtr.Zero) {
@@ -18296,6 +18312,22 @@ return new multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new pw_multi_aff(DangerousGetHandle()).set_at(pos, el);
+}
+
+ public pw_multi_aff set_dim_id(dim_type type, uint pos, id id)
+{
+  if (handle == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return new pw_multi_aff(DangerousGetHandle()).set_dim_id(type, pos, id);
+}
+
+ public pw_multi_aff set_dim_id(dim_type type, uint pos, string id)
+{
+  if (handle == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_dim_id(type, pos, new id(ctx.Current, id));
 }
 
  public multi_aff set_range_tuple(id id)
@@ -26312,6 +26344,29 @@ return new pw_multi_aff(res);
   return res;
 }
 
+ public id dim_id(dim_type type, uint pos)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_get_dim_id(DangerousGetHandle(), type, pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new id(res);
+}
+
+ public string dim_name(dim_type type, uint pos)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_get_dim_name(DangerousGetHandle(), type, pos);
+  return Marshal.PtrToStringAnsi(res);
+}
+
  public set domain()
 {
   if (IsInvalid) {
@@ -27331,6 +27386,27 @@ return new pw_multi_aff(res);
     throw new ArgumentNullException("NULL input");
   }
   return new multi_pw_aff(DangerousGetHandle()).set_at(pos, el);
+}
+
+ public pw_multi_aff set_dim_id(dim_type type, uint pos, id id)
+{
+  if (IsInvalid || id.IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_set_dim_id(IncreaseReference(), type, pos, id.IncreaseReference());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new pw_multi_aff(res);
+}
+
+ public pw_multi_aff set_dim_id(dim_type type, uint pos, string id)
+{
+  if (handle == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return this.set_dim_id(type, pos, new id(ctx.Current, id));
 }
 
  public pw_multi_aff set_range_tuple(id id)
@@ -43280,6 +43356,12 @@ public static extern  IntPtr isl_pw_multi_aff_coalesce(IntPtr pma);
 public static extern  int isl_pw_multi_aff_dim(IntPtr pma, dim_type type);
 
 [DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_multi_aff_get_dim_id(IntPtr pma, dim_type type, uint pos);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_multi_aff_get_dim_name(IntPtr pma, dim_type type, uint pos);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_domain(IntPtr pma);
 
 [DllImport(LibraryName)]
@@ -43398,6 +43480,9 @@ public static extern  IntPtr isl_pw_multi_aff_scale_down_multi_val(IntPtr pma, I
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_scale_down_val(IntPtr pma, IntPtr v);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_pw_multi_aff_set_dim_id(IntPtr pma, dim_type type, uint pos, IntPtr id);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_set_range_tuple_id(IntPtr pma, IntPtr id);
