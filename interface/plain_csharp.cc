@@ -1306,9 +1306,9 @@ void plain_csharp_generator::impl_printer::print_downcast() {
   auto enum_type = generator.type_printer()->isl_enum_type(
       -1, clazz.fn_type->getReturnType());
 
-  osprintf(os, "public bool isa(%s subtype) {\n", enum_type.c_str());
+  osprintf(os, "public %s type() {\n", enum_type.c_str());
   print_check_ptr("DangerousGetHandle()");
-  osprintf(os, "  return Interop.%s(DangerousGetHandle()) == subtype;\n", fn_name.c_str());
+  osprintf(os, "  return Interop.%s(DangerousGetHandle());\n", fn_name.c_str());
   osprintf(os, "}\n");
 }
 
