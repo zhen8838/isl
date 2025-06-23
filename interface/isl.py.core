@@ -8878,6 +8878,42 @@ class ast_expr(object):
         res = isl.isl_ast_expr_neg(isl.isl_ast_expr_copy(arg0.ptr))
         obj = ast_expr(ctx=ctx, ptr=res)
         return obj
+    def op_arg(arg0, arg1):
+        try:
+            if not arg0.__class__ is ast_expr:
+                arg0 = ast_expr(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_ast_expr_get_op_arg(arg0.ptr, arg1)
+        obj = ast_expr(ctx=ctx, ptr=res)
+        return obj
+    def get_op_arg(arg0, arg1):
+        return arg0.op_arg(arg1)
+    def op_n_arg(arg0):
+        try:
+            if not arg0.__class__ is ast_expr:
+                arg0 = ast_expr(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_ast_expr_get_op_n_arg(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
+    def get_op_n_arg(arg0):
+        return arg0.op_n_arg()
+    def op_type(arg0):
+        try:
+            if not arg0.__class__ is ast_expr:
+                arg0 = ast_expr(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_ast_expr_get_op_type(arg0.ptr)
+        return res
+    def get_op_type(arg0):
+        return arg0.op_type()
     def or_(arg0, arg1):
         try:
             if not arg0.__class__ is ast_expr:
@@ -9053,6 +9089,10 @@ isl.isl_ast_expr_mul.restype = c_void_p
 isl.isl_ast_expr_mul.argtypes = [c_void_p, c_void_p]
 isl.isl_ast_expr_neg.restype = c_void_p
 isl.isl_ast_expr_neg.argtypes = [c_void_p]
+isl.isl_ast_expr_get_op_arg.restype = c_void_p
+isl.isl_ast_expr_get_op_arg.argtypes = [c_void_p, c_int]
+isl.isl_ast_expr_get_op_n_arg.argtypes = [c_void_p]
+isl.isl_ast_expr_get_op_type.argtypes = [c_void_p]
 isl.isl_ast_expr_or.restype = c_void_p
 isl.isl_ast_expr_or.argtypes = [c_void_p, c_void_p]
 isl.isl_ast_expr_or_else.restype = c_void_p

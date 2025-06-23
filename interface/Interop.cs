@@ -3535,6 +3535,12 @@ internal override IntPtr IncreaseReference() {
   return Interop.isl_ast_expr_copy(handle);
 }
 
+public bool isa(ast_expr_type subtype) {
+  if (DangerousGetHandle() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return Interop.isl_ast_expr_get_type(DangerousGetHandle()) == subtype;
+}
 
  public ast_expr access(ast_expr_list indices)
 {
@@ -3755,6 +3761,42 @@ return new ast_expr(res);
     throw new InvalidOperationException();
   }
 return new ast_expr(res);
+}
+
+ public ast_expr op_arg(int pos)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_expr_get_op_arg(DangerousGetHandle(), pos);
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new ast_expr(res);
+}
+
+ public int op_n_arg()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_expr_get_op_n_arg(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
+ public ast_expr_op_type op_type()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_expr_get_op_type(DangerousGetHandle());
+  return res;
 }
 
  public ast_expr or(ast_expr expr2)
@@ -4169,6 +4211,12 @@ public class ast_expr_op : ast_expr {
 
 internal ast_expr_op(/* __isl_take */ IntPtr handle)
   : base(handle) {}
+public bool isa(ast_expr_op_type subtype) {
+  if (DangerousGetHandle() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return Interop.isl_ast_expr_op_get_type(DangerousGetHandle()) == subtype;
+}
 
  public ast_expr arg(int pos)
 {
@@ -4586,6 +4634,12 @@ internal override IntPtr IncreaseReference() {
   return Interop.isl_ast_node_copy(handle);
 }
 
+public bool isa(ast_node_type subtype) {
+  if (DangerousGetHandle() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return Interop.isl_ast_node_get_type(DangerousGetHandle()) == subtype;
+}
 
  public static ast_node alloc_user(ast_expr expr)
 {
@@ -28494,6 +28548,12 @@ internal override IntPtr IncreaseReference() {
   return Interop.isl_schedule_node_copy(handle);
 }
 
+public bool isa(schedule_node_type subtype) {
+  if (DangerousGetHandle() == IntPtr.Zero) {
+    throw new ArgumentNullException("NULL input");
+  }
+  return Interop.isl_schedule_node_get_type(DangerousGetHandle()) == subtype;
+}
 
  public schedule_node ancestor(int generation)
 {
@@ -39950,6 +40010,15 @@ public static extern  IntPtr isl_ast_expr_mul(IntPtr expr1, IntPtr expr2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_expr_neg(IntPtr expr);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_ast_expr_get_op_arg(IntPtr expr, int pos);
+
+[DllImport(LibraryName)]
+public static extern  int isl_ast_expr_get_op_n_arg(IntPtr expr);
+
+[DllImport(LibraryName)]
+public static extern  ast_expr_op_type isl_ast_expr_get_op_type(IntPtr expr);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_expr_or(IntPtr expr1, IntPtr expr2);

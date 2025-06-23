@@ -1091,8 +1091,7 @@ void plain_csharp_generator::impl_printer::print_arg_conversion(
   else if (is_isl_type(src->getOriginalType()))
     os << "new " << csharptype << "(" << name << ")";
   else
-    os << "new " << csharptype << "(ctx.Current, " << name
-       << ")";
+    os << "new " << csharptype << "(ctx.Current, " << name << ")";
 }
 
 /* Print a definition for "method",
@@ -1303,37 +1302,13 @@ void plain_csharp_generator::impl_printer::print_downcast() {
   if (!clazz.fn_type)
     return;
 
-  osprintf(os, "\n");
-  osprintf(os, "template <typename T, typename>\n");
-  osprintf(os, "%s %s::isa_type(T subtype) const\n",
-           generator.isl_bool2csharp().c_str(), csharpname);
-  osprintf(os, "{\n");
-  osprintf(os, "  if (is_null())\n");
-  if (generator.checked)
-    osprintf(os, "    return boolean();\n");
-  else
-    print_throw_NULL_input(os);
-  osprintf(os, "  return %s(get()) == subtype;\n",
-           clazz.fn_type->getNameAsString().c_str());
-  osprintf(os, "}\n");
+  auto fn_name = clazz.fn_type->getNameAsString();
+  auto enum_type = generator.type_printer()->isl_enum_type(
+      -1, clazz.fn_type->getReturnType());
 
-  osprintf(os, "template <class T>\n");
-  osprintf(os, "%s %s::isa() const\n", generator.isl_bool2csharp().c_str(),
-           csharpname);
-  osprintf(os, "{\n");
-  osprintf(os, "  return isa_type<decltype(T::type)>(T::type);\n");
-  osprintf(os, "}\n");
-
-  osprintf(os, "template <class T>\n");
-  osprintf(os, "T %s::as() const\n", csharpname);
-  osprintf(os, "{\n");
-  if (generator.checked)
-    osprintf(os, " if (isa<T>().is_false())\n");
-  else
-    osprintf(os, " if (!isa<T>())\n");
-  generator.print_invalid(os, 4, "not an object of the requested subtype",
-                          "return T()");
-  osprintf(os, "  return T(copy());\n");
+  osprintf(os, "public bool isa(%s subtype) {\n", enum_type.c_str());
+  print_check_ptr("DangerousGetHandle()");
+  osprintf(os, "  return Interop.%s(DangerousGetHandle()) == subtype;\n", fn_name.c_str());
   osprintf(os, "}\n");
 }
 
@@ -1969,7 +1944,7 @@ void plain_csharp_generator::plain_printer::print_public_methods() {
   // print_copy_assignment();
   print_destructor();
   print_ptr();
-  // print_downcast();
+  print_downcast();
   // print_ctx();
   print_method_separator();
   print_persistent_callbacks();
