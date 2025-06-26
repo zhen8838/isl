@@ -52,6 +52,41 @@ class dim_type(IntEnum):
 	DIV = 4
 	ALL = 5
 
+class ast_expr_type(IntEnum):
+  ERROR = -1
+  OP = 0
+  ID = 1
+  INT = 2
+
+class ast_expr_op_type(IntEnum):
+  ERROR = -1
+  AND = 0
+  AND_THEN = 1
+  OR = 2
+  OR_ELSE = 3
+  MAX = 4
+  MIN = 5
+  MINUS = 6
+  ADD = 7
+  SUB = 8
+  MUL = 9
+  DIV = 10
+  FDIV_Q = 11
+  PDIV_Q = 12
+  PDIV_R = 13
+  ZDIV_R = 14
+  COND = 15
+  SELECT = 16
+  EQ = 17
+  LE = 18
+  LT = 19
+  GE = 20
+  GT = 21
+  CALL = 22
+  ACCESS = 23
+  MEMBER = 24
+  ADDRESS_OF = 25
+
 class Error(Exception):
     pass
 

@@ -3737,6 +3737,32 @@ return new ast_expr(res);
 return new ast_expr(res);
 }
 
+ public ast_expr max(ast_expr expr2)
+{
+  if (IsInvalid || expr2.IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_expr_max(IncreaseReference(), expr2.IncreaseReference());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new ast_expr(res);
+}
+
+ public ast_expr min(ast_expr expr2)
+{
+  if (IsInvalid || expr2.IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_expr_min(IncreaseReference(), expr2.IncreaseReference());
+  if (res == IntPtr.Zero) {
+    throw new InvalidOperationException();
+  }
+return new ast_expr(res);
+}
+
  public ast_expr mul(ast_expr expr2)
 {
   if (IsInvalid || expr2.IsInvalid) {
@@ -40004,6 +40030,12 @@ public static extern  IntPtr isl_ast_expr_le(IntPtr expr1, IntPtr expr2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_expr_lt(IntPtr expr1, IntPtr expr2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_ast_expr_max(IntPtr expr1, IntPtr expr2);
+
+[DllImport(LibraryName)]
+public static extern  IntPtr isl_ast_expr_min(IntPtr expr1, IntPtr expr2);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_expr_mul(IntPtr expr1, IntPtr expr2);
