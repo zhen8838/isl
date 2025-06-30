@@ -476,6 +476,13 @@ def test_ast_build_expr():
 	assert(type(op) == isl.ast_expr_op_add)
 	assert(op.n_arg() == 2)
 
+# Test the construction of id_list from string.
+def test_id_list():
+  l = isl.id_list('(a,c,d)')
+  assert 3 == l.size()
+  assert 3 == l.n_id()
+  assert 'a' == l.at(0).name()
+
 # Test the isl Python interface
 #
 # This includes:
@@ -502,3 +509,4 @@ test_space()
 test_schedule_tree()
 test_ast_build()
 test_ast_build_expr()
+test_id_list()

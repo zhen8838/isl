@@ -44,6 +44,21 @@
 #include "python.h"
 #include "generator.h"
 
+struct python_function_name_less {
+	bool operator()(FunctionDecl *x, FunctionDecl *y) const {
+    if (x->getName() == "isl_id_list_from_id" &&
+        y->getName() == "isl_id_list_read_from_str")
+    {
+      return false;
+    } else if (x->getName() == "isl_id_list_read_from_str" &&
+              y->getName() == "isl_id_list_from_id") {
+      return true;
+    }
+
+		return x->getName() < y->getName();
+	}
+};
+
 /* Argument format for Python methods with a fixed number of arguments.
  */
 static const char *fixed_arg_fmt = "arg%d";
@@ -814,10 +829,10 @@ static const char *const id_constructor_user = &R"(
  */
 void python_generator::print_special_constructors(const isl_class &clazz)
 {
-	if (clazz.name != "isl_id")
-		return;
-
-	printf("%s", id_constructor_user);
+	if (clazz.name == "isl_id")
+  {
+    printf("%s", id_constructor_user);
+  }
 }
 
 /* The definition of an "id" method
@@ -849,10 +864,9 @@ static const char *const id_user = &R"(
  */
 void python_generator::print_special_methods(const isl_class &clazz)
 {
-	if (clazz.name != "isl_id")
-		return;
-
-	printf("%s", id_user);
+	if (clazz.name == "isl_id") {
+    printf("%s", id_user);
+  }
 }
 
 /* If "clazz" has a type function describing subclasses,
@@ -1141,7 +1155,9 @@ void python_generator::print(const isl_class &clazz)
 	printf("            self.ptr = keywords[\"ptr\"]\n");
 	printf("            return\n");
 
-	for (const auto &cons : clazz.constructors)
+  std::set<FunctionDecl *, python_function_name_less> ordered_constructors(clazz.constructors.begin(),
+                                                                  clazz.constructors.end());
+	for (const auto &cons : ordered_constructors)
 		print_constructor(clazz, cons);
 	print_special_constructors(clazz);
 	print_upcast_constructors(clazz);
