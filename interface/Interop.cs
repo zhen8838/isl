@@ -2754,6 +2754,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
 return new aff_list(res);
 }
 
+ public int n_aff()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_aff_list_n_aff(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public aff_list set_at(int index, aff el)
 {
   if (IsInvalid || el.IsInvalid) {
@@ -4198,6 +4211,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
 return new ast_expr_list(res);
 }
 
+ public int n_ast_expr()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_expr_list_n_ast_expr(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public ast_expr_list set_at(int index, ast_expr el)
 {
   if (IsInvalid || el.IsInvalid) {
@@ -5203,6 +5229,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
     throw new InvalidOperationException();
   }
 return new ast_node_list(res);
+}
+
+ public int n_ast_node()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_ast_node_list_n_ast_node(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
 }
 
  public ast_node_list set_at(int index, ast_node el)
@@ -8540,6 +8579,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
 return new basic_map_list(res);
 }
 
+ public int n_basic_map()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_map_list_n_basic_map(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public basic_map_list set_at(int index, basic_map el)
 {
   if (IsInvalid || el.IsInvalid) {
@@ -11088,6 +11140,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
 return new basic_set_list(res);
 }
 
+ public int n_basic_set()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_basic_set_list_n_basic_set(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public basic_set_list set_at(int index, basic_set el)
 {
   if (IsInvalid || el.IsInvalid) {
@@ -11652,6 +11717,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
 return new constraint_list(res);
 }
 
+ public int n_constraint()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_constraint_list_n_constraint(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public constraint_list set_at(int index, constraint el)
 {
   if (IsInvalid || el.IsInvalid) {
@@ -12041,6 +12119,19 @@ return new id_list(res);
     throw new ArgumentNullException("NULL input");
   }
   return this.insert(pos, new id(ctx.Current, el));
+}
+
+ public int n_id()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_id_list_n_id(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
 }
 
  public id_list set_at(int index, id el)
@@ -16490,6 +16581,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
     throw new InvalidOperationException();
   }
 return new map_list(res);
+}
+
+ public int n_map()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_map_list_n_map(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
 }
 
  public map_list set_at(int index, map el)
@@ -26047,6 +26151,19 @@ return new pw_aff(res);
 return new pw_aff(res);
 }
 
+ public int n_pw_aff()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_aff_list_n_pw_aff(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public set ne_set(pw_aff_list list2)
 {
   if (IsInvalid || list2.IsInvalid) {
@@ -27993,6 +28110,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
     throw new InvalidOperationException();
   }
 return new pw_multi_aff_list(res);
+}
+
+ public int n_pw_multi_aff()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_pw_multi_aff_list_n_pw_multi_aff(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
 }
 
  public pw_multi_aff_list set_at(int index, pw_multi_aff el)
@@ -32646,6 +32776,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
 return new set_list(res);
 }
 
+ public int n_set()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_set_list_n_set(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public set_list set_at(int index, set el)
 {
   if (IsInvalid || el.IsInvalid) {
@@ -37075,6 +37218,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
 return new union_pw_aff_list(res);
 }
 
+ public int n_union_pw_aff()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_pw_aff_list_n_union_pw_aff(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public union_pw_aff_list set_at(int index, union_pw_aff el)
 {
   if (IsInvalid || el.IsInvalid) {
@@ -38500,6 +38656,19 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
 return new union_set_list(res);
 }
 
+ public int n_union_set()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_union_set_list_n_union_set(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public union_set_list set_at(int index, union_set el)
 {
   if (IsInvalid || el.IsInvalid) {
@@ -39491,6 +39660,19 @@ return new val_list(res);
   return this.insert(pos, new val(ctx.Current, el));
 }
 
+ public int n_val()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_val_list_n_val(DangerousGetHandle());
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return res;
+}
+
  public val_list set_at(int index, val el)
 {
   if (IsInvalid || el.IsInvalid) {
@@ -39906,6 +40088,9 @@ public static extern  isl_stat isl_aff_list_foreach_scc(IntPtr list, [MarshalAs(
 public static extern  IntPtr isl_aff_list_insert(IntPtr list, uint pos, IntPtr el);
 
 [DllImport(LibraryName)]
+public static extern  int isl_aff_list_n_aff(IntPtr list);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_list_set_at(IntPtr list, int index, IntPtr el);
 
 [DllImport(LibraryName)]
@@ -40136,6 +40321,9 @@ public static extern  isl_stat isl_ast_expr_list_foreach_scc(IntPtr list, [Marsh
 public static extern  IntPtr isl_ast_expr_list_insert(IntPtr list, uint pos, IntPtr el);
 
 [DllImport(LibraryName)]
+public static extern  int isl_ast_expr_list_n_ast_expr(IntPtr list);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_expr_list_set_at(IntPtr list, int index, IntPtr el);
 
 [DllImport(LibraryName)]
@@ -40298,6 +40486,9 @@ public static extern  isl_stat isl_ast_node_list_foreach_scc(IntPtr list, [Marsh
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_node_list_insert(IntPtr list, uint pos, IntPtr el);
+
+[DllImport(LibraryName)]
+public static extern  int isl_ast_node_list_n_ast_node(IntPtr list);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_ast_node_list_set_at(IntPtr list, int index, IntPtr el);
@@ -40709,6 +40900,9 @@ public static extern  isl_stat isl_basic_map_list_foreach_scc(IntPtr list, [Mars
 public static extern  IntPtr isl_basic_map_list_insert(IntPtr list, uint pos, IntPtr el);
 
 [DllImport(LibraryName)]
+public static extern  int isl_basic_map_list_n_basic_map(IntPtr list);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_map_list_set_at(IntPtr list, int index, IntPtr el);
 
 [DllImport(LibraryName)]
@@ -41034,6 +41228,9 @@ public static extern  isl_stat isl_basic_set_list_foreach_scc(IntPtr list, [Mars
 public static extern  IntPtr isl_basic_set_list_insert(IntPtr list, uint pos, IntPtr el);
 
 [DllImport(LibraryName)]
+public static extern  int isl_basic_set_list_n_basic_set(IntPtr list);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_basic_set_list_set_at(IntPtr list, int index, IntPtr el);
 
 [DllImport(LibraryName)]
@@ -41164,6 +41361,9 @@ public static extern  isl_stat isl_constraint_list_foreach_scc(IntPtr list, [Mar
 public static extern  IntPtr isl_constraint_list_insert(IntPtr list, uint pos, IntPtr el);
 
 [DllImport(LibraryName)]
+public static extern  int isl_constraint_list_n_constraint(IntPtr list);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_constraint_list_set_at(IntPtr list, int index, IntPtr el);
 
 [DllImport(LibraryName)]
@@ -41258,6 +41458,9 @@ public static extern  isl_stat isl_id_list_foreach_scc(IntPtr list, [MarshalAs(U
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_id_list_insert(IntPtr list, uint pos, IntPtr el);
+
+[DllImport(LibraryName)]
+public static extern  int isl_id_list_n_id(IntPtr list);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_id_list_set_at(IntPtr list, int index, IntPtr el);
@@ -42102,6 +42305,9 @@ public static extern  isl_stat isl_map_list_foreach_scc(IntPtr list, [MarshalAs(
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_map_list_insert(IntPtr list, uint pos, IntPtr el);
+
+[DllImport(LibraryName)]
+public static extern  int isl_map_list_n_map(IntPtr list);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_map_list_set_at(IntPtr list, int index, IntPtr el);
@@ -43392,6 +43598,9 @@ public static extern  IntPtr isl_pw_aff_list_max(IntPtr list);
 public static extern  IntPtr isl_pw_aff_list_min(IntPtr list);
 
 [DllImport(LibraryName)]
+public static extern  int isl_pw_aff_list_n_pw_aff(IntPtr list);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_aff_list_ne_set(IntPtr list1, IntPtr list2);
 
 [DllImport(LibraryName)]
@@ -43664,6 +43873,9 @@ public static extern  isl_stat isl_pw_multi_aff_list_foreach_scc(IntPtr list, [M
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_list_insert(IntPtr list, uint pos, IntPtr el);
+
+[DllImport(LibraryName)]
+public static extern  int isl_pw_multi_aff_list_n_pw_multi_aff(IntPtr list);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_pw_multi_aff_list_set_at(IntPtr list, int index, IntPtr el);
@@ -44635,6 +44847,9 @@ public static extern  isl_stat isl_set_list_foreach_scc(IntPtr list, [MarshalAs(
 public static extern  IntPtr isl_set_list_insert(IntPtr list, uint pos, IntPtr el);
 
 [DllImport(LibraryName)]
+public static extern  int isl_set_list_n_set(IntPtr list);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_set_list_set_at(IntPtr list, int index, IntPtr el);
 
 [DllImport(LibraryName)]
@@ -45548,6 +45763,9 @@ public static extern  isl_stat isl_union_pw_aff_list_foreach_scc(IntPtr list, [M
 public static extern  IntPtr isl_union_pw_aff_list_insert(IntPtr list, uint pos, IntPtr el);
 
 [DllImport(LibraryName)]
+public static extern  int isl_union_pw_aff_list_n_union_pw_aff(IntPtr list);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_union_pw_aff_list_set_at(IntPtr list, int index, IntPtr el);
 
 [DllImport(LibraryName)]
@@ -45875,6 +46093,9 @@ public static extern  isl_stat isl_union_set_list_foreach_scc(IntPtr list, [Mars
 public static extern  IntPtr isl_union_set_list_insert(IntPtr list, uint pos, IntPtr el);
 
 [DllImport(LibraryName)]
+public static extern  int isl_union_set_list_n_union_set(IntPtr list);
+
+[DllImport(LibraryName)]
 public static extern  IntPtr isl_union_set_list_set_at(IntPtr list, int index, IntPtr el);
 
 [DllImport(LibraryName)]
@@ -46081,6 +46302,9 @@ public static extern  isl_stat isl_val_list_foreach_scc(IntPtr list, [MarshalAs(
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_val_list_insert(IntPtr list, uint pos, IntPtr el);
+
+[DllImport(LibraryName)]
+public static extern  int isl_val_list_n_val(IntPtr list);
 
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_val_list_set_at(IntPtr list, int index, IntPtr el);

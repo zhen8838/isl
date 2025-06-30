@@ -63,6 +63,7 @@ __isl_give isl_##EL##_list *isl_##EL##_list_concat(			\
 	__isl_take isl_##EL##_list *list2);				\
 EXPORT									\
 isl_size isl_##EL##_list_size(__isl_keep isl_##EL##_list *list);	\
+EXPORT                  \
 isl_size isl_##EL##_list_n_##EL(__isl_keep isl_##EL##_list *list);	\
 EXPORT									\
 __isl_give isl_##EL *isl_##EL##_list_get_at(				\

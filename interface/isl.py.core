@@ -7648,6 +7648,17 @@ class aff_list(object):
         res = isl.isl_aff_list_insert(isl.isl_aff_list_copy(arg0.ptr), arg1, isl.isl_aff_copy(arg2.ptr))
         obj = aff_list(ctx=ctx, ptr=res)
         return obj
+    def n_aff(arg0):
+        try:
+            if not arg0.__class__ is aff_list:
+                arg0 = aff_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_aff_list_n_aff(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is aff_list:
@@ -7695,6 +7706,7 @@ isl.isl_aff_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_aff_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_aff_list_insert.restype = c_void_p
 isl.isl_aff_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_aff_list_n_aff.argtypes = [c_void_p]
 isl.isl_aff_list_set_at.restype = c_void_p
 isl.isl_aff_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_aff_list_size.argtypes = [c_void_p]
@@ -9424,6 +9436,17 @@ class ast_expr_list(object):
         res = isl.isl_ast_expr_list_insert(isl.isl_ast_expr_list_copy(arg0.ptr), arg1, isl.isl_ast_expr_copy(arg2.ptr))
         obj = ast_expr_list(ctx=ctx, ptr=res)
         return obj
+    def n_ast_expr(arg0):
+        try:
+            if not arg0.__class__ is ast_expr_list:
+                arg0 = ast_expr_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_ast_expr_list_n_ast_expr(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is ast_expr_list:
@@ -9469,6 +9492,7 @@ isl.isl_ast_expr_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_ast_expr_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_ast_expr_list_insert.restype = c_void_p
 isl.isl_ast_expr_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_ast_expr_list_n_ast_expr.argtypes = [c_void_p]
 isl.isl_ast_expr_list_set_at.restype = c_void_p
 isl.isl_ast_expr_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_ast_expr_list_size.argtypes = [c_void_p]
@@ -11306,6 +11330,17 @@ class ast_node_list(object):
         res = isl.isl_ast_node_list_insert(isl.isl_ast_node_list_copy(arg0.ptr), arg1, isl.isl_ast_node_copy(arg2.ptr))
         obj = ast_node_list(ctx=ctx, ptr=res)
         return obj
+    def n_ast_node(arg0):
+        try:
+            if not arg0.__class__ is ast_node_list:
+                arg0 = ast_node_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_ast_node_list_n_ast_node(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is ast_node_list:
@@ -11351,6 +11386,7 @@ isl.isl_ast_node_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_ast_node_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_ast_node_list_insert.restype = c_void_p
 isl.isl_ast_node_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_ast_node_list_n_ast_node.argtypes = [c_void_p]
 isl.isl_ast_node_list_set_at.restype = c_void_p
 isl.isl_ast_node_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_ast_node_list_size.argtypes = [c_void_p]
@@ -17634,6 +17670,17 @@ class basic_map_list(object):
         res = isl.isl_basic_map_list_insert(isl.isl_basic_map_list_copy(arg0.ptr), arg1, isl.isl_basic_map_copy(arg2.ptr))
         obj = basic_map_list(ctx=ctx, ptr=res)
         return obj
+    def n_basic_map(arg0):
+        try:
+            if not arg0.__class__ is basic_map_list:
+                arg0 = basic_map_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_basic_map_list_n_basic_map(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is basic_map_list:
@@ -17679,6 +17726,7 @@ isl.isl_basic_map_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_basic_map_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_basic_map_list_insert.restype = c_void_p
 isl.isl_basic_map_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_basic_map_list_n_basic_map.argtypes = [c_void_p]
 isl.isl_basic_map_list_set_at.restype = c_void_p
 isl.isl_basic_map_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_basic_map_list_size.argtypes = [c_void_p]
@@ -22084,6 +22132,17 @@ class basic_set_list(object):
         res = isl.isl_basic_set_list_insert(isl.isl_basic_set_list_copy(arg0.ptr), arg1, isl.isl_basic_set_copy(arg2.ptr))
         obj = basic_set_list(ctx=ctx, ptr=res)
         return obj
+    def n_basic_set(arg0):
+        try:
+            if not arg0.__class__ is basic_set_list:
+                arg0 = basic_set_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_basic_set_list_n_basic_set(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is basic_set_list:
@@ -22131,6 +22190,7 @@ isl.isl_basic_set_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_basic_set_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_basic_set_list_insert.restype = c_void_p
 isl.isl_basic_set_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_basic_set_list_n_basic_set.argtypes = [c_void_p]
 isl.isl_basic_set_list_set_at.restype = c_void_p
 isl.isl_basic_set_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_basic_set_list_size.argtypes = [c_void_p]
@@ -22668,6 +22728,17 @@ class constraint_list(object):
         res = isl.isl_constraint_list_insert(isl.isl_constraint_list_copy(arg0.ptr), arg1, isl.isl_constraint_copy(arg2.ptr))
         obj = constraint_list(ctx=ctx, ptr=res)
         return obj
+    def n_constraint(arg0):
+        try:
+            if not arg0.__class__ is constraint_list:
+                arg0 = constraint_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_constraint_list_n_constraint(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is constraint_list:
@@ -22713,6 +22784,7 @@ isl.isl_constraint_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_constraint_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_constraint_list_insert.restype = c_void_p
 isl.isl_constraint_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_constraint_list_n_constraint.argtypes = [c_void_p]
 isl.isl_constraint_list_set_at.restype = c_void_p
 isl.isl_constraint_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_constraint_list_size.argtypes = [c_void_p]
@@ -23078,6 +23150,17 @@ class id_list(object):
         res = isl.isl_id_list_insert(isl.isl_id_list_copy(arg0.ptr), arg1, isl.isl_id_copy(arg2.ptr))
         obj = id_list(ctx=ctx, ptr=res)
         return obj
+    def n_id(arg0):
+        try:
+            if not arg0.__class__ is id_list:
+                arg0 = id_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_id_list_n_id(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is id_list:
@@ -23125,6 +23208,7 @@ isl.isl_id_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_id_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_id_list_insert.restype = c_void_p
 isl.isl_id_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_id_list_n_id.argtypes = [c_void_p]
 isl.isl_id_list_set_at.restype = c_void_p
 isl.isl_id_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_id_list_size.argtypes = [c_void_p]
@@ -24082,6 +24166,17 @@ class map_list(object):
         res = isl.isl_map_list_insert(isl.isl_map_list_copy(arg0.ptr), arg1, isl.isl_map_copy(arg2.ptr))
         obj = map_list(ctx=ctx, ptr=res)
         return obj
+    def n_map(arg0):
+        try:
+            if not arg0.__class__ is map_list:
+                arg0 = map_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_map_list_n_map(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is map_list:
@@ -24129,6 +24224,7 @@ isl.isl_map_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_map_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_map_list_insert.restype = c_void_p
 isl.isl_map_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_map_list_n_map.argtypes = [c_void_p]
 isl.isl_map_list_set_at.restype = c_void_p
 isl.isl_map_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_map_list_size.argtypes = [c_void_p]
@@ -26052,6 +26148,17 @@ class pw_aff_list(object):
         res = isl.isl_pw_aff_list_min(isl.isl_pw_aff_list_copy(arg0.ptr))
         obj = pw_aff(ctx=ctx, ptr=res)
         return obj
+    def n_pw_aff(arg0):
+        try:
+            if not arg0.__class__ is pw_aff_list:
+                arg0 = pw_aff_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_pw_aff_list_n_pw_aff(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def ne_set(arg0, arg1):
         try:
             if not arg0.__class__ is pw_aff_list:
@@ -26128,6 +26235,7 @@ isl.isl_pw_aff_list_max.restype = c_void_p
 isl.isl_pw_aff_list_max.argtypes = [c_void_p]
 isl.isl_pw_aff_list_min.restype = c_void_p
 isl.isl_pw_aff_list_min.argtypes = [c_void_p]
+isl.isl_pw_aff_list_n_pw_aff.argtypes = [c_void_p]
 isl.isl_pw_aff_list_ne_set.restype = c_void_p
 isl.isl_pw_aff_list_ne_set.argtypes = [c_void_p, c_void_p]
 isl.isl_pw_aff_list_set_at.restype = c_void_p
@@ -26313,6 +26421,17 @@ class pw_multi_aff_list(object):
         res = isl.isl_pw_multi_aff_list_insert(isl.isl_pw_multi_aff_list_copy(arg0.ptr), arg1, isl.isl_pw_multi_aff_copy(arg2.ptr))
         obj = pw_multi_aff_list(ctx=ctx, ptr=res)
         return obj
+    def n_pw_multi_aff(arg0):
+        try:
+            if not arg0.__class__ is pw_multi_aff_list:
+                arg0 = pw_multi_aff_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_pw_multi_aff_list_n_pw_multi_aff(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is pw_multi_aff_list:
@@ -26360,6 +26479,7 @@ isl.isl_pw_multi_aff_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_pw_multi_aff_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_pw_multi_aff_list_insert.restype = c_void_p
 isl.isl_pw_multi_aff_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_pw_multi_aff_list_n_pw_multi_aff.argtypes = [c_void_p]
 isl.isl_pw_multi_aff_list_set_at.restype = c_void_p
 isl.isl_pw_multi_aff_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_pw_multi_aff_list_size.argtypes = [c_void_p]
@@ -28924,6 +29044,17 @@ class set_list(object):
         res = isl.isl_set_list_insert(isl.isl_set_list_copy(arg0.ptr), arg1, isl.isl_set_copy(arg2.ptr))
         obj = set_list(ctx=ctx, ptr=res)
         return obj
+    def n_set(arg0):
+        try:
+            if not arg0.__class__ is set_list:
+                arg0 = set_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_set_list_n_set(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is set_list:
@@ -28981,6 +29112,7 @@ isl.isl_set_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_set_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_set_list_insert.restype = c_void_p
 isl.isl_set_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_set_list_n_set.argtypes = [c_void_p]
 isl.isl_set_list_set_at.restype = c_void_p
 isl.isl_set_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_set_list_size.argtypes = [c_void_p]
@@ -30931,6 +31063,17 @@ class union_pw_aff_list(object):
         res = isl.isl_union_pw_aff_list_insert(isl.isl_union_pw_aff_list_copy(arg0.ptr), arg1, isl.isl_union_pw_aff_copy(arg2.ptr))
         obj = union_pw_aff_list(ctx=ctx, ptr=res)
         return obj
+    def n_union_pw_aff(arg0):
+        try:
+            if not arg0.__class__ is union_pw_aff_list:
+                arg0 = union_pw_aff_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_pw_aff_list_n_union_pw_aff(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is union_pw_aff_list:
@@ -30978,6 +31121,7 @@ isl.isl_union_pw_aff_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_union_pw_aff_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_union_pw_aff_list_insert.restype = c_void_p
 isl.isl_union_pw_aff_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_union_pw_aff_list_n_union_pw_aff.argtypes = [c_void_p]
 isl.isl_union_pw_aff_list_set_at.restype = c_void_p
 isl.isl_union_pw_aff_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_union_pw_aff_list_size.argtypes = [c_void_p]
@@ -31161,6 +31305,17 @@ class union_set_list(object):
         res = isl.isl_union_set_list_insert(isl.isl_union_set_list_copy(arg0.ptr), arg1, isl.isl_union_set_copy(arg2.ptr))
         obj = union_set_list(ctx=ctx, ptr=res)
         return obj
+    def n_union_set(arg0):
+        try:
+            if not arg0.__class__ is union_set_list:
+                arg0 = union_set_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_union_set_list_n_union_set(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is union_set_list:
@@ -31208,6 +31363,7 @@ isl.isl_union_set_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_union_set_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_union_set_list_insert.restype = c_void_p
 isl.isl_union_set_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_union_set_list_n_union_set.argtypes = [c_void_p]
 isl.isl_union_set_list_set_at.restype = c_void_p
 isl.isl_union_set_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_union_set_list_size.argtypes = [c_void_p]
@@ -32061,6 +32217,17 @@ class val_list(object):
         res = isl.isl_val_list_insert(isl.isl_val_list_copy(arg0.ptr), arg1, isl.isl_val_copy(arg2.ptr))
         obj = val_list(ctx=ctx, ptr=res)
         return obj
+    def n_val(arg0):
+        try:
+            if not arg0.__class__ is val_list:
+                arg0 = val_list(arg0)
+        except:
+            raise
+        ctx = arg0.ctx
+        res = isl.isl_val_list_n_val(arg0.ptr)
+        if res < 0:
+            raise Error
+        return int(res)
     def set_at(arg0, arg1, arg2):
         try:
             if not arg0.__class__ is val_list:
@@ -32108,6 +32275,7 @@ isl.isl_val_list_foreach.argtypes = [c_void_p, c_void_p, c_void_p]
 isl.isl_val_list_foreach_scc.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 isl.isl_val_list_insert.restype = c_void_p
 isl.isl_val_list_insert.argtypes = [c_void_p, c_int, c_void_p]
+isl.isl_val_list_n_val.argtypes = [c_void_p]
 isl.isl_val_list_set_at.restype = c_void_p
 isl.isl_val_list_set_at.argtypes = [c_void_p, c_int, c_void_p]
 isl.isl_val_list_size.argtypes = [c_void_p]
