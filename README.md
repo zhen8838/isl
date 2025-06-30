@@ -14,3 +14,4 @@ this repository only for packaging ISL. For simplify the build process, the inte
 - [] fix export isl_printer_to_str in python interface
 - [] fix codegen test segment fault
 - [] optimize get_xx method as property in python interface
+- [] ⚠️ fix multi_pw_aff and pw_multi_aff confuse in python

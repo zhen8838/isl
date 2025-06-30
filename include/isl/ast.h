@@ -35,6 +35,12 @@ __isl_export
 __isl_give isl_ast_expr *isl_ast_expr_sub(__isl_take isl_ast_expr *expr1,
 	__isl_take isl_ast_expr *expr2);
 __isl_export
+__isl_give isl_ast_expr *isl_ast_expr_max(__isl_take isl_ast_expr *expr1,
+	__isl_take isl_ast_expr *expr2);
+__isl_export
+__isl_give isl_ast_expr *isl_ast_expr_min(__isl_take isl_ast_expr *expr1,
+	__isl_take isl_ast_expr *expr2);
+__isl_export
 __isl_give isl_ast_expr *isl_ast_expr_mul(__isl_take isl_ast_expr *expr1,
 	__isl_take isl_ast_expr *expr2);
 __isl_export
@@ -100,14 +106,17 @@ __isl_give isl_id *isl_ast_expr_get_id(__isl_keep isl_ast_expr *expr);
 __isl_subclass(isl_ast_expr_op)
 enum isl_ast_expr_op_type isl_ast_expr_op_get_type(
 	__isl_keep isl_ast_expr *expr);
+__isl_export
 enum isl_ast_expr_op_type isl_ast_expr_get_op_type(
 	__isl_keep isl_ast_expr *expr);
 __isl_export
 isl_size isl_ast_expr_op_get_n_arg(__isl_keep isl_ast_expr *expr);
+__isl_export
 isl_size isl_ast_expr_get_op_n_arg(__isl_keep isl_ast_expr *expr);
 __isl_export
 __isl_give isl_ast_expr *isl_ast_expr_op_get_arg(__isl_keep isl_ast_expr *expr,
 	int pos);
+__isl_export
 __isl_give isl_ast_expr *isl_ast_expr_get_op_arg(__isl_keep isl_ast_expr *expr,
 	int pos);
 __isl_export
@@ -213,7 +222,6 @@ __isl_export
 __isl_give isl_ast_print_options *isl_ast_print_options_alloc(isl_ctx *ctx);
 __isl_give isl_ast_print_options *isl_ast_print_options_copy(
 	__isl_keep isl_ast_print_options *options);
-__isl_export
 __isl_null isl_ast_print_options *isl_ast_print_options_free(
 	__isl_take isl_ast_print_options *options);
 isl_ctx *isl_ast_print_options_get_ctx(

@@ -713,11 +713,21 @@ bool generator::is_string(QualType type) {
   return false;
 }
 
+bool generator::is_void(QualType type) {
+  const BuiltinType *builtin = type->getAs<BuiltinType>();
+  return builtin && builtin->getKind() == BuiltinType::Void;
+}
+
 /* Is "type" that of "long"?
  */
 bool generator::is_long(QualType type) {
   const BuiltinType *builtin = type->getAs<BuiltinType>();
   return builtin && builtin->getKind() == BuiltinType::Long;
+}
+
+bool generator::is_double(QualType type) {
+  const BuiltinType *builtin = type->getAs<BuiltinType>();
+  return builtin && builtin->getKind() == BuiltinType::Double;
 }
 
 /* Is "type" that of "unsigned int"?

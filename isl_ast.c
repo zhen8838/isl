@@ -751,6 +751,22 @@ __isl_give isl_ast_expr *isl_ast_expr_sub(__isl_take isl_ast_expr *expr1,
 	return isl_ast_expr_alloc_binary(isl_ast_expr_op_sub, expr1, expr2);
 }
 
+/* Create an expression representing the maximum of "expr1" and "expr2".
+ */
+__isl_give isl_ast_expr *isl_ast_expr_max(__isl_take isl_ast_expr *expr1,
+	__isl_take isl_ast_expr *expr2)
+{
+	return isl_ast_expr_alloc_binary(isl_ast_expr_op_max, expr1, expr2);
+}
+
+/* Create an expression representing the minimum of "expr1" and "expr2".
+ */
+__isl_give isl_ast_expr *isl_ast_expr_min(__isl_take isl_ast_expr *expr1,
+	__isl_take isl_ast_expr *expr2)
+{
+	return isl_ast_expr_alloc_binary(isl_ast_expr_op_min, expr1, expr2);
+}
+
 /* Create an expression representing the product of "expr1" and "expr2".
  */
 __isl_give isl_ast_expr *isl_ast_expr_mul(__isl_take isl_ast_expr *expr1,

@@ -2916,15 +2916,20 @@ static __isl_give isl_ast_expr *isl_ast_build_from_multi_pw_aff_internal(
 	isl_ast_expr *expr;
 
 	if (!mpa)
-		goto error;
+  {
+    fprintf(stderr, "internal mpa is NULL\n");
+    goto error;
+  }
 
 	if (type == isl_ast_expr_op_access &&
 	    isl_multi_pw_aff_range_is_wrapping(mpa))
 		return isl_ast_build_from_multi_pw_aff_member(build, mpa);
 
 	mpa = set_iterator_names(build, mpa);
-	if (!build || !mpa)
-		goto error;
+	if (!build || !mpa) {
+    fprintf(stderr, "build or mpa is NULL\n");
+    goto error;
+  }
 
 	ctx = isl_ast_build_get_ctx(build);
 
@@ -2990,8 +2995,11 @@ static __isl_give isl_ast_expr *isl_ast_build_from_multi_pw_aff(
   }
 
 	needs_map = isl_ast_build_need_schedule_map(build);
-	if (needs_map < 0)
-		goto error;
+	if (needs_map < 0) 
+  {
+    fprintf(stderr, "needs map < 0\n");
+    goto error;
+  }
 	if (needs_map) {
 		isl_multi_aff *ma;
 		ma = isl_ast_build_get_schedule_map_multi_aff(build);
