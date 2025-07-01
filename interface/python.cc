@@ -857,6 +857,16 @@ static const char *const id_user = &R"(
         return isl.isl_id_get_user(self.ptr)
 )"[1];
 
+static const char *const printer_to_file = &R"(
+    @staticmethod
+    def to_file(arg0):
+        ctx = Context.getDefaultInstance()
+        file = libc.fdopen(arg0.fileno(), arg0.mode.encode('ascii'))
+        res = isl.isl_printer_to_file(ctx, file)
+        obj = printer(ctx=ctx, ptr=res)
+        return obj
+)"[1];
+
 /* Print any special methods of this class that are not
  * automatically derived from the C interface.
  *
@@ -866,6 +876,10 @@ void python_generator::print_special_methods(const isl_class &clazz)
 {
 	if (clazz.name == "isl_id") {
     printf("%s", id_user);
+  }
+
+  if (clazz.name == "isl_printer") {
+    printf("%s", printer_to_file);
   }
 }
 
@@ -1114,6 +1128,14 @@ void python_generator::print_method_types(const isl_class &clazz)
 		print_method_type(clazz.fn_type);
 }
 
+void python_generator::print_special_method_types(const isl_class &clazz)
+{
+  if (clazz.name == "isl_printer") {
+    printf("isl.isl_printer_to_file.restype = c_void_p\n");
+    printf("isl.isl_printer_to_file.argtypes = [Context, c_void_p]\n");
+  }
+}
+
 /* Print out the definition of this isl_class.
  *
  * We first check if this isl_class is a subclass of one or more other classes.
@@ -1181,6 +1203,7 @@ void python_generator::print(const isl_class &clazz)
 	printf("\n");
 
 	print_method_types(clazz);
+  print_special_method_types(clazz);
 }
 
 /* Generate a python interface based on the extracted types and

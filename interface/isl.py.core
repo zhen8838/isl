@@ -25570,6 +25570,13 @@ class printer(object):
             return 'isl.printer("""%s""")' % s
         else:
             return 'isl.printer("%s")' % s
+    @staticmethod
+    def to_file(arg0):
+        ctx = Context.getDefaultInstance()
+        file = libc.fdopen(arg0.fileno(), arg0.mode.encode('ascii'))
+        res = isl.isl_printer_to_file(ctx, file)
+        obj = printer(ctx=ctx, ptr=res)
+        return obj
     def end_line(arg0):
         try:
             if not arg0.__class__ is printer:
@@ -25879,6 +25886,8 @@ isl.isl_printer_free.restype = c_void_p
 isl.isl_printer_free.argtypes = [c_void_p]
 isl.isl_printer_to_str.restype = c_void_p
 isl.isl_printer_to_str.argtypes = [Context]
+isl.isl_printer_to_file.restype = c_void_p
+isl.isl_printer_to_file.argtypes = [Context, c_void_p]
 
 class pw_aff_list(object):
     def __init__(self, *args, **keywords):

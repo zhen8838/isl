@@ -29,6 +29,8 @@ if isl_library_path is None:
 isl = cdll.LoadLibrary(isl_library_path)
 assert isl is not None, "can't find the isl shared library!"
 libc = cdll.LoadLibrary(find_library("c"))
+libc.fdopen.argtypes = [c_int, c_char_p]
+libc.fdopen.restype = c_void_p
 
 class format(IntEnum):
   ISL = 0

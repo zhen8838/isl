@@ -3,6 +3,7 @@
 import pytest
 import isl
 import tempfile
+import os
 
 def test_basics():
   space = isl.space.unit().add_unnamed_tuple(2).set_dim_name(
@@ -450,6 +451,23 @@ def test_set_ast_print_options():
     options = options.set_print_user(print_user_py)
     options = options.set_print_for(print_for_py)
 
+def test_id_list():
+  l = isl.id_list('(a,c,d)')
+  assert 3 == l.size()
+  assert 3 == l.n_id()
+  assert 'a' == l.at(0).name()
+
+def test_printer_to_file():  
+  print(os.getpid())
+  fd, temp_file_path = tempfile.mkstemp(suffix='.py')
+  with open(temp_file_path, 'w') as f:
+    printer = isl.printer.to_file(f)
+    printer = printer.print_str('Hello World')
+    printer.flush()
+  with open(temp_file_path, 'r') as f:
+    content = f.read()
+    print(content)
+    assert 'Hello World' in content
 
 if __name__ == "__main__":
   pytest.main(['-vvs', __file__])
