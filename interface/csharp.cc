@@ -1256,7 +1256,7 @@ void CSharpConversionMethod::print_call(std::ostream &os,
     os << "this.";
   } else {
     auto csharp_type = ns + csharp_generator::type2csharp(this_type);
-    os << "new " << csharp_type << "(DangerousGetHandle()).";
+    os << "new " << csharp_type << "(IncreaseReference()).";
   }
   os << name;
 }
