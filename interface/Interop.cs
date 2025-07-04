@@ -5,8 +5,14 @@ namespace IntegerSetLibrary {
 
 public class aff : IntrusiveHandle {
 
-internal aff(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal aff(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ aff(ctx ctx, string str) : base(IntPtr.Zero) 
 {
@@ -15,6 +21,7 @@ internal aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -48,7 +55,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).add(multi2);
+  return new multi_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public multi_pw_aff add(multi_pw_aff multi2)
@@ -56,7 +63,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).add(multi2);
+  return new pw_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public multi_union_pw_aff add(multi_union_pw_aff multi2)
@@ -64,7 +71,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).add(multi2);
+  return new pw_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public pw_aff add(pw_aff pwaff2)
@@ -72,7 +79,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).add(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).add(pwaff2);
 }
 
  public pw_multi_aff add(pw_multi_aff pma2)
@@ -80,7 +87,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).add(pma2);
+  return new pw_aff(DangerousGetHandle(), false).add(pma2);
 }
 
  public union_pw_aff add(union_pw_aff upa2)
@@ -88,7 +95,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).add(upa2);
+  return new pw_aff(DangerousGetHandle(), false).add(upa2);
 }
 
  public union_pw_multi_aff add(union_pw_multi_aff upma2)
@@ -96,7 +103,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).add(upma2);
+  return new pw_aff(DangerousGetHandle(), false).add(upma2);
 }
 
  public aff add_coefficient_si(dim_type type, int pos, int v)
@@ -159,7 +166,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).add_constant(mv);
+  return new multi_aff(DangerousGetHandle(), false).add_constant(mv);
 }
 
  public aff add_constant_num_si(int v)
@@ -206,7 +213,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).add_pw_aff(pa);
+  return new pw_aff(DangerousGetHandle(), false).add_pw_aff(pa);
 }
 
  public aff align_params(space model)
@@ -227,7 +234,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).apply(upma2);
+  return new pw_aff(DangerousGetHandle(), false).apply(upma2);
 }
 
  public union_pw_aff apply_aff(aff aff)
@@ -235,7 +242,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).apply_aff(aff);
+  return new pw_aff(DangerousGetHandle(), false).apply_aff(aff);
 }
 
  public multi_union_pw_aff apply_multi_aff(multi_aff ma)
@@ -243,7 +250,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).apply_multi_aff(ma);
+  return new pw_aff(DangerousGetHandle(), false).apply_multi_aff(ma);
 }
 
  public union_pw_aff apply_pw_aff(pw_aff pa)
@@ -251,7 +258,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).apply_pw_aff(pa);
+  return new pw_aff(DangerousGetHandle(), false).apply_pw_aff(pa);
 }
 
  public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
@@ -259,7 +266,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).apply_pw_multi_aff(pma);
+  return new pw_aff(DangerousGetHandle(), false).apply_pw_multi_aff(pma);
 }
 
  public aff as_aff()
@@ -267,7 +274,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).as_aff();
+  return new pw_aff(DangerousGetHandle(), false).as_aff();
 }
 
  public map as_map()
@@ -275,7 +282,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).as_map();
+  return new pw_aff(DangerousGetHandle(), false).as_map();
 }
 
  public multi_aff as_multi_aff()
@@ -283,7 +290,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).as_multi_aff();
+  return new pw_aff(DangerousGetHandle(), false).as_multi_aff();
 }
 
  public multi_union_pw_aff as_multi_union_pw_aff()
@@ -291,7 +298,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).as_multi_union_pw_aff();
+  return new pw_aff(DangerousGetHandle(), false).as_multi_union_pw_aff();
 }
 
  public pw_multi_aff as_pw_multi_aff()
@@ -299,7 +306,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).as_pw_multi_aff();
+  return new pw_aff(DangerousGetHandle(), false).as_pw_multi_aff();
 }
 
  public set as_set()
@@ -307,7 +314,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).as_set();
+  return new multi_aff(DangerousGetHandle(), false).as_set();
 }
 
  public union_map as_union_map()
@@ -315,7 +322,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).as_union_map();
+  return new pw_aff(DangerousGetHandle(), false).as_union_map();
 }
 
  public aff at(int pos)
@@ -323,7 +330,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).at(pos);
+  return new multi_aff(DangerousGetHandle(), false).at(pos);
 }
 
  public basic_set bind(id id)
@@ -352,7 +359,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).bind(tuple);
+  return new multi_aff(DangerousGetHandle(), false).bind(tuple);
 }
 
  public pw_aff bind_domain(multi_id tuple)
@@ -360,7 +367,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).bind_domain(tuple);
+  return new pw_aff(DangerousGetHandle(), false).bind_domain(tuple);
 }
 
  public pw_aff bind_domain_wrapped_domain(multi_id tuple)
@@ -368,7 +375,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).bind_domain_wrapped_domain(tuple);
+  return new pw_aff(DangerousGetHandle(), false).bind_domain_wrapped_domain(tuple);
 }
 
  public aff ceil()
@@ -389,7 +396,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).coalesce();
+  return new pw_aff(DangerousGetHandle(), false).coalesce();
 }
 
  public int coefficient_sgn(dim_type type, int pos)
@@ -420,7 +427,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).cond(pwaff_true, pwaff_false);
+  return new pw_aff(DangerousGetHandle(), false).cond(pwaff_true, pwaff_false);
 }
 
  public multi_val constant_multi_val()
@@ -428,7 +435,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).constant_multi_val();
+  return new multi_aff(DangerousGetHandle(), false).constant_multi_val();
 }
 
  public val constant_val()
@@ -475,7 +482,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).dim_id(type, pos);
+  return new pw_aff(DangerousGetHandle(), false).dim_id(type, pos);
 }
 
  public string dim_name(dim_type type, uint pos)
@@ -519,7 +526,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).div(pa2);
+  return new pw_aff(DangerousGetHandle(), false).div(pa2);
 }
 
  public set domain()
@@ -527,7 +534,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).domain();
+  return new pw_aff(DangerousGetHandle(), false).domain();
 }
 
  public local_space domain_local_space()
@@ -587,7 +594,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).drop_unused_params();
+  return new pw_aff(DangerousGetHandle(), false).drop_unused_params();
 }
 
  public basic_set eq_basic_set(aff aff2)
@@ -608,7 +615,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).eq_map(mpa2);
+  return new pw_aff(DangerousGetHandle(), false).eq_map(mpa2);
 }
 
  public map eq_map(pw_aff pa2)
@@ -616,7 +623,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).eq_map(pa2);
+  return new pw_aff(DangerousGetHandle(), false).eq_map(pa2);
 }
 
  public set eq_set(aff aff2)
@@ -637,7 +644,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).eq_set(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).eq_set(pwaff2);
 }
 
  public val eval(point pnt)
@@ -658,7 +665,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).every_piece(test);
+  return new pw_aff(DangerousGetHandle(), false).every_piece(test);
 }
 
  public bool every_pw_aff(Func<pw_aff, bool> test)
@@ -666,7 +673,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).every_pw_aff(test);
+  return new pw_aff(DangerousGetHandle(), false).every_pw_aff(test);
 }
 
  public multi_pw_aff extract_multi_pw_aff(space space)
@@ -674,7 +681,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).extract_multi_pw_aff(space);
+  return new pw_aff(DangerousGetHandle(), false).extract_multi_pw_aff(space);
 }
 
  public pw_aff extract_pw_aff(space space)
@@ -682,7 +689,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).extract_pw_aff(space);
+  return new pw_aff(DangerousGetHandle(), false).extract_pw_aff(space);
 }
 
  public pw_multi_aff extract_pw_multi_aff(space space)
@@ -690,7 +697,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).extract_pw_multi_aff(space);
+  return new pw_aff(DangerousGetHandle(), false).extract_pw_multi_aff(space);
 }
 
  public int find_dim_by_name(dim_type type, string name)
@@ -708,7 +715,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).flat_range_product(multi2);
+  return new multi_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public multi_pw_aff flat_range_product(multi_pw_aff multi2)
@@ -716,7 +723,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).flat_range_product(multi2);
+  return new pw_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public multi_union_pw_aff flat_range_product(multi_union_pw_aff multi2)
@@ -724,7 +731,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).flat_range_product(multi2);
+  return new pw_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public pw_multi_aff flat_range_product(pw_multi_aff pma2)
@@ -732,7 +739,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).flat_range_product(pma2);
+  return new pw_aff(DangerousGetHandle(), false).flat_range_product(pma2);
 }
 
  public union_pw_multi_aff flat_range_product(union_pw_multi_aff upma2)
@@ -740,7 +747,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).flat_range_product(upma2);
+  return new pw_aff(DangerousGetHandle(), false).flat_range_product(upma2);
 }
 
  public aff floor()
@@ -761,7 +768,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new pw_aff(IncreaseReference()).foreach_piece(fn);
+new pw_aff(DangerousGetHandle(), false).foreach_piece(fn);
 }
 
  public void foreach_piece(Action<set, multi_aff> fn)
@@ -769,7 +776,7 @@ new pw_aff(IncreaseReference()).foreach_piece(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new pw_aff(IncreaseReference()).foreach_piece(fn);
+new pw_aff(DangerousGetHandle(), false).foreach_piece(fn);
 }
 
  public void foreach_pw_aff(Action<pw_aff> fn)
@@ -777,7 +784,7 @@ new pw_aff(IncreaseReference()).foreach_piece(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new pw_aff(IncreaseReference()).foreach_pw_aff(fn);
+new pw_aff(DangerousGetHandle(), false).foreach_pw_aff(fn);
 }
 
  public aff from_range()
@@ -811,7 +818,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).ge_map(pa2);
+  return new pw_aff(DangerousGetHandle(), false).ge_map(pa2);
 }
 
  public set ge_set(aff aff2)
@@ -832,7 +839,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).ge_set(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).ge_set(pwaff2);
 }
 
  public aff gist(set context)
@@ -853,7 +860,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).gist(context);
+  return new pw_aff(DangerousGetHandle(), false).gist(context);
 }
 
  public aff gist(basic_set context)
@@ -890,7 +897,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).gt_map(pa2);
+  return new pw_aff(DangerousGetHandle(), false).gt_map(pa2);
 }
 
  public set gt_set(aff aff2)
@@ -911,7 +918,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).gt_set(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).gt_set(pwaff2);
 }
 
  public bool has_dim_id(dim_type type, uint pos)
@@ -919,7 +926,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).has_dim_id(type, pos);
+  return new pw_aff(DangerousGetHandle(), false).has_dim_id(type, pos);
 }
 
  public bool has_range_tuple_id()
@@ -927,7 +934,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).has_range_tuple_id();
+  return new multi_aff(DangerousGetHandle(), false).has_range_tuple_id();
 }
 
  public bool has_tuple_id(dim_type type)
@@ -935,7 +942,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).has_tuple_id(type);
+  return new pw_aff(DangerousGetHandle(), false).has_tuple_id(type);
 }
 
  public bool has_tuple_name(dim_type type)
@@ -943,7 +950,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).has_tuple_name(type);
+  return new pw_aff(DangerousGetHandle(), false).has_tuple_name(type);
 }
 
  public multi_aff identity()
@@ -951,7 +958,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).identity();
+  return new multi_aff(DangerousGetHandle(), false).identity();
 }
 
  public aff insert_dims(dim_type type, uint first, uint n)
@@ -972,7 +979,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).insert_domain(domain);
+  return new pw_aff(DangerousGetHandle(), false).insert_domain(domain);
 }
 
  public pw_aff intersect_domain(set set)
@@ -980,7 +987,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).intersect_domain(set);
+  return new pw_aff(DangerousGetHandle(), false).intersect_domain(set);
 }
 
  public union_pw_aff intersect_domain(space space)
@@ -988,7 +995,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).intersect_domain(space);
+  return new pw_aff(DangerousGetHandle(), false).intersect_domain(space);
 }
 
  public union_pw_aff intersect_domain(union_set uset)
@@ -996,7 +1003,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).intersect_domain(uset);
+  return new pw_aff(DangerousGetHandle(), false).intersect_domain(uset);
 }
 
  public pw_aff intersect_domain_wrapped_domain(set set)
@@ -1004,7 +1011,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).intersect_domain_wrapped_domain(set);
+  return new pw_aff(DangerousGetHandle(), false).intersect_domain_wrapped_domain(set);
 }
 
  public union_pw_aff intersect_domain_wrapped_domain(union_set uset)
@@ -1012,7 +1019,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).intersect_domain_wrapped_domain(uset);
+  return new pw_aff(DangerousGetHandle(), false).intersect_domain_wrapped_domain(uset);
 }
 
  public pw_aff intersect_domain_wrapped_range(set set)
@@ -1020,7 +1027,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).intersect_domain_wrapped_range(set);
+  return new pw_aff(DangerousGetHandle(), false).intersect_domain_wrapped_range(set);
 }
 
  public union_pw_aff intersect_domain_wrapped_range(union_set uset)
@@ -1028,7 +1035,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).intersect_domain_wrapped_range(uset);
+  return new pw_aff(DangerousGetHandle(), false).intersect_domain_wrapped_range(uset);
 }
 
  public pw_aff intersect_params(set set)
@@ -1036,7 +1043,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).intersect_params(set);
+  return new pw_aff(DangerousGetHandle(), false).intersect_params(set);
 }
 
  public multi_union_pw_aff intersect_range(set set)
@@ -1044,7 +1051,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).intersect_range(set);
+  return new pw_aff(DangerousGetHandle(), false).intersect_range(set);
 }
 
  public bool involves_dims(dim_type type, uint first, uint n)
@@ -1078,7 +1085,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).involves_nan();
+  return new pw_aff(DangerousGetHandle(), false).involves_nan();
 }
 
  public bool involves_param(id id)
@@ -1086,7 +1093,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).involves_param(id);
+  return new pw_aff(DangerousGetHandle(), false).involves_param(id);
 }
 
  public bool involves_param(string id)
@@ -1102,7 +1109,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).involves_param(list);
+  return new pw_aff(DangerousGetHandle(), false).involves_param(list);
 }
 
  public bool involves_param_id(id id)
@@ -1110,7 +1117,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).involves_param_id(id);
+  return new pw_aff(DangerousGetHandle(), false).involves_param_id(id);
 }
 
  public bool involves_param_id(string id)
@@ -1139,7 +1146,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).is_empty();
+  return new pw_aff(DangerousGetHandle(), false).is_empty();
 }
 
  public bool is_nan()
@@ -1160,7 +1167,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).isa_aff();
+  return new pw_aff(DangerousGetHandle(), false).isa_aff();
 }
 
  public bool isa_multi_aff()
@@ -1168,7 +1175,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).isa_multi_aff();
+  return new pw_aff(DangerousGetHandle(), false).isa_multi_aff();
 }
 
  public bool isa_pw_multi_aff()
@@ -1176,7 +1183,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).isa_pw_multi_aff();
+  return new pw_aff(DangerousGetHandle(), false).isa_pw_multi_aff();
 }
 
  public basic_set le_basic_set(aff aff2)
@@ -1197,7 +1204,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).le_map(pa2);
+  return new pw_aff(DangerousGetHandle(), false).le_map(pa2);
 }
 
  public set le_set(aff aff2)
@@ -1218,7 +1225,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).le_set(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).le_set(pwaff2);
 }
 
  public map lex_ge_map(multi_pw_aff mpa2)
@@ -1226,7 +1233,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).lex_ge_map(mpa2);
+  return new pw_aff(DangerousGetHandle(), false).lex_ge_map(mpa2);
 }
 
  public set lex_ge_set(multi_aff ma2)
@@ -1234,7 +1241,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).lex_ge_set(ma2);
+  return new multi_aff(DangerousGetHandle(), false).lex_ge_set(ma2);
 }
 
  public map lex_gt_map(multi_pw_aff mpa2)
@@ -1242,7 +1249,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).lex_gt_map(mpa2);
+  return new pw_aff(DangerousGetHandle(), false).lex_gt_map(mpa2);
 }
 
  public set lex_gt_set(multi_aff ma2)
@@ -1250,7 +1257,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).lex_gt_set(ma2);
+  return new multi_aff(DangerousGetHandle(), false).lex_gt_set(ma2);
 }
 
  public map lex_le_map(multi_pw_aff mpa2)
@@ -1258,7 +1265,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).lex_le_map(mpa2);
+  return new pw_aff(DangerousGetHandle(), false).lex_le_map(mpa2);
 }
 
  public set lex_le_set(multi_aff ma2)
@@ -1266,7 +1273,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).lex_le_set(ma2);
+  return new multi_aff(DangerousGetHandle(), false).lex_le_set(ma2);
 }
 
  public map lex_lt_map(multi_pw_aff mpa2)
@@ -1274,7 +1281,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).lex_lt_map(mpa2);
+  return new pw_aff(DangerousGetHandle(), false).lex_lt_map(mpa2);
 }
 
  public set lex_lt_set(multi_aff ma2)
@@ -1282,7 +1289,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).lex_lt_set(ma2);
+  return new multi_aff(DangerousGetHandle(), false).lex_lt_set(ma2);
 }
 
  public aff_list list()
@@ -1290,7 +1297,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).list();
+  return new multi_aff(DangerousGetHandle(), false).list();
 }
 
  public local_space local_space()
@@ -1324,7 +1331,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).lt_map(pa2);
+  return new pw_aff(DangerousGetHandle(), false).lt_map(pa2);
 }
 
  public set lt_set(aff aff2)
@@ -1345,7 +1352,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).lt_set(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).lt_set(pwaff2);
 }
 
  public multi_pw_aff max(multi_pw_aff multi2)
@@ -1353,7 +1360,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).max(multi2);
+  return new pw_aff(DangerousGetHandle(), false).max(multi2);
 }
 
  public pw_aff max(pw_aff pwaff2)
@@ -1361,7 +1368,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).max(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).max(pwaff2);
 }
 
  public multi_val max_multi_val()
@@ -1369,7 +1376,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).max_multi_val();
+  return new pw_aff(DangerousGetHandle(), false).max_multi_val();
 }
 
  public val max_val()
@@ -1377,7 +1384,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).max_val();
+  return new pw_aff(DangerousGetHandle(), false).max_val();
 }
 
  public multi_pw_aff min(multi_pw_aff multi2)
@@ -1385,7 +1392,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).min(multi2);
+  return new pw_aff(DangerousGetHandle(), false).min(multi2);
 }
 
  public pw_aff min(pw_aff pwaff2)
@@ -1393,7 +1400,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).min(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).min(pwaff2);
 }
 
  public multi_val min_multi_val()
@@ -1401,7 +1408,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).min_multi_val();
+  return new pw_aff(DangerousGetHandle(), false).min_multi_val();
 }
 
  public val min_val()
@@ -1409,7 +1416,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).min_val();
+  return new pw_aff(DangerousGetHandle(), false).min_val();
 }
 
  public aff mod(val mod)
@@ -1438,7 +1445,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).mod_val(f);
+  return new pw_aff(DangerousGetHandle(), false).mod_val(f);
 }
 
  public union_pw_aff mod_val(long f)
@@ -1480,7 +1487,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).mul(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).mul(pwaff2);
 }
 
  public int n_piece()
@@ -1488,7 +1495,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).n_piece();
+  return new pw_aff(DangerousGetHandle(), false).n_piece();
 }
 
  public int n_pw_aff()
@@ -1496,7 +1503,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).n_pw_aff();
+  return new pw_aff(DangerousGetHandle(), false).n_pw_aff();
 }
 
  public static aff nan_on_domain(local_space ls)
@@ -1543,7 +1550,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).ne_set(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).ne_set(pwaff2);
 }
 
  public aff neg()
@@ -1577,7 +1584,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).non_zero_set();
+  return new pw_aff(DangerousGetHandle(), false).non_zero_set();
 }
 
  public set nonneg_set()
@@ -1585,7 +1592,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).nonneg_set();
+  return new pw_aff(DangerousGetHandle(), false).nonneg_set();
 }
 
  public static aff param_on_domain_space_id(space space, id id)
@@ -1606,7 +1613,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).paramss();
+  return new pw_aff(DangerousGetHandle(), false).paramss();
 }
 
  public bool plain_is_empty()
@@ -1614,7 +1621,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).plain_is_empty();
+  return new pw_aff(DangerousGetHandle(), false).plain_is_empty();
 }
 
  public bool plain_is_equal(aff aff2)
@@ -1635,7 +1642,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new multi_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(multi_pw_aff multi2)
@@ -1643,7 +1650,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new pw_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(multi_union_pw_aff multi2)
@@ -1651,7 +1658,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new pw_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(pw_aff pwaff2)
@@ -1659,7 +1666,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).plain_is_equal(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).plain_is_equal(pwaff2);
 }
 
  public bool plain_is_equal(pw_multi_aff pma2)
@@ -1667,7 +1674,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).plain_is_equal(pma2);
+  return new pw_aff(DangerousGetHandle(), false).plain_is_equal(pma2);
 }
 
  public bool plain_is_equal(union_pw_aff upa2)
@@ -1675,7 +1682,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).plain_is_equal(upa2);
+  return new pw_aff(DangerousGetHandle(), false).plain_is_equal(upa2);
 }
 
  public bool plain_is_equal(union_pw_multi_aff upma2)
@@ -1683,7 +1690,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).plain_is_equal(upma2);
+  return new pw_aff(DangerousGetHandle(), false).plain_is_equal(upma2);
 }
 
  public bool plain_is_zero()
@@ -1704,7 +1711,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).pos_set();
+  return new pw_aff(DangerousGetHandle(), false).pos_set();
 }
 
  public pw_multi_aff preimage_domain_wrapped_domain(pw_multi_aff pma2)
@@ -1712,7 +1719,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).preimage_domain_wrapped_domain(pma2);
+  return new pw_aff(DangerousGetHandle(), false).preimage_domain_wrapped_domain(pma2);
 }
 
  public union_pw_multi_aff preimage_domain_wrapped_domain(union_pw_multi_aff upma2)
@@ -1720,7 +1727,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).preimage_domain_wrapped_domain(upma2);
+  return new pw_aff(DangerousGetHandle(), false).preimage_domain_wrapped_domain(upma2);
 }
 
  public multi_aff product(multi_aff multi2)
@@ -1728,7 +1735,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).product(multi2);
+  return new multi_aff(DangerousGetHandle(), false).product(multi2);
 }
 
  public multi_pw_aff product(multi_pw_aff multi2)
@@ -1736,7 +1743,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).product(multi2);
+  return new pw_aff(DangerousGetHandle(), false).product(multi2);
 }
 
  public pw_multi_aff product(pw_multi_aff pma2)
@@ -1744,7 +1751,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).product(pma2);
+  return new pw_aff(DangerousGetHandle(), false).product(pma2);
 }
 
  public pw_aff project_domain_on_params()
@@ -1752,7 +1759,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).project_domain_on_params();
+  return new pw_aff(DangerousGetHandle(), false).project_domain_on_params();
 }
 
  public aff pullback(multi_aff ma)
@@ -1773,7 +1780,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).pullback(mpa);
+  return new pw_aff(DangerousGetHandle(), false).pullback(mpa);
 }
 
  public pw_aff pullback(pw_multi_aff pma)
@@ -1781,7 +1788,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).pullback(pma);
+  return new pw_aff(DangerousGetHandle(), false).pullback(pma);
 }
 
  public union_pw_aff pullback(union_pw_multi_aff upma)
@@ -1789,7 +1796,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).pullback(upma);
+  return new pw_aff(DangerousGetHandle(), false).pullback(upma);
 }
 
  public aff pullback(aff ma)
@@ -1818,7 +1825,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).pw_aff_list();
+  return new pw_aff(DangerousGetHandle(), false).pw_aff_list();
 }
 
  public pw_multi_aff_list pw_multi_aff_list()
@@ -1826,7 +1833,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).pw_multi_aff_list();
+  return new pw_aff(DangerousGetHandle(), false).pw_multi_aff_list();
 }
 
  public pw_multi_aff range_factor_domain()
@@ -1834,7 +1841,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).range_factor_domain();
+  return new pw_aff(DangerousGetHandle(), false).range_factor_domain();
 }
 
  public pw_multi_aff range_factor_range()
@@ -1842,7 +1849,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).range_factor_range();
+  return new pw_aff(DangerousGetHandle(), false).range_factor_range();
 }
 
  public multi_aff range_product(multi_aff multi2)
@@ -1850,7 +1857,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).range_product(multi2);
+  return new multi_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public multi_pw_aff range_product(multi_pw_aff multi2)
@@ -1858,7 +1865,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).range_product(multi2);
+  return new pw_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public multi_union_pw_aff range_product(multi_union_pw_aff multi2)
@@ -1866,7 +1873,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).range_product(multi2);
+  return new pw_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public pw_multi_aff range_product(pw_multi_aff pma2)
@@ -1874,7 +1881,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).range_product(pma2);
+  return new pw_aff(DangerousGetHandle(), false).range_product(pma2);
 }
 
  public union_pw_multi_aff range_product(union_pw_multi_aff upma2)
@@ -1882,7 +1889,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).range_product(upma2);
+  return new pw_aff(DangerousGetHandle(), false).range_product(upma2);
 }
 
  public id range_tuple_id()
@@ -1890,7 +1897,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).range_tuple_id();
+  return new multi_aff(DangerousGetHandle(), false).range_tuple_id();
 }
 
  public multi_aff reset_range_tuple_id()
@@ -1898,7 +1905,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).reset_range_tuple_id();
+  return new multi_aff(DangerousGetHandle(), false).reset_range_tuple_id();
 }
 
  public pw_aff reset_tuple_id(dim_type type)
@@ -1906,7 +1913,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).reset_tuple_id(type);
+  return new pw_aff(DangerousGetHandle(), false).reset_tuple_id(type);
 }
 
  public pw_multi_aff reset_user()
@@ -1914,7 +1921,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).reset_user();
+  return new pw_aff(DangerousGetHandle(), false).reset_user();
 }
 
  public aff scale(val v)
@@ -1943,7 +1950,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).scale(mv);
+  return new multi_aff(DangerousGetHandle(), false).scale(mv);
 }
 
  public aff scale_down(val v)
@@ -1972,7 +1979,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).scale_down(mv);
+  return new multi_aff(DangerousGetHandle(), false).scale_down(mv);
 }
 
  public aff scale_down_ui(uint f)
@@ -1993,7 +2000,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).scale_down_val(v);
+  return new pw_aff(DangerousGetHandle(), false).scale_down_val(v);
 }
 
  public union_pw_aff scale_down_val(long v)
@@ -2009,7 +2016,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).scale_val(v);
+  return new pw_aff(DangerousGetHandle(), false).scale_val(v);
 }
 
  public union_pw_aff scale_val(long v)
@@ -2025,7 +2032,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).set_at(pos, el);
+  return new multi_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public multi_pw_aff set_at(int pos, pw_aff el)
@@ -2033,7 +2040,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).set_at(pos, el);
+  return new pw_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public multi_union_pw_aff set_at(int pos, union_pw_aff el)
@@ -2041,7 +2048,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).set_at(pos, el);
+  return new pw_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public aff set_coefficient_si(dim_type type, int pos, int v)
@@ -2151,7 +2158,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).set_range_tuple(id);
+  return new multi_aff(DangerousGetHandle(), false).set_range_tuple(id);
 }
 
  public multi_aff set_range_tuple(string id)
@@ -2188,7 +2195,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).size();
+  return new multi_aff(DangerousGetHandle(), false).size();
 }
 
  public space space()
@@ -2222,7 +2229,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).sub(multi2);
+  return new multi_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public multi_pw_aff sub(multi_pw_aff multi2)
@@ -2230,7 +2237,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).sub(multi2);
+  return new pw_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public multi_union_pw_aff sub(multi_union_pw_aff multi2)
@@ -2238,7 +2245,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).sub(multi2);
+  return new pw_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public pw_aff sub(pw_aff pwaff2)
@@ -2246,7 +2253,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).sub(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).sub(pwaff2);
 }
 
  public pw_multi_aff sub(pw_multi_aff pma2)
@@ -2254,7 +2261,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).sub(pma2);
+  return new pw_aff(DangerousGetHandle(), false).sub(pma2);
 }
 
  public union_pw_aff sub(union_pw_aff upa2)
@@ -2262,7 +2269,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).sub(upa2);
+  return new pw_aff(DangerousGetHandle(), false).sub(upa2);
 }
 
  public union_pw_multi_aff sub(union_pw_multi_aff upma2)
@@ -2270,7 +2277,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).sub(upma2);
+  return new pw_aff(DangerousGetHandle(), false).sub(upma2);
 }
 
  public pw_aff subtract_domain(set set)
@@ -2278,7 +2285,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).subtract_domain(set);
+  return new pw_aff(DangerousGetHandle(), false).subtract_domain(set);
 }
 
  public union_pw_aff subtract_domain(space space)
@@ -2286,7 +2293,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).subtract_domain(space);
+  return new pw_aff(DangerousGetHandle(), false).subtract_domain(space);
 }
 
  public union_pw_aff subtract_domain(union_set uset)
@@ -2294,7 +2301,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).subtract_domain(uset);
+  return new pw_aff(DangerousGetHandle(), false).subtract_domain(uset);
 }
 
  public pw_aff tdiv_q(pw_aff pa2)
@@ -2302,7 +2309,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).tdiv_q(pa2);
+  return new pw_aff(DangerousGetHandle(), false).tdiv_q(pa2);
 }
 
  public pw_aff tdiv_r(pw_aff pa2)
@@ -2310,7 +2317,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).tdiv_r(pa2);
+  return new pw_aff(DangerousGetHandle(), false).tdiv_r(pa2);
 }
 
  public aff_list to_list()
@@ -2331,7 +2338,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).to_multi_pw_aff();
+  return new multi_aff(DangerousGetHandle(), false).to_multi_pw_aff();
 }
 
  public multi_union_pw_aff to_multi_union_pw_aff()
@@ -2339,7 +2346,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).to_multi_union_pw_aff();
+  return new multi_aff(DangerousGetHandle(), false).to_multi_union_pw_aff();
 }
 
  public pw_multi_aff to_pw_multi_aff()
@@ -2347,7 +2354,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_aff(IncreaseReference()).to_pw_multi_aff();
+  return new multi_aff(DangerousGetHandle(), false).to_pw_multi_aff();
 }
 
  public union_pw_aff to_union_pw_aff()
@@ -2355,7 +2362,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).to_union_pw_aff();
+  return new pw_aff(DangerousGetHandle(), false).to_union_pw_aff();
 }
 
  public union_pw_multi_aff to_union_pw_multi_aff()
@@ -2363,7 +2370,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).to_union_pw_multi_aff();
+  return new pw_aff(DangerousGetHandle(), false).to_union_pw_multi_aff();
 }
 
  public id tuple_id(dim_type type)
@@ -2371,7 +2378,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).tuple_id(type);
+  return new pw_aff(DangerousGetHandle(), false).tuple_id(type);
 }
 
  public string tuple_name(dim_type type)
@@ -2379,7 +2386,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).tuple_name(type);
+  return new pw_aff(DangerousGetHandle(), false).tuple_name(type);
 }
 
  public aff unbind_params_insert_domain(multi_id domain)
@@ -2400,7 +2407,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).union_add(mpa2);
+  return new pw_aff(DangerousGetHandle(), false).union_add(mpa2);
 }
 
  public multi_union_pw_aff union_add(multi_union_pw_aff mupa2)
@@ -2408,7 +2415,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).union_add(mupa2);
+  return new pw_aff(DangerousGetHandle(), false).union_add(mupa2);
 }
 
  public pw_aff union_add(pw_aff pwaff2)
@@ -2416,7 +2423,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).union_add(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).union_add(pwaff2);
 }
 
  public pw_multi_aff union_add(pw_multi_aff pma2)
@@ -2424,7 +2431,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).union_add(pma2);
+  return new pw_aff(DangerousGetHandle(), false).union_add(pma2);
 }
 
  public union_pw_aff union_add(union_pw_aff upa2)
@@ -2432,7 +2439,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).union_add(upa2);
+  return new pw_aff(DangerousGetHandle(), false).union_add(upa2);
 }
 
  public union_pw_multi_aff union_add(union_pw_multi_aff upma2)
@@ -2440,7 +2447,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).union_add(upma2);
+  return new pw_aff(DangerousGetHandle(), false).union_add(upma2);
 }
 
  public pw_aff union_max(pw_aff pwaff2)
@@ -2448,7 +2455,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).union_max(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).union_max(pwaff2);
 }
 
  public pw_aff union_min(pw_aff pwaff2)
@@ -2456,7 +2463,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).union_min(pwaff2);
+  return new pw_aff(DangerousGetHandle(), false).union_min(pwaff2);
 }
 
  public static aff val_on_domain(local_space ls, val val)
@@ -2542,7 +2549,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).zero_set();
+  return new pw_aff(DangerousGetHandle(), false).zero_set();
 }
 
  public union_set zero_union_set()
@@ -2550,7 +2557,7 @@ return new aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_aff(IncreaseReference()).zero_union_set();
+  return new pw_aff(DangerousGetHandle(), false).zero_union_set();
 }
 
 public override string ToString(){
@@ -2564,8 +2571,14 @@ public override string ToString(){
 
 public class aff_list : IntrusiveHandle {
 
-internal aff_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal aff_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ aff_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -2574,6 +2587,7 @@ internal aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ aff_list(aff el) : base(IntPtr.Zero) 
@@ -2587,6 +2601,7 @@ internal aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ aff_list(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -2596,6 +2611,7 @@ internal aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -2804,8 +2820,14 @@ public override string ToString(){
 
 public class ast_build : IntrusiveHandle {
 
-internal ast_build(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_build(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
  class at_each_domain_tuple {
  public Func<ast_node, ast_build, ast_node> func;
  public Exception? eptr;
@@ -2844,6 +2866,7 @@ internal ast_build(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -3533,8 +3556,14 @@ return new ast_build(res).copy_callbacks(this);
 
 public class ast_expr : IntrusiveHandle {
 
-internal ast_expr(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_ast_expr_free(handle);
@@ -3976,8 +4005,14 @@ public override string ToString(){
 
 public class ast_expr_id : ast_expr {
 
-internal ast_expr_id(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_id(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public id id()
 {
@@ -4003,8 +4038,14 @@ public override string ToString(){
 
 public class ast_expr_int : ast_expr {
 
-internal ast_expr_int(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_int(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public val val()
 {
@@ -4030,8 +4071,14 @@ public override string ToString(){
 
 public class ast_expr_list : IntrusiveHandle {
 
-internal ast_expr_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ ast_expr_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -4040,6 +4087,7 @@ internal ast_expr_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ ast_expr_list(ast_expr el) : base(IntPtr.Zero) 
@@ -4053,6 +4101,7 @@ internal ast_expr_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -4261,8 +4310,14 @@ public override string ToString(){
 
 public class ast_expr_op : ast_expr {
 
-internal ast_expr_op(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 public ast_expr_op_type type() {
   if (DangerousGetHandle() == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
@@ -4307,8 +4362,14 @@ public override string ToString(){
 
 public class ast_expr_op_access : ast_expr_op {
 
-internal ast_expr_op_access(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_access(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4321,8 +4382,14 @@ public override string ToString(){
 
 public class ast_expr_op_add : ast_expr_op {
 
-internal ast_expr_op_add(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_add(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4335,8 +4402,14 @@ public override string ToString(){
 
 public class ast_expr_op_address_of : ast_expr_op {
 
-internal ast_expr_op_address_of(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_address_of(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4349,8 +4422,14 @@ public override string ToString(){
 
 public class ast_expr_op_and : ast_expr_op {
 
-internal ast_expr_op_and(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_and(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4363,8 +4442,14 @@ public override string ToString(){
 
 public class ast_expr_op_and_then : ast_expr_op {
 
-internal ast_expr_op_and_then(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_and_then(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4377,8 +4462,14 @@ public override string ToString(){
 
 public class ast_expr_op_call : ast_expr_op {
 
-internal ast_expr_op_call(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_call(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4391,8 +4482,14 @@ public override string ToString(){
 
 public class ast_expr_op_cond : ast_expr_op {
 
-internal ast_expr_op_cond(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_cond(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4405,8 +4502,14 @@ public override string ToString(){
 
 public class ast_expr_op_div : ast_expr_op {
 
-internal ast_expr_op_div(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_div(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4419,8 +4522,14 @@ public override string ToString(){
 
 public class ast_expr_op_eq : ast_expr_op {
 
-internal ast_expr_op_eq(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_eq(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4433,8 +4542,14 @@ public override string ToString(){
 
 public class ast_expr_op_fdiv_q : ast_expr_op {
 
-internal ast_expr_op_fdiv_q(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_fdiv_q(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4447,8 +4562,14 @@ public override string ToString(){
 
 public class ast_expr_op_ge : ast_expr_op {
 
-internal ast_expr_op_ge(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_ge(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4461,8 +4582,14 @@ public override string ToString(){
 
 public class ast_expr_op_gt : ast_expr_op {
 
-internal ast_expr_op_gt(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_gt(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4475,8 +4602,14 @@ public override string ToString(){
 
 public class ast_expr_op_le : ast_expr_op {
 
-internal ast_expr_op_le(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_le(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4489,8 +4622,14 @@ public override string ToString(){
 
 public class ast_expr_op_lt : ast_expr_op {
 
-internal ast_expr_op_lt(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_lt(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4503,8 +4642,14 @@ public override string ToString(){
 
 public class ast_expr_op_max : ast_expr_op {
 
-internal ast_expr_op_max(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_max(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4517,8 +4662,14 @@ public override string ToString(){
 
 public class ast_expr_op_member : ast_expr_op {
 
-internal ast_expr_op_member(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_member(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4531,8 +4682,14 @@ public override string ToString(){
 
 public class ast_expr_op_min : ast_expr_op {
 
-internal ast_expr_op_min(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_min(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4545,8 +4702,14 @@ public override string ToString(){
 
 public class ast_expr_op_minus : ast_expr_op {
 
-internal ast_expr_op_minus(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_minus(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4559,8 +4722,14 @@ public override string ToString(){
 
 public class ast_expr_op_mul : ast_expr_op {
 
-internal ast_expr_op_mul(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_mul(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4573,8 +4742,14 @@ public override string ToString(){
 
 public class ast_expr_op_or : ast_expr_op {
 
-internal ast_expr_op_or(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_or(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4587,8 +4762,14 @@ public override string ToString(){
 
 public class ast_expr_op_or_else : ast_expr_op {
 
-internal ast_expr_op_or_else(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_or_else(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4601,8 +4782,14 @@ public override string ToString(){
 
 public class ast_expr_op_pdiv_q : ast_expr_op {
 
-internal ast_expr_op_pdiv_q(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_pdiv_q(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4615,8 +4802,14 @@ public override string ToString(){
 
 public class ast_expr_op_pdiv_r : ast_expr_op {
 
-internal ast_expr_op_pdiv_r(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_pdiv_r(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4629,8 +4822,14 @@ public override string ToString(){
 
 public class ast_expr_op_select : ast_expr_op {
 
-internal ast_expr_op_select(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_select(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4643,8 +4842,14 @@ public override string ToString(){
 
 public class ast_expr_op_sub : ast_expr_op {
 
-internal ast_expr_op_sub(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_sub(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4657,8 +4862,14 @@ public override string ToString(){
 
 public class ast_expr_op_zdiv_r : ast_expr_op {
 
-internal ast_expr_op_zdiv_r(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_expr_op_zdiv_r(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -4671,8 +4882,14 @@ public override string ToString(){
 
 public class ast_node : IntrusiveHandle {
 
-internal ast_node(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_node(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_ast_node_free(handle);
@@ -4839,8 +5056,14 @@ public override string ToString(){
 
 public class ast_node_block : ast_node {
 
-internal ast_node_block(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_node_block(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ ast_node_block(ast_node_list list) : base(IntPtr.Zero) 
 {
@@ -4853,6 +5076,7 @@ internal ast_node_block(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public ast_node_list children()
@@ -4879,8 +5103,14 @@ public override string ToString(){
 
 public class ast_node_for : ast_node {
 
-internal ast_node_for(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_node_for(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public ast_node body()
 {
@@ -4984,8 +5214,14 @@ public override string ToString(){
 
 public class ast_node_if : ast_node {
 
-internal ast_node_if(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_node_if(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public ast_expr cond()
 {
@@ -5050,8 +5286,14 @@ public override string ToString(){
 
 public class ast_node_list : IntrusiveHandle {
 
-internal ast_node_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_node_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ ast_node_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -5060,6 +5302,7 @@ internal ast_node_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ ast_node_list(ast_node el) : base(IntPtr.Zero) 
@@ -5073,6 +5316,7 @@ internal ast_node_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -5281,8 +5525,14 @@ public override string ToString(){
 
 public class ast_node_mark : ast_node {
 
-internal ast_node_mark(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_node_mark(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public id id()
 {
@@ -5321,8 +5571,14 @@ public override string ToString(){
 
 public class ast_node_user : ast_node {
 
-internal ast_node_user(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_node_user(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ ast_node_user(ast_expr expr) : base(IntPtr.Zero) 
 {
@@ -5335,6 +5591,7 @@ internal ast_node_user(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public ast_expr expr()
@@ -5361,8 +5618,14 @@ public override string ToString(){
 
 public class ast_print_options : IntrusiveHandle {
 
-internal ast_print_options(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal ast_print_options(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
  class print_user_tuple {
  public Func<printer, ast_print_options, ast_node, printer> func;
  public Exception? eptr;
@@ -5534,8 +5797,14 @@ return new ast_print_options(res);
 
 public class basic_map : IntrusiveHandle {
 
-internal basic_map(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal basic_map(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ basic_map(ctx ctx, string str) : base(IntPtr.Zero) 
 {
@@ -5544,6 +5813,7 @@ internal basic_map(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -5629,7 +5899,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).apply_domain(map2);
+  return new map(DangerousGetHandle(), false).apply_domain(map2);
 }
 
  public union_map apply_domain(union_map umap2)
@@ -5637,7 +5907,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).apply_domain(umap2);
+  return new map(DangerousGetHandle(), false).apply_domain(umap2);
 }
 
  public basic_map apply_range(basic_map bmap2)
@@ -5658,7 +5928,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).apply_range(map2);
+  return new map(DangerousGetHandle(), false).apply_range(map2);
 }
 
  public union_map apply_range(union_map umap2)
@@ -5666,7 +5936,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).apply_range(umap2);
+  return new map(DangerousGetHandle(), false).apply_range(umap2);
 }
 
  public map as_map()
@@ -5674,7 +5944,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).as_map();
+  return new map(DangerousGetHandle(), false).as_map();
 }
 
  public multi_union_pw_aff as_multi_union_pw_aff()
@@ -5682,7 +5952,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).as_multi_union_pw_aff();
+  return new map(DangerousGetHandle(), false).as_multi_union_pw_aff();
 }
 
  public pw_multi_aff as_pw_multi_aff()
@@ -5690,7 +5960,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).as_pw_multi_aff();
+  return new map(DangerousGetHandle(), false).as_pw_multi_aff();
 }
 
  public union_pw_multi_aff as_union_pw_multi_aff()
@@ -5698,7 +5968,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).as_union_pw_multi_aff();
+  return new map(DangerousGetHandle(), false).as_union_pw_multi_aff();
 }
 
  public basic_map_list basic_map_list()
@@ -5706,7 +5976,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).basic_map_list();
+  return new map(DangerousGetHandle(), false).basic_map_list();
 }
 
  public set bind_domain(multi_id tuple)
@@ -5714,7 +5984,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).bind_domain(tuple);
+  return new map(DangerousGetHandle(), false).bind_domain(tuple);
 }
 
  public set bind_range(multi_id tuple)
@@ -5722,7 +5992,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).bind_range(tuple);
+  return new map(DangerousGetHandle(), false).bind_range(tuple);
 }
 
  public bool can_curry()
@@ -5743,7 +6013,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).can_range_curry();
+  return new map(DangerousGetHandle(), false).can_range_curry();
 }
 
  public bool can_uncurry()
@@ -5777,7 +6047,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).coalesce();
+  return new map(DangerousGetHandle(), false).coalesce();
 }
 
  public map complement()
@@ -5785,7 +6055,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).complement();
+  return new map(DangerousGetHandle(), false).complement();
 }
 
  public map compute_divs()
@@ -5819,7 +6089,7 @@ return new constraint_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).convex_hull();
+  return new map(DangerousGetHandle(), false).convex_hull();
 }
 
  public basic_map curry()
@@ -5892,7 +6162,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).dim_id(type, pos);
+  return new map(DangerousGetHandle(), false).dim_id(type, pos);
 }
 
  public pw_aff dim_max(int pos)
@@ -5900,7 +6170,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).dim_max(pos);
+  return new map(DangerousGetHandle(), false).dim_max(pos);
 }
 
  public pw_aff dim_min(int pos)
@@ -5908,7 +6178,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).dim_min(pos);
+  return new map(DangerousGetHandle(), false).dim_min(pos);
 }
 
  public string dim_name(dim_type type, uint pos)
@@ -5952,7 +6222,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).domain_factor_domain();
+  return new map(DangerousGetHandle(), false).domain_factor_domain();
 }
 
  public map domain_factor_range()
@@ -5960,7 +6230,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).domain_factor_range();
+  return new map(DangerousGetHandle(), false).domain_factor_range();
 }
 
  public bool domain_is_wrapping()
@@ -5968,7 +6238,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).domain_is_wrapping();
+  return new map(DangerousGetHandle(), false).domain_is_wrapping();
 }
 
  public basic_map domain_map()
@@ -5989,7 +6259,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).domain_map_union_pw_multi_aff();
+  return new map(DangerousGetHandle(), false).domain_map_union_pw_multi_aff();
 }
 
  public basic_map domain_product(basic_map bmap2)
@@ -6010,7 +6280,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).domain_product(map2);
+  return new map(DangerousGetHandle(), false).domain_product(map2);
 }
 
  public union_map domain_product(union_map umap2)
@@ -6018,7 +6288,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).domain_product(umap2);
+  return new map(DangerousGetHandle(), false).domain_product(umap2);
 }
 
  public map domain_reverse()
@@ -6026,7 +6296,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).domain_reverse();
+  return new map(DangerousGetHandle(), false).domain_reverse();
 }
 
  public int domain_tuple_dim()
@@ -6034,7 +6304,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).domain_tuple_dim();
+  return new map(DangerousGetHandle(), false).domain_tuple_dim();
 }
 
  public id domain_tuple_id()
@@ -6042,7 +6312,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).domain_tuple_id();
+  return new map(DangerousGetHandle(), false).domain_tuple_id();
 }
 
  public basic_map drop_constraints_involving_dims(dim_type type, uint first, uint n)
@@ -6115,7 +6385,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).eq_at(mpa);
+  return new map(DangerousGetHandle(), false).eq_at(mpa);
 }
 
  public union_map eq_at(multi_union_pw_aff mupa)
@@ -6123,7 +6393,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).eq_at(mupa);
+  return new map(DangerousGetHandle(), false).eq_at(mupa);
 }
 
  public mat equalities_matrix(dim_type c1, dim_type c2, dim_type c3, dim_type c4, dim_type c5)
@@ -6157,7 +6427,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).every_map(test);
+  return new map(DangerousGetHandle(), false).every_map(test);
 }
 
  public map extract_map(space space)
@@ -6165,7 +6435,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).extract_map(space);
+  return new map(DangerousGetHandle(), false).extract_map(space);
 }
 
  public map factor_domain()
@@ -6173,7 +6443,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).factor_domain();
+  return new map(DangerousGetHandle(), false).factor_domain();
 }
 
  public map factor_range()
@@ -6181,7 +6451,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).factor_range();
+  return new map(DangerousGetHandle(), false).factor_range();
 }
 
  public int find_dim_by_id(dim_type type, id id)
@@ -6189,7 +6459,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).find_dim_by_id(type, id);
+  return new map(DangerousGetHandle(), false).find_dim_by_id(type, id);
 }
 
  public int find_dim_by_id(dim_type type, string id)
@@ -6215,7 +6485,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).fix_input_si(input, value);
+  return new map(DangerousGetHandle(), false).fix_input_si(input, value);
 }
 
  public basic_map fix_si(dim_type type, uint pos, int value)
@@ -6257,7 +6527,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).fixed_power(exp);
+  return new map(DangerousGetHandle(), false).fixed_power(exp);
 }
 
  public map fixed_power(long exp)
@@ -6273,7 +6543,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).flat_domain_product(map2);
+  return new map(DangerousGetHandle(), false).flat_domain_product(map2);
 }
 
  public basic_map flat_product(basic_map bmap2)
@@ -6294,7 +6564,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).flat_product(map2);
+  return new map(DangerousGetHandle(), false).flat_product(map2);
 }
 
  public basic_map flat_range_product(basic_map bmap2)
@@ -6315,7 +6585,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).flat_range_product(map2);
+  return new map(DangerousGetHandle(), false).flat_range_product(map2);
 }
 
  public basic_map flatten()
@@ -6362,7 +6632,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).floordiv_val(d);
+  return new map(DangerousGetHandle(), false).floordiv_val(d);
 }
 
  public map floordiv_val(long d)
@@ -6378,7 +6648,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new map(IncreaseReference()).foreach_basic_map(fn);
+new map(DangerousGetHandle(), false).foreach_basic_map(fn);
 }
 
  public void foreach_constraint(Action<constraint> fn)
@@ -6412,7 +6682,7 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new map(IncreaseReference()).foreach_map(fn);
+new map(DangerousGetHandle(), false).foreach_map(fn);
 }
 
  public static basic_map from_aff(aff aff)
@@ -6537,7 +6807,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).gist(context);
+  return new map(DangerousGetHandle(), false).gist(context);
 }
 
  public union_map gist(union_map context)
@@ -6545,7 +6815,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).gist(context);
+  return new map(DangerousGetHandle(), false).gist(context);
 }
 
  public map gist_basic_map(basic_map context)
@@ -6553,7 +6823,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).gist_basic_map(context);
+  return new map(DangerousGetHandle(), false).gist_basic_map(context);
 }
 
  public basic_map gist_domain(basic_set context)
@@ -6574,7 +6844,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).gist_domain(context);
+  return new map(DangerousGetHandle(), false).gist_domain(context);
 }
 
  public union_map gist_domain(union_set uset)
@@ -6582,7 +6852,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).gist_domain(uset);
+  return new map(DangerousGetHandle(), false).gist_domain(uset);
 }
 
  public basic_map gist_domain(point context)
@@ -6598,7 +6868,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).gist_params(context);
+  return new map(DangerousGetHandle(), false).gist_params(context);
 }
 
  public map gist_range(set context)
@@ -6606,7 +6876,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).gist_range(context);
+  return new map(DangerousGetHandle(), false).gist_range(context);
 }
 
  public union_map gist_range(union_set uset)
@@ -6614,7 +6884,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).gist_range(uset);
+  return new map(DangerousGetHandle(), false).gist_range(uset);
 }
 
  public bool has_dim_id(dim_type type, uint pos)
@@ -6635,7 +6905,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).has_dim_name(type, pos);
+  return new map(DangerousGetHandle(), false).has_dim_name(type, pos);
 }
 
  public bool has_domain_tuple_id()
@@ -6643,7 +6913,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).has_domain_tuple_id();
+  return new map(DangerousGetHandle(), false).has_domain_tuple_id();
 }
 
  public bool has_equal_space(map map2)
@@ -6651,7 +6921,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).has_equal_space(map2);
+  return new map(DangerousGetHandle(), false).has_equal_space(map2);
 }
 
  public bool has_range_tuple_id()
@@ -6659,7 +6929,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).has_range_tuple_id();
+  return new map(DangerousGetHandle(), false).has_range_tuple_id();
 }
 
  public bool has_tuple_id(dim_type type)
@@ -6667,7 +6937,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).has_tuple_id(type);
+  return new map(DangerousGetHandle(), false).has_tuple_id(type);
 }
 
  public bool has_tuple_name(dim_type type)
@@ -6675,7 +6945,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).has_tuple_name(type);
+  return new map(DangerousGetHandle(), false).has_tuple_name(type);
 }
 
  public static basic_map identity(space space)
@@ -6748,7 +7018,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect(map2);
+  return new map(DangerousGetHandle(), false).intersect(map2);
 }
 
  public union_map intersect(union_map umap2)
@@ -6756,7 +7026,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect(umap2);
+  return new map(DangerousGetHandle(), false).intersect(umap2);
 }
 
  public basic_map intersect_domain(basic_set bset)
@@ -6777,7 +7047,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_domain(set);
+  return new map(DangerousGetHandle(), false).intersect_domain(set);
 }
 
  public union_map intersect_domain(space space)
@@ -6785,7 +7055,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_domain(space);
+  return new map(DangerousGetHandle(), false).intersect_domain(space);
 }
 
  public union_map intersect_domain(union_set uset)
@@ -6793,7 +7063,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_domain(uset);
+  return new map(DangerousGetHandle(), false).intersect_domain(uset);
 }
 
  public basic_map intersect_domain(point bset)
@@ -6809,7 +7079,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_domain_factor_domain(factor);
+  return new map(DangerousGetHandle(), false).intersect_domain_factor_domain(factor);
 }
 
  public union_map intersect_domain_factor_domain(union_map factor)
@@ -6817,7 +7087,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_domain_factor_domain(factor);
+  return new map(DangerousGetHandle(), false).intersect_domain_factor_domain(factor);
 }
 
  public map intersect_domain_factor_range(map factor)
@@ -6825,7 +7095,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_domain_factor_range(factor);
+  return new map(DangerousGetHandle(), false).intersect_domain_factor_range(factor);
 }
 
  public union_map intersect_domain_factor_range(union_map factor)
@@ -6833,7 +7103,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_domain_factor_range(factor);
+  return new map(DangerousGetHandle(), false).intersect_domain_factor_range(factor);
 }
 
  public map intersect_domain_wrapped_domain(set domain)
@@ -6841,7 +7111,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_domain_wrapped_domain(domain);
+  return new map(DangerousGetHandle(), false).intersect_domain_wrapped_domain(domain);
 }
 
  public union_map intersect_domain_wrapped_domain(union_set domain)
@@ -6849,7 +7119,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_domain_wrapped_domain(domain);
+  return new map(DangerousGetHandle(), false).intersect_domain_wrapped_domain(domain);
 }
 
  public basic_map intersect_params(basic_set bset)
@@ -6870,7 +7140,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_params(params_);
+  return new map(DangerousGetHandle(), false).intersect_params(params_);
 }
 
  public basic_map intersect_params(point bset)
@@ -6899,7 +7169,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_range(set);
+  return new map(DangerousGetHandle(), false).intersect_range(set);
 }
 
  public union_map intersect_range(space space)
@@ -6907,7 +7177,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_range(space);
+  return new map(DangerousGetHandle(), false).intersect_range(space);
 }
 
  public union_map intersect_range(union_set uset)
@@ -6915,7 +7185,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_range(uset);
+  return new map(DangerousGetHandle(), false).intersect_range(uset);
 }
 
  public basic_map intersect_range(point bset)
@@ -6931,7 +7201,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_range_factor_domain(factor);
+  return new map(DangerousGetHandle(), false).intersect_range_factor_domain(factor);
 }
 
  public union_map intersect_range_factor_domain(union_map factor)
@@ -6939,7 +7209,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_range_factor_domain(factor);
+  return new map(DangerousGetHandle(), false).intersect_range_factor_domain(factor);
 }
 
  public map intersect_range_factor_range(map factor)
@@ -6947,7 +7217,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_range_factor_range(factor);
+  return new map(DangerousGetHandle(), false).intersect_range_factor_range(factor);
 }
 
  public union_map intersect_range_factor_range(union_map factor)
@@ -6955,7 +7225,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_range_factor_range(factor);
+  return new map(DangerousGetHandle(), false).intersect_range_factor_range(factor);
 }
 
  public map intersect_range_wrapped_domain(set domain)
@@ -6963,7 +7233,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_range_wrapped_domain(domain);
+  return new map(DangerousGetHandle(), false).intersect_range_wrapped_domain(domain);
 }
 
  public union_map intersect_range_wrapped_domain(union_set domain)
@@ -6971,7 +7241,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).intersect_range_wrapped_domain(domain);
+  return new map(DangerousGetHandle(), false).intersect_range_wrapped_domain(domain);
 }
 
  public bool involves_dims(dim_type type, uint first, uint n)
@@ -6992,7 +7262,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_bijective();
+  return new map(DangerousGetHandle(), false).is_bijective();
 }
 
  public bool is_disjoint(basic_map bmap2)
@@ -7013,7 +7283,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_disjoint(map2);
+  return new map(DangerousGetHandle(), false).is_disjoint(map2);
 }
 
  public bool is_disjoint(union_map umap2)
@@ -7021,7 +7291,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_disjoint(umap2);
+  return new map(DangerousGetHandle(), false).is_disjoint(umap2);
 }
 
  public bool is_empty()
@@ -7055,7 +7325,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_equal(map2);
+  return new map(DangerousGetHandle(), false).is_equal(map2);
 }
 
  public bool is_equal(union_map umap2)
@@ -7063,7 +7333,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_equal(umap2);
+  return new map(DangerousGetHandle(), false).is_equal(umap2);
 }
 
  public bool is_identity()
@@ -7071,7 +7341,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_identity();
+  return new map(DangerousGetHandle(), false).is_identity();
 }
 
  public bool is_injective()
@@ -7079,7 +7349,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_injective();
+  return new map(DangerousGetHandle(), false).is_injective();
 }
 
  public bool is_product()
@@ -7087,7 +7357,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_product();
+  return new map(DangerousGetHandle(), false).is_product();
 }
 
  public bool is_rational()
@@ -7134,7 +7404,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_strict_subset(map2);
+  return new map(DangerousGetHandle(), false).is_strict_subset(map2);
 }
 
  public bool is_strict_subset(union_map umap2)
@@ -7142,7 +7412,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_strict_subset(umap2);
+  return new map(DangerousGetHandle(), false).is_strict_subset(umap2);
 }
 
  public bool is_subset(basic_map bmap2)
@@ -7163,7 +7433,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_subset(map2);
+  return new map(DangerousGetHandle(), false).is_subset(map2);
 }
 
  public bool is_subset(union_map umap2)
@@ -7171,7 +7441,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_subset(umap2);
+  return new map(DangerousGetHandle(), false).is_subset(umap2);
 }
 
  public int is_translation()
@@ -7179,7 +7449,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).is_translation();
+  return new map(DangerousGetHandle(), false).is_translation();
 }
 
  public bool is_universe()
@@ -7200,7 +7470,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).isa_map();
+  return new map(DangerousGetHandle(), false).isa_map();
 }
 
  public static basic_map less_at(space space, uint pos)
@@ -7221,7 +7491,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_ge_at(mpa);
+  return new map(DangerousGetHandle(), false).lex_ge_at(mpa);
 }
 
  public map lex_ge_map(map map2)
@@ -7229,7 +7499,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_ge_map(map2);
+  return new map(DangerousGetHandle(), false).lex_ge_map(map2);
 }
 
  public union_map lex_ge_union_map(union_map umap2)
@@ -7237,7 +7507,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_ge_union_map(umap2);
+  return new map(DangerousGetHandle(), false).lex_ge_union_map(umap2);
 }
 
  public map lex_gt_at(multi_pw_aff mpa)
@@ -7245,7 +7515,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_gt_at(mpa);
+  return new map(DangerousGetHandle(), false).lex_gt_at(mpa);
 }
 
  public map lex_gt_map(map map2)
@@ -7253,7 +7523,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_gt_map(map2);
+  return new map(DangerousGetHandle(), false).lex_gt_map(map2);
 }
 
  public union_map lex_gt_union_map(union_map umap2)
@@ -7261,7 +7531,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_gt_union_map(umap2);
+  return new map(DangerousGetHandle(), false).lex_gt_union_map(umap2);
 }
 
  public map lex_le_at(multi_pw_aff mpa)
@@ -7269,7 +7539,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_le_at(mpa);
+  return new map(DangerousGetHandle(), false).lex_le_at(mpa);
 }
 
  public map lex_le_map(map map2)
@@ -7277,7 +7547,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_le_map(map2);
+  return new map(DangerousGetHandle(), false).lex_le_map(map2);
 }
 
  public union_map lex_le_union_map(union_map umap2)
@@ -7285,7 +7555,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_le_union_map(umap2);
+  return new map(DangerousGetHandle(), false).lex_le_union_map(umap2);
 }
 
  public map lex_lt_at(multi_pw_aff mpa)
@@ -7293,7 +7563,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_lt_at(mpa);
+  return new map(DangerousGetHandle(), false).lex_lt_at(mpa);
 }
 
  public map lex_lt_map(map map2)
@@ -7301,7 +7571,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_lt_map(map2);
+  return new map(DangerousGetHandle(), false).lex_lt_map(map2);
 }
 
  public union_map lex_lt_union_map(union_map umap2)
@@ -7309,7 +7579,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lex_lt_union_map(umap2);
+  return new map(DangerousGetHandle(), false).lex_lt_union_map(umap2);
 }
 
  public map lexmax()
@@ -7330,7 +7600,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lexmax_pw_multi_aff();
+  return new map(DangerousGetHandle(), false).lexmax_pw_multi_aff();
 }
 
  public map lexmin()
@@ -7351,7 +7621,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lexmin_pw_multi_aff();
+  return new map(DangerousGetHandle(), false).lexmin_pw_multi_aff();
 }
 
  public local_space local_space()
@@ -7372,7 +7642,7 @@ return new local_space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lower_bound(lower);
+  return new map(DangerousGetHandle(), false).lower_bound(lower);
 }
 
  public basic_map lower_bound_si(dim_type type, uint pos, int value)
@@ -7393,7 +7663,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).lower_bound_val(type, pos, value);
+  return new map(DangerousGetHandle(), false).lower_bound_val(type, pos, value);
 }
 
  public map lower_bound_val(dim_type type, uint pos, long value)
@@ -7409,7 +7679,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).make_disjoint();
+  return new map(DangerousGetHandle(), false).make_disjoint();
 }
 
  public map_list map_list()
@@ -7417,7 +7687,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).map_list();
+  return new map(DangerousGetHandle(), false).map_list();
 }
 
  public multi_pw_aff max_multi_pw_aff()
@@ -7425,7 +7695,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).max_multi_pw_aff();
+  return new map(DangerousGetHandle(), false).max_multi_pw_aff();
 }
 
  public multi_pw_aff min_multi_pw_aff()
@@ -7433,7 +7703,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).min_multi_pw_aff();
+  return new map(DangerousGetHandle(), false).min_multi_pw_aff();
 }
 
  public static basic_map more_at(space space, uint pos)
@@ -7467,7 +7737,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).n_basic_map();
+  return new map(DangerousGetHandle(), false).n_basic_map();
 }
 
  public int n_constraint()
@@ -7514,7 +7784,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).oppose(type1, pos1, type2, pos2);
+  return new map(DangerousGetHandle(), false).oppose(type1, pos1, type2, pos2);
 }
 
  public basic_map order_ge(dim_type type1, int pos1, dim_type type2, int pos2)
@@ -7548,7 +7818,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).order_le(type1, pos1, type2, pos2);
+  return new map(DangerousGetHandle(), false).order_le(type1, pos1, type2, pos2);
 }
 
  public map order_lt(dim_type type1, int pos1, dim_type type2, int pos2)
@@ -7556,7 +7826,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).order_lt(type1, pos1, type2, pos2);
+  return new map(DangerousGetHandle(), false).order_lt(type1, pos1, type2, pos2);
 }
 
  public set paramss()
@@ -7564,7 +7834,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).paramss();
+  return new map(DangerousGetHandle(), false).paramss();
 }
 
  public val plain_get_val_if_fixed(dim_type type, uint pos)
@@ -7598,7 +7868,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).plain_is_injective();
+  return new map(DangerousGetHandle(), false).plain_is_injective();
 }
 
  public bool plain_is_single_valued()
@@ -7606,7 +7876,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).plain_is_single_valued();
+  return new map(DangerousGetHandle(), false).plain_is_single_valued();
 }
 
  public bool plain_is_universe()
@@ -7627,7 +7897,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).plain_unshifted_simple_hull();
+  return new map(DangerousGetHandle(), false).plain_unshifted_simple_hull();
 }
 
  public basic_map polyhedral_hull()
@@ -7635,7 +7905,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).polyhedral_hull();
+  return new map(DangerousGetHandle(), false).polyhedral_hull();
 }
 
  public map preimage_domain(multi_aff ma)
@@ -7643,7 +7913,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).preimage_domain(ma);
+  return new map(DangerousGetHandle(), false).preimage_domain(ma);
 }
 
  public map preimage_domain(multi_pw_aff mpa)
@@ -7651,7 +7921,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).preimage_domain(mpa);
+  return new map(DangerousGetHandle(), false).preimage_domain(mpa);
 }
 
  public map preimage_domain(pw_multi_aff pma)
@@ -7659,7 +7929,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).preimage_domain(pma);
+  return new map(DangerousGetHandle(), false).preimage_domain(pma);
 }
 
  public union_map preimage_domain(union_pw_multi_aff upma)
@@ -7667,7 +7937,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).preimage_domain(upma);
+  return new map(DangerousGetHandle(), false).preimage_domain(upma);
 }
 
  public map preimage_range(multi_aff ma)
@@ -7675,7 +7945,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).preimage_range(ma);
+  return new map(DangerousGetHandle(), false).preimage_range(ma);
 }
 
  public map preimage_range(pw_multi_aff pma)
@@ -7683,7 +7953,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).preimage_range(pma);
+  return new map(DangerousGetHandle(), false).preimage_range(pma);
 }
 
  public union_map preimage_range(union_pw_multi_aff upma)
@@ -7691,7 +7961,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).preimage_range(upma);
+  return new map(DangerousGetHandle(), false).preimage_range(upma);
 }
 
  public basic_map product(basic_map bmap2)
@@ -7712,7 +7982,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).product(map2);
+  return new map(DangerousGetHandle(), false).product(map2);
 }
 
  public union_map product(union_map umap2)
@@ -7720,7 +7990,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).product(umap2);
+  return new map(DangerousGetHandle(), false).product(umap2);
 }
 
  public basic_map project_out(dim_type type, uint first, uint n)
@@ -7741,7 +8011,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).project_out_all_params();
+  return new map(DangerousGetHandle(), false).project_out_all_params();
 }
 
  public map project_out_param(id id)
@@ -7749,7 +8019,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).project_out_param(id);
+  return new map(DangerousGetHandle(), false).project_out_param(id);
 }
 
  public map project_out_param(string id)
@@ -7765,7 +8035,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).project_out_param(list);
+  return new map(DangerousGetHandle(), false).project_out_param(list);
 }
 
  public basic_set range()
@@ -7786,7 +8056,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_curry();
+  return new map(DangerousGetHandle(), false).range_curry();
 }
 
  public map range_factor_domain()
@@ -7794,7 +8064,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_factor_domain();
+  return new map(DangerousGetHandle(), false).range_factor_domain();
 }
 
  public map range_factor_range()
@@ -7802,7 +8072,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_factor_range();
+  return new map(DangerousGetHandle(), false).range_factor_range();
 }
 
  public bool range_is_wrapping()
@@ -7810,7 +8080,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_is_wrapping();
+  return new map(DangerousGetHandle(), false).range_is_wrapping();
 }
 
  public fixed_box range_lattice_tile()
@@ -7818,7 +8088,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_lattice_tile();
+  return new map(DangerousGetHandle(), false).range_lattice_tile();
 }
 
  public basic_map range_map()
@@ -7852,7 +8122,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_product(map2);
+  return new map(DangerousGetHandle(), false).range_product(map2);
 }
 
  public union_map range_product(union_map umap2)
@@ -7860,7 +8130,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_product(umap2);
+  return new map(DangerousGetHandle(), false).range_product(umap2);
 }
 
  public map range_reverse()
@@ -7868,7 +8138,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_reverse();
+  return new map(DangerousGetHandle(), false).range_reverse();
 }
 
  public fixed_box range_simple_fixed_box_hull()
@@ -7876,7 +8146,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_simple_fixed_box_hull();
+  return new map(DangerousGetHandle(), false).range_simple_fixed_box_hull();
 }
 
  public stride_info range_stride_info(int pos)
@@ -7884,7 +8154,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_stride_info(pos);
+  return new map(DangerousGetHandle(), false).range_stride_info(pos);
 }
 
  public int range_tuple_dim()
@@ -7892,7 +8162,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_tuple_dim();
+  return new map(DangerousGetHandle(), false).range_tuple_dim();
 }
 
  public id range_tuple_id()
@@ -7900,7 +8170,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).range_tuple_id();
+  return new map(DangerousGetHandle(), false).range_tuple_id();
 }
 
  public basic_map remove_dims(dim_type type, uint first, uint n)
@@ -7947,7 +8217,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).remove_inputs(first, n);
+  return new map(DangerousGetHandle(), false).remove_inputs(first, n);
 }
 
  public union_map remove_map_if(Func<map, bool> fn)
@@ -7955,7 +8225,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).remove_map_if(fn);
+  return new map(DangerousGetHandle(), false).remove_map_if(fn);
 }
 
  public basic_map remove_redundancies()
@@ -7976,7 +8246,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).remove_unknown_divs();
+  return new map(DangerousGetHandle(), false).remove_unknown_divs();
 }
 
  public map reset_tuple_id(dim_type type)
@@ -7984,7 +8254,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).reset_tuple_id(type);
+  return new map(DangerousGetHandle(), false).reset_tuple_id(type);
 }
 
  public basic_map reverse()
@@ -8018,7 +8288,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).set_dim_id(type, pos, id);
+  return new map(DangerousGetHandle(), false).set_dim_id(type, pos, id);
 }
 
  public map set_dim_id(dim_type type, uint pos, string id)
@@ -8047,7 +8317,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).set_domain_tuple(id);
+  return new map(DangerousGetHandle(), false).set_domain_tuple(id);
 }
 
  public map set_domain_tuple(string id)
@@ -8063,7 +8333,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).set_range_tuple(id);
+  return new map(DangerousGetHandle(), false).set_range_tuple(id);
 }
 
  public map set_range_tuple(string id)
@@ -8113,7 +8383,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).simple_hull();
+  return new map(DangerousGetHandle(), false).simple_hull();
 }
 
  public space space()
@@ -8134,7 +8404,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).subtract(map2);
+  return new map(DangerousGetHandle(), false).subtract(map2);
 }
 
  public union_map subtract(union_map umap2)
@@ -8142,7 +8412,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).subtract(umap2);
+  return new map(DangerousGetHandle(), false).subtract(umap2);
 }
 
  public map subtract_domain(set dom)
@@ -8150,7 +8420,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).subtract_domain(dom);
+  return new map(DangerousGetHandle(), false).subtract_domain(dom);
 }
 
  public union_map subtract_domain(union_set dom)
@@ -8158,7 +8428,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).subtract_domain(dom);
+  return new map(DangerousGetHandle(), false).subtract_domain(dom);
 }
 
  public map subtract_range(set dom)
@@ -8166,7 +8436,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).subtract_range(dom);
+  return new map(DangerousGetHandle(), false).subtract_range(dom);
 }
 
  public union_map subtract_range(union_set dom)
@@ -8174,7 +8444,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).subtract_range(dom);
+  return new map(DangerousGetHandle(), false).subtract_range(dom);
 }
 
  public basic_map sum(basic_map bmap2)
@@ -8195,7 +8465,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).sum(map2);
+  return new map(DangerousGetHandle(), false).sum(map2);
 }
 
  public basic_map_list to_list()
@@ -8216,7 +8486,7 @@ return new basic_map_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).to_union_map();
+  return new map(DangerousGetHandle(), false).to_union_map();
 }
 
  public int total_dim()
@@ -8237,7 +8507,7 @@ return new basic_map_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).tuple_id(type);
+  return new map(DangerousGetHandle(), false).tuple_id(type);
 }
 
  public string tuple_name(dim_type type)
@@ -8281,7 +8551,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).union(map2);
+  return new map(DangerousGetHandle(), false).union(map2);
 }
 
  public union_map union(union_map umap2)
@@ -8289,7 +8559,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).union(umap2);
+  return new map(DangerousGetHandle(), false).union(umap2);
 }
 
  public map union_disjoint(map map2)
@@ -8297,7 +8567,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).union_disjoint(map2);
+  return new map(DangerousGetHandle(), false).union_disjoint(map2);
 }
 
  public static basic_map universe(space space)
@@ -8318,7 +8588,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).unshifted_simple_hull();
+  return new map(DangerousGetHandle(), false).unshifted_simple_hull();
 }
 
  public basic_map unshifted_simple_hull_from_map_list(map_list list)
@@ -8326,7 +8596,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).unshifted_simple_hull_from_map_list(list);
+  return new map(DangerousGetHandle(), false).unshifted_simple_hull_from_map_list(list);
 }
 
  public map upper_bound(multi_pw_aff upper)
@@ -8334,7 +8604,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).upper_bound(upper);
+  return new map(DangerousGetHandle(), false).upper_bound(upper);
 }
 
  public basic_map upper_bound_si(dim_type type, uint pos, int value)
@@ -8355,7 +8625,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).upper_bound_val(type, pos, value);
+  return new map(DangerousGetHandle(), false).upper_bound_val(type, pos, value);
 }
 
  public map upper_bound_val(dim_type type, uint pos, long value)
@@ -8371,7 +8641,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new map(IncreaseReference()).wrap();
+  return new map(DangerousGetHandle(), false).wrap();
 }
 
  public basic_map zip()
@@ -8398,8 +8668,14 @@ public override string ToString(){
 
 public class basic_map_list : IntrusiveHandle {
 
-internal basic_map_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal basic_map_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ basic_map_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -8408,6 +8684,7 @@ internal basic_map_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ basic_map_list(basic_map el) : base(IntPtr.Zero) 
@@ -8421,6 +8698,7 @@ internal basic_map_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -8629,8 +8907,14 @@ public override string ToString(){
 
 public class basic_set : IntrusiveHandle {
 
-internal basic_set(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal basic_set(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ basic_set(point pnt) : base(IntPtr.Zero) 
 {
@@ -8643,6 +8927,7 @@ internal basic_set(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ basic_set(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -8652,6 +8937,7 @@ internal basic_set(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -8737,7 +9023,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).apply(map);
+  return new set(DangerousGetHandle(), false).apply(map);
 }
 
  public union_set apply(union_map umap)
@@ -8745,7 +9031,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).apply(umap);
+  return new set(DangerousGetHandle(), false).apply(umap);
 }
 
  public pw_multi_aff as_pw_multi_aff()
@@ -8753,7 +9039,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).as_pw_multi_aff();
+  return new set(DangerousGetHandle(), false).as_pw_multi_aff();
 }
 
  public set as_set()
@@ -8761,7 +9047,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).as_set();
+  return new set(DangerousGetHandle(), false).as_set();
 }
 
  public basic_set_list basic_set_list()
@@ -8769,7 +9055,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).basic_set_list();
+  return new set(DangerousGetHandle(), false).basic_set_list();
 }
 
  public set bind(multi_id tuple)
@@ -8777,7 +9063,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).bind(tuple);
+  return new set(DangerousGetHandle(), false).bind(tuple);
 }
 
  public basic_set bounded_simple_hull()
@@ -8785,7 +9071,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).bounded_simple_hull();
+  return new set(DangerousGetHandle(), false).bounded_simple_hull();
 }
 
  public static basic_set box_from_points(point pnt1, point pnt2)
@@ -8806,7 +9092,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).coalesce();
+  return new set(DangerousGetHandle(), false).coalesce();
 }
 
  public basic_set coefficients()
@@ -8837,7 +9123,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).complement();
+  return new set(DangerousGetHandle(), false).complement();
 }
 
  public set compute_divs()
@@ -8858,7 +9144,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).compute_schedule(validity, proximity);
+  return new set(DangerousGetHandle(), false).compute_schedule(validity, proximity);
 }
 
  public vertices compute_vertices()
@@ -8892,7 +9178,7 @@ return new constraint_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).convex_hull();
+  return new set(DangerousGetHandle(), false).convex_hull();
 }
 
  public val count_val()
@@ -8900,7 +9186,7 @@ return new constraint_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).count_val();
+  return new set(DangerousGetHandle(), false).count_val();
 }
 
  public basic_set detect_equalities()
@@ -8934,7 +9220,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).dim_has_any_lower_bound(type, pos);
+  return new set(DangerousGetHandle(), false).dim_has_any_lower_bound(type, pos);
 }
 
  public bool dim_has_any_upper_bound(dim_type type, uint pos)
@@ -8942,7 +9228,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).dim_has_any_upper_bound(type, pos);
+  return new set(DangerousGetHandle(), false).dim_has_any_upper_bound(type, pos);
 }
 
  public bool dim_has_lower_bound(dim_type type, uint pos)
@@ -8950,7 +9236,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).dim_has_lower_bound(type, pos);
+  return new set(DangerousGetHandle(), false).dim_has_lower_bound(type, pos);
 }
 
  public bool dim_has_upper_bound(dim_type type, uint pos)
@@ -8958,7 +9244,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).dim_has_upper_bound(type, pos);
+  return new set(DangerousGetHandle(), false).dim_has_upper_bound(type, pos);
 }
 
  public id dim_id(dim_type type, uint pos)
@@ -8979,7 +9265,7 @@ return new id(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).dim_is_bounded(type, pos);
+  return new set(DangerousGetHandle(), false).dim_is_bounded(type, pos);
 }
 
  public pw_aff dim_max(int pos)
@@ -8987,7 +9273,7 @@ return new id(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).dim_max(pos);
+  return new set(DangerousGetHandle(), false).dim_max(pos);
 }
 
  public val dim_max_val(int pos)
@@ -9008,7 +9294,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).dim_min(pos);
+  return new set(DangerousGetHandle(), false).dim_min(pos);
 }
 
  public val dim_min_val(int pos)
@@ -9016,7 +9302,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).dim_min_val(pos);
+  return new set(DangerousGetHandle(), false).dim_min_val(pos);
 }
 
  public string dim_name(dim_type type, uint pos)
@@ -9099,7 +9385,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).eliminate_dims(first, n);
+  return new set(DangerousGetHandle(), false).eliminate_dims(first, n);
 }
 
  public static basic_set empty(space space)
@@ -9133,7 +9419,7 @@ return new mat(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).every_set(test);
+  return new set(DangerousGetHandle(), false).every_set(test);
 }
 
  public set extract_set(space space)
@@ -9141,7 +9427,7 @@ return new mat(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).extract_set(space);
+  return new set(DangerousGetHandle(), false).extract_set(space);
 }
 
  public int find_dim_by_id(dim_type type, id id)
@@ -9149,7 +9435,7 @@ return new mat(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).find_dim_by_id(type, id);
+  return new set(DangerousGetHandle(), false).find_dim_by_id(type, id);
 }
 
  public int find_dim_by_id(dim_type type, string id)
@@ -9165,7 +9451,7 @@ return new mat(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).find_dim_by_name(type, name);
+  return new set(DangerousGetHandle(), false).find_dim_by_name(type, name);
 }
 
  public set fix_dim_si(uint dim, int value)
@@ -9173,7 +9459,7 @@ return new mat(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).fix_dim_si(dim, value);
+  return new set(DangerousGetHandle(), false).fix_dim_si(dim, value);
 }
 
  public basic_set fix_si(dim_type type, uint pos, int value)
@@ -9228,7 +9514,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).flat_product(set2);
+  return new set(DangerousGetHandle(), false).flat_product(set2);
 }
 
  public basic_set flat_product(point bset2)
@@ -9257,7 +9543,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).flatten_map();
+  return new set(DangerousGetHandle(), false).flatten_map();
 }
 
  public int follows_at(set set2, int pos)
@@ -9265,7 +9551,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).follows_at(set2, pos);
+  return new set(DangerousGetHandle(), false).follows_at(set2, pos);
 }
 
  public void foreach_basic_set(Action<basic_set> fn)
@@ -9273,7 +9559,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new set(IncreaseReference()).foreach_basic_set(fn);
+new set(DangerousGetHandle(), false).foreach_basic_set(fn);
 }
 
  public void foreach_bound_pair(dim_type type, uint pos, Action<constraint, constraint, basic_set> fn)
@@ -9333,7 +9619,7 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new set(IncreaseReference()).foreach_point(fn);
+new set(DangerousGetHandle(), false).foreach_point(fn);
 }
 
  public void foreach_set(Action<set> fn)
@@ -9341,7 +9627,7 @@ new set(IncreaseReference()).foreach_point(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new set(IncreaseReference()).foreach_set(fn);
+new set(DangerousGetHandle(), false).foreach_set(fn);
 }
 
  public static basic_set from_constraint(constraint constraint)
@@ -9414,7 +9700,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).gist(context);
+  return new set(DangerousGetHandle(), false).gist(context);
 }
 
  public union_set gist(union_set context)
@@ -9422,7 +9708,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).gist(context);
+  return new set(DangerousGetHandle(), false).gist(context);
 }
 
  public basic_set gist(point context)
@@ -9438,7 +9724,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).gist_basic_set(context);
+  return new set(DangerousGetHandle(), false).gist_basic_set(context);
 }
 
  public set gist_params(set context)
@@ -9446,7 +9732,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).gist_params(context);
+  return new set(DangerousGetHandle(), false).gist_params(context);
 }
 
  public bool has_dim_id(dim_type type, uint pos)
@@ -9454,7 +9740,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).has_dim_id(type, pos);
+  return new set(DangerousGetHandle(), false).has_dim_id(type, pos);
 }
 
  public bool has_dim_name(dim_type type, uint pos)
@@ -9462,7 +9748,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).has_dim_name(type, pos);
+  return new set(DangerousGetHandle(), false).has_dim_name(type, pos);
 }
 
  public bool has_equal_space(set set2)
@@ -9470,7 +9756,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).has_equal_space(set2);
+  return new set(DangerousGetHandle(), false).has_equal_space(set2);
 }
 
  public bool has_tuple_id()
@@ -9478,7 +9764,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).has_tuple_id();
+  return new set(DangerousGetHandle(), false).has_tuple_id();
 }
 
  public bool has_tuple_name()
@@ -9486,7 +9772,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).has_tuple_name();
+  return new set(DangerousGetHandle(), false).has_tuple_name();
 }
 
  public map identity()
@@ -9494,7 +9780,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).identity();
+  return new set(DangerousGetHandle(), false).identity();
 }
 
  public pw_aff indicator_function()
@@ -9502,7 +9788,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).indicator_function();
+  return new set(DangerousGetHandle(), false).indicator_function();
 }
 
  public mat inequalities_matrix(dim_type c1, dim_type c2, dim_type c3, dim_type c4)
@@ -9536,7 +9822,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).insert_domain(domain);
+  return new set(DangerousGetHandle(), false).insert_domain(domain);
 }
 
  public basic_set intersect(basic_set bset2)
@@ -9557,7 +9843,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).intersect(set2);
+  return new set(DangerousGetHandle(), false).intersect(set2);
 }
 
  public union_set intersect(union_set uset2)
@@ -9565,7 +9851,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).intersect(uset2);
+  return new set(DangerousGetHandle(), false).intersect(uset2);
 }
 
  public basic_set intersect(point bset2)
@@ -9594,7 +9880,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).intersect_params(params_);
+  return new set(DangerousGetHandle(), false).intersect_params(params_);
 }
 
  public basic_set intersect_params(point bset2)
@@ -9623,7 +9909,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).involves_locals();
+  return new set(DangerousGetHandle(), false).involves_locals();
 }
 
  public bool is_bounded()
@@ -9644,7 +9930,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_box();
+  return new set(DangerousGetHandle(), false).is_box();
 }
 
  public bool is_disjoint(basic_set bset2)
@@ -9665,7 +9951,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_disjoint(set2);
+  return new set(DangerousGetHandle(), false).is_disjoint(set2);
 }
 
  public bool is_disjoint(union_set uset2)
@@ -9673,7 +9959,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_disjoint(uset2);
+  return new set(DangerousGetHandle(), false).is_disjoint(uset2);
 }
 
  public bool is_disjoint(point bset2)
@@ -9715,7 +10001,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_equal(set2);
+  return new set(DangerousGetHandle(), false).is_equal(set2);
 }
 
  public bool is_equal(union_set uset2)
@@ -9723,7 +10009,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_equal(uset2);
+  return new set(DangerousGetHandle(), false).is_equal(uset2);
 }
 
  public bool is_equal(point bset2)
@@ -9739,7 +10025,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_params();
+  return new set(DangerousGetHandle(), false).is_params();
 }
 
  public int is_rational()
@@ -9757,7 +10043,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_singleton();
+  return new set(DangerousGetHandle(), false).is_singleton();
 }
 
  public bool is_strict_subset(set set2)
@@ -9765,7 +10051,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_strict_subset(set2);
+  return new set(DangerousGetHandle(), false).is_strict_subset(set2);
 }
 
  public bool is_strict_subset(union_set uset2)
@@ -9773,7 +10059,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_strict_subset(uset2);
+  return new set(DangerousGetHandle(), false).is_strict_subset(uset2);
 }
 
  public bool is_subset(basic_set bset2)
@@ -9794,7 +10080,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_subset(set2);
+  return new set(DangerousGetHandle(), false).is_subset(set2);
 }
 
  public bool is_subset(union_set uset2)
@@ -9802,7 +10088,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).is_subset(uset2);
+  return new set(DangerousGetHandle(), false).is_subset(uset2);
 }
 
  public bool is_subset(point bset2)
@@ -9844,7 +10130,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).isa_set();
+  return new set(DangerousGetHandle(), false).isa_set();
 }
 
  public fixed_box lattice_tile()
@@ -9852,7 +10138,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).lattice_tile();
+  return new set(DangerousGetHandle(), false).lattice_tile();
 }
 
  public map lex_ge_set(set set2)
@@ -9860,7 +10146,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).lex_ge_set(set2);
+  return new set(DangerousGetHandle(), false).lex_ge_set(set2);
 }
 
  public map lex_gt_set(set set2)
@@ -9868,7 +10154,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).lex_gt_set(set2);
+  return new set(DangerousGetHandle(), false).lex_gt_set(set2);
 }
 
  public map lex_le_set(set set2)
@@ -9876,7 +10162,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).lex_le_set(set2);
+  return new set(DangerousGetHandle(), false).lex_le_set(set2);
 }
 
  public map lex_lt_set(set set2)
@@ -9884,7 +10170,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).lex_lt_set(set2);
+  return new set(DangerousGetHandle(), false).lex_lt_set(set2);
 }
 
  public set lexmax()
@@ -9905,7 +10191,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).lexmax_pw_multi_aff();
+  return new set(DangerousGetHandle(), false).lexmax_pw_multi_aff();
 }
 
  public set lexmin()
@@ -9926,7 +10212,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).lexmin_pw_multi_aff();
+  return new set(DangerousGetHandle(), false).lexmin_pw_multi_aff();
 }
 
  public basic_set lift()
@@ -9960,7 +10246,7 @@ return new local_space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).lower_bound(lower);
+  return new set(DangerousGetHandle(), false).lower_bound(lower);
 }
 
  public set lower_bound(multi_val lower)
@@ -9968,7 +10254,7 @@ return new local_space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).lower_bound(lower);
+  return new set(DangerousGetHandle(), false).lower_bound(lower);
 }
 
  public set lower_bound_si(dim_type type, uint pos, int value)
@@ -9976,7 +10262,7 @@ return new local_space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).lower_bound_si(type, pos, value);
+  return new set(DangerousGetHandle(), false).lower_bound_si(type, pos, value);
 }
 
  public basic_set lower_bound_val(dim_type type, uint pos, val value)
@@ -10005,7 +10291,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).make_disjoint();
+  return new set(DangerousGetHandle(), false).make_disjoint();
 }
 
  public multi_pw_aff max_multi_pw_aff()
@@ -10013,7 +10299,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).max_multi_pw_aff();
+  return new set(DangerousGetHandle(), false).max_multi_pw_aff();
 }
 
  public val max_val(aff obj)
@@ -10021,7 +10307,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).max_val(obj);
+  return new set(DangerousGetHandle(), false).max_val(obj);
 }
 
  public multi_pw_aff min_multi_pw_aff()
@@ -10029,7 +10315,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).min_multi_pw_aff();
+  return new set(DangerousGetHandle(), false).min_multi_pw_aff();
 }
 
  public val min_val(aff obj)
@@ -10037,7 +10323,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).min_val(obj);
+  return new set(DangerousGetHandle(), false).min_val(obj);
 }
 
  public basic_set move_dims(dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n)
@@ -10058,7 +10344,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).n_basic_set();
+  return new set(DangerousGetHandle(), false).n_basic_set();
 }
 
  public int n_constraint()
@@ -10131,7 +10417,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).param_pw_aff_on_domain(id);
+  return new set(DangerousGetHandle(), false).param_pw_aff_on_domain(id);
 }
 
  public pw_aff param_pw_aff_on_domain(string id)
@@ -10160,7 +10446,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).plain_cmp(set2);
+  return new set(DangerousGetHandle(), false).plain_cmp(set2);
 }
 
  public val plain_get_val_if_fixed(dim_type type, uint pos)
@@ -10168,7 +10454,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).plain_get_val_if_fixed(type, pos);
+  return new set(DangerousGetHandle(), false).plain_get_val_if_fixed(type, pos);
 }
 
  public bool plain_is_disjoint(set set2)
@@ -10176,7 +10462,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).plain_is_disjoint(set2);
+  return new set(DangerousGetHandle(), false).plain_is_disjoint(set2);
 }
 
  public bool plain_is_empty()
@@ -10210,7 +10496,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).plain_is_equal(set2);
+  return new set(DangerousGetHandle(), false).plain_is_equal(set2);
 }
 
  public bool plain_is_equal(point bset2)
@@ -10239,7 +10525,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).plain_multi_val_if_fixed();
+  return new set(DangerousGetHandle(), false).plain_multi_val_if_fixed();
 }
 
  public basic_set plain_unshifted_simple_hull()
@@ -10247,7 +10533,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).plain_unshifted_simple_hull();
+  return new set(DangerousGetHandle(), false).plain_unshifted_simple_hull();
 }
 
  public basic_set polyhedral_hull()
@@ -10255,7 +10541,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).polyhedral_hull();
+  return new set(DangerousGetHandle(), false).polyhedral_hull();
 }
 
  public static basic_set positive_orthant(space space)
@@ -10276,7 +10562,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).preimage(ma);
+  return new set(DangerousGetHandle(), false).preimage(ma);
 }
 
  public set preimage(multi_pw_aff mpa)
@@ -10284,7 +10570,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).preimage(mpa);
+  return new set(DangerousGetHandle(), false).preimage(mpa);
 }
 
  public set preimage(pw_multi_aff pma)
@@ -10292,7 +10578,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).preimage(pma);
+  return new set(DangerousGetHandle(), false).preimage(pma);
 }
 
  public union_set preimage(union_pw_multi_aff upma)
@@ -10300,7 +10586,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).preimage(upma);
+  return new set(DangerousGetHandle(), false).preimage(upma);
 }
 
  public basic_set preimage_multi_aff(multi_aff ma)
@@ -10321,7 +10607,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).product(set2);
+  return new set(DangerousGetHandle(), false).product(set2);
 }
 
  public map project_onto_map(dim_type type, uint first, uint n)
@@ -10329,7 +10615,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).project_onto_map(type, first, n);
+  return new set(DangerousGetHandle(), false).project_onto_map(type, first, n);
 }
 
  public basic_set project_out(dim_type type, uint first, uint n)
@@ -10350,7 +10636,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).project_out_all_params();
+  return new set(DangerousGetHandle(), false).project_out_all_params();
 }
 
  public set project_out_param(id id)
@@ -10358,7 +10644,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).project_out_param(id);
+  return new set(DangerousGetHandle(), false).project_out_param(id);
 }
 
  public set project_out_param(string id)
@@ -10374,7 +10660,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).project_out_param(list);
+  return new set(DangerousGetHandle(), false).project_out_param(list);
 }
 
  public pw_aff pw_aff_on_domain(val v)
@@ -10382,7 +10668,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).pw_aff_on_domain(v);
+  return new set(DangerousGetHandle(), false).pw_aff_on_domain(v);
 }
 
  public pw_aff pw_aff_on_domain(long v)
@@ -10398,7 +10684,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).pw_multi_aff_on_domain(mv);
+  return new set(DangerousGetHandle(), false).pw_multi_aff_on_domain(mv);
 }
 
  public mat reduced_basis()
@@ -10484,7 +10770,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).reset_space(space);
+  return new set(DangerousGetHandle(), false).reset_space(space);
 }
 
  public set reset_tuple_id()
@@ -10492,7 +10778,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).reset_tuple_id();
+  return new set(DangerousGetHandle(), false).reset_tuple_id();
 }
 
  public set reset_user()
@@ -10500,7 +10786,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).reset_user();
+  return new set(DangerousGetHandle(), false).reset_user();
 }
 
  public basic_set sample()
@@ -10534,7 +10820,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).set_dim_id(type, pos, id);
+  return new set(DangerousGetHandle(), false).set_dim_id(type, pos, id);
 }
 
  public set set_dim_id(dim_type type, uint pos, string id)
@@ -10563,7 +10849,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).set_list();
+  return new set(DangerousGetHandle(), false).set_list();
 }
 
  public basic_set set_tuple_id(id id)
@@ -10605,7 +10891,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).simple_fixed_box_hull();
+  return new set(DangerousGetHandle(), false).simple_fixed_box_hull();
 }
 
  public basic_set simple_hull()
@@ -10613,7 +10899,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).simple_hull();
+  return new set(DangerousGetHandle(), false).simple_hull();
 }
 
  public int size()
@@ -10621,7 +10907,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).size();
+  return new set(DangerousGetHandle(), false).size();
 }
 
  public basic_set solutions()
@@ -10655,7 +10941,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).split_dims(type, first, n);
+  return new set(DangerousGetHandle(), false).split_dims(type, first, n);
 }
 
  public val stride(int pos)
@@ -10663,7 +10949,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).stride(pos);
+  return new set(DangerousGetHandle(), false).stride(pos);
 }
 
  public set subtract(set set2)
@@ -10671,7 +10957,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).subtract(set2);
+  return new set(DangerousGetHandle(), false).subtract(set2);
 }
 
  public union_set subtract(union_set uset2)
@@ -10679,7 +10965,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).subtract(uset2);
+  return new set(DangerousGetHandle(), false).subtract(uset2);
 }
 
  public set sum(set set2)
@@ -10687,7 +10973,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).sum(set2);
+  return new set(DangerousGetHandle(), false).sum(set2);
 }
 
  public basic_set_list to_list()
@@ -10721,7 +11007,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).to_union_set();
+  return new set(DangerousGetHandle(), false).to_union_set();
 }
 
  public int total_dim()
@@ -10742,7 +11028,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).translation();
+  return new set(DangerousGetHandle(), false).translation();
 }
 
  public int tuple_dim()
@@ -10750,7 +11036,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).tuple_dim();
+  return new set(DangerousGetHandle(), false).tuple_dim();
 }
 
  public id tuple_id()
@@ -10758,7 +11044,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).tuple_id();
+  return new set(DangerousGetHandle(), false).tuple_id();
 }
 
  public string tuple_name()
@@ -10776,7 +11062,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).unbind_params(tuple);
+  return new set(DangerousGetHandle(), false).unbind_params(tuple);
 }
 
  public map unbind_params_insert_domain(multi_id domain)
@@ -10784,7 +11070,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).unbind_params_insert_domain(domain);
+  return new set(DangerousGetHandle(), false).unbind_params_insert_domain(domain);
 }
 
  public set union(basic_set bset2)
@@ -10805,7 +11091,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).union(set2);
+  return new set(DangerousGetHandle(), false).union(set2);
 }
 
  public union_set union(union_set uset2)
@@ -10813,7 +11099,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).union(uset2);
+  return new set(DangerousGetHandle(), false).union(uset2);
 }
 
  public set union(point bset2)
@@ -10829,7 +11115,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).union_disjoint(set2);
+  return new set(DangerousGetHandle(), false).union_disjoint(set2);
 }
 
  public static basic_set universe(space space)
@@ -10850,7 +11136,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).unshifted_simple_hull();
+  return new set(DangerousGetHandle(), false).unshifted_simple_hull();
 }
 
  public basic_set unshifted_simple_hull_from_set_list(set_list list)
@@ -10858,7 +11144,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).unshifted_simple_hull_from_set_list(list);
+  return new set(DangerousGetHandle(), false).unshifted_simple_hull_from_set_list(list);
 }
 
  public basic_map unwrap()
@@ -10879,7 +11165,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).upper_bound(upper);
+  return new set(DangerousGetHandle(), false).upper_bound(upper);
 }
 
  public set upper_bound(multi_val upper)
@@ -10887,7 +11173,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).upper_bound(upper);
+  return new set(DangerousGetHandle(), false).upper_bound(upper);
 }
 
  public set upper_bound_si(dim_type type, uint pos, int value)
@@ -10895,7 +11181,7 @@ return new basic_map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).upper_bound_si(type, pos, value);
+  return new set(DangerousGetHandle(), false).upper_bound_si(type, pos, value);
 }
 
  public basic_set upper_bound_val(dim_type type, uint pos, val value)
@@ -10924,7 +11210,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).wrapped_domain_map();
+  return new set(DangerousGetHandle(), false).wrapped_domain_map();
 }
 
  public set wrapped_reverse()
@@ -10932,7 +11218,7 @@ return new basic_set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new set(IncreaseReference()).wrapped_reverse();
+  return new set(DangerousGetHandle(), false).wrapped_reverse();
 }
 
 public override string ToString(){
@@ -10946,8 +11232,14 @@ public override string ToString(){
 
 public class basic_set_list : IntrusiveHandle {
 
-internal basic_set_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal basic_set_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ basic_set_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -10956,6 +11248,7 @@ internal basic_set_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ basic_set_list(basic_set el) : base(IntPtr.Zero) 
@@ -10969,6 +11262,7 @@ internal basic_set_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -11190,8 +11484,14 @@ public override string ToString(){
 
 public class constraint : IntrusiveHandle {
 
-internal constraint(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal constraint(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_constraint_free(handle);
@@ -11536,8 +11836,14 @@ public override string ToString(){
 
 public class constraint_list : IntrusiveHandle {
 
-internal constraint_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal constraint_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ constraint_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -11546,6 +11852,7 @@ internal constraint_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ constraint_list(constraint el) : base(IntPtr.Zero) 
@@ -11559,6 +11866,7 @@ internal constraint_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -11767,8 +12075,14 @@ public override string ToString(){
 
 public class fixed_box : IntrusiveHandle {
 
-internal fixed_box(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal fixed_box(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ fixed_box(ctx ctx, string str) : base(IntPtr.Zero) 
 {
@@ -11777,6 +12091,7 @@ internal fixed_box(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -11855,8 +12170,14 @@ public override string ToString(){
 
 public class id : IntrusiveHandle {
 
-internal id(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal id(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ id(ctx ctx, string str) : base(IntPtr.Zero) 
 {
@@ -11865,6 +12186,7 @@ internal id(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -11915,8 +12237,14 @@ public override string ToString(){
 
 public class id_list : IntrusiveHandle {
 
-internal id_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal id_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ id_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -11925,6 +12253,7 @@ internal id_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ id_list(id el) : base(IntPtr.Zero) 
@@ -11938,6 +12267,7 @@ internal id_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ id_list(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -11947,6 +12277,7 @@ internal id_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -12179,8 +12510,14 @@ public override string ToString(){
 
 public class id_to_ast_expr : IntrusiveHandle {
 
-internal id_to_ast_expr(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal id_to_ast_expr(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ id_to_ast_expr(ctx ctx, int min_size) : base(IntPtr.Zero) 
 {
@@ -12189,6 +12526,7 @@ internal id_to_ast_expr(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ id_to_ast_expr(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -12198,6 +12536,7 @@ internal id_to_ast_expr(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -12373,8 +12712,14 @@ public override string ToString(){
 
 public class id_to_id : IntrusiveHandle {
 
-internal id_to_id(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal id_to_id(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ id_to_id(ctx ctx, int min_size) : base(IntPtr.Zero) 
 {
@@ -12383,6 +12728,7 @@ internal id_to_id(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ id_to_id(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -12392,6 +12738,7 @@ internal id_to_id(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -12583,8 +12930,14 @@ public override string ToString(){
 
 public class local_space : IntrusiveHandle {
 
-internal local_space(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal local_space(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_local_space_free(handle);
@@ -12958,8 +13311,14 @@ public override string ToString(){
 
 public class map : IntrusiveHandle {
 
-internal map(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal map(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ map(basic_map bmap) : base(IntPtr.Zero) 
 {
@@ -12972,6 +13331,7 @@ internal map(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ map(multi_pw_aff mpa) : base(IntPtr.Zero) 
@@ -12985,6 +13345,7 @@ internal map(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ map(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -12994,6 +13355,7 @@ internal map(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -13079,7 +13441,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).apply_domain(umap2);
+  return new union_map(DangerousGetHandle(), false).apply_domain(umap2);
 }
 
  public map apply_domain(basic_map map2)
@@ -13108,7 +13470,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).apply_range(umap2);
+  return new union_map(DangerousGetHandle(), false).apply_range(umap2);
 }
 
  public map apply_range(basic_map map2)
@@ -13124,7 +13486,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).as_map();
+  return new union_map(DangerousGetHandle(), false).as_map();
 }
 
  public multi_union_pw_aff as_multi_union_pw_aff()
@@ -13132,7 +13494,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).as_multi_union_pw_aff();
+  return new union_map(DangerousGetHandle(), false).as_multi_union_pw_aff();
 }
 
  public pw_multi_aff as_pw_multi_aff()
@@ -13153,7 +13515,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).as_union_pw_multi_aff();
+  return new union_map(DangerousGetHandle(), false).as_union_pw_multi_aff();
 }
 
  public basic_map_list basic_map_list()
@@ -13483,7 +13845,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).domain_map_union_pw_multi_aff();
+  return new union_map(DangerousGetHandle(), false).domain_map_union_pw_multi_aff();
 }
 
  public map domain_product(map map2)
@@ -13504,7 +13866,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).domain_product(umap2);
+  return new union_map(DangerousGetHandle(), false).domain_product(umap2);
 }
 
  public map domain_product(basic_map map2)
@@ -13637,7 +13999,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).eq_at(mupa);
+  return new union_map(DangerousGetHandle(), false).eq_at(mupa);
 }
 
  public map eq_at(aff mpa)
@@ -13690,7 +14052,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).every_map(test);
+  return new union_map(DangerousGetHandle(), false).every_map(test);
 }
 
  public map extract_map(space space)
@@ -13698,7 +14060,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).extract_map(space);
+  return new union_map(DangerousGetHandle(), false).extract_map(space);
 }
 
  public map factor_domain()
@@ -13953,7 +14315,7 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new union_map(IncreaseReference()).foreach_map(fn);
+new union_map(DangerousGetHandle(), false).foreach_map(fn);
 }
 
  public static map from_aff(aff aff)
@@ -14052,7 +14414,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).gist(context);
+  return new union_map(DangerousGetHandle(), false).gist(context);
 }
 
  public map gist(basic_map context)
@@ -14094,7 +14456,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).gist_domain(uset);
+  return new union_map(DangerousGetHandle(), false).gist_domain(uset);
 }
 
  public map gist_domain(basic_set context)
@@ -14144,7 +14506,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).gist_range(uset);
+  return new union_map(DangerousGetHandle(), false).gist_range(uset);
 }
 
  public map gist_range(basic_set context)
@@ -14298,7 +14660,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect(umap2);
+  return new union_map(DangerousGetHandle(), false).intersect(umap2);
 }
 
  public map intersect(basic_map map2)
@@ -14327,7 +14689,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect_domain(space);
+  return new union_map(DangerousGetHandle(), false).intersect_domain(space);
 }
 
  public union_map intersect_domain(union_set uset)
@@ -14335,7 +14697,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect_domain(uset);
+  return new union_map(DangerousGetHandle(), false).intersect_domain(uset);
 }
 
  public map intersect_domain(basic_set set)
@@ -14372,7 +14734,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect_domain_factor_domain(factor);
+  return new union_map(DangerousGetHandle(), false).intersect_domain_factor_domain(factor);
 }
 
  public map intersect_domain_factor_domain(basic_map factor)
@@ -14401,7 +14763,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect_domain_factor_range(factor);
+  return new union_map(DangerousGetHandle(), false).intersect_domain_factor_range(factor);
 }
 
  public map intersect_domain_factor_range(basic_map factor)
@@ -14430,7 +14792,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect_domain_wrapped_domain(domain);
+  return new union_map(DangerousGetHandle(), false).intersect_domain_wrapped_domain(domain);
 }
 
  public map intersect_domain_wrapped_domain(basic_set domain)
@@ -14480,7 +14842,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect_range(space);
+  return new union_map(DangerousGetHandle(), false).intersect_range(space);
 }
 
  public union_map intersect_range(union_set uset)
@@ -14488,7 +14850,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect_range(uset);
+  return new union_map(DangerousGetHandle(), false).intersect_range(uset);
 }
 
  public map intersect_range(basic_set set)
@@ -14525,7 +14887,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect_range_factor_domain(factor);
+  return new union_map(DangerousGetHandle(), false).intersect_range_factor_domain(factor);
 }
 
  public map intersect_range_factor_domain(basic_map factor)
@@ -14554,7 +14916,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect_range_factor_range(factor);
+  return new union_map(DangerousGetHandle(), false).intersect_range_factor_range(factor);
 }
 
  public map intersect_range_factor_range(basic_map factor)
@@ -14583,7 +14945,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).intersect_range_wrapped_domain(domain);
+  return new union_map(DangerousGetHandle(), false).intersect_range_wrapped_domain(domain);
 }
 
  public map intersect_range_wrapped_domain(basic_set domain)
@@ -14646,7 +15008,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).is_disjoint(umap2);
+  return new union_map(DangerousGetHandle(), false).is_disjoint(umap2);
 }
 
  public bool is_disjoint(basic_map map2)
@@ -14688,7 +15050,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).is_equal(umap2);
+  return new union_map(DangerousGetHandle(), false).is_equal(umap2);
 }
 
  public bool is_equal(basic_map map2)
@@ -14769,7 +15131,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).is_strict_subset(umap2);
+  return new union_map(DangerousGetHandle(), false).is_strict_subset(umap2);
 }
 
  public bool is_strict_subset(basic_map map2)
@@ -14798,7 +15160,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).is_subset(umap2);
+  return new union_map(DangerousGetHandle(), false).is_subset(umap2);
 }
 
  public bool is_subset(basic_map map2)
@@ -14824,7 +15186,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).isa_map();
+  return new union_map(DangerousGetHandle(), false).isa_map();
 }
 
  public static map lex_ge(space set_space)
@@ -14884,7 +15246,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).lex_ge_union_map(umap2);
+  return new union_map(DangerousGetHandle(), false).lex_ge_union_map(umap2);
 }
 
  public static map lex_gt(space set_space)
@@ -14944,7 +15306,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).lex_gt_union_map(umap2);
+  return new union_map(DangerousGetHandle(), false).lex_gt_union_map(umap2);
 }
 
  public static map lex_le(space set_space)
@@ -15004,7 +15366,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).lex_le_union_map(umap2);
+  return new union_map(DangerousGetHandle(), false).lex_le_union_map(umap2);
 }
 
  public static map lex_lt(space set_space)
@@ -15064,7 +15426,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).lex_lt_union_map(umap2);
+  return new union_map(DangerousGetHandle(), false).lex_lt_union_map(umap2);
 }
 
  public map lexmax()
@@ -15184,7 +15546,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).map_list();
+  return new union_map(DangerousGetHandle(), false).map_list();
 }
 
  public multi_pw_aff max_multi_pw_aff()
@@ -15478,7 +15840,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).preimage_domain(upma);
+  return new union_map(DangerousGetHandle(), false).preimage_domain(upma);
 }
 
  public map preimage_range(multi_aff ma)
@@ -15512,7 +15874,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).preimage_range(upma);
+  return new union_map(DangerousGetHandle(), false).preimage_range(upma);
 }
 
  public map product(map map2)
@@ -15533,7 +15895,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).product(umap2);
+  return new union_map(DangerousGetHandle(), false).product(umap2);
 }
 
  public map product(basic_map map2)
@@ -15713,7 +16075,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).range_product(umap2);
+  return new union_map(DangerousGetHandle(), false).range_product(umap2);
 }
 
  public map range_product(basic_map map2)
@@ -15846,7 +16208,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).remove_map_if(fn);
+  return new union_map(DangerousGetHandle(), false).remove_map_if(fn);
 }
 
  public map remove_redundancies()
@@ -16068,7 +16430,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).subtract(umap2);
+  return new union_map(DangerousGetHandle(), false).subtract(umap2);
 }
 
  public map subtract(basic_map map2)
@@ -16097,7 +16459,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).subtract_domain(dom);
+  return new union_map(DangerousGetHandle(), false).subtract_domain(dom);
 }
 
  public map subtract_domain(basic_set dom)
@@ -16134,7 +16496,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).subtract_range(dom);
+  return new union_map(DangerousGetHandle(), false).subtract_range(dom);
 }
 
  public map subtract_range(basic_set dom)
@@ -16246,7 +16608,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_map(IncreaseReference()).union(umap2);
+  return new union_map(DangerousGetHandle(), false).union(umap2);
 }
 
  public map union(basic_map map2)
@@ -16393,8 +16755,14 @@ public override string ToString(){
 
 public class map_list : IntrusiveHandle {
 
-internal map_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal map_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ map_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -16403,6 +16771,7 @@ internal map_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ map_list(map el) : base(IntPtr.Zero) 
@@ -16416,6 +16785,7 @@ internal map_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ map_list(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -16425,6 +16795,7 @@ internal map_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -16633,8 +17004,14 @@ public override string ToString(){
 
 public class mat : IntrusiveHandle {
 
-internal mat(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal mat(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_mat_free(handle);
@@ -17168,8 +17545,14 @@ public override string ToString(){
 
 public class multi_aff : IntrusiveHandle {
 
-internal multi_aff(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal multi_aff(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ multi_aff(aff aff) : base(IntPtr.Zero) 
 {
@@ -17182,6 +17565,7 @@ internal multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ multi_aff(space space, aff_list list) : base(IntPtr.Zero) 
@@ -17195,6 +17579,7 @@ internal multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ multi_aff(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -17204,6 +17589,7 @@ internal multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -17237,7 +17623,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).add(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public multi_union_pw_aff add(multi_union_pw_aff multi2)
@@ -17245,7 +17631,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).add(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public pw_multi_aff add(pw_multi_aff pma2)
@@ -17253,7 +17639,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).add(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).add(pma2);
 }
 
  public union_pw_multi_aff add(union_pw_multi_aff upma2)
@@ -17261,7 +17647,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).add(upma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).add(upma2);
 }
 
  public multi_aff add(aff multi2)
@@ -17311,7 +17697,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).apply(upma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).apply(upma2);
 }
 
  public union_pw_aff apply_aff(aff aff)
@@ -17319,7 +17705,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).apply_aff(aff);
+  return new pw_multi_aff(DangerousGetHandle(), false).apply_aff(aff);
 }
 
  public multi_union_pw_aff apply_multi_aff(multi_aff ma)
@@ -17327,7 +17713,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).apply_multi_aff(ma);
+  return new pw_multi_aff(DangerousGetHandle(), false).apply_multi_aff(ma);
 }
 
  public union_pw_aff apply_pw_aff(pw_aff pa)
@@ -17335,7 +17721,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).apply_pw_aff(pa);
+  return new pw_multi_aff(DangerousGetHandle(), false).apply_pw_aff(pa);
 }
 
  public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
@@ -17343,7 +17729,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).apply_pw_multi_aff(pma);
+  return new pw_multi_aff(DangerousGetHandle(), false).apply_pw_multi_aff(pma);
 }
 
  public map as_map()
@@ -17364,7 +17750,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).as_multi_aff();
+  return new pw_multi_aff(DangerousGetHandle(), false).as_multi_aff();
 }
 
  public multi_union_pw_aff as_multi_union_pw_aff()
@@ -17372,7 +17758,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).as_multi_union_pw_aff();
+  return new pw_multi_aff(DangerousGetHandle(), false).as_multi_union_pw_aff();
 }
 
  public pw_multi_aff as_pw_multi_aff()
@@ -17380,7 +17766,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).as_pw_multi_aff();
+  return new pw_multi_aff(DangerousGetHandle(), false).as_pw_multi_aff();
 }
 
  public set as_set()
@@ -17401,7 +17787,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).as_union_map();
+  return new pw_multi_aff(DangerousGetHandle(), false).as_union_map();
 }
 
  public aff at(int pos)
@@ -17461,7 +17847,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).coalesce();
+  return new pw_multi_aff(DangerousGetHandle(), false).coalesce();
 }
 
  public multi_val constant_multi_val()
@@ -17482,7 +17868,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).dim(type);
+  return new pw_multi_aff(DangerousGetHandle(), false).dim(type);
 }
 
  public id dim_id(dim_type type, uint pos)
@@ -17490,7 +17876,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).dim_id(type, pos);
+  return new pw_multi_aff(DangerousGetHandle(), false).dim_id(type, pos);
 }
 
  public string dim_name(dim_type type, uint pos)
@@ -17498,7 +17884,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).dim_name(type, pos);
+  return new pw_multi_aff(DangerousGetHandle(), false).dim_name(type, pos);
 }
 
  public set domain()
@@ -17506,7 +17892,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).domain();
+  return new pw_multi_aff(DangerousGetHandle(), false).domain();
 }
 
  public static multi_aff domain_map(space space)
@@ -17540,7 +17926,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).domain_space();
+  return new pw_multi_aff(DangerousGetHandle(), false).domain_space();
 }
 
  public pw_multi_aff drop_unused_params()
@@ -17548,7 +17934,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).drop_unused_params();
+  return new pw_multi_aff(DangerousGetHandle(), false).drop_unused_params();
 }
 
  public map eq_map(multi_pw_aff mpa2)
@@ -17556,7 +17942,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).eq_map(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).eq_map(mpa2);
 }
 
  public multi_pw_aff extract_multi_pw_aff(space space)
@@ -17564,7 +17950,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).extract_multi_pw_aff(space);
+  return new pw_multi_aff(DangerousGetHandle(), false).extract_multi_pw_aff(space);
 }
 
  public pw_multi_aff extract_pw_multi_aff(space space)
@@ -17572,7 +17958,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).extract_pw_multi_aff(space);
+  return new pw_multi_aff(DangerousGetHandle(), false).extract_pw_multi_aff(space);
 }
 
  public multi_aff flat_range_product(multi_aff multi2)
@@ -17593,7 +17979,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).flat_range_product(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public multi_union_pw_aff flat_range_product(multi_union_pw_aff multi2)
@@ -17601,7 +17987,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).flat_range_product(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public pw_multi_aff flat_range_product(pw_multi_aff pma2)
@@ -17609,7 +17995,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).flat_range_product(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).flat_range_product(pma2);
 }
 
  public union_pw_multi_aff flat_range_product(union_pw_multi_aff upma2)
@@ -17617,7 +18003,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).flat_range_product(upma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).flat_range_product(upma2);
 }
 
  public multi_aff flat_range_product(aff multi2)
@@ -17646,7 +18032,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new pw_multi_aff(IncreaseReference()).foreach_piece(fn);
+new pw_multi_aff(DangerousGetHandle(), false).foreach_piece(fn);
 }
 
  public multi_aff gist(set context)
@@ -17667,7 +18053,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).gist(context);
+  return new pw_multi_aff(DangerousGetHandle(), false).gist(context);
 }
 
  public multi_aff gist(basic_set context)
@@ -17717,7 +18103,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).has_tuple_id(type);
+  return new pw_multi_aff(DangerousGetHandle(), false).has_tuple_id(type);
 }
 
  public bool has_tuple_name(dim_type type)
@@ -17725,7 +18111,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).has_tuple_name(type);
+  return new pw_multi_aff(DangerousGetHandle(), false).has_tuple_name(type);
 }
 
  public multi_aff identity()
@@ -17772,7 +18158,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).intersect_domain(set);
+  return new pw_multi_aff(DangerousGetHandle(), false).intersect_domain(set);
 }
 
  public union_pw_multi_aff intersect_domain(space space)
@@ -17780,7 +18166,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).intersect_domain(space);
+  return new pw_multi_aff(DangerousGetHandle(), false).intersect_domain(space);
 }
 
  public union_pw_multi_aff intersect_domain(union_set uset)
@@ -17788,7 +18174,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).intersect_domain(uset);
+  return new pw_multi_aff(DangerousGetHandle(), false).intersect_domain(uset);
 }
 
  public union_pw_multi_aff intersect_domain_wrapped_domain(union_set uset)
@@ -17796,7 +18182,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).intersect_domain_wrapped_domain(uset);
+  return new pw_multi_aff(DangerousGetHandle(), false).intersect_domain_wrapped_domain(uset);
 }
 
  public union_pw_multi_aff intersect_domain_wrapped_range(union_set uset)
@@ -17804,7 +18190,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).intersect_domain_wrapped_range(uset);
+  return new pw_multi_aff(DangerousGetHandle(), false).intersect_domain_wrapped_range(uset);
 }
 
  public pw_multi_aff intersect_params(set set)
@@ -17812,7 +18198,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).intersect_params(set);
+  return new pw_multi_aff(DangerousGetHandle(), false).intersect_params(set);
 }
 
  public multi_union_pw_aff intersect_range(set set)
@@ -17820,7 +18206,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).intersect_range(set);
+  return new pw_multi_aff(DangerousGetHandle(), false).intersect_range(set);
 }
 
  public bool involves_dims(dim_type type, uint first, uint n)
@@ -17828,7 +18214,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).involves_dims(type, first, n);
+  return new pw_multi_aff(DangerousGetHandle(), false).involves_dims(type, first, n);
 }
 
  public bool involves_locals()
@@ -17862,7 +18248,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).involves_param(id);
+  return new pw_multi_aff(DangerousGetHandle(), false).involves_param(id);
 }
 
  public bool involves_param(string id)
@@ -17878,7 +18264,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).involves_param(list);
+  return new pw_multi_aff(DangerousGetHandle(), false).involves_param(list);
 }
 
  public bool involves_param_id(id id)
@@ -17886,7 +18272,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).involves_param_id(id);
+  return new pw_multi_aff(DangerousGetHandle(), false).involves_param_id(id);
 }
 
  public bool involves_param_id(string id)
@@ -17902,7 +18288,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).is_cst();
+  return new pw_multi_aff(DangerousGetHandle(), false).is_cst();
 }
 
  public bool isa_multi_aff()
@@ -17910,7 +18296,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).isa_multi_aff();
+  return new pw_multi_aff(DangerousGetHandle(), false).isa_multi_aff();
 }
 
  public bool isa_pw_multi_aff()
@@ -17918,7 +18304,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).isa_pw_multi_aff();
+  return new pw_multi_aff(DangerousGetHandle(), false).isa_pw_multi_aff();
 }
 
  public map lex_ge_map(multi_pw_aff mpa2)
@@ -17926,7 +18312,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).lex_ge_map(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).lex_ge_map(mpa2);
 }
 
  public set lex_ge_set(multi_aff ma2)
@@ -17947,7 +18333,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).lex_gt_map(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).lex_gt_map(mpa2);
 }
 
  public set lex_gt_set(multi_aff ma2)
@@ -17968,7 +18354,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).lex_le_map(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).lex_le_map(mpa2);
 }
 
  public set lex_le_set(multi_aff ma2)
@@ -17989,7 +18375,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).lex_lt_map(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).lex_lt_map(mpa2);
 }
 
  public set lex_lt_set(multi_aff ma2)
@@ -18023,7 +18409,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).max(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).max(multi2);
 }
 
  public multi_val max_multi_val()
@@ -18031,7 +18417,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).max_multi_val();
+  return new pw_multi_aff(DangerousGetHandle(), false).max_multi_val();
 }
 
  public multi_pw_aff min(multi_pw_aff multi2)
@@ -18039,7 +18425,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).min(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).min(multi2);
 }
 
  public multi_val min_multi_val()
@@ -18047,7 +18433,7 @@ return new aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).min_multi_val();
+  return new pw_multi_aff(DangerousGetHandle(), false).min_multi_val();
 }
 
  public multi_aff move_dims(dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n)
@@ -18081,7 +18467,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).n_piece();
+  return new pw_multi_aff(DangerousGetHandle(), false).n_piece();
 }
 
  public multi_aff neg()
@@ -18102,7 +18488,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).plain_is_empty();
+  return new pw_multi_aff(DangerousGetHandle(), false).plain_is_empty();
 }
 
  public bool plain_is_equal(multi_aff multi2)
@@ -18123,7 +18509,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(multi_union_pw_aff multi2)
@@ -18131,7 +18517,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(pw_multi_aff pma2)
@@ -18139,7 +18525,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).plain_is_equal(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).plain_is_equal(pma2);
 }
 
  public bool plain_is_equal(union_pw_multi_aff upma2)
@@ -18147,7 +18533,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).plain_is_equal(upma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).plain_is_equal(upma2);
 }
 
  public bool plain_is_equal(aff multi2)
@@ -18163,7 +18549,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).preimage_domain_wrapped_domain(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).preimage_domain_wrapped_domain(pma2);
 }
 
  public union_pw_multi_aff preimage_domain_wrapped_domain(union_pw_multi_aff upma2)
@@ -18171,7 +18557,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).preimage_domain_wrapped_domain(upma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).preimage_domain_wrapped_domain(upma2);
 }
 
  public multi_aff product(multi_aff multi2)
@@ -18192,7 +18578,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).product(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).product(multi2);
 }
 
  public pw_multi_aff product(pw_multi_aff pma2)
@@ -18200,7 +18586,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).product(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).product(pma2);
 }
 
  public multi_aff product(aff multi2)
@@ -18242,7 +18628,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).pullback(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).pullback(mpa2);
 }
 
  public pw_multi_aff pullback(pw_multi_aff pma2)
@@ -18250,7 +18636,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).pullback(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).pullback(pma2);
 }
 
  public union_pw_multi_aff pullback(union_pw_multi_aff upma2)
@@ -18258,7 +18644,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).pullback(upma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).pullback(upma2);
 }
 
  public multi_aff pullback(aff ma2)
@@ -18274,7 +18660,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).pw_multi_aff_list();
+  return new pw_multi_aff(DangerousGetHandle(), false).pw_multi_aff_list();
 }
 
  public pw_multi_aff range_factor_domain()
@@ -18282,7 +18668,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_factor_domain();
+  return new pw_multi_aff(DangerousGetHandle(), false).range_factor_domain();
 }
 
  public pw_multi_aff range_factor_range()
@@ -18290,7 +18676,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_factor_range();
+  return new pw_multi_aff(DangerousGetHandle(), false).range_factor_range();
 }
 
  public static multi_aff range_map(space space)
@@ -18324,7 +18710,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_product(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public multi_union_pw_aff range_product(multi_union_pw_aff multi2)
@@ -18332,7 +18718,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_product(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public pw_multi_aff range_product(pw_multi_aff pma2)
@@ -18340,7 +18726,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_product(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).range_product(pma2);
 }
 
  public union_pw_multi_aff range_product(union_pw_multi_aff upma2)
@@ -18348,7 +18734,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_product(upma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).range_product(upma2);
 }
 
  public multi_aff range_product(aff multi2)
@@ -18390,7 +18776,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).reset_tuple_id(type);
+  return new pw_multi_aff(DangerousGetHandle(), false).reset_tuple_id(type);
 }
 
  public pw_multi_aff reset_user()
@@ -18398,7 +18784,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).reset_user();
+  return new pw_multi_aff(DangerousGetHandle(), false).reset_user();
 }
 
  public multi_aff scale(multi_val mv)
@@ -18487,7 +18873,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).set_at(pos, el);
+  return new pw_multi_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public multi_union_pw_aff set_at(int pos, union_pw_aff el)
@@ -18495,7 +18881,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).set_at(pos, el);
+  return new pw_multi_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public pw_multi_aff set_dim_id(dim_type type, uint pos, id id)
@@ -18503,7 +18889,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).set_dim_id(type, pos, id);
+  return new pw_multi_aff(DangerousGetHandle(), false).set_dim_id(type, pos, id);
 }
 
  public pw_multi_aff set_dim_id(dim_type type, uint pos, string id)
@@ -18540,7 +18926,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).set_tuple_id(type, id);
+  return new pw_multi_aff(DangerousGetHandle(), false).set_tuple_id(type, id);
 }
 
  public pw_multi_aff set_tuple_id(dim_type type, string id)
@@ -18595,7 +18981,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).sub(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public multi_union_pw_aff sub(multi_union_pw_aff multi2)
@@ -18603,7 +18989,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).sub(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public pw_multi_aff sub(pw_multi_aff pma2)
@@ -18611,7 +18997,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).sub(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).sub(pma2);
 }
 
  public union_pw_multi_aff sub(union_pw_multi_aff upma2)
@@ -18619,7 +19005,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).sub(upma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).sub(upma2);
 }
 
  public multi_aff sub(aff multi2)
@@ -18635,7 +19021,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).subtract_domain(set);
+  return new pw_multi_aff(DangerousGetHandle(), false).subtract_domain(set);
 }
 
  public union_pw_multi_aff subtract_domain(space space)
@@ -18643,7 +19029,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).subtract_domain(space);
+  return new pw_multi_aff(DangerousGetHandle(), false).subtract_domain(space);
 }
 
  public union_pw_multi_aff subtract_domain(union_set uset)
@@ -18651,7 +19037,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).subtract_domain(uset);
+  return new pw_multi_aff(DangerousGetHandle(), false).subtract_domain(uset);
 }
 
  public pw_multi_aff_list to_list()
@@ -18659,7 +19045,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).to_list();
+  return new pw_multi_aff(DangerousGetHandle(), false).to_list();
 }
 
  public multi_pw_aff to_multi_pw_aff()
@@ -18706,7 +19092,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).to_union_pw_multi_aff();
+  return new pw_multi_aff(DangerousGetHandle(), false).to_union_pw_multi_aff();
 }
 
  public id tuple_id(dim_type type)
@@ -18714,7 +19100,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).tuple_id(type);
+  return new pw_multi_aff(DangerousGetHandle(), false).tuple_id(type);
 }
 
  public string tuple_name(dim_type type)
@@ -18722,7 +19108,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).tuple_name(type);
+  return new pw_multi_aff(DangerousGetHandle(), false).tuple_name(type);
 }
 
  public multi_aff unbind_params_insert_domain(multi_id domain)
@@ -18743,7 +19129,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).union_add(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).union_add(mpa2);
 }
 
  public multi_union_pw_aff union_add(multi_union_pw_aff mupa2)
@@ -18751,7 +19137,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).union_add(mupa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).union_add(mupa2);
 }
 
  public pw_multi_aff union_add(pw_multi_aff pma2)
@@ -18759,7 +19145,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).union_add(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).union_add(pma2);
 }
 
  public union_pw_multi_aff union_add(union_pw_multi_aff upma2)
@@ -18767,7 +19153,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).union_add(upma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).union_add(upma2);
 }
 
  public static multi_aff zero(space space)
@@ -18788,7 +19174,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).zero_union_set();
+  return new pw_multi_aff(DangerousGetHandle(), false).zero_union_set();
 }
 
 public override string ToString(){
@@ -18802,8 +19188,14 @@ public override string ToString(){
 
 public class multi_id : IntrusiveHandle {
 
-internal multi_id(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal multi_id(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ multi_id(space space, id_list list) : base(IntPtr.Zero) 
 {
@@ -18816,6 +19208,7 @@ internal multi_id(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ multi_id(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -18825,6 +19218,7 @@ internal multi_id(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -18963,8 +19357,14 @@ public override string ToString(){
 
 public class multi_pw_aff : IntrusiveHandle {
 
-internal multi_pw_aff(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal multi_pw_aff(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ multi_pw_aff(aff aff) : base(IntPtr.Zero) 
 {
@@ -18977,6 +19377,7 @@ internal multi_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ multi_pw_aff(multi_aff ma) : base(IntPtr.Zero) 
@@ -18990,6 +19391,7 @@ internal multi_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ multi_pw_aff(pw_aff pa) : base(IntPtr.Zero) 
@@ -19003,6 +19405,7 @@ internal multi_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ multi_pw_aff(space space, pw_aff_list list) : base(IntPtr.Zero) 
@@ -19016,6 +19419,7 @@ internal multi_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ multi_pw_aff(pw_multi_aff pma) : base(IntPtr.Zero) 
@@ -19029,6 +19433,7 @@ internal multi_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ multi_pw_aff(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -19038,6 +19443,7 @@ internal multi_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -19071,7 +19477,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).add(multi2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public multi_pw_aff add(aff multi2)
@@ -19145,7 +19551,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).apply_aff(aff);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).apply_aff(aff);
 }
 
  public multi_union_pw_aff apply_multi_aff(multi_aff ma)
@@ -19153,7 +19559,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).apply_multi_aff(ma);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).apply_multi_aff(ma);
 }
 
  public union_pw_aff apply_pw_aff(pw_aff pa)
@@ -19161,7 +19567,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).apply_pw_aff(pa);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).apply_pw_aff(pa);
 }
 
  public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
@@ -19169,7 +19575,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).apply_pw_multi_aff(pma);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).apply_pw_multi_aff(pma);
 }
 
  public map as_map()
@@ -19320,7 +19726,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).extract_multi_pw_aff(space);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).extract_multi_pw_aff(space);
 }
 
  public multi_pw_aff flat_range_product(multi_pw_aff multi2)
@@ -19341,7 +19747,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).flat_range_product(multi2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public multi_pw_aff flat_range_product(aff multi2)
@@ -19381,7 +19787,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).floor();
+  return new multi_union_pw_aff(DangerousGetHandle(), false).floor();
 }
 
  public multi_pw_aff gist(set set)
@@ -19402,7 +19808,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).gist(context);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).gist(context);
 }
 
  public multi_pw_aff gist(basic_set set)
@@ -19504,7 +19910,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).intersect_domain(uset);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).intersect_domain(uset);
 }
 
  public multi_pw_aff intersect_domain(basic_set domain)
@@ -19541,7 +19947,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).intersect_range(set);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).intersect_range(set);
 }
 
  public bool involves_nan()
@@ -19778,7 +20184,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(aff multi2)
@@ -19870,7 +20276,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).pullback(upma);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).pullback(upma);
 }
 
  public multi_pw_aff range_product(multi_pw_aff multi2)
@@ -19891,7 +20297,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).range_product(multi2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public multi_pw_aff range_product(aff multi2)
@@ -20038,7 +20444,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).set_at(pos, el);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public multi_pw_aff set_range_tuple(id id)
@@ -20106,7 +20512,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).sub(multi2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public multi_pw_aff sub(aff multi2)
@@ -20172,7 +20578,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).union_add(mupa2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).union_add(mupa2);
 }
 
  public multi_pw_aff union_add(aff mpa2)
@@ -20225,7 +20631,7 @@ return new multi_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).zero_union_set();
+  return new multi_union_pw_aff(DangerousGetHandle(), false).zero_union_set();
 }
 
 public override string ToString(){
@@ -20239,8 +20645,14 @@ public override string ToString(){
 
 public class multi_union_pw_aff : IntrusiveHandle {
 
-internal multi_union_pw_aff(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal multi_union_pw_aff(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ multi_union_pw_aff(multi_pw_aff mpa) : base(IntPtr.Zero) 
 {
@@ -20253,6 +20665,7 @@ internal multi_union_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ multi_union_pw_aff(union_pw_aff upa) : base(IntPtr.Zero) 
@@ -20266,6 +20679,7 @@ internal multi_union_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ multi_union_pw_aff(space space, union_pw_aff_list list) : base(IntPtr.Zero) 
@@ -20279,6 +20693,7 @@ internal multi_union_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ multi_union_pw_aff(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -20288,6 +20703,7 @@ internal multi_union_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -20897,8 +21313,14 @@ public override string ToString(){
 
 public class multi_val : IntrusiveHandle {
 
-internal multi_val(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal multi_val(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ multi_val(space space, val_list list) : base(IntPtr.Zero) 
 {
@@ -20911,6 +21333,7 @@ internal multi_val(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ multi_val(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -20920,6 +21343,7 @@ internal multi_val(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -21311,8 +21735,14 @@ public override string ToString(){
 
 public class point : IntrusiveHandle {
 
-internal point(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal point(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_point_free(handle);
@@ -21332,7 +21762,7 @@ internal override IntPtr IncreaseReference() {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).add_constraint(constraint);
+  return new basic_set(DangerousGetHandle(), false).add_constraint(constraint);
 }
 
  public basic_set add_dims(dim_type type, uint n)
@@ -21340,7 +21770,7 @@ internal override IntPtr IncreaseReference() {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).add_dims(type, n);
+  return new basic_set(DangerousGetHandle(), false).add_dims(type, n);
 }
 
  public point add_ui(dim_type type, int pos, uint val)
@@ -21361,7 +21791,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).affine_hull();
+  return new basic_set(DangerousGetHandle(), false).affine_hull();
 }
 
  public basic_set align_params(space model)
@@ -21369,7 +21799,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).align_params(model);
+  return new basic_set(DangerousGetHandle(), false).align_params(model);
 }
 
  public basic_set apply(basic_map bmap)
@@ -21377,7 +21807,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).apply(bmap);
+  return new basic_set(DangerousGetHandle(), false).apply(bmap);
 }
 
  public set apply(map map)
@@ -21385,7 +21815,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).apply(map);
+  return new basic_set(DangerousGetHandle(), false).apply(map);
 }
 
  public union_set apply(union_map umap)
@@ -21393,7 +21823,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).apply(umap);
+  return new basic_set(DangerousGetHandle(), false).apply(umap);
 }
 
  public pw_multi_aff as_pw_multi_aff()
@@ -21401,7 +21831,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).as_pw_multi_aff();
+  return new basic_set(DangerousGetHandle(), false).as_pw_multi_aff();
 }
 
  public set as_set()
@@ -21409,7 +21839,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).as_set();
+  return new basic_set(DangerousGetHandle(), false).as_set();
 }
 
  public basic_set_list basic_set_list()
@@ -21417,7 +21847,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).basic_set_list();
+  return new basic_set(DangerousGetHandle(), false).basic_set_list();
 }
 
  public set bind(multi_id tuple)
@@ -21425,7 +21855,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).bind(tuple);
+  return new basic_set(DangerousGetHandle(), false).bind(tuple);
 }
 
  public basic_set bounded_simple_hull()
@@ -21433,7 +21863,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).bounded_simple_hull();
+  return new basic_set(DangerousGetHandle(), false).bounded_simple_hull();
 }
 
  public set coalesce()
@@ -21441,7 +21871,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).coalesce();
+  return new basic_set(DangerousGetHandle(), false).coalesce();
 }
 
  public basic_set coefficients()
@@ -21449,7 +21879,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).coefficients();
+  return new basic_set(DangerousGetHandle(), false).coefficients();
 }
 
  public int compare_at(basic_set bset2, int pos)
@@ -21457,7 +21887,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).compare_at(bset2, pos);
+  return new basic_set(DangerousGetHandle(), false).compare_at(bset2, pos);
 }
 
  public set complement()
@@ -21465,7 +21895,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).complement();
+  return new basic_set(DangerousGetHandle(), false).complement();
 }
 
  public set compute_divs()
@@ -21473,7 +21903,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).compute_divs();
+  return new basic_set(DangerousGetHandle(), false).compute_divs();
 }
 
  public schedule compute_schedule(union_map validity, union_map proximity)
@@ -21481,7 +21911,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).compute_schedule(validity, proximity);
+  return new basic_set(DangerousGetHandle(), false).compute_schedule(validity, proximity);
 }
 
  public vertices compute_vertices()
@@ -21489,7 +21919,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).compute_vertices();
+  return new basic_set(DangerousGetHandle(), false).compute_vertices();
 }
 
  public constraint_list constraint_list()
@@ -21497,7 +21927,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).constraint_list();
+  return new basic_set(DangerousGetHandle(), false).constraint_list();
 }
 
  public basic_set convex_hull()
@@ -21505,7 +21935,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).convex_hull();
+  return new basic_set(DangerousGetHandle(), false).convex_hull();
 }
 
  public val coordinate_val(dim_type type, int pos)
@@ -21526,7 +21956,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).count_val();
+  return new basic_set(DangerousGetHandle(), false).count_val();
 }
 
  public basic_set detect_equalities()
@@ -21534,7 +21964,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).detect_equalities();
+  return new basic_set(DangerousGetHandle(), false).detect_equalities();
 }
 
  public int dim(dim_type type)
@@ -21542,7 +21972,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim(type);
+  return new basic_set(DangerousGetHandle(), false).dim(type);
 }
 
  public bool dim_has_any_lower_bound(dim_type type, uint pos)
@@ -21550,7 +21980,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_has_any_lower_bound(type, pos);
+  return new basic_set(DangerousGetHandle(), false).dim_has_any_lower_bound(type, pos);
 }
 
  public bool dim_has_any_upper_bound(dim_type type, uint pos)
@@ -21558,7 +21988,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_has_any_upper_bound(type, pos);
+  return new basic_set(DangerousGetHandle(), false).dim_has_any_upper_bound(type, pos);
 }
 
  public bool dim_has_lower_bound(dim_type type, uint pos)
@@ -21566,7 +21996,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_has_lower_bound(type, pos);
+  return new basic_set(DangerousGetHandle(), false).dim_has_lower_bound(type, pos);
 }
 
  public bool dim_has_upper_bound(dim_type type, uint pos)
@@ -21574,7 +22004,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_has_upper_bound(type, pos);
+  return new basic_set(DangerousGetHandle(), false).dim_has_upper_bound(type, pos);
 }
 
  public id dim_id(dim_type type, uint pos)
@@ -21582,7 +22012,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_id(type, pos);
+  return new basic_set(DangerousGetHandle(), false).dim_id(type, pos);
 }
 
  public bool dim_is_bounded(dim_type type, uint pos)
@@ -21590,7 +22020,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_is_bounded(type, pos);
+  return new basic_set(DangerousGetHandle(), false).dim_is_bounded(type, pos);
 }
 
  public pw_aff dim_max(int pos)
@@ -21598,7 +22028,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_max(pos);
+  return new basic_set(DangerousGetHandle(), false).dim_max(pos);
 }
 
  public val dim_max_val(int pos)
@@ -21606,7 +22036,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_max_val(pos);
+  return new basic_set(DangerousGetHandle(), false).dim_max_val(pos);
 }
 
  public pw_aff dim_min(int pos)
@@ -21614,7 +22044,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_min(pos);
+  return new basic_set(DangerousGetHandle(), false).dim_min(pos);
 }
 
  public val dim_min_val(int pos)
@@ -21622,7 +22052,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_min_val(pos);
+  return new basic_set(DangerousGetHandle(), false).dim_min_val(pos);
 }
 
  public string dim_name(dim_type type, uint pos)
@@ -21630,7 +22060,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).dim_name(type, pos);
+  return new basic_set(DangerousGetHandle(), false).dim_name(type, pos);
 }
 
  public aff div(int pos)
@@ -21638,7 +22068,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).div(pos);
+  return new basic_set(DangerousGetHandle(), false).div(pos);
 }
 
  public basic_set drop_constraints_involving_dims(dim_type type, uint first, uint n)
@@ -21646,7 +22076,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).drop_constraints_involving_dims(type, first, n);
+  return new basic_set(DangerousGetHandle(), false).drop_constraints_involving_dims(type, first, n);
 }
 
  public basic_set drop_constraints_not_involving_dims(dim_type type, uint first, uint n)
@@ -21654,7 +22084,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).drop_constraints_not_involving_dims(type, first, n);
+  return new basic_set(DangerousGetHandle(), false).drop_constraints_not_involving_dims(type, first, n);
 }
 
  public basic_set drop_unused_params()
@@ -21662,7 +22092,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).drop_unused_params();
+  return new basic_set(DangerousGetHandle(), false).drop_unused_params();
 }
 
  public basic_set eliminate(dim_type type, uint first, uint n)
@@ -21670,7 +22100,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).eliminate(type, first, n);
+  return new basic_set(DangerousGetHandle(), false).eliminate(type, first, n);
 }
 
  public set eliminate_dims(uint first, uint n)
@@ -21678,7 +22108,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).eliminate_dims(first, n);
+  return new basic_set(DangerousGetHandle(), false).eliminate_dims(first, n);
 }
 
  public mat equalities_matrix(dim_type c1, dim_type c2, dim_type c3, dim_type c4)
@@ -21686,7 +22116,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).equalities_matrix(c1, c2, c3, c4);
+  return new basic_set(DangerousGetHandle(), false).equalities_matrix(c1, c2, c3, c4);
 }
 
  public bool every_set(Func<set, bool> test)
@@ -21694,7 +22124,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).every_set(test);
+  return new basic_set(DangerousGetHandle(), false).every_set(test);
 }
 
  public set extract_set(space space)
@@ -21702,7 +22132,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).extract_set(space);
+  return new basic_set(DangerousGetHandle(), false).extract_set(space);
 }
 
  public int find_dim_by_id(dim_type type, id id)
@@ -21710,7 +22140,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).find_dim_by_id(type, id);
+  return new basic_set(DangerousGetHandle(), false).find_dim_by_id(type, id);
 }
 
  public int find_dim_by_id(dim_type type, string id)
@@ -21726,7 +22156,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).find_dim_by_name(type, name);
+  return new basic_set(DangerousGetHandle(), false).find_dim_by_name(type, name);
 }
 
  public set fix_dim_si(uint dim, int value)
@@ -21734,7 +22164,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).fix_dim_si(dim, value);
+  return new basic_set(DangerousGetHandle(), false).fix_dim_si(dim, value);
 }
 
  public basic_set fix_si(dim_type type, uint pos, int value)
@@ -21742,7 +22172,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).fix_si(type, pos, value);
+  return new basic_set(DangerousGetHandle(), false).fix_si(type, pos, value);
 }
 
  public basic_set fix_val(dim_type type, uint pos, val v)
@@ -21750,7 +22180,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).fix_val(type, pos, v);
+  return new basic_set(DangerousGetHandle(), false).fix_val(type, pos, v);
 }
 
  public basic_set fix_val(dim_type type, uint pos, long v)
@@ -21766,7 +22196,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).flat_product(bset2);
+  return new basic_set(DangerousGetHandle(), false).flat_product(bset2);
 }
 
  public set flat_product(set set2)
@@ -21774,7 +22204,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).flat_product(set2);
+  return new basic_set(DangerousGetHandle(), false).flat_product(set2);
 }
 
  public basic_set flatten()
@@ -21782,7 +22212,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).flatten();
+  return new basic_set(DangerousGetHandle(), false).flatten();
 }
 
  public map flatten_map()
@@ -21790,7 +22220,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).flatten_map();
+  return new basic_set(DangerousGetHandle(), false).flatten_map();
 }
 
  public int follows_at(set set2, int pos)
@@ -21798,7 +22228,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).follows_at(set2, pos);
+  return new basic_set(DangerousGetHandle(), false).follows_at(set2, pos);
 }
 
  public void foreach_basic_set(Action<basic_set> fn)
@@ -21806,7 +22236,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new basic_set(IncreaseReference()).foreach_basic_set(fn);
+new basic_set(DangerousGetHandle(), false).foreach_basic_set(fn);
 }
 
  public void foreach_bound_pair(dim_type type, uint pos, Action<constraint, constraint, basic_set> fn)
@@ -21814,7 +22244,7 @@ new basic_set(IncreaseReference()).foreach_basic_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new basic_set(IncreaseReference()).foreach_bound_pair(type, pos, fn);
+new basic_set(DangerousGetHandle(), false).foreach_bound_pair(type, pos, fn);
 }
 
  public void foreach_constraint(Action<constraint> fn)
@@ -21822,7 +22252,7 @@ new basic_set(IncreaseReference()).foreach_bound_pair(type, pos, fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new basic_set(IncreaseReference()).foreach_constraint(fn);
+new basic_set(DangerousGetHandle(), false).foreach_constraint(fn);
 }
 
  public void foreach_point(Action<point> fn)
@@ -21830,7 +22260,7 @@ new basic_set(IncreaseReference()).foreach_constraint(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new basic_set(IncreaseReference()).foreach_point(fn);
+new basic_set(DangerousGetHandle(), false).foreach_point(fn);
 }
 
  public void foreach_set(Action<set> fn)
@@ -21838,7 +22268,7 @@ new basic_set(IncreaseReference()).foreach_point(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new basic_set(IncreaseReference()).foreach_set(fn);
+new basic_set(DangerousGetHandle(), false).foreach_set(fn);
 }
 
  public basic_set from_params()
@@ -21846,7 +22276,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).from_params();
+  return new basic_set(DangerousGetHandle(), false).from_params();
 }
 
  public basic_set gist(basic_set context)
@@ -21854,7 +22284,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).gist(context);
+  return new basic_set(DangerousGetHandle(), false).gist(context);
 }
 
  public set gist(set context)
@@ -21862,7 +22292,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).gist(context);
+  return new basic_set(DangerousGetHandle(), false).gist(context);
 }
 
  public union_set gist(union_set context)
@@ -21870,7 +22300,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).gist(context);
+  return new basic_set(DangerousGetHandle(), false).gist(context);
 }
 
  public set gist_basic_set(basic_set context)
@@ -21878,7 +22308,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).gist_basic_set(context);
+  return new basic_set(DangerousGetHandle(), false).gist_basic_set(context);
 }
 
  public set gist_params(set context)
@@ -21886,7 +22316,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).gist_params(context);
+  return new basic_set(DangerousGetHandle(), false).gist_params(context);
 }
 
  public bool has_dim_id(dim_type type, uint pos)
@@ -21894,7 +22324,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).has_dim_id(type, pos);
+  return new basic_set(DangerousGetHandle(), false).has_dim_id(type, pos);
 }
 
  public bool has_dim_name(dim_type type, uint pos)
@@ -21902,7 +22332,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).has_dim_name(type, pos);
+  return new basic_set(DangerousGetHandle(), false).has_dim_name(type, pos);
 }
 
  public bool has_equal_space(set set2)
@@ -21910,7 +22340,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).has_equal_space(set2);
+  return new basic_set(DangerousGetHandle(), false).has_equal_space(set2);
 }
 
  public bool has_tuple_id()
@@ -21918,7 +22348,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).has_tuple_id();
+  return new basic_set(DangerousGetHandle(), false).has_tuple_id();
 }
 
  public bool has_tuple_name()
@@ -21926,7 +22356,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).has_tuple_name();
+  return new basic_set(DangerousGetHandle(), false).has_tuple_name();
 }
 
  public map identity()
@@ -21934,7 +22364,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).identity();
+  return new basic_set(DangerousGetHandle(), false).identity();
 }
 
  public pw_aff indicator_function()
@@ -21942,7 +22372,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).indicator_function();
+  return new basic_set(DangerousGetHandle(), false).indicator_function();
 }
 
  public mat inequalities_matrix(dim_type c1, dim_type c2, dim_type c3, dim_type c4)
@@ -21950,7 +22380,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).inequalities_matrix(c1, c2, c3, c4);
+  return new basic_set(DangerousGetHandle(), false).inequalities_matrix(c1, c2, c3, c4);
 }
 
  public basic_set insert_dims(dim_type type, uint pos, uint n)
@@ -21958,7 +22388,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).insert_dims(type, pos, n);
+  return new basic_set(DangerousGetHandle(), false).insert_dims(type, pos, n);
 }
 
  public map insert_domain(space domain)
@@ -21966,7 +22396,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).insert_domain(domain);
+  return new basic_set(DangerousGetHandle(), false).insert_domain(domain);
 }
 
  public basic_set intersect(basic_set bset2)
@@ -21974,7 +22404,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).intersect(bset2);
+  return new basic_set(DangerousGetHandle(), false).intersect(bset2);
 }
 
  public set intersect(set set2)
@@ -21982,7 +22412,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).intersect(set2);
+  return new basic_set(DangerousGetHandle(), false).intersect(set2);
 }
 
  public union_set intersect(union_set uset2)
@@ -21990,7 +22420,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).intersect(uset2);
+  return new basic_set(DangerousGetHandle(), false).intersect(uset2);
 }
 
  public basic_set intersect_params(basic_set bset2)
@@ -21998,7 +22428,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).intersect_params(bset2);
+  return new basic_set(DangerousGetHandle(), false).intersect_params(bset2);
 }
 
  public set intersect_params(set params_)
@@ -22006,7 +22436,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).intersect_params(params_);
+  return new basic_set(DangerousGetHandle(), false).intersect_params(params_);
 }
 
  public bool involves_dims(dim_type type, uint first, uint n)
@@ -22014,7 +22444,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).involves_dims(type, first, n);
+  return new basic_set(DangerousGetHandle(), false).involves_dims(type, first, n);
 }
 
  public bool involves_locals()
@@ -22022,7 +22452,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).involves_locals();
+  return new basic_set(DangerousGetHandle(), false).involves_locals();
 }
 
  public bool is_bounded()
@@ -22030,7 +22460,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_bounded();
+  return new basic_set(DangerousGetHandle(), false).is_bounded();
 }
 
  public bool is_box()
@@ -22038,7 +22468,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_box();
+  return new basic_set(DangerousGetHandle(), false).is_box();
 }
 
  public bool is_disjoint(basic_set bset2)
@@ -22046,7 +22476,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_disjoint(bset2);
+  return new basic_set(DangerousGetHandle(), false).is_disjoint(bset2);
 }
 
  public bool is_disjoint(set set2)
@@ -22054,7 +22484,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_disjoint(set2);
+  return new basic_set(DangerousGetHandle(), false).is_disjoint(set2);
 }
 
  public bool is_disjoint(union_set uset2)
@@ -22062,7 +22492,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_disjoint(uset2);
+  return new basic_set(DangerousGetHandle(), false).is_disjoint(uset2);
 }
 
  public bool is_empty()
@@ -22070,7 +22500,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_empty();
+  return new basic_set(DangerousGetHandle(), false).is_empty();
 }
 
  public bool is_equal(basic_set bset2)
@@ -22078,7 +22508,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_equal(bset2);
+  return new basic_set(DangerousGetHandle(), false).is_equal(bset2);
 }
 
  public bool is_equal(set set2)
@@ -22086,7 +22516,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_equal(set2);
+  return new basic_set(DangerousGetHandle(), false).is_equal(set2);
 }
 
  public bool is_equal(union_set uset2)
@@ -22094,7 +22524,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_equal(uset2);
+  return new basic_set(DangerousGetHandle(), false).is_equal(uset2);
 }
 
  public bool is_params()
@@ -22102,7 +22532,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_params();
+  return new basic_set(DangerousGetHandle(), false).is_params();
 }
 
  public int is_rational()
@@ -22110,7 +22540,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_rational();
+  return new basic_set(DangerousGetHandle(), false).is_rational();
 }
 
  public bool is_singleton()
@@ -22118,7 +22548,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_singleton();
+  return new basic_set(DangerousGetHandle(), false).is_singleton();
 }
 
  public bool is_strict_subset(set set2)
@@ -22126,7 +22556,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_strict_subset(set2);
+  return new basic_set(DangerousGetHandle(), false).is_strict_subset(set2);
 }
 
  public bool is_strict_subset(union_set uset2)
@@ -22134,7 +22564,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_strict_subset(uset2);
+  return new basic_set(DangerousGetHandle(), false).is_strict_subset(uset2);
 }
 
  public bool is_subset(basic_set bset2)
@@ -22142,7 +22572,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_subset(bset2);
+  return new basic_set(DangerousGetHandle(), false).is_subset(bset2);
 }
 
  public bool is_subset(set set2)
@@ -22150,7 +22580,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_subset(set2);
+  return new basic_set(DangerousGetHandle(), false).is_subset(set2);
 }
 
  public bool is_subset(union_set uset2)
@@ -22158,7 +22588,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_subset(uset2);
+  return new basic_set(DangerousGetHandle(), false).is_subset(uset2);
 }
 
  public bool is_universe()
@@ -22166,7 +22596,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_universe();
+  return new basic_set(DangerousGetHandle(), false).is_universe();
 }
 
  public bool is_wrapping()
@@ -22174,7 +22604,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).is_wrapping();
+  return new basic_set(DangerousGetHandle(), false).is_wrapping();
 }
 
  public bool isa_set()
@@ -22182,7 +22612,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).isa_set();
+  return new basic_set(DangerousGetHandle(), false).isa_set();
 }
 
  public fixed_box lattice_tile()
@@ -22190,7 +22620,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lattice_tile();
+  return new basic_set(DangerousGetHandle(), false).lattice_tile();
 }
 
  public map lex_ge_set(set set2)
@@ -22198,7 +22628,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lex_ge_set(set2);
+  return new basic_set(DangerousGetHandle(), false).lex_ge_set(set2);
 }
 
  public map lex_gt_set(set set2)
@@ -22206,7 +22636,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lex_gt_set(set2);
+  return new basic_set(DangerousGetHandle(), false).lex_gt_set(set2);
 }
 
  public map lex_le_set(set set2)
@@ -22214,7 +22644,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lex_le_set(set2);
+  return new basic_set(DangerousGetHandle(), false).lex_le_set(set2);
 }
 
  public map lex_lt_set(set set2)
@@ -22222,7 +22652,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lex_lt_set(set2);
+  return new basic_set(DangerousGetHandle(), false).lex_lt_set(set2);
 }
 
  public set lexmax()
@@ -22230,7 +22660,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lexmax();
+  return new basic_set(DangerousGetHandle(), false).lexmax();
 }
 
  public pw_multi_aff lexmax_pw_multi_aff()
@@ -22238,7 +22668,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lexmax_pw_multi_aff();
+  return new basic_set(DangerousGetHandle(), false).lexmax_pw_multi_aff();
 }
 
  public set lexmin()
@@ -22246,7 +22676,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lexmin();
+  return new basic_set(DangerousGetHandle(), false).lexmin();
 }
 
  public pw_multi_aff lexmin_pw_multi_aff()
@@ -22254,7 +22684,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lexmin_pw_multi_aff();
+  return new basic_set(DangerousGetHandle(), false).lexmin_pw_multi_aff();
 }
 
  public basic_set lift()
@@ -22262,7 +22692,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lift();
+  return new basic_set(DangerousGetHandle(), false).lift();
 }
 
  public local_space local_space()
@@ -22270,7 +22700,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).local_space();
+  return new basic_set(DangerousGetHandle(), false).local_space();
 }
 
  public set lower_bound(multi_pw_aff lower)
@@ -22278,7 +22708,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lower_bound(lower);
+  return new basic_set(DangerousGetHandle(), false).lower_bound(lower);
 }
 
  public set lower_bound(multi_val lower)
@@ -22286,7 +22716,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lower_bound(lower);
+  return new basic_set(DangerousGetHandle(), false).lower_bound(lower);
 }
 
  public set lower_bound_si(dim_type type, uint pos, int value)
@@ -22294,7 +22724,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lower_bound_si(type, pos, value);
+  return new basic_set(DangerousGetHandle(), false).lower_bound_si(type, pos, value);
 }
 
  public basic_set lower_bound_val(dim_type type, uint pos, val value)
@@ -22302,7 +22732,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).lower_bound_val(type, pos, value);
+  return new basic_set(DangerousGetHandle(), false).lower_bound_val(type, pos, value);
 }
 
  public basic_set lower_bound_val(dim_type type, uint pos, long value)
@@ -22318,7 +22748,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).make_disjoint();
+  return new basic_set(DangerousGetHandle(), false).make_disjoint();
 }
 
  public multi_pw_aff max_multi_pw_aff()
@@ -22326,7 +22756,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).max_multi_pw_aff();
+  return new basic_set(DangerousGetHandle(), false).max_multi_pw_aff();
 }
 
  public val max_val(aff obj)
@@ -22334,7 +22764,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).max_val(obj);
+  return new basic_set(DangerousGetHandle(), false).max_val(obj);
 }
 
  public multi_pw_aff min_multi_pw_aff()
@@ -22342,7 +22772,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).min_multi_pw_aff();
+  return new basic_set(DangerousGetHandle(), false).min_multi_pw_aff();
 }
 
  public val min_val(aff obj)
@@ -22350,7 +22780,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).min_val(obj);
+  return new basic_set(DangerousGetHandle(), false).min_val(obj);
 }
 
  public basic_set move_dims(dim_type dst_type, uint dst_pos, dim_type src_type, uint src_pos, uint n)
@@ -22358,7 +22788,7 @@ new basic_set(IncreaseReference()).foreach_set(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).move_dims(dst_type, dst_pos, src_type, src_pos, n);
+  return new basic_set(DangerousGetHandle(), false).move_dims(dst_type, dst_pos, src_type, src_pos, n);
 }
 
  public multi_val multi_val()
@@ -22379,7 +22809,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).n_basic_set();
+  return new basic_set(DangerousGetHandle(), false).n_basic_set();
 }
 
  public int n_constraint()
@@ -22387,7 +22817,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).n_constraint();
+  return new basic_set(DangerousGetHandle(), false).n_constraint();
 }
 
  public int n_dim()
@@ -22395,7 +22825,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).n_dim();
+  return new basic_set(DangerousGetHandle(), false).n_dim();
 }
 
  public int n_param()
@@ -22403,7 +22833,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).n_param();
+  return new basic_set(DangerousGetHandle(), false).n_param();
 }
 
  public basic_set neg()
@@ -22411,7 +22841,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).neg();
+  return new basic_set(DangerousGetHandle(), false).neg();
 }
 
  public pw_aff param_pw_aff_on_domain(id id)
@@ -22419,7 +22849,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).param_pw_aff_on_domain(id);
+  return new basic_set(DangerousGetHandle(), false).param_pw_aff_on_domain(id);
 }
 
  public pw_aff param_pw_aff_on_domain(string id)
@@ -22435,7 +22865,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).paramss();
+  return new basic_set(DangerousGetHandle(), false).paramss();
 }
 
  public int plain_cmp(set set2)
@@ -22443,7 +22873,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).plain_cmp(set2);
+  return new basic_set(DangerousGetHandle(), false).plain_cmp(set2);
 }
 
  public val plain_get_val_if_fixed(dim_type type, uint pos)
@@ -22451,7 +22881,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).plain_get_val_if_fixed(type, pos);
+  return new basic_set(DangerousGetHandle(), false).plain_get_val_if_fixed(type, pos);
 }
 
  public bool plain_is_disjoint(set set2)
@@ -22459,7 +22889,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).plain_is_disjoint(set2);
+  return new basic_set(DangerousGetHandle(), false).plain_is_disjoint(set2);
 }
 
  public bool plain_is_empty()
@@ -22467,7 +22897,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).plain_is_empty();
+  return new basic_set(DangerousGetHandle(), false).plain_is_empty();
 }
 
  public bool plain_is_equal(basic_set bset2)
@@ -22475,7 +22905,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).plain_is_equal(bset2);
+  return new basic_set(DangerousGetHandle(), false).plain_is_equal(bset2);
 }
 
  public bool plain_is_equal(set set2)
@@ -22483,7 +22913,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).plain_is_equal(set2);
+  return new basic_set(DangerousGetHandle(), false).plain_is_equal(set2);
 }
 
  public bool plain_is_universe()
@@ -22491,7 +22921,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).plain_is_universe();
+  return new basic_set(DangerousGetHandle(), false).plain_is_universe();
 }
 
  public multi_val plain_multi_val_if_fixed()
@@ -22499,7 +22929,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).plain_multi_val_if_fixed();
+  return new basic_set(DangerousGetHandle(), false).plain_multi_val_if_fixed();
 }
 
  public basic_set plain_unshifted_simple_hull()
@@ -22507,7 +22937,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).plain_unshifted_simple_hull();
+  return new basic_set(DangerousGetHandle(), false).plain_unshifted_simple_hull();
 }
 
  public basic_set polyhedral_hull()
@@ -22515,7 +22945,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).polyhedral_hull();
+  return new basic_set(DangerousGetHandle(), false).polyhedral_hull();
 }
 
  public set preimage(multi_aff ma)
@@ -22523,7 +22953,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).preimage(ma);
+  return new basic_set(DangerousGetHandle(), false).preimage(ma);
 }
 
  public set preimage(multi_pw_aff mpa)
@@ -22531,7 +22961,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).preimage(mpa);
+  return new basic_set(DangerousGetHandle(), false).preimage(mpa);
 }
 
  public set preimage(pw_multi_aff pma)
@@ -22539,7 +22969,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).preimage(pma);
+  return new basic_set(DangerousGetHandle(), false).preimage(pma);
 }
 
  public union_set preimage(union_pw_multi_aff upma)
@@ -22547,7 +22977,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).preimage(upma);
+  return new basic_set(DangerousGetHandle(), false).preimage(upma);
 }
 
  public basic_set preimage_multi_aff(multi_aff ma)
@@ -22555,7 +22985,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).preimage_multi_aff(ma);
+  return new basic_set(DangerousGetHandle(), false).preimage_multi_aff(ma);
 }
 
  public set product(set set2)
@@ -22563,7 +22993,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).product(set2);
+  return new basic_set(DangerousGetHandle(), false).product(set2);
 }
 
  public map project_onto_map(dim_type type, uint first, uint n)
@@ -22571,7 +23001,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).project_onto_map(type, first, n);
+  return new basic_set(DangerousGetHandle(), false).project_onto_map(type, first, n);
 }
 
  public basic_set project_out(dim_type type, uint first, uint n)
@@ -22579,7 +23009,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).project_out(type, first, n);
+  return new basic_set(DangerousGetHandle(), false).project_out(type, first, n);
 }
 
  public set project_out_all_params()
@@ -22587,7 +23017,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).project_out_all_params();
+  return new basic_set(DangerousGetHandle(), false).project_out_all_params();
 }
 
  public set project_out_param(id id)
@@ -22595,7 +23025,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).project_out_param(id);
+  return new basic_set(DangerousGetHandle(), false).project_out_param(id);
 }
 
  public set project_out_param(string id)
@@ -22611,7 +23041,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).project_out_param(list);
+  return new basic_set(DangerousGetHandle(), false).project_out_param(list);
 }
 
  public pw_aff pw_aff_on_domain(val v)
@@ -22619,7 +23049,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).pw_aff_on_domain(v);
+  return new basic_set(DangerousGetHandle(), false).pw_aff_on_domain(v);
 }
 
  public pw_aff pw_aff_on_domain(long v)
@@ -22635,7 +23065,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).pw_multi_aff_on_domain(mv);
+  return new basic_set(DangerousGetHandle(), false).pw_multi_aff_on_domain(mv);
 }
 
  public mat reduced_basis()
@@ -22643,7 +23073,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).reduced_basis();
+  return new basic_set(DangerousGetHandle(), false).reduced_basis();
 }
 
  public basic_set remove_dims(dim_type type, uint first, uint n)
@@ -22651,7 +23081,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).remove_dims(type, first, n);
+  return new basic_set(DangerousGetHandle(), false).remove_dims(type, first, n);
 }
 
  public basic_set remove_divs()
@@ -22659,7 +23089,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).remove_divs();
+  return new basic_set(DangerousGetHandle(), false).remove_divs();
 }
 
  public basic_set remove_divs_involving_dims(dim_type type, uint first, uint n)
@@ -22667,7 +23097,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).remove_divs_involving_dims(type, first, n);
+  return new basic_set(DangerousGetHandle(), false).remove_divs_involving_dims(type, first, n);
 }
 
  public basic_set remove_redundancies()
@@ -22675,7 +23105,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).remove_redundancies();
+  return new basic_set(DangerousGetHandle(), false).remove_redundancies();
 }
 
  public basic_set remove_unknown_divs()
@@ -22683,7 +23113,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).remove_unknown_divs();
+  return new basic_set(DangerousGetHandle(), false).remove_unknown_divs();
 }
 
  public set reset_space(space space)
@@ -22691,7 +23121,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).reset_space(space);
+  return new basic_set(DangerousGetHandle(), false).reset_space(space);
 }
 
  public set reset_tuple_id()
@@ -22699,7 +23129,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).reset_tuple_id();
+  return new basic_set(DangerousGetHandle(), false).reset_tuple_id();
 }
 
  public set reset_user()
@@ -22707,7 +23137,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).reset_user();
+  return new basic_set(DangerousGetHandle(), false).reset_user();
 }
 
  public basic_set sample()
@@ -22715,7 +23145,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).sample();
+  return new basic_set(DangerousGetHandle(), false).sample();
 }
 
  public point sample_point()
@@ -22723,7 +23153,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).sample_point();
+  return new basic_set(DangerousGetHandle(), false).sample_point();
 }
 
  public point set_coordinate_val(dim_type type, int pos, val v)
@@ -22752,7 +23182,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).set_dim_id(type, pos, id);
+  return new basic_set(DangerousGetHandle(), false).set_dim_id(type, pos, id);
 }
 
  public set set_dim_id(dim_type type, uint pos, string id)
@@ -22768,7 +23198,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).set_dim_name(type, pos, s);
+  return new basic_set(DangerousGetHandle(), false).set_dim_name(type, pos, s);
 }
 
  public set_list set_list()
@@ -22776,7 +23206,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).set_list();
+  return new basic_set(DangerousGetHandle(), false).set_list();
 }
 
  public basic_set set_tuple_id(id id)
@@ -22784,7 +23214,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).set_tuple_id(id);
+  return new basic_set(DangerousGetHandle(), false).set_tuple_id(id);
 }
 
  public basic_set set_tuple_id(string id)
@@ -22800,7 +23230,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).set_tuple_name(s);
+  return new basic_set(DangerousGetHandle(), false).set_tuple_name(s);
 }
 
  public fixed_box simple_fixed_box_hull()
@@ -22808,7 +23238,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).simple_fixed_box_hull();
+  return new basic_set(DangerousGetHandle(), false).simple_fixed_box_hull();
 }
 
  public basic_set simple_hull()
@@ -22816,7 +23246,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).simple_hull();
+  return new basic_set(DangerousGetHandle(), false).simple_hull();
 }
 
  public int size()
@@ -22824,7 +23254,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).size();
+  return new basic_set(DangerousGetHandle(), false).size();
 }
 
  public basic_set solutions()
@@ -22832,7 +23262,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).solutions();
+  return new basic_set(DangerousGetHandle(), false).solutions();
 }
 
  public space space()
@@ -22853,7 +23283,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).split_dims(type, first, n);
+  return new basic_set(DangerousGetHandle(), false).split_dims(type, first, n);
 }
 
  public val stride(int pos)
@@ -22861,7 +23291,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).stride(pos);
+  return new basic_set(DangerousGetHandle(), false).stride(pos);
 }
 
  public point sub_ui(dim_type type, int pos, uint val)
@@ -22882,7 +23312,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).subtract(set2);
+  return new basic_set(DangerousGetHandle(), false).subtract(set2);
 }
 
  public union_set subtract(union_set uset2)
@@ -22890,7 +23320,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).subtract(uset2);
+  return new basic_set(DangerousGetHandle(), false).subtract(uset2);
 }
 
  public set sum(set set2)
@@ -22898,7 +23328,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).sum(set2);
+  return new basic_set(DangerousGetHandle(), false).sum(set2);
 }
 
  public basic_set_list to_list()
@@ -22906,7 +23336,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).to_list();
+  return new basic_set(DangerousGetHandle(), false).to_list();
 }
 
  public set to_set()
@@ -22927,7 +23357,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).to_union_set();
+  return new basic_set(DangerousGetHandle(), false).to_union_set();
 }
 
  public int total_dim()
@@ -22935,7 +23365,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).total_dim();
+  return new basic_set(DangerousGetHandle(), false).total_dim();
 }
 
  public map translation()
@@ -22943,7 +23373,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).translation();
+  return new basic_set(DangerousGetHandle(), false).translation();
 }
 
  public int tuple_dim()
@@ -22951,7 +23381,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).tuple_dim();
+  return new basic_set(DangerousGetHandle(), false).tuple_dim();
 }
 
  public id tuple_id()
@@ -22959,7 +23389,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).tuple_id();
+  return new basic_set(DangerousGetHandle(), false).tuple_id();
 }
 
  public string tuple_name()
@@ -22967,7 +23397,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).tuple_name();
+  return new basic_set(DangerousGetHandle(), false).tuple_name();
 }
 
  public set unbind_params(multi_id tuple)
@@ -22975,7 +23405,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).unbind_params(tuple);
+  return new basic_set(DangerousGetHandle(), false).unbind_params(tuple);
 }
 
  public map unbind_params_insert_domain(multi_id domain)
@@ -22983,7 +23413,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).unbind_params_insert_domain(domain);
+  return new basic_set(DangerousGetHandle(), false).unbind_params_insert_domain(domain);
 }
 
  public set union(basic_set bset2)
@@ -22991,7 +23421,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).union(bset2);
+  return new basic_set(DangerousGetHandle(), false).union(bset2);
 }
 
  public set union(set set2)
@@ -22999,7 +23429,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).union(set2);
+  return new basic_set(DangerousGetHandle(), false).union(set2);
 }
 
  public union_set union(union_set uset2)
@@ -23007,7 +23437,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).union(uset2);
+  return new basic_set(DangerousGetHandle(), false).union(uset2);
 }
 
  public set union_disjoint(set set2)
@@ -23015,7 +23445,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).union_disjoint(set2);
+  return new basic_set(DangerousGetHandle(), false).union_disjoint(set2);
 }
 
  public basic_set unshifted_simple_hull()
@@ -23023,7 +23453,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).unshifted_simple_hull();
+  return new basic_set(DangerousGetHandle(), false).unshifted_simple_hull();
 }
 
  public basic_set unshifted_simple_hull_from_set_list(set_list list)
@@ -23031,7 +23461,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).unshifted_simple_hull_from_set_list(list);
+  return new basic_set(DangerousGetHandle(), false).unshifted_simple_hull_from_set_list(list);
 }
 
  public basic_map unwrap()
@@ -23039,7 +23469,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).unwrap();
+  return new basic_set(DangerousGetHandle(), false).unwrap();
 }
 
  public set upper_bound(multi_pw_aff upper)
@@ -23047,7 +23477,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).upper_bound(upper);
+  return new basic_set(DangerousGetHandle(), false).upper_bound(upper);
 }
 
  public set upper_bound(multi_val upper)
@@ -23055,7 +23485,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).upper_bound(upper);
+  return new basic_set(DangerousGetHandle(), false).upper_bound(upper);
 }
 
  public set upper_bound_si(dim_type type, uint pos, int value)
@@ -23063,7 +23493,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).upper_bound_si(type, pos, value);
+  return new basic_set(DangerousGetHandle(), false).upper_bound_si(type, pos, value);
 }
 
  public basic_set upper_bound_val(dim_type type, uint pos, val value)
@@ -23071,7 +23501,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).upper_bound_val(type, pos, value);
+  return new basic_set(DangerousGetHandle(), false).upper_bound_val(type, pos, value);
 }
 
  public basic_set upper_bound_val(dim_type type, uint pos, long value)
@@ -23100,7 +23530,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).wrapped_domain_map();
+  return new basic_set(DangerousGetHandle(), false).wrapped_domain_map();
 }
 
  public set wrapped_reverse()
@@ -23108,7 +23538,7 @@ return new point(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new basic_set(IncreaseReference()).wrapped_reverse();
+  return new basic_set(DangerousGetHandle(), false).wrapped_reverse();
 }
 
  public static point zero(space space)
@@ -23135,8 +23565,14 @@ public override string ToString(){
 
 public class printer : IntrusiveHandle {
 
-internal printer(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal printer(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_printer_free(handle);
@@ -23476,8 +23912,14 @@ return new printer(res);
 
 public class pw_aff : IntrusiveHandle {
 
-internal pw_aff(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal pw_aff(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ pw_aff(aff aff) : base(IntPtr.Zero) 
 {
@@ -23490,6 +23932,7 @@ internal pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ pw_aff(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -23499,6 +23942,7 @@ internal pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -23519,7 +23963,7 @@ internal override IntPtr IncreaseReference() {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).add(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public multi_union_pw_aff add(multi_union_pw_aff multi2)
@@ -23527,7 +23971,7 @@ internal override IntPtr IncreaseReference() {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).add(multi2);
+  return new union_pw_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public pw_aff add(pw_aff pwaff2)
@@ -23548,7 +23992,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).add(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).add(pma2);
 }
 
  public union_pw_aff add(union_pw_aff upa2)
@@ -23556,7 +24000,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).add(upa2);
+  return new union_pw_aff(DangerousGetHandle(), false).add(upa2);
 }
 
  public union_pw_multi_aff add(union_pw_multi_aff upma2)
@@ -23564,7 +24008,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).add(upma2);
+  return new union_pw_aff(DangerousGetHandle(), false).add(upma2);
 }
 
  public pw_aff add(aff pwaff2)
@@ -23601,7 +24045,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).add_constant(mv);
+  return new pw_multi_aff(DangerousGetHandle(), false).add_constant(mv);
 }
 
  public pw_aff add_dims(dim_type type, uint n)
@@ -23622,7 +24066,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).add_pw_aff(pa);
+  return new union_pw_aff(DangerousGetHandle(), false).add_pw_aff(pa);
 }
 
  public pw_aff align_params(space model)
@@ -23656,7 +24100,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).apply(upma2);
+  return new union_pw_aff(DangerousGetHandle(), false).apply(upma2);
 }
 
  public union_pw_aff apply_aff(aff aff)
@@ -23664,7 +24108,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).apply_aff(aff);
+  return new union_pw_aff(DangerousGetHandle(), false).apply_aff(aff);
 }
 
  public multi_union_pw_aff apply_multi_aff(multi_aff ma)
@@ -23672,7 +24116,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).apply_multi_aff(ma);
+  return new union_pw_aff(DangerousGetHandle(), false).apply_multi_aff(ma);
 }
 
  public union_pw_aff apply_pw_aff(pw_aff pa)
@@ -23680,7 +24124,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).apply_pw_aff(pa);
+  return new union_pw_aff(DangerousGetHandle(), false).apply_pw_aff(pa);
 }
 
  public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
@@ -23688,7 +24132,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).apply_pw_multi_aff(pma);
+  return new union_pw_aff(DangerousGetHandle(), false).apply_pw_multi_aff(pma);
 }
 
  public aff as_aff()
@@ -23722,7 +24166,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).as_multi_aff();
+  return new pw_multi_aff(DangerousGetHandle(), false).as_multi_aff();
 }
 
  public multi_union_pw_aff as_multi_union_pw_aff()
@@ -23730,7 +24174,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).as_multi_union_pw_aff();
+  return new union_pw_aff(DangerousGetHandle(), false).as_multi_union_pw_aff();
 }
 
  public pw_multi_aff as_pw_multi_aff()
@@ -23738,7 +24182,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).as_pw_multi_aff();
+  return new union_pw_aff(DangerousGetHandle(), false).as_pw_multi_aff();
 }
 
  public set as_set()
@@ -23746,7 +24190,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).as_set();
+  return new pw_multi_aff(DangerousGetHandle(), false).as_set();
 }
 
  public union_map as_union_map()
@@ -23754,7 +24198,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).as_union_map();
+  return new union_pw_aff(DangerousGetHandle(), false).as_union_map();
 }
 
  public pw_aff at(int pos)
@@ -23762,7 +24206,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).at(pos);
+  return new pw_multi_aff(DangerousGetHandle(), false).at(pos);
 }
 
  public set bind(multi_id tuple)
@@ -23770,7 +24214,7 @@ return new map(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).bind(tuple);
+  return new multi_pw_aff(DangerousGetHandle(), false).bind(tuple);
 }
 
  public set bind(id id)
@@ -23991,7 +24435,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).eq_map(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).eq_map(mpa2);
 }
 
  public map eq_map(pw_aff pa2)
@@ -24072,7 +24516,7 @@ Func<IntPtr, IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).every_pw_aff(test);
+  return new union_pw_aff(DangerousGetHandle(), false).every_pw_aff(test);
 }
 
  public multi_pw_aff extract_multi_pw_aff(space space)
@@ -24080,7 +24524,7 @@ Func<IntPtr, IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).extract_multi_pw_aff(space);
+  return new union_pw_aff(DangerousGetHandle(), false).extract_multi_pw_aff(space);
 }
 
  public pw_aff extract_pw_aff(space space)
@@ -24088,7 +24532,7 @@ Func<IntPtr, IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).extract_pw_aff(space);
+  return new union_pw_aff(DangerousGetHandle(), false).extract_pw_aff(space);
 }
 
  public pw_multi_aff extract_pw_multi_aff(space space)
@@ -24096,7 +24540,7 @@ Func<IntPtr, IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).extract_pw_multi_aff(space);
+  return new union_pw_aff(DangerousGetHandle(), false).extract_pw_multi_aff(space);
 }
 
  public int find_dim_by_name(dim_type type, string name)
@@ -24114,7 +24558,7 @@ Func<IntPtr, IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).flat_range_product(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public multi_union_pw_aff flat_range_product(multi_union_pw_aff multi2)
@@ -24122,7 +24566,7 @@ Func<IntPtr, IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).flat_range_product(multi2);
+  return new union_pw_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public pw_multi_aff flat_range_product(pw_multi_aff pma2)
@@ -24130,7 +24574,7 @@ Func<IntPtr, IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).flat_range_product(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).flat_range_product(pma2);
 }
 
  public union_pw_multi_aff flat_range_product(union_pw_multi_aff upma2)
@@ -24138,7 +24582,7 @@ Func<IntPtr, IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).flat_range_product(upma2);
+  return new union_pw_aff(DangerousGetHandle(), false).flat_range_product(upma2);
 }
 
  public pw_aff floor()
@@ -24185,7 +24629,7 @@ Func<IntPtr, IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1, 
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new pw_multi_aff(IncreaseReference()).foreach_piece(fn);
+new pw_multi_aff(DangerousGetHandle(), false).foreach_piece(fn);
 }
 
  public void foreach_pw_aff(Action<pw_aff> fn)
@@ -24193,7 +24637,7 @@ new pw_multi_aff(IncreaseReference()).foreach_piece(fn);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new union_pw_aff(IncreaseReference()).foreach_pw_aff(fn);
+new union_pw_aff(DangerousGetHandle(), false).foreach_pw_aff(fn);
 }
 
  public pw_aff from_range()
@@ -24253,7 +24697,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).gist(context);
+  return new union_pw_aff(DangerousGetHandle(), false).gist(context);
 }
 
  public pw_aff gist(basic_set context)
@@ -24329,7 +24773,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).has_range_tuple_id();
+  return new pw_multi_aff(DangerousGetHandle(), false).has_range_tuple_id();
 }
 
  public bool has_tuple_id(dim_type type)
@@ -24350,7 +24794,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).has_tuple_name(type);
+  return new pw_multi_aff(DangerousGetHandle(), false).has_tuple_name(type);
 }
 
  public multi_pw_aff identity()
@@ -24358,7 +24802,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).identity();
+  return new pw_multi_aff(DangerousGetHandle(), false).identity();
 }
 
  public pw_aff insert_dims(dim_type type, uint first, uint n)
@@ -24405,7 +24849,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).intersect_domain(space);
+  return new union_pw_aff(DangerousGetHandle(), false).intersect_domain(space);
 }
 
  public union_pw_aff intersect_domain(union_set uset)
@@ -24413,7 +24857,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).intersect_domain(uset);
+  return new union_pw_aff(DangerousGetHandle(), false).intersect_domain(uset);
 }
 
  public pw_aff intersect_domain(basic_set set)
@@ -24450,7 +24894,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).intersect_domain_wrapped_domain(uset);
+  return new union_pw_aff(DangerousGetHandle(), false).intersect_domain_wrapped_domain(uset);
 }
 
  public pw_aff intersect_domain_wrapped_domain(basic_set set)
@@ -24487,7 +24931,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).intersect_domain_wrapped_range(uset);
+  return new union_pw_aff(DangerousGetHandle(), false).intersect_domain_wrapped_range(uset);
 }
 
  public pw_aff intersect_domain_wrapped_range(basic_set set)
@@ -24524,7 +24968,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).intersect_range(set);
+  return new union_pw_aff(DangerousGetHandle(), false).intersect_range(set);
 }
 
  public bool involves_dims(dim_type type, uint first, uint n)
@@ -24545,7 +24989,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).involves_locals();
+  return new pw_multi_aff(DangerousGetHandle(), false).involves_locals();
 }
 
  public bool involves_nan()
@@ -24566,7 +25010,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).involves_param(id);
+  return new pw_multi_aff(DangerousGetHandle(), false).involves_param(id);
 }
 
  public bool involves_param(string id)
@@ -24582,7 +25026,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).involves_param(list);
+  return new pw_multi_aff(DangerousGetHandle(), false).involves_param(list);
 }
 
  public bool involves_param_id(id id)
@@ -24650,7 +25094,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).isa_multi_aff();
+  return new pw_multi_aff(DangerousGetHandle(), false).isa_multi_aff();
 }
 
  public bool isa_pw_multi_aff()
@@ -24658,7 +25102,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).isa_pw_multi_aff();
+  return new union_pw_aff(DangerousGetHandle(), false).isa_pw_multi_aff();
 }
 
  public map le_map(pw_aff pa2)
@@ -24692,7 +25136,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).lex_ge_map(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).lex_ge_map(mpa2);
 }
 
  public map lex_gt_map(multi_pw_aff mpa2)
@@ -24700,7 +25144,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).lex_gt_map(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).lex_gt_map(mpa2);
 }
 
  public map lex_le_map(multi_pw_aff mpa2)
@@ -24708,7 +25152,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).lex_le_map(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).lex_le_map(mpa2);
 }
 
  public map lex_lt_map(multi_pw_aff mpa2)
@@ -24716,7 +25160,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).lex_lt_map(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).lex_lt_map(mpa2);
 }
 
  public pw_aff_list list()
@@ -24724,7 +25168,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).list();
+  return new multi_pw_aff(DangerousGetHandle(), false).list();
 }
 
  public map lt_map(pw_aff pa2)
@@ -24758,7 +25202,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).max(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).max(multi2);
 }
 
  public pw_aff max(pw_aff pwaff2)
@@ -24787,7 +25231,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).max_multi_val();
+  return new pw_multi_aff(DangerousGetHandle(), false).max_multi_val();
 }
 
  public val max_val()
@@ -24808,7 +25252,7 @@ return new val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).min(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).min(multi2);
 }
 
  public pw_aff min(pw_aff pwaff2)
@@ -24837,7 +25281,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).min_multi_val();
+  return new pw_multi_aff(DangerousGetHandle(), false).min_multi_val();
 }
 
  public val min_val()
@@ -24879,7 +25323,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).mod_val(f);
+  return new union_pw_aff(DangerousGetHandle(), false).mod_val(f);
 }
 
  public union_pw_aff mod_val(long f)
@@ -24934,7 +25378,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).n_pw_aff();
+  return new union_pw_aff(DangerousGetHandle(), false).n_pw_aff();
 }
 
  public static pw_aff nan_on_domain(local_space ls)
@@ -25046,7 +25490,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).plain_is_empty();
+  return new union_pw_aff(DangerousGetHandle(), false).plain_is_empty();
 }
 
  public bool plain_is_equal(multi_pw_aff multi2)
@@ -25054,7 +25498,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(multi_union_pw_aff multi2)
@@ -25062,7 +25506,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new union_pw_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(pw_aff pwaff2)
@@ -25083,7 +25527,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).plain_is_equal(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).plain_is_equal(pma2);
 }
 
  public bool plain_is_equal(union_pw_aff upa2)
@@ -25091,7 +25535,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).plain_is_equal(upa2);
+  return new union_pw_aff(DangerousGetHandle(), false).plain_is_equal(upa2);
 }
 
  public bool plain_is_equal(union_pw_multi_aff upma2)
@@ -25099,7 +25543,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).plain_is_equal(upma2);
+  return new union_pw_aff(DangerousGetHandle(), false).plain_is_equal(upma2);
 }
 
  public bool plain_is_equal(aff pwaff2)
@@ -25128,7 +25572,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).preimage_domain_wrapped_domain(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).preimage_domain_wrapped_domain(pma2);
 }
 
  public union_pw_multi_aff preimage_domain_wrapped_domain(union_pw_multi_aff upma2)
@@ -25136,7 +25580,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).preimage_domain_wrapped_domain(upma2);
+  return new union_pw_aff(DangerousGetHandle(), false).preimage_domain_wrapped_domain(upma2);
 }
 
  public multi_pw_aff product(multi_pw_aff multi2)
@@ -25144,7 +25588,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).product(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).product(multi2);
 }
 
  public pw_multi_aff product(pw_multi_aff pma2)
@@ -25152,7 +25596,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).product(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).product(pma2);
 }
 
  public pw_aff project_domain_on_params()
@@ -25212,7 +25656,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).pullback(upma);
+  return new union_pw_aff(DangerousGetHandle(), false).pullback(upma);
 }
 
  public pw_aff_list pw_aff_list()
@@ -25220,7 +25664,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).pw_aff_list();
+  return new union_pw_aff(DangerousGetHandle(), false).pw_aff_list();
 }
 
  public pw_multi_aff_list pw_multi_aff_list()
@@ -25228,7 +25672,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).pw_multi_aff_list();
+  return new union_pw_aff(DangerousGetHandle(), false).pw_multi_aff_list();
 }
 
  public pw_multi_aff range_factor_domain()
@@ -25236,7 +25680,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_factor_domain();
+  return new pw_multi_aff(DangerousGetHandle(), false).range_factor_domain();
 }
 
  public pw_multi_aff range_factor_range()
@@ -25244,7 +25688,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_factor_range();
+  return new pw_multi_aff(DangerousGetHandle(), false).range_factor_range();
 }
 
  public multi_pw_aff range_product(multi_pw_aff multi2)
@@ -25252,7 +25696,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_product(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public multi_union_pw_aff range_product(multi_union_pw_aff multi2)
@@ -25260,7 +25704,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).range_product(multi2);
+  return new union_pw_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public pw_multi_aff range_product(pw_multi_aff pma2)
@@ -25268,7 +25712,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_product(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).range_product(pma2);
 }
 
  public union_pw_multi_aff range_product(union_pw_multi_aff upma2)
@@ -25276,7 +25720,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).range_product(upma2);
+  return new union_pw_aff(DangerousGetHandle(), false).range_product(upma2);
 }
 
  public id range_tuple_id()
@@ -25284,7 +25728,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).range_tuple_id();
+  return new pw_multi_aff(DangerousGetHandle(), false).range_tuple_id();
 }
 
  public multi_pw_aff reset_range_tuple_id()
@@ -25292,7 +25736,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).reset_range_tuple_id();
+  return new multi_pw_aff(DangerousGetHandle(), false).reset_range_tuple_id();
 }
 
  public pw_aff reset_tuple_id(dim_type type)
@@ -25313,7 +25757,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).reset_user();
+  return new pw_multi_aff(DangerousGetHandle(), false).reset_user();
 }
 
  public pw_aff scale(val v)
@@ -25342,7 +25786,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).scale(mv);
+  return new pw_multi_aff(DangerousGetHandle(), false).scale(mv);
 }
 
  public pw_aff scale_down(val f)
@@ -25371,7 +25815,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).scale_down(mv);
+  return new pw_multi_aff(DangerousGetHandle(), false).scale_down(mv);
 }
 
  public union_pw_aff scale_down_val(val v)
@@ -25379,7 +25823,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).scale_down_val(v);
+  return new union_pw_aff(DangerousGetHandle(), false).scale_down_val(v);
 }
 
  public union_pw_aff scale_down_val(long v)
@@ -25395,7 +25839,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).scale_val(v);
+  return new union_pw_aff(DangerousGetHandle(), false).scale_val(v);
 }
 
  public union_pw_aff scale_val(long v)
@@ -25411,7 +25855,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).set_at(pos, el);
+  return new pw_multi_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public multi_union_pw_aff set_at(int pos, union_pw_aff el)
@@ -25419,7 +25863,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).set_at(pos, el);
+  return new union_pw_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public pw_aff set_dim_id(dim_type type, uint pos, id id)
@@ -25448,7 +25892,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).set_dim_name(type, pos, s);
+  return new union_pw_aff(DangerousGetHandle(), false).set_dim_name(type, pos, s);
 }
 
  public pw_multi_aff set_range_tuple(id id)
@@ -25456,7 +25900,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).set_range_tuple(id);
+  return new pw_multi_aff(DangerousGetHandle(), false).set_range_tuple(id);
 }
 
  public pw_multi_aff set_range_tuple(string id)
@@ -25493,7 +25937,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).size();
+  return new multi_pw_aff(DangerousGetHandle(), false).size();
 }
 
  public space space()
@@ -25514,7 +25958,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).sub(multi2);
+  return new pw_multi_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public multi_union_pw_aff sub(multi_union_pw_aff multi2)
@@ -25522,7 +25966,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).sub(multi2);
+  return new union_pw_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public pw_aff sub(pw_aff pwaff2)
@@ -25543,7 +25987,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).sub(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).sub(pma2);
 }
 
  public union_pw_aff sub(union_pw_aff upa2)
@@ -25551,7 +25995,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).sub(upa2);
+  return new union_pw_aff(DangerousGetHandle(), false).sub(upa2);
 }
 
  public union_pw_multi_aff sub(union_pw_multi_aff upma2)
@@ -25559,7 +26003,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).sub(upma2);
+  return new union_pw_aff(DangerousGetHandle(), false).sub(upma2);
 }
 
  public pw_aff sub(aff pwaff2)
@@ -25588,7 +26032,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).subtract_domain(space);
+  return new union_pw_aff(DangerousGetHandle(), false).subtract_domain(space);
 }
 
  public union_pw_aff subtract_domain(union_set uset)
@@ -25596,7 +26040,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).subtract_domain(uset);
+  return new union_pw_aff(DangerousGetHandle(), false).subtract_domain(uset);
 }
 
  public pw_aff subtract_domain(basic_set set)
@@ -25659,7 +26103,7 @@ return new pw_aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).to_multi_pw_aff();
+  return new pw_multi_aff(DangerousGetHandle(), false).to_multi_pw_aff();
 }
 
  public union_pw_aff to_union_pw_aff()
@@ -25680,7 +26124,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).to_union_pw_multi_aff();
+  return new pw_multi_aff(DangerousGetHandle(), false).to_union_pw_multi_aff();
 }
 
  public id tuple_id(dim_type type)
@@ -25701,7 +26145,7 @@ return new id(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).tuple_name(type);
+  return new pw_multi_aff(DangerousGetHandle(), false).tuple_name(type);
 }
 
  public multi_pw_aff unbind_params_insert_domain(multi_id domain)
@@ -25709,7 +26153,7 @@ return new id(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).unbind_params_insert_domain(domain);
+  return new pw_multi_aff(DangerousGetHandle(), false).unbind_params_insert_domain(domain);
 }
 
  public multi_pw_aff union_add(multi_pw_aff mpa2)
@@ -25717,7 +26161,7 @@ return new id(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).union_add(mpa2);
+  return new pw_multi_aff(DangerousGetHandle(), false).union_add(mpa2);
 }
 
  public multi_union_pw_aff union_add(multi_union_pw_aff mupa2)
@@ -25725,7 +26169,7 @@ return new id(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).union_add(mupa2);
+  return new union_pw_aff(DangerousGetHandle(), false).union_add(mupa2);
 }
 
  public pw_aff union_add(pw_aff pwaff2)
@@ -25746,7 +26190,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new pw_multi_aff(IncreaseReference()).union_add(pma2);
+  return new pw_multi_aff(DangerousGetHandle(), false).union_add(pma2);
 }
 
  public union_pw_aff union_add(union_pw_aff upa2)
@@ -25754,7 +26198,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).union_add(upa2);
+  return new union_pw_aff(DangerousGetHandle(), false).union_add(upa2);
 }
 
  public union_pw_multi_aff union_add(union_pw_multi_aff upma2)
@@ -25762,7 +26206,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).union_add(upma2);
+  return new union_pw_aff(DangerousGetHandle(), false).union_add(upma2);
 }
 
  public pw_aff union_add(aff pwaff2)
@@ -25856,7 +26300,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_aff(IncreaseReference()).zero_union_set();
+  return new union_pw_aff(DangerousGetHandle(), false).zero_union_set();
 }
 
 public override string ToString(){
@@ -25870,8 +26314,14 @@ public override string ToString(){
 
 public class pw_aff_list : IntrusiveHandle {
 
-internal pw_aff_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal pw_aff_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ pw_aff_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -25880,6 +26330,7 @@ internal pw_aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ pw_aff_list(pw_aff el) : base(IntPtr.Zero) 
@@ -25893,6 +26344,7 @@ internal pw_aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ pw_aff_list(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -25902,6 +26354,7 @@ internal pw_aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -26214,8 +26667,14 @@ public override string ToString(){
 
 public class pw_multi_aff : IntrusiveHandle {
 
-internal pw_multi_aff(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal pw_multi_aff(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ pw_multi_aff(multi_aff ma) : base(IntPtr.Zero) 
 {
@@ -26228,6 +26687,7 @@ internal pw_multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ pw_multi_aff(multi_pw_aff mpa) : base(IntPtr.Zero) 
@@ -26241,6 +26701,7 @@ internal pw_multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ pw_multi_aff(pw_aff pa) : base(IntPtr.Zero) 
@@ -26254,6 +26715,7 @@ internal pw_multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ pw_multi_aff(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -26263,6 +26725,7 @@ internal pw_multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -26283,7 +26746,7 @@ internal override IntPtr IncreaseReference() {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).add(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public multi_union_pw_aff add(multi_union_pw_aff multi2)
@@ -26291,7 +26754,7 @@ internal override IntPtr IncreaseReference() {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).add(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public pw_multi_aff add(pw_multi_aff pma2)
@@ -26312,7 +26775,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).add(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).add(upma2);
 }
 
  public pw_multi_aff add(multi_aff pma2)
@@ -26370,7 +26833,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).apply(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).apply(upma2);
 }
 
  public union_pw_aff apply_aff(aff aff)
@@ -26378,7 +26841,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).apply_aff(aff);
+  return new multi_pw_aff(DangerousGetHandle(), false).apply_aff(aff);
 }
 
  public multi_union_pw_aff apply_multi_aff(multi_aff ma)
@@ -26386,7 +26849,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).apply_multi_aff(ma);
+  return new multi_pw_aff(DangerousGetHandle(), false).apply_multi_aff(ma);
 }
 
  public union_pw_aff apply_pw_aff(pw_aff pa)
@@ -26394,7 +26857,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).apply_pw_aff(pa);
+  return new multi_pw_aff(DangerousGetHandle(), false).apply_pw_aff(pa);
 }
 
  public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
@@ -26402,7 +26865,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).apply_pw_multi_aff(pma);
+  return new multi_pw_aff(DangerousGetHandle(), false).apply_pw_multi_aff(pma);
 }
 
  public map as_map()
@@ -26436,7 +26899,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).as_multi_union_pw_aff();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).as_multi_union_pw_aff();
 }
 
  public pw_multi_aff as_pw_multi_aff()
@@ -26444,7 +26907,7 @@ return new multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).as_pw_multi_aff();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).as_pw_multi_aff();
 }
 
  public set as_set()
@@ -26465,7 +26928,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).as_union_map();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).as_union_map();
 }
 
  public pw_aff at(int pos)
@@ -26486,7 +26949,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).bind(tuple);
+  return new multi_pw_aff(DangerousGetHandle(), false).bind(tuple);
 }
 
  public pw_multi_aff bind_domain(multi_id tuple)
@@ -26634,7 +27097,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).eq_map(mpa2);
+  return new multi_pw_aff(DangerousGetHandle(), false).eq_map(mpa2);
 }
 
  public multi_pw_aff extract_multi_pw_aff(space space)
@@ -26642,7 +27105,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).extract_multi_pw_aff(space);
+  return new multi_pw_aff(DangerousGetHandle(), false).extract_multi_pw_aff(space);
 }
 
  public pw_multi_aff extract_pw_multi_aff(space space)
@@ -26650,7 +27113,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).extract_pw_multi_aff(space);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).extract_pw_multi_aff(space);
 }
 
  public multi_pw_aff flat_range_product(multi_pw_aff multi2)
@@ -26658,7 +27121,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).flat_range_product(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public multi_union_pw_aff flat_range_product(multi_union_pw_aff multi2)
@@ -26666,7 +27129,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).flat_range_product(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public pw_multi_aff flat_range_product(pw_multi_aff pma2)
@@ -26687,7 +27150,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).flat_range_product(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).flat_range_product(upma2);
 }
 
  public pw_multi_aff flat_range_product(multi_aff pma2)
@@ -26711,7 +27174,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).floor();
+  return new multi_pw_aff(DangerousGetHandle(), false).floor();
 }
 
  public void foreach_piece(Action<set, multi_aff> fn)
@@ -26758,7 +27221,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).gist(context);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).gist(context);
 }
 
  public pw_multi_aff gist(basic_set set)
@@ -26834,7 +27297,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).identity();
+  return new multi_pw_aff(DangerousGetHandle(), false).identity();
 }
 
  public static pw_multi_aff identity_on_domain(space space)
@@ -26881,7 +27344,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).intersect_domain(space);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).intersect_domain(space);
 }
 
  public union_pw_multi_aff intersect_domain(union_set uset)
@@ -26889,7 +27352,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).intersect_domain(uset);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).intersect_domain(uset);
 }
 
  public pw_multi_aff intersect_domain(basic_set set)
@@ -26913,7 +27376,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).intersect_domain_wrapped_domain(uset);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).intersect_domain_wrapped_domain(uset);
 }
 
  public union_pw_multi_aff intersect_domain_wrapped_range(union_set uset)
@@ -26921,7 +27384,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).intersect_domain_wrapped_range(uset);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).intersect_domain_wrapped_range(uset);
 }
 
  public pw_multi_aff intersect_params(set set)
@@ -26942,7 +27405,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).intersect_range(set);
+  return new multi_pw_aff(DangerousGetHandle(), false).intersect_range(set);
 }
 
  public bool involves_dims(dim_type type, uint first, uint n)
@@ -26976,7 +27439,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).involves_nan();
+  return new multi_pw_aff(DangerousGetHandle(), false).involves_nan();
 }
 
  public bool involves_param(id id)
@@ -26984,7 +27447,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).involves_param(id);
+  return new multi_pw_aff(DangerousGetHandle(), false).involves_param(id);
 }
 
  public bool involves_param(string id)
@@ -27000,7 +27463,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).involves_param(list);
+  return new multi_pw_aff(DangerousGetHandle(), false).involves_param(list);
 }
 
  public bool involves_param_id(id id)
@@ -27029,7 +27492,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).is_cst();
+  return new multi_pw_aff(DangerousGetHandle(), false).is_cst();
 }
 
  public bool isa_multi_aff()
@@ -27050,7 +27513,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).isa_pw_multi_aff();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).isa_pw_multi_aff();
 }
 
  public map lex_ge_map(multi_pw_aff mpa2)
@@ -27058,7 +27521,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).lex_ge_map(mpa2);
+  return new multi_pw_aff(DangerousGetHandle(), false).lex_ge_map(mpa2);
 }
 
  public map lex_gt_map(multi_pw_aff mpa2)
@@ -27066,7 +27529,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).lex_gt_map(mpa2);
+  return new multi_pw_aff(DangerousGetHandle(), false).lex_gt_map(mpa2);
 }
 
  public map lex_le_map(multi_pw_aff mpa2)
@@ -27074,7 +27537,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).lex_le_map(mpa2);
+  return new multi_pw_aff(DangerousGetHandle(), false).lex_le_map(mpa2);
 }
 
  public map lex_lt_map(multi_pw_aff mpa2)
@@ -27082,7 +27545,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).lex_lt_map(mpa2);
+  return new multi_pw_aff(DangerousGetHandle(), false).lex_lt_map(mpa2);
 }
 
  public pw_aff_list list()
@@ -27090,7 +27553,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).list();
+  return new multi_pw_aff(DangerousGetHandle(), false).list();
 }
 
  public multi_pw_aff max(multi_pw_aff multi2)
@@ -27098,7 +27561,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).max(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).max(multi2);
 }
 
  public multi_val max_multi_val()
@@ -27119,7 +27582,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).min(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).min(multi2);
 }
 
  public multi_val min_multi_val()
@@ -27140,7 +27603,7 @@ return new multi_val(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).move_dims(dst_type, dst_pos, src_type, src_pos, n);
+  return new multi_pw_aff(DangerousGetHandle(), false).move_dims(dst_type, dst_pos, src_type, src_pos, n);
 }
 
  public static pw_multi_aff multi_val_on_domain(set domain, multi_val mv)
@@ -27174,7 +27637,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).neg();
+  return new multi_pw_aff(DangerousGetHandle(), false).neg();
 }
 
  public bool plain_is_empty()
@@ -27182,7 +27645,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).plain_is_empty();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).plain_is_empty();
 }
 
  public bool plain_is_equal(multi_pw_aff multi2)
@@ -27190,7 +27653,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(multi_union_pw_aff multi2)
@@ -27198,7 +27661,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(pw_multi_aff pma2)
@@ -27219,7 +27682,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).plain_is_equal(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).plain_is_equal(upma2);
 }
 
  public bool plain_is_equal(multi_aff pma2)
@@ -27256,7 +27719,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).preimage_domain_wrapped_domain(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).preimage_domain_wrapped_domain(upma2);
 }
 
  public pw_multi_aff preimage_domain_wrapped_domain(multi_aff pma2)
@@ -27280,7 +27743,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).product(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).product(multi2);
 }
 
  public pw_multi_aff product(pw_multi_aff pma2)
@@ -27317,7 +27780,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).pullback(mpa2);
+  return new multi_pw_aff(DangerousGetHandle(), false).pullback(mpa2);
 }
 
  public pw_multi_aff pullback(multi_aff ma)
@@ -27351,7 +27814,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).pullback(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).pullback(upma2);
 }
 
  public pw_multi_aff_list pw_multi_aff_list()
@@ -27359,7 +27822,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).pw_multi_aff_list();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).pw_multi_aff_list();
 }
 
  public pw_multi_aff range_factor_domain()
@@ -27406,7 +27869,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).range_product(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public multi_union_pw_aff range_product(multi_union_pw_aff multi2)
@@ -27414,7 +27877,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).range_product(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public pw_multi_aff range_product(pw_multi_aff pma2)
@@ -27435,7 +27898,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).range_product(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).range_product(upma2);
 }
 
  public pw_multi_aff range_product(multi_aff pma2)
@@ -27472,7 +27935,7 @@ return new id(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).reset_range_tuple_id();
+  return new multi_pw_aff(DangerousGetHandle(), false).reset_range_tuple_id();
 }
 
  public pw_multi_aff reset_tuple_id(dim_type type)
@@ -27574,7 +28037,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).set_at(pos, el);
+  return new multi_pw_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public multi_union_pw_aff set_at(int pos, union_pw_aff el)
@@ -27582,7 +28045,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).set_at(pos, el);
+  return new multi_pw_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public pw_multi_aff set_dim_id(dim_type type, uint pos, id id)
@@ -27653,7 +28116,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).size();
+  return new multi_pw_aff(DangerousGetHandle(), false).size();
 }
 
  public space space()
@@ -27674,7 +28137,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).sub(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public multi_union_pw_aff sub(multi_union_pw_aff multi2)
@@ -27682,7 +28145,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).sub(multi2);
+  return new multi_pw_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public pw_multi_aff sub(pw_multi_aff pma2)
@@ -27703,7 +28166,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).sub(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).sub(upma2);
 }
 
  public pw_multi_aff sub(multi_aff pma2)
@@ -27740,7 +28203,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).subtract_domain(space);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).subtract_domain(space);
 }
 
  public union_pw_multi_aff subtract_domain(union_set uset)
@@ -27748,7 +28211,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).subtract_domain(uset);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).subtract_domain(uset);
 }
 
  public pw_multi_aff subtract_domain(basic_set set)
@@ -27834,7 +28297,7 @@ return new id(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).unbind_params_insert_domain(domain);
+  return new multi_pw_aff(DangerousGetHandle(), false).unbind_params_insert_domain(domain);
 }
 
  public multi_pw_aff union_add(multi_pw_aff mpa2)
@@ -27842,7 +28305,7 @@ return new id(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).union_add(mpa2);
+  return new multi_pw_aff(DangerousGetHandle(), false).union_add(mpa2);
 }
 
  public multi_union_pw_aff union_add(multi_union_pw_aff mupa2)
@@ -27850,7 +28313,7 @@ return new id(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).union_add(mupa2);
+  return new multi_pw_aff(DangerousGetHandle(), false).union_add(mupa2);
 }
 
  public pw_multi_aff union_add(pw_multi_aff pma2)
@@ -27871,7 +28334,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).union_add(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).union_add(upma2);
 }
 
  public pw_multi_aff union_add(multi_aff pma2)
@@ -27908,7 +28371,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_pw_aff(IncreaseReference()).zero_union_set();
+  return new multi_pw_aff(DangerousGetHandle(), false).zero_union_set();
 }
 
 public override string ToString(){
@@ -27922,8 +28385,14 @@ public override string ToString(){
 
 public class pw_multi_aff_list : IntrusiveHandle {
 
-internal pw_multi_aff_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal pw_multi_aff_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ pw_multi_aff_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -27932,6 +28401,7 @@ internal pw_multi_aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ pw_multi_aff_list(pw_multi_aff el) : base(IntPtr.Zero) 
@@ -27945,6 +28415,7 @@ internal pw_multi_aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ pw_multi_aff_list(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -27954,6 +28425,7 @@ internal pw_multi_aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -28162,8 +28634,14 @@ public override string ToString(){
 
 public class schedule : IntrusiveHandle {
 
-internal schedule(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ schedule(ctx ctx, string str) : base(IntPtr.Zero) 
 {
@@ -28172,6 +28650,7 @@ internal schedule(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -28458,8 +28937,14 @@ public override string ToString(){
 
 public class schedule_constraints : IntrusiveHandle {
 
-internal schedule_constraints(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_constraints(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ schedule_constraints(ctx ctx, string str) : base(IntPtr.Zero) 
 {
@@ -28468,6 +28953,7 @@ internal schedule_constraints(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -28689,8 +29175,14 @@ public override string ToString(){
 
 public class schedule_node : IntrusiveHandle {
 
-internal schedule_node(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_schedule_node_free(handle);
@@ -29453,8 +29945,14 @@ public override string ToString(){
 
 public class schedule_node_band : schedule_node {
 
-internal schedule_node_band(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_band(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public union_set ast_build_options()
 {
@@ -29747,8 +30245,14 @@ public override string ToString(){
 
 public class schedule_node_context : schedule_node {
 
-internal schedule_node_context(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_context(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public set context()
 {
@@ -29774,8 +30278,14 @@ public override string ToString(){
 
 public class schedule_node_domain : schedule_node {
 
-internal schedule_node_domain(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_domain(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public union_set domain()
 {
@@ -29801,8 +30311,14 @@ public override string ToString(){
 
 public class schedule_node_expansion : schedule_node {
 
-internal schedule_node_expansion(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_expansion(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public union_pw_multi_aff contraction()
 {
@@ -29841,8 +30357,14 @@ public override string ToString(){
 
 public class schedule_node_extension : schedule_node {
 
-internal schedule_node_extension(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_extension(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public union_map extension()
 {
@@ -29868,8 +30390,14 @@ public override string ToString(){
 
 public class schedule_node_filter : schedule_node {
 
-internal schedule_node_filter(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_filter(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public union_set filter()
 {
@@ -29895,8 +30423,14 @@ public override string ToString(){
 
 public class schedule_node_guard : schedule_node {
 
-internal schedule_node_guard(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_guard(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public set guard()
 {
@@ -29922,8 +30456,14 @@ public override string ToString(){
 
 public class schedule_node_leaf : schedule_node {
 
-internal schedule_node_leaf(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_leaf(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -29936,8 +30476,14 @@ public override string ToString(){
 
 public class schedule_node_mark : schedule_node {
 
-internal schedule_node_mark(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_mark(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public id id()
 {
@@ -29963,8 +30509,14 @@ public override string ToString(){
 
 public class schedule_node_sequence : schedule_node {
 
-internal schedule_node_sequence(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_sequence(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public schedule_node_sequence splice_child(int pos)
 {
@@ -30003,8 +30555,14 @@ public override string ToString(){
 
 public class schedule_node_set : schedule_node {
 
-internal schedule_node_set(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal schedule_node_set(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 public override string ToString(){
   if (DangerousGetHandle() == IntPtr.Zero) {
@@ -30017,8 +30575,14 @@ public override string ToString(){
 
 public class set : IntrusiveHandle {
 
-internal set(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal set(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ set(basic_set bset) : base(IntPtr.Zero) 
 {
@@ -30031,6 +30595,7 @@ internal set(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ set(multi_pw_aff mpa) : base(IntPtr.Zero) 
@@ -30044,6 +30609,7 @@ internal set(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ set(point pnt) : base(IntPtr.Zero) 
@@ -30057,6 +30623,7 @@ internal set(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ set(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -30066,6 +30633,7 @@ internal set(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -30151,7 +30719,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).apply(umap);
+  return new union_set(DangerousGetHandle(), false).apply(umap);
 }
 
  public set apply(basic_map map)
@@ -30180,7 +30748,7 @@ return new pw_multi_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).as_set();
+  return new union_set(DangerousGetHandle(), false).as_set();
 }
 
  public basic_set_list basic_set_list()
@@ -30292,7 +30860,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).compute_schedule(validity, proximity);
+  return new union_set(DangerousGetHandle(), false).compute_schedule(validity, proximity);
 }
 
  public basic_set convex_hull()
@@ -30570,7 +31138,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).every_set(test);
+  return new union_set(DangerousGetHandle(), false).every_set(test);
 }
 
  public set extract_set(space space)
@@ -30578,7 +31146,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).extract_set(space);
+  return new union_set(DangerousGetHandle(), false).extract_set(space);
 }
 
  public int find_dim_by_id(dim_type type, id id)
@@ -30762,7 +31330,7 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-new union_set(IncreaseReference()).foreach_set(fn);
+new union_set(DangerousGetHandle(), false).foreach_set(fn);
 }
 
  public static set from_multi_aff(multi_aff ma)
@@ -30822,7 +31390,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).gist(context);
+  return new union_set(DangerousGetHandle(), false).gist(context);
 }
 
  public set gist(basic_set context)
@@ -31002,7 +31570,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).intersect(uset2);
+  return new union_set(DangerousGetHandle(), false).intersect(uset2);
 }
 
  public set intersect(basic_set set2)
@@ -31104,7 +31672,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).is_disjoint(uset2);
+  return new union_set(DangerousGetHandle(), false).is_disjoint(uset2);
 }
 
  public bool is_disjoint(basic_set set2)
@@ -31154,7 +31722,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).is_equal(uset2);
+  return new union_set(DangerousGetHandle(), false).is_equal(uset2);
 }
 
  public bool is_equal(basic_set set2)
@@ -31217,7 +31785,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).is_strict_subset(uset2);
+  return new union_set(DangerousGetHandle(), false).is_strict_subset(uset2);
 }
 
  public bool is_strict_subset(basic_set set2)
@@ -31254,7 +31822,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).is_subset(uset2);
+  return new union_set(DangerousGetHandle(), false).is_subset(uset2);
 }
 
  public bool is_subset(basic_set set2)
@@ -31291,7 +31859,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).isa_set();
+  return new union_set(DangerousGetHandle(), false).isa_set();
 }
 
  public fixed_box lattice_tile()
@@ -31819,7 +32387,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).preimage(upma);
+  return new union_set(DangerousGetHandle(), false).preimage(upma);
 }
 
  public set product(set set2)
@@ -32111,7 +32679,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).set_list();
+  return new union_set(DangerousGetHandle(), false).set_list();
 }
 
  public set set_tuple_id(id id)
@@ -32254,7 +32822,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).subtract(uset2);
+  return new union_set(DangerousGetHandle(), false).subtract(uset2);
 }
 
  public set subtract(basic_set set2)
@@ -32405,7 +32973,7 @@ return new set(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_set(IncreaseReference()).union(uset2);
+  return new union_set(DangerousGetHandle(), false).union(uset2);
 }
 
  public set union(basic_set set2)
@@ -32586,8 +33154,14 @@ public override string ToString(){
 
 public class set_list : IntrusiveHandle {
 
-internal set_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal set_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ set_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -32596,6 +33170,7 @@ internal set_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ set_list(set el) : base(IntPtr.Zero) 
@@ -32609,6 +33184,7 @@ internal set_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ set_list(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -32618,6 +33194,7 @@ internal set_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -32839,8 +33416,14 @@ public override string ToString(){
 
 public class space : IntrusiveHandle {
 
-internal space(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal space(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ space(ctx ctx, string str) : base(IntPtr.Zero) 
 {
@@ -32849,6 +33432,7 @@ internal space(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -34301,8 +34885,14 @@ public override string ToString(){
 
 public class stride_info : IntrusiveHandle {
 
-internal stride_info(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal stride_info(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_stride_info_free(handle);
@@ -34346,8 +34936,14 @@ return new val(res);
 
 public class union_access_info : IntrusiveHandle {
 
-internal union_access_info(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal union_access_info(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ union_access_info(union_map sink) : base(IntPtr.Zero) 
 {
@@ -34360,6 +34956,7 @@ internal union_access_info(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -34464,8 +35061,14 @@ public override string ToString(){
 
 public class union_flow : IntrusiveHandle {
 
-internal union_flow(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal union_flow(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_union_flow_free(handle);
@@ -34569,8 +35172,14 @@ public override string ToString(){
 
 public class union_map : IntrusiveHandle {
 
-internal union_map(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal union_map(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ union_map(basic_map bmap) : base(IntPtr.Zero) 
 {
@@ -34583,6 +35192,7 @@ internal union_map(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ union_map(map map) : base(IntPtr.Zero) 
@@ -34596,6 +35206,7 @@ internal union_map(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ union_map(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -34605,6 +35216,7 @@ internal union_map(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -35930,8 +36542,14 @@ public override string ToString(){
 
 public class union_pw_aff : IntrusiveHandle {
 
-internal union_pw_aff(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal union_pw_aff(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ union_pw_aff(aff aff) : base(IntPtr.Zero) 
 {
@@ -35944,6 +36562,7 @@ internal union_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ union_pw_aff(pw_aff pa) : base(IntPtr.Zero) 
@@ -35957,6 +36576,7 @@ internal union_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ union_pw_aff(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -35966,6 +36586,7 @@ internal union_pw_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -35986,7 +36607,7 @@ internal override IntPtr IncreaseReference() {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).add(multi2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).add(multi2);
 }
 
  public union_pw_aff add(union_pw_aff upa2)
@@ -36007,7 +36628,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).add(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).add(upma2);
 }
 
  public union_pw_aff add(aff upa2)
@@ -36070,7 +36691,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).apply(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).apply(upma2);
 }
 
  public union_pw_aff apply_aff(aff aff)
@@ -36078,7 +36699,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).apply_aff(aff);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).apply_aff(aff);
 }
 
  public multi_union_pw_aff apply_multi_aff(multi_aff ma)
@@ -36086,7 +36707,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).apply_multi_aff(ma);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).apply_multi_aff(ma);
 }
 
  public union_pw_aff apply_pw_aff(pw_aff pa)
@@ -36094,7 +36715,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).apply_pw_aff(pa);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).apply_pw_aff(pa);
 }
 
  public multi_union_pw_aff apply_pw_multi_aff(pw_multi_aff pma)
@@ -36102,7 +36723,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).apply_pw_multi_aff(pma);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).apply_pw_multi_aff(pma);
 }
 
  public multi_union_pw_aff as_multi_union_pw_aff()
@@ -36110,7 +36731,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).as_multi_union_pw_aff();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).as_multi_union_pw_aff();
 }
 
  public pw_multi_aff as_pw_multi_aff()
@@ -36118,7 +36739,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).as_pw_multi_aff();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).as_pw_multi_aff();
 }
 
  public union_map as_union_map()
@@ -36126,7 +36747,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).as_union_map();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).as_union_map();
 }
 
  public union_pw_aff at(int pos)
@@ -36134,7 +36755,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).at(pos);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).at(pos);
 }
 
  public union_set bind(multi_id tuple)
@@ -36142,7 +36763,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).bind(tuple);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).bind(tuple);
 }
 
  public union_set bind(id id)
@@ -36288,7 +36909,7 @@ Func<IntPtr, IntPtr, isl_bool> test_lambda = (IntPtr arg_0, IntPtr arg_1) => {
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).extract_multi_pw_aff(space);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).extract_multi_pw_aff(space);
 }
 
  public pw_aff extract_pw_aff(space space)
@@ -36309,7 +36930,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).extract_pw_multi_aff(space);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).extract_pw_multi_aff(space);
 }
 
  public multi_union_pw_aff flat_range_product(multi_union_pw_aff multi2)
@@ -36317,7 +36938,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).flat_range_product(multi2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).flat_range_product(multi2);
 }
 
  public union_pw_multi_aff flat_range_product(union_pw_multi_aff upma2)
@@ -36325,7 +36946,7 @@ return new pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).flat_range_product(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).flat_range_product(upma2);
 }
 
  public union_pw_aff floor()
@@ -36398,7 +37019,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).has_range_tuple_id();
+  return new multi_union_pw_aff(DangerousGetHandle(), false).has_range_tuple_id();
 }
 
  public union_pw_aff intersect_domain(space space)
@@ -36471,7 +37092,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).intersect_range(set);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).intersect_range(set);
 }
 
  public bool involves_locals()
@@ -36479,7 +37100,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).involves_locals();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).involves_locals();
 }
 
  public bool involves_nan()
@@ -36500,7 +37121,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).isa_pw_multi_aff();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).isa_pw_multi_aff();
 }
 
  public union_pw_aff_list list()
@@ -36508,7 +37129,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).list();
+  return new multi_union_pw_aff(DangerousGetHandle(), false).list();
 }
 
  public union_pw_aff mod_val(val f)
@@ -36563,7 +37184,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).plain_is_empty();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).plain_is_empty();
 }
 
  public bool plain_is_equal(multi_union_pw_aff multi2)
@@ -36571,7 +37192,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).plain_is_equal(multi2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).plain_is_equal(multi2);
 }
 
  public bool plain_is_equal(union_pw_aff upa2)
@@ -36592,7 +37213,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).plain_is_equal(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).plain_is_equal(upma2);
 }
 
  public bool plain_is_equal(aff upa2)
@@ -36616,7 +37237,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).preimage_domain_wrapped_domain(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).preimage_domain_wrapped_domain(upma2);
 }
 
  public union_pw_aff pullback(union_pw_multi_aff upma)
@@ -36663,7 +37284,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).pw_multi_aff_list();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).pw_multi_aff_list();
 }
 
  public union_pw_multi_aff range_factor_domain()
@@ -36671,7 +37292,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).range_factor_domain();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).range_factor_domain();
 }
 
  public union_pw_multi_aff range_factor_range()
@@ -36679,7 +37300,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).range_factor_range();
+  return new union_pw_multi_aff(DangerousGetHandle(), false).range_factor_range();
 }
 
  public multi_union_pw_aff range_product(multi_union_pw_aff multi2)
@@ -36687,7 +37308,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).range_product(multi2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).range_product(multi2);
 }
 
  public union_pw_multi_aff range_product(union_pw_multi_aff upma2)
@@ -36695,7 +37316,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).range_product(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).range_product(upma2);
 }
 
  public id range_tuple_id()
@@ -36703,7 +37324,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).range_tuple_id();
+  return new multi_union_pw_aff(DangerousGetHandle(), false).range_tuple_id();
 }
 
  public multi_union_pw_aff reset_range_tuple_id()
@@ -36711,7 +37332,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).reset_range_tuple_id();
+  return new multi_union_pw_aff(DangerousGetHandle(), false).reset_range_tuple_id();
 }
 
  public union_pw_multi_aff scale(multi_val mv)
@@ -36719,7 +37340,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).scale(mv);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).scale(mv);
 }
 
  public union_pw_multi_aff scale(val val)
@@ -36727,7 +37348,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).scale(val);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).scale(val);
 }
 
  public union_pw_multi_aff scale(long val)
@@ -36743,7 +37364,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).scale_down(mv);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).scale_down(mv);
 }
 
  public union_pw_multi_aff scale_down(val val)
@@ -36751,7 +37372,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).scale_down(val);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).scale_down(val);
 }
 
  public union_pw_multi_aff scale_down(long val)
@@ -36809,7 +37430,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).set_at(pos, el);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).set_at(pos, el);
 }
 
  public union_pw_aff set_dim_name(dim_type type, uint pos, string s)
@@ -36830,7 +37451,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).set_range_tuple(id);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).set_range_tuple(id);
 }
 
  public multi_union_pw_aff set_range_tuple(string id)
@@ -36846,7 +37467,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).size();
+  return new multi_union_pw_aff(DangerousGetHandle(), false).size();
 }
 
  public space space()
@@ -36867,7 +37488,7 @@ return new space(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).sub(multi2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).sub(multi2);
 }
 
  public union_pw_aff sub(union_pw_aff upa2)
@@ -36888,7 +37509,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).sub(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).sub(upma2);
 }
 
  public union_pw_aff sub(aff upa2)
@@ -36951,7 +37572,7 @@ return new union_pw_aff_list(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new multi_union_pw_aff(IncreaseReference()).union_add(mupa2);
+  return new multi_union_pw_aff(DangerousGetHandle(), false).union_add(mupa2);
 }
 
  public union_pw_aff union_add(union_pw_aff upa2)
@@ -36972,7 +37593,7 @@ return new union_pw_aff(res);
   if (handle == IntPtr.Zero) {
     throw new ArgumentNullException("NULL input");
   }
-  return new union_pw_multi_aff(IncreaseReference()).union_add(upma2);
+  return new union_pw_multi_aff(DangerousGetHandle(), false).union_add(upma2);
 }
 
  public union_pw_aff union_add(aff upa2)
@@ -37028,8 +37649,14 @@ public override string ToString(){
 
 public class union_pw_aff_list : IntrusiveHandle {
 
-internal union_pw_aff_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal union_pw_aff_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ union_pw_aff_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -37038,6 +37665,7 @@ internal union_pw_aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ union_pw_aff_list(union_pw_aff el) : base(IntPtr.Zero) 
@@ -37051,6 +37679,7 @@ internal union_pw_aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ union_pw_aff_list(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -37060,6 +37689,7 @@ internal union_pw_aff_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -37268,8 +37898,14 @@ public override string ToString(){
 
 public class union_pw_multi_aff : IntrusiveHandle {
 
-internal union_pw_multi_aff(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal union_pw_multi_aff(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ union_pw_multi_aff(multi_aff ma) : base(IntPtr.Zero) 
 {
@@ -37282,6 +37918,7 @@ internal union_pw_multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ union_pw_multi_aff(pw_multi_aff pma) : base(IntPtr.Zero) 
@@ -37295,6 +37932,7 @@ internal union_pw_multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ union_pw_multi_aff(union_pw_aff upa) : base(IntPtr.Zero) 
@@ -37308,6 +37946,7 @@ internal union_pw_multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ union_pw_multi_aff(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -37317,6 +37956,7 @@ internal union_pw_multi_aff(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -37836,8 +38476,14 @@ public override string ToString(){
 
 public class union_set : IntrusiveHandle {
 
-internal union_set(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal union_set(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* implicit */ union_set(basic_set bset) : base(IntPtr.Zero) 
 {
@@ -37850,6 +38496,7 @@ internal union_set(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ union_set(point pnt) : base(IntPtr.Zero) 
@@ -37863,6 +38510,7 @@ internal union_set(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* implicit */ union_set(set set) : base(IntPtr.Zero) 
@@ -37876,6 +38524,7 @@ internal union_set(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ union_set(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -37885,6 +38534,7 @@ internal union_set(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -38466,8 +39116,14 @@ public override string ToString(){
 
 public class union_set_list : IntrusiveHandle {
 
-internal union_set_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal union_set_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ union_set_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -38476,6 +39132,7 @@ internal union_set_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ union_set_list(union_set el) : base(IntPtr.Zero) 
@@ -38489,6 +39146,7 @@ internal union_set_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ union_set_list(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -38498,6 +39156,7 @@ internal union_set_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -38706,8 +39365,14 @@ public override string ToString(){
 
 public class val : IntrusiveHandle {
 
-internal val(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal val(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ val(ctx ctx, long i) : base(IntPtr.Zero) 
 {
@@ -38716,6 +39381,7 @@ internal val(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ val(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -38725,6 +39391,7 @@ internal val(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -39454,8 +40121,14 @@ public override string ToString(){
 
 public class val_list : IntrusiveHandle {
 
-internal val_list(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal val_list(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
  public /* explicit */ val_list(ctx ctx, int n) : base(IntPtr.Zero) 
 {
@@ -39464,6 +40137,7 @@ internal val_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ val_list(val el) : base(IntPtr.Zero) 
@@ -39477,6 +40151,7 @@ internal val_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
  public /* explicit */ val_list(ctx ctx, string str) : base(IntPtr.Zero) 
@@ -39486,6 +40161,7 @@ internal val_list(/* __isl_take */ IntPtr handle)
     throw new InvalidOperationException();
   }
   SetHandle(res);
+  ctx.Current.AddObjectHandle(this);
 }
 
 protected override bool ReleaseHandle() {
@@ -39718,8 +40394,14 @@ public override string ToString(){
 
 public class vec : IntrusiveHandle {
 
-internal vec(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal vec(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_vec_free(handle);
@@ -39737,8 +40419,14 @@ internal override IntPtr IncreaseReference() {
 
 public class vertex : IntrusiveHandle {
 
-internal vertex(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal vertex(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_vertex_free(handle);
@@ -39769,8 +40457,14 @@ return new multi_aff(res);
 
 public class vertices : IntrusiveHandle {
 
-internal vertices(/* __isl_take */ IntPtr handle)
-  : base(handle) {}
+internal vertices(/* __isl_take */ IntPtr handle, bool ownsHandle = true)
+  : base(handle, ownsHandle)
+{
+if (ownsHandle)
+{
+    ctx.Current.AddObjectHandle(this);
+}
+}
 
 protected override bool ReleaseHandle() {
   Interop.isl_vertices_free(handle);

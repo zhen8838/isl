@@ -958,8 +958,14 @@ void plain_csharp_generator::impl_printer::print_protected_constructors() {
   bool subclass = clazz.is_type_subclass();
 
   osprintf(os, "\n");
-  osprintf(os, "internal %s(/* __isl_take */ IntPtr handle)\n", csharpname);
-  osprintf(os, "  : base(handle) {}\n");
+  osprintf(os, "internal %s(/* __isl_take */ IntPtr handle, bool ownsHandle = true)\n", csharpname);
+  osprintf(os, "  : base(handle, ownsHandle)\n");
+  osprintf(os, "{\n");
+  osprintf(os, "if (ownsHandle)\n");
+  osprintf(os, "{\n");
+  osprintf(os, "    ctx.Current.AddObjectHandle(this);\n");
+  osprintf(os, "}\n");
+  osprintf(os, "}\n");
   // if (subclass)
   //   osprintf(os, "    : base(ptr) {}\n");
   // else
@@ -1061,6 +1067,7 @@ void plain_csharp_generator::impl_printer::print_method(
   print_exceptional_execution_check(method);
   if (method.kind == CSharpMethod::Kind::constructor) {
     osprintf(os, "  SetHandle(res);\n");
+    osprintf(os, "  ctx.Current.AddObjectHandle(this);\n");
   } else {
     print_method_return(method);
   }
