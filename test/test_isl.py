@@ -469,5 +469,14 @@ def test_printer_to_file():
     print(content)
     assert 'Hello World' in content
 
+def test_isl_options_ast_build_detect_min_max():
+  min_aff = isl.pw_aff("[N, ao, bo, co] -> { [(32)] }").min(
+    isl.pw_aff("[N, ao, bo, co] -> { [(N - 32ao)] }"))
+
+  isl.options_set_ast_build_detect_min_max(1)
+  build = isl.ast_build()
+  min_expr_ast = build.expr_from(min_aff)
+  assert isl.ast_expr_op_type.MIN == min_expr_ast.op_type()
+
 if __name__ == "__main__":
   pytest.main(['-vvs', __file__])

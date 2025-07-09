@@ -149,8 +149,9 @@ struct isl_class {
 class generator {
 protected:
 	SourceManager &SM;
-	map<string,isl_class> classes;
+	map<string, isl_class> classes;
 	map<string, FunctionDecl *> functions_by_name;
+  set<FunctionDecl *> options_functions;
 
 public:
 	generator(SourceManager &SM, set<RecordDecl *> &exported_types,
@@ -201,6 +202,9 @@ public:
 	static bool is_void(QualType type);
 	static bool is_static(const isl_class &clazz, FunctionDecl *method);
 	static bool is_mutator(const isl_class &clazz, FunctionDecl *fd);
+  static bool is_options_function(FunctionDecl *fd) {
+    return fd->getName().find("isl_options_") == 0;
+  }
 	static string extract_type(QualType type);
 	static const FunctionProtoType *extract_prototype(QualType type);
 	static int prototype_n_args(QualType type);

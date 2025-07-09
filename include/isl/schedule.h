@@ -17,37 +17,59 @@ extern "C" {
 struct __isl_export isl_schedule_constraints;
 typedef struct isl_schedule_constraints isl_schedule_constraints;
 
+__isl_export
 isl_stat isl_options_set_schedule_max_coefficient(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_max_coefficient(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_schedule_max_constant_term(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_max_constant_term(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_schedule_maximize_band_depth(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_maximize_band_depth(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_schedule_maximize_coincidence(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_maximize_coincidence(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_schedule_outer_coincidence(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_outer_coincidence(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_schedule_split_scaled(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_split_scaled(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_schedule_treat_coalescing(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_treat_coalescing(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_schedule_separate_components(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_separate_components(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_schedule_serialize_sccs(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_serialize_sccs(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_schedule_whole_component(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_whole_component(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_schedule_carry_self_first(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_schedule_carry_self_first(isl_ctx *ctx);
 
 __isl_give isl_schedule_constraints *isl_schedule_constraints_copy(

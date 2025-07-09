@@ -129,7 +129,9 @@ static void print_indent(int indent, const char *format, ...)
 {
 	va_list args;
 
-	printf("%*s", indent, " ");
+  if (indent > 0) {
+    printf("%*s", indent, " ");
+  }
 	va_start(args, format);
 	vprintf(format, args);
 	va_end(args);
@@ -1215,6 +1217,55 @@ void python_generator::print(const isl_class &clazz)
  */
 void python_generator::generate()
 {
+  for (const auto &method : options_functions) {
+    string fullname = method->getName().str();
+    string fn = type2python(fullname);
+    auto num_params = method->getNumParams();
+    int drop_ctx = first_arg_is_isl_ctx(method);
+    print_indent(0, "def %s", fn.c_str());
+    print_indent(0, "(");
+    print_method_arguments(0, method->getNumParams() - drop_ctx);
+    print_indent(0, "):\n");
+    print_indent(4, "ctx = Context.getDefaultInstance()\n");
+
+    print_indent(4, "res = isl.%s(", fullname.c_str());
+    for (int i = 0; i < num_params; ++i) {
+      if (i > 0) {
+        printf(", ");
+      }
+      print_arg_in_call(method, fixed_arg_fmt, i, drop_ctx);
+    }
+    printf(")\n");
+
+  	QualType return_type = method->getReturnType();
+    if (is_string(return_type)) {
+      print_indent(4, "if res == 0:\n");
+      print_indent(4, "    raise Error\n");
+      print_indent(4, "string = "
+            "cast(res, c_char_p).value.decode('ascii')\n");
+
+      if (gives(method))
+        print_indent(4, "libc.free(res)\n");
+
+      print_indent(4, "return string\n");
+    } else if (is_isl_neg_error(return_type)) {
+      print_indent(4, "if res < 0:\n");
+      print_indent(4, "    raise Error\n");
+      if (is_isl_bool(return_type))
+        print_indent(4, "return bool(res)\n");
+      else if (is_isl_size(return_type))
+        print_indent(4, "return int(res)\n");
+    } else {
+      print_indent(4, "return res\n");
+    }
+
+    printf("\n");
+  }
+
+  for (const auto &method : options_functions) {
+    print_method_type(method);
+  }
+
 	map<string, isl_class>::iterator ci;
 
 	for (ci = classes.begin(); ci != classes.end(); ++ci) {

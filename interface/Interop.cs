@@ -40505,6 +40505,514 @@ Func<IntPtr, IntPtr, isl_stat> fn_lambda = (IntPtr arg_0, IntPtr arg_1) => {
   return;
 }
 }
+public sealed partial class ctx : IntrusiveHandle {
+
+ public int ast_build_allow_else()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_ast_build_allow_else(DangerousGetHandle());
+  return res;
+}
+
+ public int ast_build_allow_or()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_ast_build_allow_or(DangerousGetHandle());
+  return res;
+}
+
+ public int ast_build_atomic_upper_bound()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_ast_build_atomic_upper_bound(DangerousGetHandle());
+  return res;
+}
+
+ public int ast_build_detect_min_max()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_ast_build_detect_min_max(DangerousGetHandle());
+  return res;
+}
+
+ public int ast_build_exploit_nested_bounds()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_ast_build_exploit_nested_bounds(DangerousGetHandle());
+  return res;
+}
+
+ public int ast_build_group_coscheduled()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_ast_build_group_coscheduled(DangerousGetHandle());
+  return res;
+}
+
+ public int ast_build_prefer_pdiv()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_ast_build_prefer_pdiv(DangerousGetHandle());
+  return res;
+}
+
+ public int ast_build_scale_strides()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_ast_build_scale_strides(DangerousGetHandle());
+  return res;
+}
+
+ public int ast_build_separation_bounds()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_ast_build_separation_bounds(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_carry_self_first()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_carry_self_first(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_max_coefficient()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_max_coefficient(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_max_constant_term()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_max_constant_term(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_maximize_band_depth()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_maximize_band_depth(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_maximize_coincidence()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_maximize_coincidence(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_outer_coincidence()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_outer_coincidence(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_separate_components()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_separate_components(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_serialize_sccs()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_serialize_sccs(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_split_scaled()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_split_scaled(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_treat_coalescing()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_treat_coalescing(DangerousGetHandle());
+  return res;
+}
+
+ public int schedule_whole_component()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_schedule_whole_component(DangerousGetHandle());
+  return res;
+}
+
+ public void set_ast_build_allow_else(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_ast_build_allow_else(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_ast_build_allow_or(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_ast_build_allow_or(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_ast_build_atomic_upper_bound(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_ast_build_atomic_upper_bound(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_ast_build_detect_min_max(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_ast_build_detect_min_max(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_ast_build_exploit_nested_bounds(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_ast_build_exploit_nested_bounds(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_ast_build_group_coscheduled(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_ast_build_group_coscheduled(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_ast_build_prefer_pdiv(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_ast_build_prefer_pdiv(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_ast_build_scale_strides(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_ast_build_scale_strides(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_ast_build_separation_bounds(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_ast_build_separation_bounds(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_carry_self_first(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_carry_self_first(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_max_coefficient(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_max_coefficient(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_max_constant_term(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_max_constant_term(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_maximize_band_depth(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_maximize_band_depth(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_maximize_coincidence(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_maximize_coincidence(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_outer_coincidence(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_outer_coincidence(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_separate_components(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_separate_components(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_serialize_sccs(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_serialize_sccs(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_split_scaled(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_split_scaled(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_treat_coalescing(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_treat_coalescing(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_schedule_whole_component(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_schedule_whole_component(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_tile_scale_tile_loops(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_tile_scale_tile_loops(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public void set_tile_shift_point_loops(int val)
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_set_tile_shift_point_loops(DangerousGetHandle(), val);
+  if (res < 0) {
+    throw new InvalidOperationException();
+  }
+  return;
+}
+
+ public int tile_scale_tile_loops()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_tile_scale_tile_loops(DangerousGetHandle());
+  return res;
+}
+
+ public int tile_shift_point_loops()
+{
+  if (IsInvalid) {
+    throw new ArgumentNullException("NULL input");
+
+  }
+  var res = Interop.isl_options_get_tile_shift_point_loops(DangerousGetHandle());
+  return res;
+}
+}
 internal static partial class Interop {
 [DllImport(LibraryName)]
 public static extern  IntPtr isl_aff_read_from_str(IntPtr ctx, [MarshalAs(UnmanagedType.LPStr)] string str);
@@ -42072,6 +42580,139 @@ public static extern  IntPtr isl_constraint_list_free(IntPtr list);
 [DllImport(LibraryName)]
 [return: MarshalAs(UnmanagedType.LPStr)]
  public static extern  string isl_constraint_list_to_str(IntPtr list);
+
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_ast_build_allow_else(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_ast_build_allow_or(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_ast_build_atomic_upper_bound(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_ast_build_detect_min_max(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_ast_build_exploit_nested_bounds(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_ast_build_group_coscheduled(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_ast_build_prefer_pdiv(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_ast_build_scale_strides(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_ast_build_separation_bounds(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_carry_self_first(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_max_coefficient(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_max_constant_term(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_maximize_band_depth(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_maximize_coincidence(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_outer_coincidence(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_separate_components(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_serialize_sccs(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_split_scaled(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_treat_coalescing(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_schedule_whole_component(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_ast_build_allow_else(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_ast_build_allow_or(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_ast_build_atomic_upper_bound(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_ast_build_detect_min_max(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_ast_build_exploit_nested_bounds(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_ast_build_group_coscheduled(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_ast_build_prefer_pdiv(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_ast_build_scale_strides(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_ast_build_separation_bounds(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_carry_self_first(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_max_coefficient(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_max_constant_term(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_maximize_band_depth(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_maximize_coincidence(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_outer_coincidence(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_separate_components(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_serialize_sccs(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_split_scaled(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_treat_coalescing(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_schedule_whole_component(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_tile_scale_tile_loops(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  isl_stat isl_options_set_tile_shift_point_loops(IntPtr ctx, int val);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_tile_scale_tile_loops(IntPtr ctx);
+
+[DllImport(LibraryName)]
+public static extern  int isl_options_get_tile_shift_point_loops(IntPtr ctx);
 
 
 [DllImport(LibraryName)]

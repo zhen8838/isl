@@ -13,34 +13,51 @@ extern "C" {
 struct __isl_export isl_ast_build;
 typedef struct isl_ast_build isl_ast_build;
 
-
+__isl_export
 isl_stat isl_options_set_ast_build_atomic_upper_bound(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_ast_build_atomic_upper_bound(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_ast_build_prefer_pdiv(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_ast_build_prefer_pdiv(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_ast_build_detect_min_max(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_ast_build_detect_min_max(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_ast_build_exploit_nested_bounds(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_ast_build_exploit_nested_bounds(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_ast_build_group_coscheduled(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_ast_build_group_coscheduled(isl_ctx *ctx);
 
 #define ISL_AST_BUILD_SEPARATION_BOUNDS_EXPLICIT		0
 #define ISL_AST_BUILD_SEPARATION_BOUNDS_IMPLICIT		1
+__isl_export
 isl_stat isl_options_set_ast_build_separation_bounds(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_ast_build_separation_bounds(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_ast_build_scale_strides(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_ast_build_scale_strides(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_ast_build_allow_else(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_ast_build_allow_else(isl_ctx *ctx);
 
+__isl_export
 isl_stat isl_options_set_ast_build_allow_or(isl_ctx *ctx, int val);
+__isl_export
 int isl_options_get_ast_build_allow_or(isl_ctx *ctx);
 
 isl_ctx *isl_ast_build_get_ctx(__isl_keep isl_ast_build *build);

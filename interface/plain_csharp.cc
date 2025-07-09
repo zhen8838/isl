@@ -202,6 +202,22 @@ void plain_csharp_generator::print_implementations(ostream &os) {
 
     print_class_impl(os, ci->second);
   }
+
+  {
+    classes["isl_ctx"].name = "isl_ctx";
+    classes["isl_ctx"].subclass_name = "isl_options";
+    for (auto const & method : options_functions) {
+      string name = classes["isl_ctx"].method_name(method);
+      classes["isl_ctx"].methods[name].insert(method);
+    }
+    osprintf(os, "public sealed partial class ctx : IntrusiveHandle {\n");
+    
+    impl_printer impl_p(os, classes["isl_ctx"], *this);
+    impl_p.print_methods();
+    
+    osprintf(os, "}\n");
+
+  }
 }
 
 /* If the printed class is a subclass that is based on a type function,
@@ -354,6 +370,8 @@ void plain_csharp_generator::print_interop_argtypes(ostream &os,
 
 void plain_csharp_generator::print_method_interop_type(ostream &os,
                                                        FunctionDecl *fd) {
+  if (!fd)
+    return;
   osprintf(os, "[DllImport(LibraryName)]\n");
   print_interop_restype(os, fd);
   osprintf(os, " ");

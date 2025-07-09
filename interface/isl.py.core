@@ -1,3 +1,289 @@
+def options_set_schedule_max_coefficient(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_max_coefficient(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_max_coefficient():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_max_coefficient(ctx)
+    return res
+
+def options_set_schedule_max_constant_term(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_max_constant_term(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_max_constant_term():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_max_constant_term(ctx)
+    return res
+
+def options_set_schedule_maximize_band_depth(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_maximize_band_depth(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_maximize_band_depth():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_maximize_band_depth(ctx)
+    return res
+
+def options_set_schedule_maximize_coincidence(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_maximize_coincidence(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_maximize_coincidence():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_maximize_coincidence(ctx)
+    return res
+
+def options_set_schedule_outer_coincidence(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_outer_coincidence(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_outer_coincidence():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_outer_coincidence(ctx)
+    return res
+
+def options_set_schedule_split_scaled(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_split_scaled(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_split_scaled():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_split_scaled(ctx)
+    return res
+
+def options_set_schedule_treat_coalescing(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_treat_coalescing(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_treat_coalescing():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_treat_coalescing(ctx)
+    return res
+
+def options_set_schedule_separate_components(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_separate_components(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_separate_components():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_separate_components(ctx)
+    return res
+
+def options_set_schedule_serialize_sccs(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_serialize_sccs(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_serialize_sccs():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_serialize_sccs(ctx)
+    return res
+
+def options_set_schedule_whole_component(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_whole_component(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_whole_component():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_whole_component(ctx)
+    return res
+
+def options_set_schedule_carry_self_first(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_carry_self_first(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_carry_self_first():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_carry_self_first(ctx)
+    return res
+
+def options_set_tile_scale_tile_loops(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_tile_scale_tile_loops(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_tile_scale_tile_loops():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_tile_scale_tile_loops(ctx)
+    return res
+
+def options_set_tile_shift_point_loops(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_tile_shift_point_loops(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_tile_shift_point_loops():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_tile_shift_point_loops(ctx)
+    return res
+
+def options_set_ast_build_atomic_upper_bound(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_ast_build_atomic_upper_bound(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_ast_build_atomic_upper_bound():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_ast_build_atomic_upper_bound(ctx)
+    return res
+
+def options_set_ast_build_prefer_pdiv(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_ast_build_prefer_pdiv(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_ast_build_prefer_pdiv():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_ast_build_prefer_pdiv(ctx)
+    return res
+
+def options_set_ast_build_detect_min_max(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_ast_build_detect_min_max(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_ast_build_detect_min_max():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_ast_build_detect_min_max(ctx)
+    return res
+
+def options_set_ast_build_exploit_nested_bounds(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_ast_build_exploit_nested_bounds(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_ast_build_exploit_nested_bounds():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_ast_build_exploit_nested_bounds(ctx)
+    return res
+
+def options_set_ast_build_group_coscheduled(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_ast_build_group_coscheduled(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_ast_build_group_coscheduled():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_ast_build_group_coscheduled(ctx)
+    return res
+
+def options_set_ast_build_separation_bounds(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_ast_build_separation_bounds(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_ast_build_separation_bounds():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_ast_build_separation_bounds(ctx)
+    return res
+
+def options_set_ast_build_scale_strides(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_ast_build_scale_strides(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_ast_build_scale_strides():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_ast_build_scale_strides(ctx)
+    return res
+
+def options_set_ast_build_allow_else(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_ast_build_allow_else(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_ast_build_allow_else():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_ast_build_allow_else(ctx)
+    return res
+
+def options_set_ast_build_allow_or(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_ast_build_allow_or(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_ast_build_allow_or():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_ast_build_allow_or(ctx)
+    return res
+
+isl.isl_options_set_schedule_max_coefficient.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_max_coefficient.argtypes = [Context]
+isl.isl_options_set_schedule_max_constant_term.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_max_constant_term.argtypes = [Context]
+isl.isl_options_set_schedule_maximize_band_depth.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_maximize_band_depth.argtypes = [Context]
+isl.isl_options_set_schedule_maximize_coincidence.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_maximize_coincidence.argtypes = [Context]
+isl.isl_options_set_schedule_outer_coincidence.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_outer_coincidence.argtypes = [Context]
+isl.isl_options_set_schedule_split_scaled.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_split_scaled.argtypes = [Context]
+isl.isl_options_set_schedule_treat_coalescing.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_treat_coalescing.argtypes = [Context]
+isl.isl_options_set_schedule_separate_components.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_separate_components.argtypes = [Context]
+isl.isl_options_set_schedule_serialize_sccs.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_serialize_sccs.argtypes = [Context]
+isl.isl_options_set_schedule_whole_component.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_whole_component.argtypes = [Context]
+isl.isl_options_set_schedule_carry_self_first.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_carry_self_first.argtypes = [Context]
+isl.isl_options_set_tile_scale_tile_loops.argtypes = [Context, c_int]
+isl.isl_options_get_tile_scale_tile_loops.argtypes = [Context]
+isl.isl_options_set_tile_shift_point_loops.argtypes = [Context, c_int]
+isl.isl_options_get_tile_shift_point_loops.argtypes = [Context]
+isl.isl_options_set_ast_build_atomic_upper_bound.argtypes = [Context, c_int]
+isl.isl_options_get_ast_build_atomic_upper_bound.argtypes = [Context]
+isl.isl_options_set_ast_build_prefer_pdiv.argtypes = [Context, c_int]
+isl.isl_options_get_ast_build_prefer_pdiv.argtypes = [Context]
+isl.isl_options_set_ast_build_detect_min_max.argtypes = [Context, c_int]
+isl.isl_options_get_ast_build_detect_min_max.argtypes = [Context]
+isl.isl_options_set_ast_build_exploit_nested_bounds.argtypes = [Context, c_int]
+isl.isl_options_get_ast_build_exploit_nested_bounds.argtypes = [Context]
+isl.isl_options_set_ast_build_group_coscheduled.argtypes = [Context, c_int]
+isl.isl_options_get_ast_build_group_coscheduled.argtypes = [Context]
+isl.isl_options_set_ast_build_separation_bounds.argtypes = [Context, c_int]
+isl.isl_options_get_ast_build_separation_bounds.argtypes = [Context]
+isl.isl_options_set_ast_build_scale_strides.argtypes = [Context, c_int]
+isl.isl_options_get_ast_build_scale_strides.argtypes = [Context]
+isl.isl_options_set_ast_build_allow_else.argtypes = [Context, c_int]
+isl.isl_options_get_ast_build_allow_else.argtypes = [Context]
+isl.isl_options_set_ast_build_allow_or.argtypes = [Context, c_int]
+isl.isl_options_get_ast_build_allow_or.argtypes = [Context]
 
 class union_pw_multi_aff(object):
     def __init__(self, *args, **keywords):

@@ -400,7 +400,13 @@ generator::generator(SourceManager &SM, set<RecordDecl *> &exported_types,
 
     c = method2class(method);
     if (!c)
+    {
+      if (is_options_function(method)) {
+        options_functions.insert(method);
+      }
       continue;
+    }
+
     if (is_constructor(method)) {
       c->constructors.insert(method);
     } else if (handled_sets_enum(c, method)) {
