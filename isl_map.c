@@ -14007,9 +14007,12 @@ static isl_stat check_map_compatible_range_multi_aff(
 	isl_space_free(ma_space);
 	if (m < 0)
 		return isl_stat_error;
-	if (!m)
-		isl_die(isl_map_get_ctx(map), isl_error_invalid,
-			"spaces don't match", return isl_stat_error);
+	if (!m) {
+    isl_map_dump(map);
+    isl_multi_aff_dump(ma);
+    isl_die(isl_map_get_ctx(map), isl_error_invalid,
+    "spaces don't match", return isl_stat_error);
+  }
 	return isl_stat_ok;
 }
 

@@ -2797,6 +2797,12 @@ __isl_give isl_ast_expr *isl_ast_build_expr_from_pw_aff(
 	} else if (needs_map) {
 		isl_multi_aff *ma;
 		ma = isl_ast_build_get_schedule_map_multi_aff(build);
+    isl_bool has_range_id = isl_pw_aff_has_tuple_id(pa, isl_dim_in);
+    if (isl_bool_true == has_range_id)
+    {
+      isl_id *range_id = isl_pw_aff_get_tuple_id(pa, isl_dim_in);
+      ma = isl_multi_aff_set_range_tuple_id(ma, range_id);
+    }
 		pa = isl_pw_aff_pullback_multi_aff(pa, ma);
 	}
 	expr = isl_ast_build_expr_from_pw_aff_internal(build, pa);

@@ -35,9 +35,19 @@ struct set_enum {
  * on the corresponding function names.
  */
 struct function_name_less {
-	bool operator()(FunctionDecl *x, FunctionDecl *y) const {
-		return x->getName() < y->getName();
+  public:
+    function_name_less() : less_impl_(nullptr) {}
+    function_name_less(std::function<bool(FunctionDecl *, FunctionDecl *)> impl) : less_impl_(impl) {}
+    virtual ~function_name_less() = default;
+    
+  bool operator()(FunctionDecl *x, FunctionDecl *y) const {
+    if (less_impl_) {
+      return less_impl_(x, y);
+    }
+    return x->getName() < y->getName();
 	}
+  private:
+    std::function<bool(FunctionDecl *, FunctionDecl *)> less_impl_ = nullptr;
 };
 
 /* Set of FunctionDecl pointers sorted on function name.

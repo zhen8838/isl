@@ -44,20 +44,49 @@
 #include "python.h"
 #include "generator.h"
 
-struct python_function_name_less {
-	bool operator()(FunctionDecl *x, FunctionDecl *y) const {
-    if (x->getName() == "isl_id_list_from_id" &&
-        y->getName() == "isl_id_list_read_from_str")
-    {
-      return false;
-    } else if (x->getName() == "isl_id_list_read_from_str" &&
-              y->getName() == "isl_id_list_from_id") {
-      return true;
-    }
 
-		return x->getName() < y->getName();
-	}
-};
+bool python_function_name_less(FunctionDecl *x, FunctionDecl *y) {
+  if (x->getName() == "isl_id_list_from_id" &&
+      y->getName() == "isl_id_list_read_from_str")
+  {
+    return false;
+  } else if (x->getName() == "isl_id_list_read_from_str" &&
+            y->getName() == "isl_id_list_from_id") {
+    return true;
+  } 
+  else if (x->getName().ends_with("multi_pw_aff") && y->getName().ends_with("pw_multi_aff"))
+  {
+    return false;
+  } else if (x->getName().ends_with("pw_multi_aff") && y->getName().ends_with("multi_pw_aff")) {
+    return true;
+  } 
+  else if (x->getName() == "isl_union_set_from_basic_set" && y->getName() == "isl_union_set_from_point")
+  {
+    return false;
+  } else if (x->getName() == "isl_union_set_from_point" && y->getName() == "isl_union_set_from_basic_set") {
+    return true;
+  } 
+  else if (x->getName() == "isl_basic_set_from_basic_set" && y->getName() == "isl_basic_set_from_point")
+  {
+    return false;
+  } else if (x->getName() == "isl_basic_set_from_point" && y->getName() == "isl_basic_set_from_basic_set") {
+    return true;
+  } 
+  else if (x->getName() == "isl_set_from_basic_set" && y->getName() == "isl_set_from_point")
+  {
+    return false;
+  } else if (x->getName() == "isl_set_from_point" && y->getName() == "isl_set_from_basic_set") {
+    return true;
+  } 
+  else if (x->getName() == "isl_set_from_multi_pw_aff" && y->getName() == "isl_set_from_point")
+  {
+    return false;
+  } else if (x->getName() == "isl_set_from_point" && y->getName() == "isl_set_from_multi_pw_aff") {
+    return true;
+  } 
+
+  return x->getName() < y->getName();
+}
 
 /* Argument format for Python methods with a fixed number of arguments.
  */
@@ -1179,8 +1208,9 @@ void python_generator::print(const isl_class &clazz)
 	printf("            self.ptr = keywords[\"ptr\"]\n");
 	printf("            return\n");
 
-  std::set<FunctionDecl *, python_function_name_less> ordered_constructors(clazz.constructors.begin(),
-                                                                  clazz.constructors.end());
+  std::set<FunctionDecl *, function_name_less> ordered_constructors(clazz.constructors.begin(),
+                                                                  clazz.constructors.end(), 
+                                                                  function_name_less(&python_function_name_less));
 	for (const auto &cons : ordered_constructors)
 		print_constructor(clazz, cons);
 	print_special_constructors(clazz);
@@ -1198,7 +1228,10 @@ void python_generator::print(const isl_class &clazz)
 	for (const auto &callback : callbacks)
 		print_method(clazz, callback, super);
 	for (const auto &kvp : clazz.methods)
-		print_method(clazz, kvp.first, kvp.second, super);
+  {
+    const std::set<FunctionDecl *, function_name_less> ordered_methods(kvp.second.begin(), kvp.second.end(), function_name_less(&python_function_name_less));
+    print_method(clazz, kvp.first, ordered_methods, super);
+  }
 	for (const auto &kvp : clazz.set_enums)
 		print_set_enum(clazz, kvp.first, super);
 
