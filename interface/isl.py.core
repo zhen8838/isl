@@ -1,19 +1,3 @@
-def options_get_schedule_whole_component():
-    ctx = Context.getDefaultInstance()
-    res = isl.isl_options_get_schedule_whole_component(ctx)
-    return res
-
-def options_set_schedule_carry_self_first(arg0):
-    ctx = Context.getDefaultInstance()
-    res = isl.isl_options_set_schedule_carry_self_first(ctx, arg0)
-    if res < 0:
-        raise Error
-
-def options_get_schedule_carry_self_first():
-    ctx = Context.getDefaultInstance()
-    res = isl.isl_options_get_schedule_carry_self_first(ctx)
-    return res
-
 def options_set_schedule_max_coefficient(arg0):
     ctx = Context.getDefaultInstance()
     res = isl.isl_options_set_schedule_max_coefficient(ctx, arg0)
@@ -118,6 +102,22 @@ def options_set_schedule_whole_component(arg0):
     res = isl.isl_options_set_schedule_whole_component(ctx, arg0)
     if res < 0:
         raise Error
+
+def options_get_schedule_whole_component():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_whole_component(ctx)
+    return res
+
+def options_set_schedule_carry_self_first(arg0):
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_set_schedule_carry_self_first(ctx, arg0)
+    if res < 0:
+        raise Error
+
+def options_get_schedule_carry_self_first():
+    ctx = Context.getDefaultInstance()
+    res = isl.isl_options_get_schedule_carry_self_first(ctx)
+    return res
 
 def options_set_tile_scale_tile_loops(arg0):
     ctx = Context.getDefaultInstance()
@@ -240,9 +240,6 @@ def options_get_ast_build_allow_or():
     res = isl.isl_options_get_ast_build_allow_or(ctx)
     return res
 
-isl.isl_options_get_schedule_whole_component.argtypes = [Context]
-isl.isl_options_set_schedule_carry_self_first.argtypes = [Context, c_int]
-isl.isl_options_get_schedule_carry_self_first.argtypes = [Context]
 isl.isl_options_set_schedule_max_coefficient.argtypes = [Context, c_int]
 isl.isl_options_get_schedule_max_coefficient.argtypes = [Context]
 isl.isl_options_set_schedule_max_constant_term.argtypes = [Context, c_int]
@@ -262,6 +259,9 @@ isl.isl_options_get_schedule_separate_components.argtypes = [Context]
 isl.isl_options_set_schedule_serialize_sccs.argtypes = [Context, c_int]
 isl.isl_options_get_schedule_serialize_sccs.argtypes = [Context]
 isl.isl_options_set_schedule_whole_component.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_whole_component.argtypes = [Context]
+isl.isl_options_set_schedule_carry_self_first.argtypes = [Context, c_int]
+isl.isl_options_get_schedule_carry_self_first.argtypes = [Context]
 isl.isl_options_set_tile_scale_tile_loops.argtypes = [Context, c_int]
 isl.isl_options_get_tile_scale_tile_loops.argtypes = [Context]
 isl.isl_options_set_tile_shift_point_loops.argtypes = [Context, c_int]
