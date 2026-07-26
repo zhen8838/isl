@@ -38,25 +38,23 @@ jobs:
       with:
         submodules: recursive
 
+    # isl 0.26 calls SourceManager::createFileID with a FileEntry *, which
+    # clang 18 dropped in favour of a FileEntryRef, so pin the toolchain
+    # rather than take whatever "llvm-dev" happens to point at.
     - name: Install clang and autotools
       run: |
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends \
           autoconf automake libtool \
-          llvm-dev libclang-dev libclang-cpp-dev
-        llvm-config --version
+          llvm-17-dev libclang-17-dev libclang-cpp17-dev
+        /usr/lib/llvm-17/bin/llvm-config --version
 
     - name: Generate
       run: |
         ./autogen.sh
-        ./configure --with-clang=system --with-int=imath
+        ./configure --with-clang-prefix=/usr/lib/llvm-17 --with-int=imath
         make interface/isl.py.core interface/Interop.cs
-
-    - name: Report drift from the committed copies
-      run: |
-        git diff --stat -- interface/isl.py.core interface/Interop.cs
-        git diff --quiet -- interface/isl.py.core interface/Interop.cs \
-          || echo "::warning::the committed bindings differ from the ones just generated; the wheels use the generated ones"
+        wc -l interface/isl.py.core interface/Interop.cs
 
     - uses: actions/upload-artifact@v4
       with:

@@ -15,17 +15,17 @@ The version of the wheels is the tag name, so no file in this repository
 carries it and there is nothing to edit before tagging. Anything built from
 an untagged commit is versioned `0.0.0.dev0+g<sha>` and is not uploaded.
 
-CI generates the language bindings itself: a first job installs clang,
-runs `extract_interface` over the isl headers to produce
-`interface/isl.py.core` and `interface/Interop.cs`, and hands them to the
-wheel builds. Changing a header is therefore enough; regenerating locally is
-optional. The copies committed here are what a source install uses, and CI
-warns when they no longer match what it generated.
+`interface/isl.py.core` and `interface/Interop.cs` are produced from the isl
+headers by `interface/extract_interface`, a clang tool, and are not kept in
+the repository. A first CI job builds that tool, runs it and hands the result
+to the wheel builds, so changing a header is all a change takes.
 
-To regenerate them by hand you need clang:
+Building from a source checkout means generating them first, which needs
+clang 17 (isl 0.26 uses a `SourceManager::createFileID` overload that clang 18
+removed):
 
 ```sh
-./configure --with-clang=system --with-int=imath
+./configure --with-clang-prefix=/path/to/llvm-17 --with-int=imath
 make interface/isl.py.core interface/Interop.cs
 ```
 

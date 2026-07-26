@@ -82,3 +82,7 @@ isl_test2
 schedule_test.sh
 .vscode
 imath_wrap/.dirstamp
+# generated from the isl headers by interface/extract_interface,
+# see the "Releasing" section in README.md
+interface/isl.py.core
+interface/Interop.cs
