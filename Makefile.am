@@ -374,7 +374,7 @@ $(srcdir)/interface/Interop.cs: interface/extract_interface$(BUILD_EXEEXT) \
 		libdep.a
 	$(AM_V_GEN)interface/extract_interface$(BUILD_EXEEXT) \
 		--language=csharp $(includes) $(srcdir)/all.h \
-		> interface/Interop.cs && mv interface/Interop.cs $@
+		> interface/Interop.Tcs && mv interface/Interop.Tcs $@
 
 #$(srcdir)/include/isl/cpp.h: interface/extract_interface$(BUILD_EXEEXT) \
 #		libdep.a cpp/cpp.h.top cpp/cpp.h.bot
