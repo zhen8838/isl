@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build import build
@@ -41,7 +42,13 @@ class InstallSharedLibs(install_lib):
     self.distribution.run_command("install_data")
     super().run()
 
-setup(py_modules=['isl'],
+# Releases are made by pushing a tag; the workflow passes the tag name in
+# through the environment.  A build from a plain checkout is not a release
+# and says so.
+VERSION = os.environ.get("ISL_PYTHON_VERSION", "0.0.0.dev0")
+
+setup(version=VERSION,
+    py_modules=['isl'],
     package_dir={'': 'interface'},
     ext_modules=[Extension('isl', [])],
     cmdclass={
