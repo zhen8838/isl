@@ -85,4 +85,8 @@ imath_wrap/.dirstamp
 # generated from the isl headers by interface/extract_interface,
 # see the "Releasing" section in README.md
 interface/isl.py.core
+interface/isl.py
 interface/Interop.cs
+
+# local build environment (CPATH for the macOS SDK, ...)
+.env

@@ -167,12 +167,16 @@ __isl_give isl_union_set *isl_union_set_from_point(__isl_take isl_point *pnt);
 
 __isl_give isl_union_set *isl_union_set_lift(__isl_take isl_union_set *uset);
 
+__isl_export
 __isl_give isl_union_map *isl_union_set_lex_lt_union_set(
 	__isl_take isl_union_set *uset1, __isl_take isl_union_set *uset2);
+__isl_export
 __isl_give isl_union_map *isl_union_set_lex_le_union_set(
 	__isl_take isl_union_set *uset1, __isl_take isl_union_set *uset2);
+__isl_export
 __isl_give isl_union_map *isl_union_set_lex_gt_union_set(
 	__isl_take isl_union_set *uset1, __isl_take isl_union_set *uset2);
+__isl_export
 __isl_give isl_union_map *isl_union_set_lex_ge_union_set(
 	__isl_take isl_union_set *uset1, __isl_take isl_union_set *uset2);
 

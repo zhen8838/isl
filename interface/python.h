@@ -29,7 +29,13 @@ private:
 	void print_type_checks(const string &cname, FunctionDecl *method,
 		bool first_is_ctx, int n, const vector<string> &super);
 	void print_copy(QualType type);
-	void print_callback(ParmVarDecl *param, int arg);
+	void print_method_doc(int indent, FunctionDecl *fd, int drop_ctx);
+	void print_prototypes_doc(int indent,
+		const std::vector<FunctionDecl *> &fds);
+	static bool has_special_del(const isl_class &clazz);
+	void print_in_place_reuse(int indent, FunctionDecl *method,
+		const char *fmt);
+	void print_callback(FunctionDecl *method, ParmVarDecl *param, int arg);
 	void print_arg_in_call(FunctionDecl *fd, const char *fmt, int arg,
 		int skip);
 	void print_argtypes(FunctionDecl *fd);

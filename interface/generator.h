@@ -179,6 +179,7 @@ protected:
 	isl_class *method2class(FunctionDecl *fd);
 	bool callback_takes_argument(ParmVarDecl *param, int pos);
 	FunctionDecl *find_by_name(const string &name, bool required);
+	FunctionDecl *find_to_str(const string &name);
 	std::map<const Type *, ParmVarDecl *> conversions;
 private:
 	static const std::set<std::string> automatic_conversion_functions;
