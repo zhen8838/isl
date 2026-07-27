@@ -121,6 +121,9 @@ class Context:
             Context.defaultInstance = Context()
         return Context.defaultInstance
 
+    # Attaching a Python object to an isl_id hands isl a raw PyObject * and
+    # keeps it alive by hand.  ctypes only lets that work on CPython, so
+    # id(name, user) and id.user() are not available under PyPy.
     @CFUNCTYPE(None, py_object)
     def free_user(user):
         pythonapi.Py_DecRef(py_object(user))

@@ -6,8 +6,15 @@ import io
 import tempfile
 import os
 import gc
+import platform
 import subprocess
 import sys
+
+# The isl_id user payload is handed to isl as a raw PyObject * and kept alive
+# by hand, which asks of ctypes what only CPython provides.
+cpython_only = pytest.mark.skipif(
+  platform.python_implementation() != "CPython",
+  reason="the isl_id user payload needs CPython's ctypes py_object support")
 
 def test_basics():
   space = isl.space.unit().add_unnamed_tuple(2).set_dim_name(
@@ -621,6 +628,7 @@ def test_findings_6_options_are_all_exported():
   assert isl.options_get_schedule_serialize_sccs() == before
 
 
+@cpython_only
 def test_findings_7_annotation_payload():
   """The user payload used to be released by reading it back."""
   ast = _hole_ast("{ MM[i] : 0<=i<4 }")
@@ -654,6 +662,7 @@ def test_findings_7_annotation_payload():
   assert marked.get_annotation().user() == payload
 
 
+@cpython_only
 def test_id_payload_refcount_is_balanced():
   """isl_id_alloc deduplicates on (name, user), so it may hand back an id
   that already accounts for the payload; counting it twice leaks it."""
@@ -680,6 +689,7 @@ def test_id_constructor_lists_both_forms():
   assert "isl_id_alloc" in doc
 
 
+@cpython_only
 def test_findings_7_schedule_mark_payload():
   """The schedule tree side of the same mechanism."""
   ident = isl.id("MM", {"kind": "hole"})
