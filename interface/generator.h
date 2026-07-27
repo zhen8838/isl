@@ -161,7 +161,16 @@ protected:
 	SourceManager &SM;
 	map<string, isl_class> classes;
 	map<string, FunctionDecl *> functions_by_name;
-  set<FunctionDecl *> options_functions;
+  /* Ordered by name: a std::set of pointers is ordered by address,
+   * which differs from one run to the next and would make
+   * the generated bindings depend on where the compiler put things.
+   */
+  struct by_name {
+    bool operator()(const FunctionDecl *a, const FunctionDecl *b) const {
+      return a->getName() < b->getName();
+    }
+  };
+  set<FunctionDecl *, by_name> options_functions;
 
 public:
 	generator(SourceManager &SM, set<RecordDecl *> &exported_types,
