@@ -41,6 +41,8 @@
 #include <map>
 #include <vector>
 
+#include <clang/AST/ASTContext.h>
+
 #include "python.h"
 #include "generator.h"
 
@@ -152,6 +154,7 @@ void python_generator::print_method_header(bool is_static, const string &name,
 	printf("):\n");
 }
 
+
 /* Print formatted output with the given indentation.
  */
 static void print_indent(int indent, const char *format, ...)
@@ -164,6 +167,80 @@ static void print_indent(int indent, const char *format, ...)
 	va_start(args, format);
 	vprintf(format, args);
 	va_end(args);
+}
+
+/* Print the prototype of the C function "fd", with the argument names and
+ * types it was declared with.
+ */
+static void print_c_prototype(FunctionDecl *fd)
+{
+	int num_params = fd->getNumParams();
+
+	printf("%s(", fd->getName().str().c_str());
+	for (int i = 0; i < num_params; ++i) {
+		ParmVarDecl *param = fd->getParamDecl(i);
+		QualType type = param->getOriginalType();
+		string decl;
+		llvm::raw_string_ostream os(decl);
+
+		if (i)
+			printf(", ");
+		type.print(os, fd->getASTContext().getPrintingPolicy(),
+			param->getName());
+		printf("%s", os.str().c_str());
+	}
+	printf(")");
+}
+
+/* Print a docstring for the method corresponding to "fd", with the given
+ * indentation.  "drop_ctx" is set if the first argument is an isl_ctx.
+ *
+ * The generated methods take positional arguments called arg0, arg1, ...,
+ * which say nothing about what they are supposed to be.  Record
+ * the prototype of the C function they call instead, since that is where
+ * the argument names and types live.
+ * Also point out that the isl_ctx does not appear among the arguments.
+ */
+void python_generator::print_method_doc(int indent, FunctionDecl *fd,
+	int drop_ctx)
+{
+	print_indent(indent, "\"\"\"");
+	print_c_prototype(fd);
+
+	if (!drop_ctx) {
+		printf("\"\"\"\n");
+		return;
+	}
+
+	printf("\n\n");
+	print_indent(indent, "The isl_ctx is implicit; "
+		"Context.getDefaultInstance() is used.\n");
+	print_indent(indent, "\"\"\"\n");
+}
+
+/* Print a docstring listing the prototypes of the C functions "fds",
+ * with the given indentation.
+ *
+ * This is meant for the overloaded methods and for the constructors.
+ * Their Python signature is (*args), which says nothing about
+ * the combinations of arguments that are actually accepted;
+ * the list of C functions behind them does.
+ */
+void python_generator::print_prototypes_doc(int indent,
+	const std::vector<FunctionDecl *> &fds)
+{
+	if (fds.empty())
+		return;
+
+	print_indent(indent, "\"\"\"");
+	for (size_t i = 0; i < fds.size(); ++i) {
+		if (i)
+			print_indent(indent, "");
+		print_c_prototype(fds[i]);
+		if (i + 1 < fds.size())
+			printf("\n");
+	}
+	printf("\"\"\"\n");
 }
 
 /* Print a check that the argument in position "pos" is of type "type"
@@ -261,8 +338,19 @@ void python_generator::print_copy(QualType type)
  * on the result of the Python callback.
  * Otherwise, None is returned to indicate an error and
  * a copy of the object in case of success.
+ *
+ * A Python callback that simply falls off the end returns None.
+ * For a callback returning an isl_stat that is harmless, since the value
+ * is not used at all.  For a callback returning an isl_bool there is no
+ * answer that is right in general: it controls the traversal in
+ * isl_*_foreach_descendant_top_down, but it is the data being collected
+ * in isl_*_every_* and in the "follows" argument of
+ * isl_*_list_foreach_scc, so guessing either way quietly produces
+ * a wrong result somewhere.  A missing answer is therefore reported
+ * as an error rather than mapped to a value.
  */
-void python_generator::print_callback(ParmVarDecl *param, int arg)
+void python_generator::print_callback(FunctionDecl *method,
+	ParmVarDecl *param, int arg)
 {
 	QualType type = param->getOriginalType();
 	const FunctionProtoType *fn = extract_prototype(type);
@@ -317,6 +405,11 @@ void python_generator::print_callback(ParmVarDecl *param, int arg)
 	if (is_isl_stat(return_type)) {
 		printf("            return 0\n");
 	} else if (is_isl_bool(return_type)) {
+		printf("            if res is None:\n");
+		printf("                exc_info[0] = Error(\"%s: the callback "
+			"must return a bool\")\n",
+			method->getName().str().c_str());
+		printf("                return -1\n");
 		printf("            return 1 if res else 0\n");
 	} else {
 		printf("            return ");
@@ -370,6 +463,27 @@ void python_generator::print_arg_in_call(FunctionDecl *fd, const char *fmt,
 	}
 }
 
+/* Is "name" the name of a class of objects that are modified in place?
+ *
+ * Such objects are not copied on write.  Their *_copy function only
+ * increases the reference count and any function taking such an object
+ * modifies it in place and hands back the same pointer.  The Python
+ * wrapper can therefore be reused, which is what keeps attributes
+ * attached to that wrapper (in particular the C stream of
+ * printer.to_file) alive across a chain of calls.
+ */
+static bool is_in_place(const string &name)
+{
+	return name == "isl_printer";
+}
+
+/* Is "clazz" a class of objects that are modified in place?
+ */
+static bool is_in_place(const isl_class &clazz)
+{
+	return is_in_place(clazz.name);
+}
+
 /* Generate code that raises the exception captured in "exc_info", if any,
  * with the given indentation.
  */
@@ -410,6 +524,51 @@ static void print_persistent_callback_failure_check(int indent,
 	}
 }
 
+/* A function returning an object that is modified in place (see is_in_place)
+ * returns one of the objects that was passed to it.  Print code with
+ * the given indentation that hands back the Python wrapper of that argument
+ * instead of constructing a fresh wrapper around the same pointer, so that
+ * whatever is stored on the wrapper (the C stream of printer.to_file)
+ * stays with the object.  The extra reference that was taken when passing
+ * the argument to "method" is dropped again.
+ * "fmt" is the format for printing Python method arguments.
+ *
+ * The arguments are walked in the same way as in print_method_call
+ * to keep the numbering of the Python arguments in sync.
+ */
+void python_generator::print_in_place_reuse(int indent, FunctionDecl *method,
+	const char *fmt)
+{
+	string name = extract_type(method->getReturnType());
+	int num_params = method->getNumParams();
+	int skip = first_arg_is_isl_ctx(method);
+
+	if (!is_in_place(name))
+		return;
+
+	for (int i = 0; i < num_params; ++i) {
+		ParmVarDecl *param = method->getParamDecl(i);
+		QualType type = param->getOriginalType();
+
+		if (is_isl_type(type) && takes(param) &&
+		    extract_type(type) == name) {
+			print_indent(indent, "if res == ");
+			printf(fmt, i - skip);
+			printf(".ptr:\n");
+			print_indent(indent, "    isl.%s_free(res)\n",
+				name.c_str());
+			print_indent(indent, "    return ");
+			printf(fmt, i - skip);
+			printf("\n");
+		}
+
+		if (!is_callback_arg(method, i))
+			continue;
+		++skip;
+		++i;
+	}
+}
+
 /* Print the return statement of the python method corresponding
  * to the C function "method" with the given indentation.
  * If the object on which the method was called
@@ -437,6 +596,16 @@ static void print_persistent_callback_failure_check(int indent,
  * In case of isl_bool, the result is converted to
  * a Python boolean.
  * In case of isl_size, the result is converted to a Python int.
+ *
+ * A NULL where an isl object was expected is reported on its own terms:
+ * there is nothing to wrap it in, and that is true whether or not isl
+ * considers it a failure.  isl_ast_node_get_annotation, for one, hands
+ * back NULL for a node that has no annotation without recording anything,
+ * so the message isl happens to be carrying at that point belongs to
+ * some earlier call and must not be presented as an explanation.
+ * The isl message is taken along only where isl does report a failure,
+ * that is, on a negative isl_stat, isl_bool or isl_size and on a NULL
+ * string.
  */
 void python_generator::print_method_return(int indent, const isl_class &clazz,
 	FunctionDecl *method, const char *fmt)
@@ -450,6 +619,11 @@ void python_generator::print_method_return(int indent, const isl_class &clazz,
 		string type;
 
 		type = type2python(extract_type(return_type));
+		print_in_place_reuse(indent, method, fmt);
+		print_indent(indent, "if res is None:\n");
+		print_indent(indent, "    raise _error(ctx, \"%s\", "
+			"\" returned NULL\")\n",
+			method->getName().str().c_str());
 		print_indent(indent,
 			"obj = %s(ctx=ctx, ptr=res)\n", type.c_str());
 		if (is_mutator(clazz, method) &&
@@ -465,8 +639,10 @@ void python_generator::print_method_return(int indent, const isl_class &clazz,
 		}
 		print_indent(indent, "return obj\n");
 	} else if (is_string(return_type)) {
-		print_indent(indent, "if res == 0:\n");
-		print_indent(indent, "    raise Error\n");
+		print_indent(indent, "if not res:\n");
+		print_indent(indent, "    raise _error(ctx, \"%s\", "
+			"\" returned NULL\")\n",
+			method->getName().str().c_str());
 		print_indent(indent, "string = "
 		       "cast(res, c_char_p).value.decode('ascii')\n");
 
@@ -476,12 +652,15 @@ void python_generator::print_method_return(int indent, const isl_class &clazz,
 		print_indent(indent, "return string\n");
 	} else if (is_isl_neg_error(return_type)) {
 		print_indent(indent, "if res < 0:\n");
-		print_indent(indent, "    raise Error\n");
+		print_indent(indent, "    raise _error(ctx, \"%s\", "
+			"\" failed\")\n",
+			method->getName().str().c_str());
 		if (is_isl_bool(return_type))
 			print_indent(indent, "return bool(res)\n");
 		else if (is_isl_size(return_type))
 			print_indent(indent, "return int(res)\n");
 	} else {
+		print_indent(indent, "_discard_error(ctx)\n");
 		print_indent(indent, "return res\n");
 	}
 }
@@ -501,6 +680,7 @@ void python_generator::print_get_method(const isl_class &clazz,
 	int num_params = fd->getNumParams();
 
 	print_method_header(false, get_name, num_params);
+	print_method_doc(8, fd, false);
 	printf("        return arg0.%s(", name.c_str());
 	print_method_arguments(1, num_params);
 	printf(")\n");
@@ -588,6 +768,7 @@ void python_generator::print_method(const isl_class &clazz,
 
 	print_method_header(is_static(clazz, method), cname,
 			    num_params - drop_ctx - drop_user);
+	print_method_doc(8, method, drop_ctx);
 
 	print_type_checks(cname, method, drop_ctx,
 			    num_params, super);
@@ -597,7 +778,7 @@ void python_generator::print_method(const isl_class &clazz,
 		QualType type = param->getOriginalType();
 		if (!is_callback(type))
 			continue;
-		print_callback(param, i - drop_ctx - drop_user);
+		print_callback(method, param, i - drop_ctx - drop_user);
 		drop_user += 1;
 	}
 	print_method_call(8, clazz, method, fixed_arg_fmt, drop_ctx);
@@ -738,10 +919,14 @@ void python_generator::print_method(const isl_class &clazz,
 
 	print_method_def(is_static(clazz, any_method), cname);
 	printf("(*args):\n");
+	print_prototypes_doc(8,
+		std::vector<FunctionDecl *>(methods.begin(), methods.end()));
 
 	for (it = methods.begin(); it != methods.end(); ++it)
 		print_method_overload(clazz, *it);
-	printf("        raise Error\n");
+	printf("        raise Error(\"no overload of %s.%s() "
+		"matches the given arguments\")\n",
+		type2python(clazz.subclass_name).c_str(), cname.c_str());
 }
 
 /* Print a python method "name" corresponding to "fd" setting
@@ -764,6 +949,7 @@ void python_generator::print_set_enum(const isl_class &clazz,
 	int num_params = fd->getNumParams();
 
 	print_method_header(is_static(clazz, fd), name, num_params - 1);
+	print_method_doc(8, fd, false);
 
 	print_type_checks(name, fd, false, num_params - 1, super);
 	printf("        ctx = arg0.ctx\n");
@@ -821,6 +1007,9 @@ void python_generator::print_constructor(const isl_class &clazz,
 		print_arg_in_call(cons, var_arg_fmt, i, drop_ctx);
 	}
 	printf(")\n");
+	printf("            if self.ptr is None:\n");
+	printf("                raise _error(self.ctx, \"%s\", "
+		"\" returned NULL\")\n", fullname.c_str());
 	printf("            return\n");
 }
 
@@ -836,19 +1025,32 @@ void python_generator::print_constructor(const isl_class &clazz,
  * using 'ascii' as encoding.
  *
  * Since the isl_id keeps a reference to the Python user object,
- * the reference count of the Python object needs to be incremented,
- * but only if the construction of the isl_id is successful.
- * The reference count of the Python object is decremented again
- * by Context.free_user when the reference count of the isl_id
- * drops to zero.
+ * the reference count of the Python object needs to be incremented.
+ * It is decremented again by Context.free_user when the reference count
+ * of the isl_id drops to zero.
+ *
+ * isl_id_alloc keeps a table of the identifiers it has handed out,
+ * keyed on the name and the user pointer, so asking for the same pair
+ * twice returns another reference to the same isl_id rather than
+ * a second one.  Its user object is then already accounted for and
+ * must not be counted again, or Context.free_user, which runs once,
+ * would leave a reference behind.  A freshly constructed isl_id is
+ * recognized by its free_user callback not having been set yet.
  */
 static const char *const id_constructor_user = &R"(
         if len(args) == 2 and type(args[0]) == str:
+            if platform.python_implementation() != 'CPython':
+                raise Error("attaching a Python object to an isl_id is only "
+                            "supported on CPython; ctypes cannot hand a "
+                            "PyObject * to C and hold a reference to it "
+                            "on %s" % platform.python_implementation())
             self.ctx = Context.getDefaultInstance()
             name = args[0].encode('ascii')
             self.ptr = isl.isl_id_alloc(self.ctx, name, args[1])
-            self.ptr = isl.isl_id_set_free_user(self.ptr, Context.free_user)
-            if self.ptr is not None:
+            if self.ptr is None:
+                raise _error(self.ctx, "isl_id_alloc", " returned NULL")
+            if isl.isl_id_get_free_user(self.ptr) is None:
+                isl.isl_id_set_free_user(self.ptr, Context.free_user)
                 pythonapi.Py_IncRef(py_object(args[1]))
             return
 )"[1];
@@ -877,31 +1079,111 @@ void python_generator::print_special_constructors(const isl_class &clazz)
  * the addresses.
  *
  * Return None if any of the checks fail.
- * Note that isl_id_get_user returning NULL automatically results in None.
+ *
+ * isl_id_get_user returns a borrowed reference, so the pointer is cast
+ * to py_object rather than declared as returning a py_object.  The latter
+ * would make ctypes treat the result as a new reference and drop
+ * a reference of its own when that result goes away, releasing the user
+ * object while the isl_id is still pointing at it.
  */
 static const char *const id_user = &R"(
     def user(self):
+        """Return the Python object attached to this identifier, if any."""
         free_user = cast(Context.free_user, c_void_p)
         id_free_user = cast(isl.isl_id_get_free_user(self.ptr), c_void_p)
         if id_free_user.value != free_user.value:
             return None
-        return isl.isl_id_get_user(self.ptr)
+        ptr = isl.isl_id_get_user(self.ptr)
+        if not ptr:
+            return None
+        return cast(ptr, py_object).value
 )"[1];
 
-static const char *const printer_to_file = &R"(
+/* The definitions of the "printer" methods that deal with
+ * Python file objects, along with a __str__ that produces
+ * the accumulated output of a string printer.
+ *
+ * A Python file object cannot be handed to isl directly, so a C FILE
+ * is created on top of a duplicate of its file descriptor.  The duplicate
+ * decouples the two lifetimes: closing the C FILE (which flushes it)
+ * leaves the file descriptor of the Python file object alone and
+ * the Python file object can be closed first without the printer
+ * ending up writing to a closed descriptor.
+ *
+ * The C FILE is stored on the Python object.  It survives a chain of
+ * method calls because a printer is modified in place, so those calls
+ * return the same wrapper (see is_in_place).
+ */
+static const char *const printer_special = &R"(
     @staticmethod
-    def to_file(arg0):
+    def to_file(f):
+        """Create a printer writing to the Python file object "f".
+
+        Use it as a context manager so that the output is flushed
+        at a well defined point:
+
+            with open(path, 'w') as f, isl.printer.to_file(f) as p:
+                p = p.print_str("hello")
+
+        "f" itself remains owned by the caller.  Note that "f" and the
+        printer buffer their output separately, so writing to both
+        without flushing in between mixes up the order.
+        """
+        try:
+            fd = os.dup(f.fileno())
+        except (AttributeError, OSError, ValueError):
+            raise Error("printer.to_file() needs a file object backed by "
+                        "a file descriptor; use printer.to_str() instead")
         ctx = Context.getDefaultInstance()
-        file = libc.fdopen(arg0.fileno(), arg0.mode.encode('ascii'))
-        res = isl.isl_printer_to_file(ctx, file)
+        cfile = libc.fdopen(fd, f.mode.encode('ascii'))
+        if not cfile:
+            os.close(fd)
+            raise Error("could not create a C stream for %r" % f)
+        res = isl.isl_printer_to_file(ctx, cfile)
+        if res is None:
+            libc.fclose(cfile)
+            raise _error(ctx, "isl_printer_to_file", " returned NULL")
         obj = printer(ctx=ctx, ptr=res)
+        obj.cfile = cfile
         return obj
+
+    def close(self):
+        """Flush and close the C stream created by printer.to_file().
+
+        The file object passed to printer.to_file() is not affected.
+        """
+        if getattr(self, 'cfile', None) is not None:
+            libc.fclose(self.cfile)
+            self.cfile = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+        return False
+
+    def __del__(self):
+        if hasattr(self, 'ptr'):
+            isl.isl_printer_free(self.ptr)
+        self.close()
+
+    def __str__(self):
+        return self.get_str()
 )"[1];
+
+/* Does print_special_methods print a __del__ method for "clazz",
+ * meaning that the standard one should not be printed?
+ */
+bool python_generator::has_special_del(const isl_class &clazz)
+{
+	return clazz.name == "isl_printer";
+}
 
 /* Print any special methods of this class that are not
  * automatically derived from the C interface.
  *
- * In particular, print a special method for the "id" class.
+ * In particular, print special methods for the "id" and "printer" classes.
  */
 void python_generator::print_special_methods(const isl_class &clazz)
 {
@@ -910,7 +1192,7 @@ void python_generator::print_special_methods(const isl_class &clazz)
   }
 
   if (clazz.name == "isl_printer") {
-    printf("%s", printer_to_file);
+    printf("%s", printer_special);
   }
 }
 
@@ -963,23 +1245,51 @@ void python_generator::print_class_header(const isl_class &clazz,
 	printf(":\n");
 }
 
-/* Tell ctypes about the return type of "fd".
- * In particular, if "fd" returns a pointer to an isl object,
- * then tell ctypes it returns a "c_void_p".
- * If "fd" returns a char *, then simply tell ctypes.
+/* Return the name of the ctypes type describing a return value of type
+ * "type", or an empty string if the ctypes default is already correct.
  *
- * Nothing needs to be done for functions returning
- * isl_bool, isl_stat or isl_size since they are represented by an int and
- * ctypes assumes that a function returns int by default.
+ * ctypes assumes that a function returns an int, which is what
+ * isl_bool, isl_stat and isl_size (and a plain int) amount to.
+ * Anything wider or of another kind has to be spelled out, or ctypes
+ * silently reads the wrong thing: a long result gets truncated to
+ * its lower 32 bits and a double is not even read from the right place.
+ */
+static string ctypes_restype(QualType type)
+{
+	const BuiltinType *builtin;
+
+	if (generator::is_isl_type(type))
+		return "c_void_p";
+	if (generator::is_string(type))
+		return "POINTER(c_char)";
+
+	builtin = type->getAs<BuiltinType>();
+	if (!builtin)
+		return "";
+
+	switch (builtin->getKind()) {
+	case BuiltinType::Long:		return "c_long";
+	case BuiltinType::ULong:	return "c_ulong";
+	case BuiltinType::LongLong:	return "c_longlong";
+	case BuiltinType::ULongLong:	return "c_ulonglong";
+	case BuiltinType::UInt:		return "c_uint";
+	case BuiltinType::Float:	return "c_float";
+	case BuiltinType::Double:	return "c_double";
+	default:			return "";
+	}
+}
+
+/* Tell ctypes about the return type of "fd", unless the default is
+ * already correct.  See ctypes_restype.
  */
 void python_generator::print_restype(FunctionDecl *fd)
 {
-	string fullname = fd->getName().str();
-	QualType type = fd->getReturnType();
-	if (is_isl_type(type))
-		printf("isl.%s.restype = c_void_p\n", fullname.c_str());
-	else if (is_string(type))
-		printf("isl.%s.restype = POINTER(c_char)\n", fullname.c_str());
+	string restype = ctypes_restype(fd->getReturnType());
+
+	if (restype.empty())
+		return;
+	printf("isl.%s.restype = %s\n", fd->getName().str().c_str(),
+		restype.c_str());
 }
 
 /* Tell ctypes about the types of the arguments of the function "fd".
@@ -1054,7 +1364,8 @@ void python_generator::print_new(const isl_class &clazz,
 			printf("                return %s(**keywords)\n",
 				type2python(i->second).c_str());
 		}
-		printf("            raise Error\n");
+		printf("            raise Error(\"unknown %s subclass "
+			"(type = %%d)\" %% type)\n", python_name.c_str());
 	}
 
 	printf("        return super(%s, cls).__new__(cls)\n",
@@ -1203,22 +1514,35 @@ void python_generator::print(const isl_class &clazz)
 	print_class_header(clazz, p_name, super);
 	printf("    def __init__(self, *args, **keywords):\n");
 
+  std::set<FunctionDecl *, function_name_less> ordered_constructors(clazz.constructors.begin(),
+                                                                  clazz.constructors.end(),
+                                                                  function_name_less(&python_function_name_less));
+	std::vector<FunctionDecl *> ctors(ordered_constructors.begin(),
+					ordered_constructors.end());
+	/* print_special_constructors adds a part that is not derived from
+	 * an __isl_constructor; list the function it calls as well.
+	 */
+	if (clazz.name == "isl_id")
+		ctors.push_back(find_by_name("isl_id_alloc", true));
+	print_prototypes_doc(8, ctors);
+
 	printf("        if \"ptr\" in keywords:\n");
 	printf("            self.ctx = keywords[\"ctx\"]\n");
 	printf("            self.ptr = keywords[\"ptr\"]\n");
 	printf("            return\n");
 
-  std::set<FunctionDecl *, function_name_less> ordered_constructors(clazz.constructors.begin(),
-                                                                  clazz.constructors.end(), 
-                                                                  function_name_less(&python_function_name_less));
 	for (const auto &cons : ordered_constructors)
 		print_constructor(clazz, cons);
 	print_special_constructors(clazz);
 	print_upcast_constructors(clazz);
-	printf("        raise Error\n");
-	printf("    def __del__(self):\n");
-	printf("        if hasattr(self, 'ptr'):\n");
-	printf("            isl.%s_free(self.ptr)\n", clazz.name.c_str());
+	printf("        raise Error(\"no constructor of %s() "
+		"matches the given arguments\")\n", p_name.c_str());
+	if (!has_special_del(clazz)) {
+		printf("    def __del__(self):\n");
+		printf("        if hasattr(self, 'ptr'):\n");
+		printf("            isl.%s_free(self.ptr)\n",
+			clazz.name.c_str());
+	}
 
 	print_new(clazz, p_name);
 	print_representation(clazz, p_name);
@@ -1259,6 +1583,7 @@ void python_generator::generate()
     print_indent(0, "(");
     print_method_arguments(0, method->getNumParams() - drop_ctx);
     print_indent(0, "):\n");
+    print_method_doc(4, method, drop_ctx);
     print_indent(4, "ctx = Context.getDefaultInstance()\n");
 
     print_indent(4, "res = isl.%s(", fullname.c_str());
@@ -1272,8 +1597,9 @@ void python_generator::generate()
 
   	QualType return_type = method->getReturnType();
     if (is_string(return_type)) {
-      print_indent(4, "if res == 0:\n");
-      print_indent(4, "    raise Error\n");
+      print_indent(4, "if not res:\n");
+      print_indent(4, "    raise _error(ctx, \"%s\", \" returned NULL\")\n",
+            fullname.c_str());
       print_indent(4, "string = "
             "cast(res, c_char_p).value.decode('ascii')\n");
 
@@ -1283,12 +1609,14 @@ void python_generator::generate()
       print_indent(4, "return string\n");
     } else if (is_isl_neg_error(return_type)) {
       print_indent(4, "if res < 0:\n");
-      print_indent(4, "    raise Error\n");
+      print_indent(4, "    raise _error(ctx, \"%s\", \" failed\")\n",
+            fullname.c_str());
       if (is_isl_bool(return_type))
         print_indent(4, "return bool(res)\n");
       else if (is_isl_size(return_type))
         print_indent(4, "return int(res)\n");
     } else {
+      print_indent(4, "_discard_error(ctx)\n");
       print_indent(4, "return res\n");
     }
 

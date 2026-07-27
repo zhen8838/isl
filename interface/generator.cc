@@ -179,6 +179,30 @@ void generator::extract_automatic_conversions() {
     extract_class_automatic_conversions(ci->second);
 }
 
+/* Return the "<name>_to_str" function that prints an object of class "name"
+ * to a string, if any.
+ *
+ * The name alone is not sufficient to identify such a function.
+ * In particular, isl_printer_to_str constructs a printer from a context and
+ * must not be mistaken for a conversion of a printer to a string.
+ * Only accept a function that actually takes an object of this class
+ * as its first argument and that returns a string.
+ */
+FunctionDecl *generator::find_to_str(const string &name) {
+  FunctionDecl *fd = find_by_name(name + "_to_str", false);
+  QualType type;
+
+  if (!fd || fd->getNumParams() < 1)
+    return NULL;
+  if (!is_string(fd->getReturnType()))
+    return NULL;
+  type = fd->getParamDecl(0)->getOriginalType();
+  if (!is_isl_type(type) || extract_type(type) != name)
+    return NULL;
+
+  return fd;
+}
+
 /* Add a subclass derived from "decl" called "sub_name" to the set of classes,
  * keeping track of the _to_str, _copy and _free functions, if any, separately.
  * "sub_name" is either the name of the class itself or
@@ -194,7 +218,7 @@ void generator::add_subclass(RecordDecl *decl, const string &super_name,
   classes[sub_name].superclass_name = super_name;
   classes[sub_name].subclass_name = sub_name;
   classes[sub_name].type = decl;
-  classes[sub_name].fn_to_str = find_by_name(name + "_to_str", false);
+  classes[sub_name].fn_to_str = find_to_str(name);
   classes[sub_name].fn_copy = find_by_name(name + "_copy", true);
   classes[sub_name].fn_free = find_by_name(name + "_free", true);
 }
@@ -528,7 +552,11 @@ isl_class *generator::method2class(FunctionDecl *fd) {
   }
 
   if (classes.find(best) == classes.end()) {
-    cerr << "Unable to find class of " << name << endl;
+    /* The isl_options_* functions deliberately do not belong to a class;
+     * they are collected separately by the generator constructor.
+     */
+    if (!is_options_function(fd))
+      cerr << "Unable to find class of " << name << endl;
     return NULL;
   }
 

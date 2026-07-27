@@ -2,6 +2,7 @@ from ctypes import *
 from ctypes.util import find_library
 from enum import IntEnum
 import os
+import sys
 import sysconfig
 import platform
 
@@ -31,6 +32,8 @@ assert isl is not None, "can't find the isl shared library!"
 libc = cdll.LoadLibrary(find_library("c"))
 libc.fdopen.argtypes = [c_int, c_char_p]
 libc.fdopen.restype = c_void_p
+libc.fclose.argtypes = [c_void_p]
+libc.fclose.restype = c_int
 
 class format(IntEnum):
   ISL = 0
@@ -100,6 +103,13 @@ class Context:
         self.ptr = ptr
 
     def __del__(self):
+        # During interpreter shutdown the order in which module globals are
+        # cleared is unspecified, so isl objects may well outlive the context
+        # they refer to.  Freeing it then only produces
+        # "isl_ctx not freed as some objects still reference it" on stderr;
+        # the process is about to hand the memory back anyway.
+        if sys.is_finalizing():
+            return
         isl.isl_ctx_free(self)
 
     def from_param(self):
@@ -111,6 +121,9 @@ class Context:
             Context.defaultInstance = Context()
         return Context.defaultInstance
 
+    # Attaching a Python object to an isl_id hands isl a raw PyObject * and
+    # keeps it alive by hand.  ctypes only lets that work on CPython, so
+    # id(name, user) and id.user() are not available under PyPy.
     @CFUNCTYPE(None, py_object)
     def free_user(user):
         pythonapi.Py_DecRef(py_object(user))
@@ -123,5 +136,56 @@ isl.isl_id_set_free_user.restype = c_void_p
 isl.isl_id_set_free_user.argtypes = [c_void_p, c_void_p]
 isl.isl_id_get_free_user.restype = c_void_p
 isl.isl_id_get_free_user.argtypes = [c_void_p]
-isl.isl_id_get_user.restype = py_object
+# isl_id_get_user returns a borrowed reference; declaring it as py_object
+# would make ctypes drop a reference that it never acquired.
+isl.isl_id_get_user.restype = c_void_p
 isl.isl_id_get_user.argtypes = [c_void_p]
+
+isl.isl_ctx_last_error.restype = c_int
+isl.isl_ctx_last_error.argtypes = [Context]
+isl.isl_ctx_last_error_msg.restype = c_char_p
+isl.isl_ctx_last_error_msg.argtypes = [Context]
+isl.isl_ctx_last_error_file.restype = c_char_p
+isl.isl_ctx_last_error_file.argtypes = [Context]
+isl.isl_ctx_last_error_line.restype = c_int
+isl.isl_ctx_last_error_line.argtypes = [Context]
+isl.isl_ctx_reset_error.argtypes = [Context]
+
+def _error(ctx, call, what=""):
+    """Build an Error for a failed call to the C function named "call".
+
+    isl reports what went wrong through the context (and, with the default
+    on_error setting, on stderr); without this the exception would carry
+    nothing at all.
+
+    Whatever message is found here was left by "call" itself, because
+    the context is kept clean: every message this binding reports is reset
+    on the way out, and the calls whose result cannot express a failure
+    clear the context on their own (see _discard_error).  A call that
+    returns NULL without recording anything, as isl_ast_node_get_annotation
+    does for a node that simply has no annotation, therefore finds
+    the context empty and says only that much.
+    """
+    msg = isl.isl_ctx_last_error_msg(ctx)
+    if msg is None:
+        return Error("%s%s" % (call, what))
+    where = isl.isl_ctx_last_error_file(ctx)
+    line = isl.isl_ctx_last_error_line(ctx)
+    isl.isl_ctx_reset_error(ctx)
+    msg = msg.decode('ascii')
+    if where is None:
+        return Error("%s%s: %s" % (call, what, msg))
+    return Error("%s%s: %s (%s:%d)" %
+                 (call, what, msg, where.decode('ascii'), line))
+
+def _discard_error(ctx):
+    """Drop any error recorded by a call that cannot report one.
+
+    A handful of isl functions return a plain number, so a failure leaves
+    nothing in the result to act on.  The message isl recorded would then
+    stay behind and be picked up by the next call that does look, which is
+    how it would end up explaining something it has nothing to do with.
+    """
+    if isl.isl_ctx_last_error(ctx) != 0:
+        isl.isl_ctx_reset_error(ctx)
+

@@ -38,7 +38,7 @@ make interface/isl.py.core interface/Interop.cs
 - [] make isl_*_list iterable in python interface
 - [x] export remove_map_if in python interface
 - [] export isl_pw_qpolynomial in python interface
-- [] fix export isl_printer_to_str in python interface
+- [x] fix export isl_printer_to_str in python interface
 - [] fix codegen test segment fault
 - [] optimize get_xx method as property in python interface
 - [] ⚠️ fix multi_pw_aff and pw_multi_aff confuse in python
