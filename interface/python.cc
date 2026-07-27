@@ -1039,6 +1039,11 @@ void python_generator::print_constructor(const isl_class &clazz,
  */
 static const char *const id_constructor_user = &R"(
         if len(args) == 2 and type(args[0]) == str:
+            if platform.python_implementation() != 'CPython':
+                raise Error("attaching a Python object to an isl_id is only "
+                            "supported on CPython; ctypes cannot hand a "
+                            "PyObject * to C and hold a reference to it "
+                            "on %s" % platform.python_implementation())
             self.ctx = Context.getDefaultInstance()
             name = args[0].encode('ascii')
             self.ptr = isl.isl_id_alloc(self.ctx, name, args[1])
