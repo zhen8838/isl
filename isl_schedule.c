@@ -162,13 +162,17 @@ isl_ctx *isl_schedule_get_ctx(__isl_keep isl_schedule *schedule)
 	return schedule ? isl_schedule_tree_get_ctx(schedule->leaf) : NULL;
 }
 
-/* Return a pointer to the leaf of "schedule".
- */
-__isl_keep isl_schedule_tree *isl_schedule_peek_leaf(
-	__isl_keep isl_schedule *schedule)
-{
-	return schedule ? schedule->leaf : NULL;
-}
+#undef TYPE
+#define TYPE	isl_schedule
+
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_schedule_tree
+#undef FIELD_NAME
+#define FIELD_NAME	leaf
+#undef PROPERTY
+#define PROPERTY	leaf
+
+#include "isl_peek_templ.c"
 
 /* Are "schedule1" and "schedule2" obviously equal to each other?
  */

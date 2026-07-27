@@ -342,43 +342,11 @@ basic_map uncheck(checked::basic_map obj) {
 	return manage(obj.copy());
 }
 
-checked::basic_map_list check(basic_map_list obj) {
-	return checked::manage(obj.copy());
-}
-
-basic_map_list uncheck(checked::basic_map_list obj) {
-	return manage(obj.copy());
-}
-
 checked::basic_set check(basic_set obj) {
 	return checked::manage(obj.copy());
 }
 
 basic_set uncheck(checked::basic_set obj) {
-	return manage(obj.copy());
-}
-
-checked::basic_set_list check(basic_set_list obj) {
-	return checked::manage(obj.copy());
-}
-
-basic_set_list uncheck(checked::basic_set_list obj) {
-	return manage(obj.copy());
-}
-
-checked::constraint check(constraint obj) {
-	return checked::manage(obj.copy());
-}
-
-constraint uncheck(checked::constraint obj) {
-	return manage(obj.copy());
-}
-
-checked::constraint_list check(constraint_list obj) {
-	return checked::manage(obj.copy());
-}
-
-constraint_list uncheck(checked::constraint_list obj) {
 	return manage(obj.copy());
 }
 
@@ -406,6 +374,14 @@ id_list uncheck(checked::id_list obj) {
 	return manage(obj.copy());
 }
 
+checked::id_set check(id_set obj) {
+	return checked::manage(obj.copy());
+}
+
+id_set uncheck(checked::id_set obj) {
+	return manage(obj.copy());
+}
+
 checked::id_to_ast_expr check(id_to_ast_expr obj) {
 	return checked::manage(obj.copy());
 }
@@ -422,14 +398,6 @@ id_to_id uncheck(checked::id_to_id obj) {
 	return manage(obj.copy());
 }
 
-checked::local_space check(local_space obj) {
-	return checked::manage(obj.copy());
-}
-
-local_space uncheck(checked::local_space obj) {
-	return manage(obj.copy());
-}
-
 checked::map check(map obj) {
 	return checked::manage(obj.copy());
 }
@@ -443,14 +411,6 @@ checked::map_list check(map_list obj) {
 }
 
 map_list uncheck(checked::map_list obj) {
-	return manage(obj.copy());
-}
-
-checked::mat check(mat obj) {
-	return checked::manage(obj.copy());
-}
-
-mat uncheck(checked::mat obj) {
 	return manage(obj.copy());
 }
 

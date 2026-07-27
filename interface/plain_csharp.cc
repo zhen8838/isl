@@ -2017,7 +2017,7 @@ void plain_csharp_generator::impl_printer::print_callback_body(
 
   callback = extract_prototype(ptype);
   rtype = callback->getReturnType();
-  num_params = callback->getNumArgs();
+  num_params = callback->getNumParams();
 
   last_idx = ::to_string(num_params - 1);
 

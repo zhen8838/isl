@@ -22,18 +22,6 @@ isl_ctx *FN(MULTI(BASE),get_ctx)(__isl_keep MULTI(BASE) *multi)
 	return multi ? isl_space_get_ctx(multi->space) : NULL;
 }
 
-/* Return the space of "multi".
- */
-__isl_keep isl_space *FN(MULTI(BASE),peek_space)(__isl_keep MULTI(BASE) *multi)
-{
-	return multi ? multi->space : NULL;
-}
-
-__isl_give isl_space *FN(MULTI(BASE),get_space)(__isl_keep MULTI(BASE) *multi)
-{
-	return isl_space_copy(FN(MULTI(BASE),peek_space)(multi));
-}
-
 __isl_give isl_space *FN(MULTI(BASE),get_domain_space)(
 	__isl_keep MULTI(BASE) *multi)
 {
@@ -138,55 +126,20 @@ __isl_null MULTI(BASE) *FN(MULTI(BASE),free)(__isl_take MULTI(BASE) *multi)
 	return NULL;
 }
 
-/* Return the space of "multi".
- * The caller is not allowed to modify "multi" between this call
- * and the call to *_restore_space because the number
- * of references needs to stay the same.
- * The only exception is that isl_multi_*_free can be called instead.
- * No copy is taken of multi->space if "multi" has only one reference
- * such that it can be modified inplace if both have only a single reference.
- */
-__isl_give isl_space *FN(MULTI(BASE),take_space)(__isl_keep MULTI(BASE) *multi)
-{
-	isl_space *space;
+#undef TYPE
+#define TYPE	MULTI(BASE)
 
-	if (!multi)
-		return NULL;
-	if (multi->ref != 1)
-		return FN(MULTI(BASE),get_space)(multi);
-	space = multi->space;
-	multi->space = NULL;
-	return space;
-}
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_space
+#undef FIELD_NAME
+#define FIELD_NAME	space
+#undef PROPERTY
+#define PROPERTY	space
 
-/* Set the space of "multi" to "space", where the space of "multi"
- * may be missing due to a preceding call to isl_multi_*_take_space.
- * However, in this case, "multi" only has a single reference and
- * then the call to isl_multi_*_cow has no effect.
- */
-__isl_give MULTI(BASE) *FN(MULTI(BASE),restore_space)(
-	__isl_take MULTI(BASE) *multi, __isl_take isl_space *space)
-{
-	if (!multi || !space)
-		goto error;
-
-	if (multi->space == space) {
-		isl_space_free(space);
-		return multi;
-	}
-
-	multi = FN(MULTI(BASE),cow)(multi);
-	if (!multi)
-		goto error;
-	isl_space_free(multi->space);
-	multi->space = space;
-
-	return multi;
-error:
-	FN(MULTI(BASE),free)(multi);
-	isl_space_free(space);
-	return NULL;
-}
+#include "isl_peek_templ.c"
+#include "isl_get_templ.c"
+#include "isl_take_templ.c"
+#include "isl_restore_templ.c"
 
 isl_size FN(MULTI(BASE),dim)(__isl_keep MULTI(BASE) *multi,
 	enum isl_dim_type type)

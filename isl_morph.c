@@ -190,12 +190,15 @@ static __isl_keep isl_space *isl_morph_peek_dom_space(
 	return isl_basic_set_peek_space(morph->dom);
 }
 
-/* Return a copy of the domain space of "morph".
- */
-__isl_give isl_space *isl_morph_get_dom_space(__isl_keep isl_morph *morph)
-{
-	return isl_space_copy(isl_morph_peek_dom_space(morph));
-}
+#undef TYPE
+#define TYPE	isl_morph
+
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_space
+#undef PROPERTY
+#define PROPERTY	dom_space
+
+#include "isl_get_templ.c"
 
 /* Check that the match against "space" with result "match" was successful.
  */
@@ -504,10 +507,10 @@ __isl_give isl_morph *isl_basic_set_variable_compression(
 	nrest = total - (orest - 1);
 
 	for (f_eq = 0; f_eq < bset->n_eq; ++f_eq)
-		if (isl_seq_first_non_zero(bset->eq[f_eq] + orest, nrest) == -1)
+		if (!isl_seq_any_non_zero(bset->eq[f_eq] + orest, nrest))
 			break;
 	for (n_eq = 0; f_eq + n_eq < bset->n_eq; ++n_eq)
-		if (isl_seq_first_non_zero(bset->eq[f_eq + n_eq] + otype, ntype) == -1)
+		if (!isl_seq_any_non_zero(bset->eq[f_eq + n_eq] + otype, ntype))
 			break;
 	if (n_eq == 0)
 		return isl_morph_identity(bset);
@@ -591,8 +594,8 @@ __isl_give isl_morph *isl_basic_set_parameter_compression(
 	if (nparam < 0 || nvar < 0 || n_div < 0)
 		return NULL;
 
-	if (isl_seq_first_non_zero(bset->eq[bset->n_eq - 1] + 1 + nparam,
-				    nvar + n_div) == -1)
+	if (!isl_seq_any_non_zero(bset->eq[bset->n_eq - 1] + 1 + nparam,
+				    nvar + n_div))
 		isl_die(isl_basic_set_get_ctx(bset), isl_error_invalid,
 			"input not allowed to have parameter equalities",
 			return NULL);

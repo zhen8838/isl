@@ -413,138 +413,37 @@ __isl_give isl_aff *isl_local_space_get_div(__isl_keep isl_local_space *ls,
 		return drop_unknown_divs_and_extract_div(ls, pos);
 }
 
-/* Return the space of "ls".
- */
-__isl_keep isl_space *isl_local_space_peek_space(__isl_keep isl_local_space *ls)
-{
-	if (!ls)
-		return NULL;
+#undef TYPE
+#define TYPE	isl_local_space
 
-	return ls->dim;
-}
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_space
+#undef FIELD_NAME
+#define FIELD_NAME	dim
+#undef PROPERTY
+#define PROPERTY	space
 
-__isl_give isl_space *isl_local_space_get_space(__isl_keep isl_local_space *ls)
-{
-	return isl_space_copy(isl_local_space_peek_space(ls));
-}
+#include "isl_peek_templ.c"
+#include "isl_get_templ.c"
+#include "isl_take_templ.c"
+#include "isl_restore_templ.c"
 
-/* Return the space of "ls".
- * This may be either a copy or the space itself
- * if there is only one reference to "ls".
- * This allows the space to be modified inplace
- * if both the local space and its space have only a single reference.
- * The caller is not allowed to modify "ls" between this call and
- * a subsequent call to isl_local_space_restore_space.
- * The only exception is that isl_local_space_free can be called instead.
- */
-__isl_give isl_space *isl_local_space_take_space(__isl_keep isl_local_space *ls)
-{
-	isl_space *space;
+#undef TYPE
+#define TYPE	isl_local_space
 
-	if (!ls)
-		return NULL;
-	if (ls->ref != 1)
-		return isl_local_space_get_space(ls);
-	space = ls->dim;
-	ls->dim = NULL;
-	return space;
-}
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_local
+#undef FIELD_NAME
+#define FIELD_NAME	div
+#undef PROPERTY
+#define PROPERTY	local
 
-/* Set the space of "ls" to "space", where the space of "ls" may be missing
- * due to a preceding call to isl_local_space_take_space.
- * However, in this case, "ls" only has a single reference and
- * then the call to isl_local_space_cow has no effect.
- */
-__isl_give isl_local_space *isl_local_space_restore_space(
-	__isl_take isl_local_space *ls, __isl_take isl_space *space)
-{
-	if (!ls || !space)
-		goto error;
-
-	if (ls->dim == space) {
-		isl_space_free(space);
-		return ls;
-	}
-
-	ls = isl_local_space_cow(ls);
-	if (!ls)
-		goto error;
-	isl_space_free(ls->dim);
-	ls->dim = space;
-
-	return ls;
-error:
-	isl_local_space_free(ls);
-	isl_space_free(space);
-	return NULL;
-}
-
-/* Return the local variables of "ls".
- */
-__isl_keep isl_local *isl_local_space_peek_local(__isl_keep isl_local_space *ls)
-{
-	return ls ? ls->div : NULL;
-}
-
-/* Return a copy of the local variables of "ls".
- */
-__isl_give isl_local *isl_local_space_get_local(__isl_keep isl_local_space *ls)
-{
-	return isl_local_copy(isl_local_space_peek_local(ls));
-}
-
-/* Return the local variables of "ls".
- * This may be either a copy or the local variables itself
- * if there is only one reference to "ls".
- * This allows the local variables to be modified inplace
- * if both the local space and its local variables have only a single reference.
- * The caller is not allowed to modify "ls" between this call and
- * the subsequent call to isl_local_space_restore_local.
- * The only exception is that isl_local_space_free can be called instead.
- */
-static __isl_give isl_local *isl_local_space_take_local(
-	__isl_keep isl_local_space *ls)
-{
-	isl_local *local;
-
-	if (!ls)
-		return NULL;
-	if (ls->ref != 1)
-		return isl_local_space_get_local(ls);
-	local = ls->div;
-	ls->div = NULL;
-	return local;
-}
-
-/* Set the local variables of "ls" to "local",
- * where the local variables of "ls" may be missing
- * due to a preceding call to isl_local_space_take_local.
- * However, in this case, "ls" only has a single reference and
- * then the call to isl_local_space_cow has no effect.
- */
-static __isl_give isl_local_space *isl_local_space_restore_local(
-	__isl_take isl_local_space *ls, __isl_take isl_local *local)
-{
-	if (!ls || !local)
-		goto error;
-
-	if (ls->div == local) {
-		isl_local_free(local);
-		return ls;
-	}
-
-	ls = isl_local_space_cow(ls);
-	if (!ls)
-		goto error;
-	isl_local_free(ls->div);
-	ls->div = local;
-
-	return ls;
-error:
-	isl_local_space_free(ls);
-	isl_local_free(local);
-	return NULL;
-}
+#include "isl_peek_templ.c"
+#include "isl_get_templ.c"
+static
+#include "isl_take_templ.c"
+static
+#include "isl_restore_templ.c"
 
 /* Replace the identifier of the tuple of type "type" by "id".
  */
@@ -1379,8 +1278,7 @@ static isl_bool is_linear_div_constraint(__isl_keep isl_local_space *ls,
 	} else {
 		return isl_bool_false;
 	}
-	if (isl_seq_first_non_zero(constraint + pos + 1,
-				    ls->div->n_row - div - 1) != -1)
+	if (isl_seq_any_non_zero(constraint + pos + 1, ls->div->n_row - div - 1))
 		return isl_bool_false;
 	return isl_bool_true;
 }
@@ -1454,9 +1352,10 @@ isl_bool isl_local_space_is_div_equality(__isl_keep isl_local_space *ls,
 	return isl_bool_ok(sign < 0);
 }
 
-/*
- * Set active[i] to 1 if the dimension at position i is involved
- * in the linear expression l.
+/* Return an array of integers, one for each variable of "ls",
+ * with entry i set to 1 if the variable at position i is involved
+ * in the linear expression "l".  This includes variables that appear
+ * in the definition of local variables that appear in "l".
  */
 int *isl_local_space_get_active(__isl_keep isl_local_space *ls, isl_int *l)
 {

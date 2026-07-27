@@ -689,12 +689,12 @@ std::string csharp_type_printer::generate_callback_args(int arg, QualType type,
   int num_params;
 
   callback = generator::extract_prototype(type);
-  num_params = callback->getNumArgs();
+  num_params = callback->getNumParams();
   if (csharp)
     num_params--;
 
   for (long i = 0; i < num_params; i++) {
-    QualType type = callback->getArgType(i);
+    QualType type = callback->getParamType(i);
 
     if (csharp)
       type_str += param(arg + 1 + i, type);
@@ -726,7 +726,7 @@ std::string csharp_type_printer::generate_callback_type(int arg, QualType type,
                                                         bool csharp) const {
   std::string type_str;
   const FunctionProtoType *callback = generator::extract_prototype(type);
-  auto num_params = callback->getNumArgs();
+  auto num_params = callback->getNumParams();
   if (csharp)
     num_params--;
 

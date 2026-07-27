@@ -1,3 +1,20 @@
+version: 0.28
+date: Sat Jun 27 06:55:22 PM CEST 2026
+changes:
+	- improved fixed-size rectangular box hull
+	- improved integer division detection
+	- improved stride detection
+---
+version: 0.27
+date: Sun Sep  1 12:07:24 PM CEST 2024
+changes:
+	- improved modulo detection
+	- remove all unused local variables from affine expressions
+	- minor improvements to coalescing
+	- minor improvements to lexicographic optimization
+	- improved constraint simplification
+	- fix handling of empty piecewise expressions
+---
 version: 0.26
 date: Sat Apr  1 05:10:53 PM CEST 2023
 changes:

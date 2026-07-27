@@ -21,11 +21,10 @@ the repository. A first CI job builds that tool, runs it and hands the result
 to the wheel builds, so changing a header is all a change takes.
 
 Building from a source checkout means generating them first, which needs
-clang 17 (isl 0.26 uses a `SourceManager::createFileID` overload that clang 18
-removed):
+clang; isl adapts to the version it finds:
 
 ```sh
-./configure --with-clang-prefix=/path/to/llvm-17 --with-int=imath
+./configure --with-clang=system --with-int=imath
 make interface/isl.py.core interface/Interop.cs
 ```
 

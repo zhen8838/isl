@@ -448,9 +448,9 @@ Installation prefix for C<GMP> (architecture-dependent files).
 
 =head2 Building the foreign language bindings
 
-The tarball already contains the generated foreign language bindings,
-but they are not included in the git repository.
-Building the C++ and Python bindings relies on the LLVM/clang libraries,
+The tarball and the git repository already contain the generated
+foreign language bindings, but rebuilding them requires
+the LLVM/clang libraries,
 see C<http://clang.llvm.org/get_started.html>.
 The C<configure> script will not assume that these are available
 on the system.
@@ -469,8 +469,8 @@ Use the system clang libraries installed in I<path>.
 
 =back
 
-It is best to use the latest release of the clang libraries (16.0),
-although any release since 3.5 should work as well.
+It is best to use the latest release of the clang libraries (22.1),
+although any release since 3.9 should work as well.
 Note that if you build the clang libraries from source,
 then you need to make sure they are also installed (using C<make install>).
 If the compiler that was used to compile the clang libraries
@@ -620,6 +620,9 @@ in which the object was created.
 		__isl_keep isl_union_pw_multi_aff *upma);
 	isl_ctx *isl_multi_union_pw_aff_get_ctx(
 		__isl_keep isl_multi_union_pw_aff *mupa);
+
+	#include <isl/id_set.h>
+	isl_ctx *isl_id_set_get_ctx(__isl_keep isl_id_set *set);
 
 	#include <isl/id_to_ast_expr.h>
 	isl_ctx *isl_id_to_ast_expr_get_ctx(
@@ -2669,6 +2672,22 @@ represents an equality.  If not, it represents an inequality.
 
 	isl_bool isl_constraint_is_equality(
 		__isl_keep isl_constraint *constraint);
+
+The function C<isl_basic_set_foreach_opposite_constraint_pair>
+iterates over special pairs of constraints that may or may not appear
+in the description of C<bset>.  In particular, the callback C<fn>
+is called (once) for each pair of constraints that have opposite
+coefficients for all variables.  The value C<d> is the sum
+of the constant terms of the two constraints.  Only one of the two
+constraints is passed in, since the other one can be constructed
+from the given constraint and C<d>.
+
+	#include <isl/constraint.h>
+	isl_stat isl_basic_set_foreach_opposite_constraint_pair(
+		__isl_keep isl_basic_set *bset,
+		isl_stat (*fn)(__isl_take isl_constraint *c,
+			__isl_take isl_val *d,
+			void *user), void *user);
 
 It is also possible to obtain a list of constraints from a basic
 map or set
@@ -5247,6 +5266,9 @@ return true if the objects are not the same.
 		__isl_keep isl_multi_id *mi2);
 
 	#include <isl/val.h>
+	isl_bool isl_multi_val_is_equal(
+		__isl_keep isl_multi_val *mv1,
+		__isl_keep isl_multi_val *mv2);
 	isl_bool isl_multi_val_plain_is_equal(
 		__isl_keep isl_multi_val *mv1,
 		__isl_keep isl_multi_val *mv2);
@@ -6450,8 +6472,16 @@ variables, then the result of these operations is currently undefined.
 		__isl_take isl_map *map,
 		__isl_take isl_map_list *list);
 
+	#include <isl/union_set.h>
+	__isl_give isl_union_set *
+	isl_union_set_plain_unshifted_simple_hull(
+		__isl_take isl_union_set *uset);
+
 	#include <isl/union_map.h>
 	__isl_give isl_union_map *isl_union_map_simple_hull(
+		__isl_take isl_union_map *umap);
+	__isl_give isl_union_map *
+	isl_union_map_plain_unshifted_simple_hull(
 		__isl_take isl_union_map *umap);
 
 These functions compute a single basic set or relation
@@ -6552,6 +6582,14 @@ The box can be copied and freed using the following functions.
 		__isl_keep isl_fixed_box *box);
 	__isl_null isl_fixed_box *isl_fixed_box_free(
 		__isl_take isl_fixed_box *box);
+
+The following function checks whether two C<isl_fixed_box> objects
+are obviously the same.
+
+	#include <isl/fixed_box.h>
+	isl_bool isl_fixed_box_plain_is_equal(
+		__isl_keep isl_fixed_box *box1,
+		__isl_keep isl_fixed_box *box2);
 
 An object of type C<isl_fixed_box> can be read from input
 using the following function.
@@ -7304,6 +7342,11 @@ are not sufficient.
 	__isl_give isl_local_space *isl_local_space_drop_dims(
 		__isl_take isl_local_space *ls,
 		enum isl_dim_type type, unsigned first, unsigned n);
+
+	#include <isl/constraint.h>
+	__isl_give isl_constraint *
+	isl_constraint_drop_all_locals(
+		__isl_take isl_constraint *c);
 
 	#include <isl/set.h>
 	__isl_give isl_basic_set *isl_basic_set_add_dims(
@@ -9746,6 +9789,69 @@ They can be read from input using the following function.
 	__isl_give isl_id_to_ast_expr *
 	isl_id_to_ast_expr_read_from_str(isl_ctx *ctx,
 		const char *str);
+
+=head2 Sets of Objects
+
+Sets of objects collect isl objects of a specific type.
+They are currently only defined for C<isl_id>.
+
+Sets of objects can be created, copied and freed using
+the following functions.
+
+	#include <isl/id_set.h>
+	__isl_give isl_id_set *isl_id_set_alloc(
+		isl_ctx *ctx, int min_size);
+	__isl_give isl_id_set *isl_id_set_copy(
+		__isl_keep isl_id_set *set);
+	__isl_null isl_id_set *isl_id_set_free(
+		__isl_take isl_id_set *set);
+
+The C<min_size> argument to C<isl_id_set_alloc> can be used
+to specify the expected size of the set of objects.
+The set of objects will be grown automatically as needed.
+
+Sets of objects can be inspected using the following function.
+
+	#include <isl/id_set.h>
+	isl_bool isl_id_set_has(__isl_keep isl_id_set *set,
+		__isl_keep isl_id *el);
+
+Sets of objects can be modified using the following functions.
+
+	#include <isl/id_set.h>
+	__isl_give isl_id_set *isl_id_set_insert(
+		__isl_take isl_id_set *set,
+		__isl_take isl_id *el);
+	__isl_give isl_id_set *isl_id_set_drop(
+		__isl_take isl_id_set *set,
+		__isl_take isl_id *el);
+
+Sets of objects can be checked for (obvious) equality
+using the following function.
+
+	#include <isl/id_set.h>
+	isl_bool isl_id_set_is_equal(
+		__isl_take isl_id_set *set1,
+		__isl_take isl_id_set *set2);
+
+Note that depending on how the keys and values are being compared,
+for other types of keys and/or values, this function may be called
+C<plain_is_equal> rather than C<is_equal>.
+
+Sets of objects can be printed using the following functions.
+
+	#include <isl/id_set.h>
+	__isl_give isl_printer *isl_printer_print_id_set(
+		__isl_take isl_printer *p,
+		__isl_keep isl_id_set *set);
+	__isl_give char *isl_id_set_to_str(
+		__isl_keep isl_id_set *set);
+
+They can be read from input using the following function.
+
+	#include <isl/id_set.h>
+	__isl_give isl_id_set * isl_id_set_read_from_str(
+		isl_ctx *ctx, const char *str);
 
 =head2 Vectors
 

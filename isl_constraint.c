@@ -27,19 +27,28 @@
 
 #include <isl_list_templ.c>
 
+#undef TYPE
+#define TYPE	isl_constraint
+
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_local_space
+#undef FIELD_NAME
+#define FIELD_NAME	ls
+#undef PROPERTY
+#define PROPERTY	local_space
+
+static
+#include "isl_peek_templ.c"
+#include "isl_get_templ.c"
+
 isl_ctx *isl_constraint_get_ctx(__isl_keep isl_constraint *c)
 {
-	return c ? isl_local_space_get_ctx(c->ls) : NULL;
-}
-
-static isl_size n(__isl_keep isl_constraint *c, enum isl_dim_type type)
-{
-	return isl_local_space_dim(c->ls, type);
+	return isl_local_space_get_ctx(isl_constraint_peek_local_space(c));
 }
 
 static unsigned offset(__isl_keep isl_constraint *c, enum isl_dim_type type)
 {
-	return isl_local_space_offset(c->ls, type);
+	return isl_local_space_offset(isl_constraint_peek_local_space(c), type);
 }
 
 __isl_give isl_constraint *isl_constraint_alloc_vec(int eq,
@@ -306,12 +315,15 @@ int isl_constraint_is_equal(__isl_keep isl_constraint *constraint1,
 	__isl_keep isl_constraint *constraint2)
 {
 	int equal;
+	isl_local_space *ls1, *ls2;
 
 	if (!constraint1 || !constraint2)
 		return 0;
 	if (constraint1->eq != constraint2->eq)
 		return 0;
-	equal = isl_local_space_is_equal(constraint1->ls, constraint2->ls);
+	ls1 = isl_constraint_peek_local_space(constraint1);
+	ls2 = isl_constraint_peek_local_space(constraint2);
+	equal = isl_local_space_is_equal(ls1, ls2);
 	if (equal < 0 || !equal)
 		return equal;
 	return isl_vec_is_equal(constraint1->v, constraint2->v);
@@ -371,7 +383,10 @@ __isl_give isl_set *isl_set_add_constraint(__isl_take isl_set *set,
 static __isl_keep isl_space *isl_constraint_peek_space(
 	__isl_keep isl_constraint *constraint)
 {
-	return constraint ? isl_local_space_peek_space(constraint->ls) : NULL;
+	isl_local_space *ls;
+
+	ls = isl_constraint_peek_local_space(constraint);
+	return isl_local_space_peek_space(ls);
 }
 
 __isl_give isl_space *isl_constraint_get_space(
@@ -380,18 +395,44 @@ __isl_give isl_space *isl_constraint_get_space(
 	return constraint ? isl_local_space_get_space(constraint->ls) : NULL;
 }
 
-__isl_give isl_local_space *isl_constraint_get_local_space(
-	__isl_keep isl_constraint *constraint)
-{
-	return constraint ? isl_local_space_copy(constraint->ls) : NULL;
-}
+#undef TYPE
+#define TYPE	isl_constraint
+
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_local_space
+#undef FIELD_NAME
+#define FIELD_NAME	ls
+#undef PROPERTY
+#define PROPERTY	local_space
+
+static
+#include "isl_take_templ.c"
+static
+#include "isl_restore_templ.c"
+
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_vec
+#undef FIELD_NAME
+#define FIELD_NAME	v
+#undef PROPERTY
+#define PROPERTY	int_aff
+
+static
+#include "isl_peek_templ.c"
+static
+#include "isl_get_templ.c"
+static
+#include "isl_take_templ.c"
+static
+#include "isl_restore_templ.c"
 
 isl_size isl_constraint_dim(__isl_keep isl_constraint *constraint,
 	enum isl_dim_type type)
 {
-	if (!constraint)
-		return isl_size_error;
-	return n(constraint, type);
+	isl_local_space *ls;
+
+	ls = isl_constraint_peek_local_space(constraint);
+	return isl_local_space_dim(ls, type);
 }
 
 #undef TYPE
@@ -404,24 +445,27 @@ isl_bool isl_constraint_involves_dims(__isl_keep isl_constraint *constraint,
 {
 	int i;
 	int *active = NULL;
+	isl_size off;
 	isl_bool involves = isl_bool_false;
+	isl_local_space *ls;
 
-	if (!constraint)
+	ls = isl_constraint_peek_local_space(constraint);
+	if (!ls)
 		return isl_bool_error;
 	if (n == 0)
 		return isl_bool_false;
 
-	if (isl_constraint_check_range(constraint, type, first, n) < 0)
+	off = isl_local_space_var_offset(ls, type);
+	if (off < 0 ||
+	    isl_constraint_check_range(constraint, type, first, n) < 0)
 		return isl_bool_error;
 
-	active = isl_local_space_get_active(constraint->ls,
-					    constraint->v->el + 1);
+	active = isl_local_space_get_active(ls, constraint->v->el + 1);
 	if (!active)
 		goto error;
 
-	first += isl_local_space_offset(constraint->ls, type) - 1;
 	for (i = 0; i < n; ++i)
-		if (active[first + i]) {
+		if (active[off + first + i]) {
 			involves = isl_bool_true;
 			break;
 		}
@@ -463,8 +507,10 @@ isl_bool isl_constraint_is_upper_bound(__isl_keep isl_constraint *constraint,
 const char *isl_constraint_get_dim_name(__isl_keep isl_constraint *constraint,
 	enum isl_dim_type type, unsigned pos)
 {
-	return constraint ?
-	    isl_local_space_get_dim_name(constraint->ls, type, pos) : NULL;
+	isl_local_space *ls;
+
+	ls = isl_constraint_peek_local_space(constraint);
+	return isl_local_space_get_dim_name(ls, type, pos);
 }
 
 void isl_constraint_get_constant(__isl_keep isl_constraint *constraint,
@@ -518,10 +564,10 @@ __isl_give isl_val *isl_constraint_get_coefficient_val(
 __isl_give isl_aff *isl_constraint_get_div(__isl_keep isl_constraint *constraint,
 	int pos)
 {
-	if (!constraint)
-		return NULL;
+	isl_local_space *ls;
 
-	return isl_local_space_get_div(constraint->ls, pos);
+	ls = isl_constraint_peek_local_space(constraint);
+	return isl_local_space_get_div(ls, pos);
 }
 
 __isl_give isl_constraint *isl_constraint_set_constant(
@@ -639,6 +685,36 @@ __isl_give isl_constraint *isl_constraint_negate(
 	return constraint;
 }
 
+/* Drop all local variables from the constraints.
+ */
+__isl_give isl_constraint *isl_constraint_drop_all_locals(
+	__isl_take isl_constraint *c)
+{
+	isl_local_space *ls;
+	isl_vec *v;
+	isl_size n_div, dim;
+
+	n_div = isl_constraint_dim(c, isl_dim_div);
+	if (n_div < 0)
+		return isl_constraint_free(c);
+	if (n_div == 0)
+		return c;
+	dim = isl_constraint_dim(c, isl_dim_all);
+	if (dim < 0)
+		return isl_constraint_free(c);
+
+	ls = isl_constraint_take_local_space(c);
+	v = isl_constraint_take_int_aff(c);
+
+	ls = isl_local_space_drop_dims(ls, isl_dim_div, 0, n_div);
+	v = isl_vec_drop_els(v, 1 + dim - n_div, n_div);
+
+	c = isl_constraint_restore_int_aff(c, v);
+	c = isl_constraint_restore_local_space(c, ls);
+
+	return c;
+}
+
 isl_bool isl_constraint_is_equality(struct isl_constraint *constraint)
 {
 	if (!constraint)
@@ -650,6 +726,7 @@ isl_bool isl_constraint_is_div_constraint(__isl_keep isl_constraint *constraint)
 {
 	int i;
 	isl_size n_div;
+	isl_local_space *ls;
 
 	if (!constraint)
 		return isl_bool_error;
@@ -658,9 +735,10 @@ isl_bool isl_constraint_is_div_constraint(__isl_keep isl_constraint *constraint)
 	n_div = isl_constraint_dim(constraint, isl_dim_div);
 	if (n_div < 0)
 		return isl_bool_error;
+	ls = isl_constraint_peek_local_space(constraint);
 	for (i = 0; i < n_div; ++i) {
 		isl_bool is_div;
-		is_div = isl_local_space_is_div_constraint(constraint->ls,
+		is_div = isl_local_space_is_div_constraint(ls,
 							constraint->v->el, i);
 		if (is_div < 0 || is_div)
 			return is_div;
@@ -687,12 +765,13 @@ isl_bool isl_constraint_is_div_equality(__isl_keep isl_constraint *constraint,
 	unsigned div)
 {
 	isl_bool equality;
+	isl_local_space *ls;
 
 	equality = isl_constraint_is_equality(constraint);
 	if (equality < 0 || !equality)
 		return equality;
-	return isl_local_space_is_div_equality(constraint->ls,
-						constraint->v->el, div);
+	ls = isl_constraint_peek_local_space(constraint);
+	return isl_local_space_is_div_equality(ls, constraint->v->el, div);
 }
 
 /* We manually set ISL_BASIC_SET_FINAL instead of calling
@@ -776,8 +855,8 @@ isl_bool isl_basic_map_has_defining_equality(
 		return isl_bool_error;
 	for (i = 0; i < bmap->n_eq; ++i) {
 		if (isl_int_is_zero(bmap->eq[i][offset + pos]) ||
-		    isl_seq_first_non_zero(bmap->eq[i]+offset+pos+1,
-					   1+total-offset-pos-1) != -1)
+		    isl_seq_any_non_zero(bmap->eq[i]+offset+pos+1,
+					   1+total-offset-pos-1))
 			continue;
 		if (c)
 			*c = isl_basic_map_constraint(isl_basic_map_copy(bmap),
@@ -825,8 +904,8 @@ isl_bool isl_basic_set_has_defining_inequalities(
 			continue;
 		if (isl_int_is_negone(bset->ineq[i][offset + pos]))
 			continue;
-		if (isl_seq_first_non_zero(bset->ineq[i]+offset+pos+1,
-						1+total-offset-pos-1) != -1)
+		if (isl_seq_any_non_zero(bset->ineq[i]+offset+pos+1,
+						1+total-offset-pos-1))
 			continue;
 		for (j = i + 1; j < bset->n_ineq; ++j) {
 			if (!isl_seq_is_neg(bset->ineq[i]+1, bset->ineq[j]+1,
@@ -1315,6 +1394,7 @@ int isl_constraint_plain_cmp(__isl_keep isl_constraint *c1,
 {
 	int cmp;
 	int last1, last2;
+	isl_local_space *ls1, *ls2;
 
 	if (c1 == c2)
 		return 0;
@@ -1322,7 +1402,9 @@ int isl_constraint_plain_cmp(__isl_keep isl_constraint *c1,
 		return -1;
 	if (!c2)
 		return 1;
-	cmp = isl_local_space_cmp(c1->ls, c2->ls);
+	ls1 = isl_constraint_peek_local_space(c1);
+	ls2 = isl_constraint_peek_local_space(c2);
+	cmp = isl_local_space_cmp(ls1, ls2);
 	if (cmp != 0)
 		return cmp;
 
@@ -1350,6 +1432,7 @@ int isl_constraint_cmp_last_non_zero(__isl_keep isl_constraint *c1,
 {
 	int cmp;
 	int last1, last2;
+	isl_local_space *ls1, *ls2;
 
 	if (c1 == c2)
 		return 0;
@@ -1357,7 +1440,9 @@ int isl_constraint_cmp_last_non_zero(__isl_keep isl_constraint *c1,
 		return -1;
 	if (!c2)
 		return 1;
-	cmp = isl_local_space_cmp(c1->ls, c2->ls);
+	ls1 = isl_constraint_peek_local_space(c1);
+	ls2 = isl_constraint_peek_local_space(c2);
+	cmp = isl_local_space_cmp(ls1, ls2);
 	if (cmp != 0)
 		return cmp;
 
