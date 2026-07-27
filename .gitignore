@@ -91,3 +91,6 @@ interface/Interop.cs
 
 # local build environment (CPATH for the macOS SDK, ...)
 .env
+
+__pycache__/
+*.pyc
