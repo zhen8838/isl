@@ -34,18 +34,6 @@ isl_ctx *isl_point_get_ctx(__isl_keep isl_point *pnt)
 	return pnt ? isl_space_get_ctx(pnt->dim) : NULL;
 }
 
-/* Return the space of "pnt".
- */
-__isl_keep isl_space *isl_point_peek_space(__isl_keep isl_point *pnt)
-{
-	return pnt ? pnt->dim : NULL;
-}
-
-__isl_give isl_space *isl_point_get_space(__isl_keep isl_point *pnt)
-{
-	return isl_space_copy(isl_point_peek_space(pnt));
-}
-
 #undef TYPE1
 #define TYPE1		isl_basic_map
 #undef TYPE2
@@ -177,122 +165,35 @@ isl_bool isl_point_is_void(__isl_keep isl_point *pnt)
 	return isl_bool_ok(pnt->vec->size == 0);
 }
 
-/* Return the space of "pnt".
- * This may be either a copy or the space itself
- * if there is only one reference to "pnt".
- * This allows the space to be modified inplace
- * if both the point and its space have only a single reference.
- * The caller is not allowed to modify "pnt" between this call and
- * a subsequent call to isl_point_restore_space.
- * The only exception is that isl_point_free can be called instead.
- */
-__isl_give isl_space *isl_point_take_space(__isl_keep isl_point *pnt)
-{
-	isl_space *space;
+#undef TYPE
+#define TYPE	isl_point
 
-	if (!pnt)
-		return NULL;
-	if (pnt->ref != 1)
-		return isl_point_get_space(pnt);
-	space = pnt->dim;
-	pnt->dim = NULL;
-	return space;
-}
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_space
+#undef FIELD_NAME
+#define FIELD_NAME	dim
+#undef PROPERTY
+#define PROPERTY	space
 
-/* Set the space of "pnt" to "space", where the space of "pnt" may be missing
- * due to a preceding call to isl_point_take_space.
- * However, in this case, "pnt" only has a single reference and
- * then the call to isl_point_cow has no effect.
- */
-__isl_give isl_point *isl_point_restore_space(__isl_take isl_point *pnt,
-	__isl_take isl_space *space)
-{
-	if (!pnt || !space)
-		goto error;
+#include "isl_peek_templ.c"
+#include "isl_get_templ.c"
+#include "isl_take_templ.c"
+#include "isl_restore_templ.c"
 
-	if (pnt->dim == space) {
-		isl_space_free(space);
-		return pnt;
-	}
+#undef TYPE
+#define TYPE	isl_point
 
-	pnt = isl_point_cow(pnt);
-	if (!pnt)
-		goto error;
-	isl_space_free(pnt->dim);
-	pnt->dim = space;
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_vec
+#undef FIELD_NAME
+#define FIELD_NAME	vec
+#undef PROPERTY
+#define PROPERTY	vec
 
-	return pnt;
-error:
-	isl_point_free(pnt);
-	isl_space_free(space);
-	return NULL;
-}
-
-/* Return the coordinate vector of "pnt".
- */
-__isl_keep isl_vec *isl_point_peek_vec(__isl_keep isl_point *pnt)
-{
-	return pnt ? pnt->vec : NULL;
-}
-
-/* Return a copy of the coordinate vector of "pnt".
- */
-__isl_give isl_vec *isl_point_get_vec(__isl_keep isl_point *pnt)
-{
-	return isl_vec_copy(isl_point_peek_vec(pnt));
-}
-
-/* Return the coordinate vector of "pnt".
- * This may be either a copy or the coordinate vector itself
- * if there is only one reference to "pnt".
- * This allows the coordinate vector to be modified inplace
- * if both the point and its coordinate vector have only a single reference.
- * The caller is not allowed to modify "pnt" between this call and
- * a subsequent call to isl_point_restore_vec.
- * The only exception is that isl_point_free can be called instead.
- */
-__isl_give isl_vec *isl_point_take_vec(__isl_keep isl_point *pnt)
-{
-	isl_vec *vec;
-
-	if (!pnt)
-		return NULL;
-	if (pnt->ref != 1)
-		return isl_point_get_vec(pnt);
-	vec = pnt->vec;
-	pnt->vec = NULL;
-	return vec;
-}
-
-/* Set the coordinate vector of "pnt" to "vec",
- * where the coordinate vector of "pnt" may be missing
- * due to a preceding call to isl_point_take_vec.
- * However, in this case, "pnt" only has a single reference and
- * then the call to isl_point_cow has no effect.
- */
-__isl_give isl_point *isl_point_restore_vec(__isl_take isl_point *pnt,
-	__isl_take isl_vec *vec)
-{
-	if (!pnt || !vec)
-		goto error;
-
-	if (pnt->vec == vec) {
-		isl_vec_free(vec);
-		return pnt;
-	}
-
-	pnt = isl_point_cow(pnt);
-	if (!pnt)
-		goto error;
-	isl_vec_free(pnt->vec);
-	pnt->vec = vec;
-
-	return pnt;
-error:
-	isl_point_free(pnt);
-	isl_vec_free(vec);
-	return NULL;
-}
+#include "isl_peek_templ.c"
+#include "isl_get_templ.c"
+#include "isl_take_templ.c"
+#include "isl_restore_templ.c"
 
 /* Return the number of variables of the given type.
  */

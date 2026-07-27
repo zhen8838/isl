@@ -507,6 +507,11 @@ static int number_of_constraints_increases(int i, int j,
  * Eliminate those that do not appear with any other coefficient
  * in other constraints, to ensure they get eliminated completely,
  * improving the chances of further coalescing.
+ *
+ * Factor out any (hidden) common factor from the constraint
+ * coefficients of the fused basic map
+ * to improve the detection of adjacent constraints
+ * with respect to other basic maps.
  */
 static enum isl_change fuse(int i, int j, struct isl_coalesce_info *info,
 	__isl_keep isl_mat *extra, int detect_equalities, int check_number)
@@ -567,6 +572,7 @@ static enum isl_change fuse(int i, int j, struct isl_coalesce_info *info,
 		fused = isl_basic_map_eliminate_pure_unit_divs(fused);
 	}
 	fused = isl_basic_map_finalize(fused);
+	fused = isl_basic_map_reduce_coefficients(fused);
 
 	fused_tab = isl_tab_from_basic_map(fused, 0);
 	if (isl_tab_detect_redundant(fused_tab) < 0)
@@ -3594,7 +3600,6 @@ static enum isl_change coalesce_divs(int i, int j,
  */
 static isl_bool has_nested_div(__isl_keep isl_basic_map *bmap)
 {
-	int i;
 	isl_size total;
 	isl_size n_div;
 
@@ -3604,12 +3609,7 @@ static isl_bool has_nested_div(__isl_keep isl_basic_map *bmap)
 		return isl_bool_error;
 	total -= n_div;
 
-	for (i = 0; i < n_div; ++i)
-		if (isl_seq_first_non_zero(bmap->div[i] + 2 + total,
-					    n_div) != -1)
-			return isl_bool_true;
-
-	return isl_bool_false;
+	return isl_basic_map_any_div_involves_vars(bmap, total, n_div);
 }
 
 /* Return a list of affine expressions, one for each integer division
@@ -4202,6 +4202,7 @@ __isl_give isl_map *isl_map_coalesce(__isl_take isl_map *map)
 	struct isl_coalesce_info *info = NULL;
 
 	map = isl_map_remove_empty_parts(map);
+	map = isl_map_remove_obvious_duplicates(map);
 	if (!map)
 		return NULL;
 

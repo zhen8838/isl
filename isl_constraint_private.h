@@ -18,6 +18,9 @@ struct isl_constraint {
 
 #include <isl_list_templ.h>
 
+__isl_give isl_constraint *isl_constraint_alloc_vec(int eq,
+	__isl_take isl_local_space *ls, __isl_take isl_vec *v);
+
 __isl_give isl_constraint *isl_basic_set_constraint(
 	__isl_take isl_basic_set *bset, isl_int **line);
 

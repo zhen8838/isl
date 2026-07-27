@@ -1,5 +1,6 @@
 #include <isl/options.h>
 #include <isl/id.h>
+#include <isl/id_set.h>
 #include <isl/id_to_id.h>
 #include <isl/space.h>
 #include <isl/val.h>

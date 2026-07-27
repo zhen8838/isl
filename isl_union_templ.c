@@ -22,21 +22,19 @@ isl_ctx *FN(UNION,get_ctx)(__isl_keep UNION *u)
 	return u ? u->space->ctx : NULL;
 }
 
-/* Return the space of "u".
- */
-static __isl_keep isl_space *FN(UNION,peek_space)(__isl_keep UNION *u)
-{
-	if (!u)
-		return NULL;
-	return u->space;
-}
+#undef TYPE
+#define TYPE	UNION
 
-/* Return a copy of the space of "u".
- */
-__isl_give isl_space *FN(UNION,get_space)(__isl_keep UNION *u)
-{
-	return isl_space_copy(FN(UNION,peek_space)(u));
-}
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_space
+#undef FIELD_NAME
+#define FIELD_NAME	space
+#undef PROPERTY
+#define PROPERTY	space
+
+static
+#include "isl_peek_templ.c"
+#include "isl_get_templ.c"
 
 /* Return the number of parameters of "u", where "type"
  * is required to be set to isl_dim_param.

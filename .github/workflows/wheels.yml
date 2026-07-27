@@ -38,21 +38,20 @@ jobs:
       with:
         submodules: recursive
 
-    # isl 0.26 calls SourceManager::createFileID with a FileEntry *, which
-    # clang 18 dropped in favour of a FileEntryRef, so pin the toolchain
-    # rather than take whatever "llvm-dev" happens to point at.
+    # isl 0.28 adapts to the clang version it finds, so take whatever
+    # the distribution ships rather than pinning one.
     - name: Install clang and autotools
       run: |
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends \
           autoconf automake libtool \
-          llvm-17-dev libclang-17-dev libclang-cpp17-dev
-        /usr/lib/llvm-17/bin/llvm-config --version
+          llvm-dev libclang-dev libclang-cpp-dev
+        llvm-config --version
 
     - name: Generate
       run: |
         ./autogen.sh
-        ./configure --with-clang-prefix=/usr/lib/llvm-17 --with-int=imath
+        ./configure --with-clang=system --with-int=imath
         make interface/isl.py.core interface/Interop.cs
         wc -l interface/isl.py.core interface/Interop.cs
 

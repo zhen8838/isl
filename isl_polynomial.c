@@ -412,59 +412,23 @@ __isl_give isl_poly_rec *isl_poly_alloc_rec(isl_ctx *ctx, int var, int size)
 	return rec;
 }
 
-/* Return the domain space of "qp".
- * This may be either a copy or the space itself
- * if there is only one reference to "qp".
- * This allows the space to be modified inplace
- * if both the quasi-polynomial and its domain space
- * have only a single reference.
- * The caller is not allowed to modify "qp" between this call and
- * a subsequent call to isl_qpolynomial_restore_domain_space.
- * The only exception is that isl_qpolynomial_free can be called instead.
- */
-static __isl_give isl_space *isl_qpolynomial_take_domain_space(
-	__isl_keep isl_qpolynomial *qp)
-{
-	isl_space *space;
+#undef TYPE
+#define TYPE	isl_qpolynomial
 
-	if (!qp)
-		return NULL;
-	if (qp->ref != 1)
-		return isl_qpolynomial_get_domain_space(qp);
-	space = qp->dim;
-	qp->dim = NULL;
-	return space;
-}
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_space
+#undef FIELD_NAME
+#define FIELD_NAME	dim
+#undef PROPERTY
+#define PROPERTY	domain_space
 
-/* Set the domain space of "qp" to "space",
- * where the domain space of "qp" may be missing
- * due to a preceding call to isl_qpolynomial_take_domain_space.
- * However, in this case, "qp" only has a single reference and
- * then the call to isl_qpolynomial_cow has no effect.
- */
-static __isl_give isl_qpolynomial *isl_qpolynomial_restore_domain_space(
-	__isl_take isl_qpolynomial *qp, __isl_take isl_space *space)
-{
-	if (!qp || !space)
-		goto error;
-
-	if (qp->dim == space) {
-		isl_space_free(space);
-		return qp;
-	}
-
-	qp = isl_qpolynomial_cow(qp);
-	if (!qp)
-		goto error;
-	isl_space_free(qp->dim);
-	qp->dim = space;
-
-	return qp;
-error:
-	isl_qpolynomial_free(qp);
-	isl_space_free(space);
-	return NULL;
-}
+static
+#include "isl_peek_templ.c"
+#include "isl_get_templ.c"
+static
+#include "isl_take_templ.c"
+static
+#include "isl_restore_templ.c"
 
 __isl_give isl_qpolynomial *isl_qpolynomial_reset_domain_space(
 	__isl_take isl_qpolynomial *qp, __isl_take isl_space *space)
@@ -489,22 +453,6 @@ isl_ctx *isl_qpolynomial_get_ctx(__isl_keep isl_qpolynomial *qp)
 	return qp ? qp->dim->ctx : NULL;
 }
 
-/* Return the domain space of "qp".
- */
-static __isl_keep isl_space *isl_qpolynomial_peek_domain_space(
-	__isl_keep isl_qpolynomial *qp)
-{
-	return qp ? qp->dim : NULL;
-}
-
-/* Return a copy of the domain space of "qp".
- */
-__isl_give isl_space *isl_qpolynomial_get_domain_space(
-	__isl_keep isl_qpolynomial *qp)
-{
-	return isl_space_copy(isl_qpolynomial_peek_domain_space(qp));
-}
-
 #undef TYPE
 #define TYPE		isl_qpolynomial
 #undef PEEK_SPACE
@@ -525,59 +473,20 @@ __isl_keep isl_local *isl_qpolynomial_get_local(
 	return qp ? isl_local_copy(qp->div) : NULL;
 }
 
-/* Return the local variables of "qp".
- * This may be either a copy or the local variables themselves
- * if there is only one reference to "qp".
- * This allows the local variables to be modified in-place
- * if both the quasi-polynomial and its local variables
- * have only a single reference.
- * The caller is not allowed to modify "qp" between this call and
- * the subsequent call to isl_qpolynomial_restore_local.
- * The only exception is that isl_qpolynomial_free can be called instead.
- */
-static __isl_give isl_local *isl_qpolynomial_take_local(
-	__isl_keep isl_qpolynomial *qp)
-{
-	isl_local *local;
+#undef TYPE
+#define TYPE	isl_qpolynomial
 
-	if (!qp)
-		return NULL;
-	if (qp->ref != 1)
-		return isl_qpolynomial_get_local(qp);
-	local = qp->div;
-	qp->div = NULL;
-	return local;
-}
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_local
+#undef FIELD_NAME
+#define FIELD_NAME	div
+#undef PROPERTY
+#define PROPERTY	local
 
-/* Set the local variables of "qp" to "local",
- * where the local variables of "qp" may be missing
- * due to a preceding call to isl_qpolynomial_take_local.
- * However, in this case, "qp" only has a single reference and
- * then the call to isl_qpolynomial_cow has no effect.
- */
-static __isl_give isl_qpolynomial *isl_qpolynomial_restore_local(
-	__isl_keep isl_qpolynomial *qp, __isl_take isl_local *local)
-{
-	if (!qp || !local)
-		goto error;
-
-	if (qp->div == local) {
-		isl_local_free(local);
-		return qp;
-	}
-
-	qp = isl_qpolynomial_cow(qp);
-	if (!qp)
-		goto error;
-	isl_local_free(qp->div);
-	qp->div = local;
-
-	return qp;
-error:
-	isl_qpolynomial_free(qp);
-	isl_local_free(local);
-	return NULL;
-}
+static
+#include "isl_take_templ.c"
+static
+#include "isl_restore_templ.c"
 
 /* Return a copy of the local space on which "qp" is defined.
  */
@@ -697,13 +606,19 @@ unsigned isl_qpolynomial_domain_offset(__isl_keep isl_qpolynomial *qp,
 	}
 }
 
-/* Return the polynomial expression of "qp".
- */
-static __isl_keep isl_poly *isl_qpolynomial_peek_poly(
-	__isl_keep isl_qpolynomial *qp)
-{
-	return qp ? qp->poly : NULL;
-}
+#undef TYPE
+#define TYPE	isl_qpolynomial
+
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_poly
+#undef FIELD_NAME
+#define FIELD_NAME	poly
+#undef PROPERTY
+#define PROPERTY	poly
+
+static
+#include "isl_peek_templ.c"
+#include "isl_get_templ.c"
 
 isl_bool isl_qpolynomial_is_zero(__isl_keep isl_qpolynomial *qp)
 {
@@ -1440,66 +1355,20 @@ __isl_give isl_qpolynomial *isl_qpolynomial_copy(__isl_keep isl_qpolynomial *qp)
 	return qp;
 }
 
-/* Return a copy of the polynomial expression of "qp".
- */
-__isl_give isl_poly *isl_qpolynomial_get_poly(__isl_keep isl_qpolynomial *qp)
-{
-	return isl_poly_copy(isl_qpolynomial_peek_poly(qp));
-}
+#undef TYPE
+#define TYPE	isl_qpolynomial
 
-/* Return the polynomial expression of "qp".
- * This may be either a copy or the polynomial expression itself
- * if there is only one reference to "qp".
- * This allows the polynomial expression to be modified inplace
- * if both the quasi-polynomial and its polynomial expression
- * have only a single reference.
- * The caller is not allowed to modify "qp" between this call and
- * a subsequent call to isl_qpolynomial_restore_poly.
- * The only exception is that isl_qpolynomial_free can be called instead.
- */
-static __isl_give isl_poly *isl_qpolynomial_take_poly(
-	__isl_keep isl_qpolynomial *qp)
-{
-	isl_poly *poly;
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_poly
+#undef FIELD_NAME
+#define FIELD_NAME	poly
+#undef PROPERTY
+#define PROPERTY	poly
 
-	if (!qp)
-		return NULL;
-	if (qp->ref != 1)
-		return isl_qpolynomial_get_poly(qp);
-	poly = qp->poly;
-	qp->poly = NULL;
-	return poly;
-}
-
-/* Set the polynomial expression of "qp" to "space",
- * where the polynomial expression of "qp" may be missing
- * due to a preceding call to isl_qpolynomial_take_poly.
- * However, in this case, "qp" only has a single reference and
- * then the call to isl_qpolynomial_cow has no effect.
- */
-static __isl_give isl_qpolynomial *isl_qpolynomial_restore_poly(
-	__isl_keep isl_qpolynomial *qp, __isl_take isl_poly *poly)
-{
-	if (!qp || !poly)
-		goto error;
-
-	if (qp->poly == poly) {
-		isl_poly_free(poly);
-		return qp;
-	}
-
-	qp = isl_qpolynomial_cow(qp);
-	if (!qp)
-		goto error;
-	isl_poly_free(qp->poly);
-	qp->poly = poly;
-
-	return qp;
-error:
-	isl_qpolynomial_free(qp);
-	isl_poly_free(poly);
-	return NULL;
-}
+static
+#include "isl_take_templ.c"
+static
+#include "isl_restore_templ.c"
 
 __isl_give isl_qpolynomial *isl_qpolynomial_dup(__isl_keep isl_qpolynomial *qp)
 {
@@ -2431,7 +2300,7 @@ __isl_give isl_qpolynomial *isl_qpolynomial_var_on_domain(
 {
 	isl_size off;
 
-	if (isl_space_check_is_set(domain ) < 0)
+	if (isl_space_check_is_set(domain) < 0)
 		goto error;
 	if (isl_space_check_range(domain, type, pos, 1) < 0)
 		goto error;
@@ -4219,12 +4088,18 @@ isl_size isl_term_dim(__isl_keep isl_term *term, enum isl_dim_type type)
 	}
 }
 
-/* Return the space of "term".
- */
-static __isl_keep isl_space *isl_term_peek_space(__isl_keep isl_term *term)
-{
-	return term ? term->dim : NULL;
-}
+#undef TYPE
+#define TYPE	isl_term
+
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_space
+#undef FIELD_NAME
+#define FIELD_NAME	dim
+#undef PROPERTY
+#define PROPERTY	space
+
+static
+#include "isl_peek_templ.c"
 
 /* Return the offset of the first variable of type "type" within
  * the variables of "term".
@@ -4889,8 +4764,8 @@ static isl_stat split_periods(__isl_take isl_set *set,
 	for (i = 0; i < qp->div->n_row; ++i) {
 		enum isl_lp_result lp_res;
 
-		if (isl_seq_first_non_zero(qp->div->row[i] + 2 + div_pos,
-						qp->div->n_row) != -1)
+		if (isl_seq_any_non_zero(qp->div->row[i] + 2 + div_pos,
+						qp->div->n_row))
 			continue;
 
 		lp_res = isl_set_solve_lp(set, 0, qp->div->row[i] + 1,

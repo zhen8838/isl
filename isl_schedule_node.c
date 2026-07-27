@@ -113,13 +113,15 @@ __isl_keep isl_schedule_tree *isl_schedule_node_peek_leaf(
 	return node ? isl_schedule_peek_leaf(node->schedule) : NULL;
 }
 
-/* Return a copy of the leaf of the schedule into which "node" points.
- */
-__isl_give isl_schedule_tree *isl_schedule_node_get_leaf(
-	__isl_keep isl_schedule_node *node)
-{
-	return isl_schedule_tree_copy(isl_schedule_node_peek_leaf(node));
-}
+#undef TYPE
+#define TYPE	isl_schedule_node
+
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_schedule_tree
+#undef PROPERTY
+#define PROPERTY	leaf
+
+#include "isl_get_templ.c"
 
 /* Return the type of the node or isl_schedule_node_error on error.
  */

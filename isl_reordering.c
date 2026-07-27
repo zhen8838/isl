@@ -118,21 +118,18 @@ isl_ctx *isl_reordering_get_ctx(__isl_keep isl_reordering *r)
 	return isl_space_get_ctx(isl_reordering_peek_space(r));
 }
 
-/* Return the space of "r".
- */
-__isl_keep isl_space *isl_reordering_peek_space(__isl_keep isl_reordering *r)
-{
-	if (!r)
-		return NULL;
-	return r->space;
-}
+#undef TYPE
+#define TYPE	isl_reordering
 
-/* Return a copy of the space of "r".
- */
-__isl_give isl_space *isl_reordering_get_space(__isl_keep isl_reordering *r)
-{
-	return isl_space_copy(isl_reordering_peek_space(r));
-}
+#undef FIELD_TYPE
+#define FIELD_TYPE	isl_space
+#undef FIELD_NAME
+#define FIELD_NAME	space
+#undef PROPERTY
+#define PROPERTY	space
+
+#include "isl_peek_templ.c"
+#include "isl_get_templ.c"
 
 /* Construct a reordering that maps the parameters of "alignee"
  * to the corresponding parameters in a new dimension specification

@@ -64,6 +64,12 @@ isl_stat isl_basic_set_foreach_bound_pair(__isl_keep isl_basic_set *bset,
 	isl_stat (*fn)(__isl_take isl_constraint *lower,
 		  __isl_take isl_constraint *upper,
 		  __isl_take isl_basic_set *bset, void *user), void *user);
+
+isl_stat isl_basic_set_foreach_opposite_constraint_pair(
+	__isl_keep isl_basic_set *bset,
+	isl_stat (*fn)(__isl_take isl_constraint *c, __isl_take isl_val *d,
+		void *user), void *user);
+
 __isl_export
 __isl_give isl_basic_map *isl_basic_map_add_constraint(
 	__isl_take isl_basic_map *bmap, __isl_take isl_constraint *constraint);
@@ -128,6 +134,10 @@ __isl_give isl_aff *isl_constraint_get_div(__isl_keep isl_constraint *constraint
 __isl_export
 __isl_give isl_constraint *isl_constraint_negate(
 	__isl_take isl_constraint *constraint);
+
+__isl_give isl_constraint *isl_constraint_drop_all_locals(
+	__isl_take isl_constraint *c);
+
 __isl_export
 isl_bool isl_constraint_is_equality(__isl_keep isl_constraint *constraint);
 __isl_export

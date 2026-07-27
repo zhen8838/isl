@@ -355,7 +355,7 @@ void python_generator::print_callback(FunctionDecl *method,
 	QualType type = param->getOriginalType();
 	const FunctionProtoType *fn = extract_prototype(type);
 	QualType return_type = fn->getReturnType();
-	unsigned n_arg = fn->getNumArgs();
+	unsigned n_arg = fn->getNumParams();
 
 	printf("        exc_info = [None]\n");
 	printf("        fn = CFUNCTYPE(");
@@ -364,7 +364,7 @@ void python_generator::print_callback(FunctionDecl *method,
 	else
 		printf("c_void_p");
 	for (unsigned i = 0; i < n_arg - 1; ++i) {
-		if (!is_isl_type(fn->getArgType(i)))
+		if (!is_isl_type(fn->getParamType(i)))
 			die("Argument has non-isl type");
 		printf(", c_void_p");
 	}
@@ -378,11 +378,11 @@ void python_generator::print_callback(FunctionDecl *method,
 	printf("):\n");
 	for (unsigned i = 0; i < n_arg - 1; ++i) {
 		string arg_type;
-		arg_type = type2python(extract_type(fn->getArgType(i)));
+		arg_type = type2python(extract_type(fn->getParamType(i)));
 		printf("            cb_arg%d = %s(ctx=arg0.ctx, ptr=",
 			i, arg_type.c_str());
 		if (!callback_takes_argument(param, i))
-			print_copy(fn->getArgType(i));
+			print_copy(fn->getParamType(i));
 		printf("(cb_arg%d))\n", i);
 	}
 	printf("            try:\n");
@@ -1077,6 +1077,9 @@ void python_generator::print_special_constructors(const isl_class &clazz)
  * it needs to have its free_user callback set to Context.free_user.
  * The functions need to be cast to c_void_p to be able to compare
  * the addresses.
+ *
+ * Since the isl_id preserves a reference to the Python user object,
+ * the reference count of the Python object needs to be incremented.
  *
  * Return None if any of the checks fail.
  *

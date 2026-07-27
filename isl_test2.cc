@@ -21,6 +21,7 @@
 #include <stdlib.h>
 
 #include <functional>
+#include <ios>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -64,6 +65,13 @@ static ternary_fn<A1, A2, R, T> const arg(const ternary_fn<A1, A2, R, T> &fn)
 	return fn;
 }
 
+/* A description of the input and the output of a unary property.
+ */
+struct unary_prop {
+	const char *arg;
+	bool res;
+};
+
 /* A description of the input and the output of a unary operation.
  */
 struct unary {
@@ -71,12 +79,26 @@ struct unary {
 	const char *res;
 };
 
+/* The type used to represent type T in a test.
+ * By default, this is "const char *".
+ * However, a bool is represented by itself.
+ */
+template <typename T>
+struct input {
+	using type = const char *;
+};
+template <>
+struct input<bool> {
+	using type = bool;
+};
+
 /* A description of the inputs and the output of a binary operation.
  */
+template <typename R>
 struct binary {
 	const char *arg1;
 	const char *arg2;
-	const char *res;
+	R res;
 };
 
 /* A description of the inputs and the output of a ternary operation.
@@ -93,6 +115,11 @@ struct ternary {
  * The spelling depends on the isl type and
  * in particular on whether an equality method is available or
  * whether only obvious equality can be tested.
+ *
+ * Since isl::multi_val has both an is_equal and a plain_is_equal,
+ * use a specific overload for isl::multi_val that calls is_equal.
+ *
+ * If the objects are boolean values, then compare them directly.
  */
 template <typename T, typename std::decay<decltype(
 	std::declval<T>().is_equal(std::declval<T>()))>::type = true>
@@ -106,11 +133,43 @@ static bool is_equal(const T &a, const T &b)
 {
 	return a.plain_is_equal(b);
 }
+static bool is_equal(const isl::multi_val &a, const isl::multi_val &b)
+{
+	return a.is_equal(b);
+}
+static bool is_equal(bool a, bool b)
+{
+	return a == b;
+}
 
 /* A helper macro for throwing an isl::exception_invalid with message "msg".
  */
 #define THROW_INVALID(msg) \
 	isl::exception::throw_error(isl_error_invalid, msg, __FILE__, __LINE__)
+
+/* Run a sequence of tests of function "fn" with stringification "name" and
+ * with input and output described by "tests",
+ * throwing an exception when an unexpected result is produced.
+ */
+template <typename T>
+static void test(isl::ctx ctx, bool fn(const T &), const std::string &name,
+	const std::vector<unary_prop> &tests)
+{
+	for (const auto &test : tests) {
+		T obj(ctx, test.arg);
+		bool res = fn(obj);
+		std::ostringstream ss;
+
+		if (test.res == res)
+			continue;
+
+		ss << name << "(" << test.arg << ") = "
+		   << std::boolalpha << res << "\n"
+		   << "expecting: "
+		   << test.res;
+		THROW_INVALID(ss.str().c_str());
+	}
+}
 
 /* Run a sequence of tests of method "fn" with stringification "name" and
  * with input and output described by "test",
@@ -137,18 +196,34 @@ static void test(isl::ctx ctx, R (T::*fn)() const, const std::string &name,
 	}
 }
 
+/* Create an object of type "T" from representation "arg".
+ * This usually creates an isl object from a string representation,
+ * but if the representation is a boolean then the object
+ * is simply that boolean value.
+ */
+template <typename T, typename I>
+T create(isl::ctx ctx, I arg)
+{
+	return T(ctx, arg);
+}
+template <>
+bool create(isl::ctx ctx, bool arg)
+{
+	return arg;
+}
+
 /* Run a sequence of tests of method "fn" with stringification "name" and
  * with inputs and output described by "test",
  * throwing an exception when an unexpected result is produced.
  */
 template <typename R, typename T, typename A1>
 static void test(isl::ctx ctx, R (T::*fn)(A1) const, const std::string &name,
-	const std::vector<binary> &tests)
+	const std::vector<binary<typename input<R>::type>> &tests)
 {
 	for (const auto &test : tests) {
 		T obj(ctx, test.arg1);
-		A1 arg1(ctx, test.arg2);
-		R expected(ctx, test.res);
+		typename std::remove_reference<A1>::type arg1(ctx, test.arg2);
+		auto expected = create<R>(ctx, test.res);
 		const auto &res = (obj.*fn)(arg1);
 		std::ostringstream ss;
 
@@ -156,19 +231,19 @@ static void test(isl::ctx ctx, R (T::*fn)(A1) const, const std::string &name,
 			continue;
 
 		ss << name << "(" << test.arg1 << ", " << test.arg2 << ") =\n"
-		   << res << "\n"
+		   << std::boolalpha << res << "\n"
 		   << "expecting:\n"
 		   << expected;
 		THROW_INVALID(ss.str().c_str());
 	}
 }
 
-/* Run a sequence of tests of method "fn" with stringification "name" and
- * with inputs and output described by "test",
+/* Run a sequence of tests of function "fn" with stringification "name" and
+ * with inputs and output described by "tests",
  * throwing an exception when an unexpected result is produced.
  */
-template <typename R, typename T, typename A1, typename A2>
-static void test(isl::ctx ctx, R (T::*fn)(A1, A2) const,
+template <typename R, typename T, typename A1, typename A2, typename F>
+static void test_ternary(isl::ctx ctx, const F &fn,
 	const std::string &name, const std::vector<ternary> &tests)
 {
 	for (const auto &test : tests) {
@@ -176,7 +251,7 @@ static void test(isl::ctx ctx, R (T::*fn)(A1, A2) const,
 		A1 arg1(ctx, test.arg2);
 		A2 arg2(ctx, test.arg3);
 		R expected(ctx, test.res);
-		const auto &res = (obj.*fn)(arg1, arg2);
+		const auto &res = fn(obj, arg1, arg2);
 		std::ostringstream ss;
 
 		if (is_equal(expected, res))
@@ -189,6 +264,36 @@ static void test(isl::ctx ctx, R (T::*fn)(A1, A2) const,
 		   << expected;
 		THROW_INVALID(ss.str().c_str());
 	}
+}
+
+/* Run a sequence of tests of function "fn" with stringification "name" and
+ * with inputs and output described by "tests",
+ * throwing an exception when an unexpected result is produced.
+ *
+ * Simply call test_ternary.
+ */
+template <typename R, typename T, typename A1, typename A2>
+static void test(isl::ctx ctx, R fn(const T&, const A1&, const A2&),
+	const std::string &name, const std::vector<ternary> &tests)
+{
+	test_ternary<R, T, A1, A2>(ctx, fn, name, tests);
+}
+
+/* Run a sequence of tests of method "fn" with stringification "name" and
+ * with inputs and output described by "tests",
+ * throwing an exception when an unexpected result is produced.
+ *
+ * Wrap the method pointer into a function taking an object reference and
+ * call test_ternary.
+ */
+template <typename R, typename T, typename A1, typename A2>
+static void test(isl::ctx ctx, R (T::*fn)(A1, A2) const,
+	const std::string &name, const std::vector<ternary> &tests)
+{
+	const auto &wrap = [&] (const T &o, const A1 &arg1, const A2 &arg2) {
+		return (o.*fn)(arg1, arg2);
+	};
+	test_ternary<R, T, A1, A2>(ctx, wrap, name, tests);
 }
 
 /* A helper macro that calls test with as implicit initial argument "ctx" and
@@ -216,6 +321,23 @@ static void test_space(isl::ctx ctx)
 	});
 }
 
+/* Is "fn" an expression defined over a single cell?
+ */
+static bool has_single_cell(const isl::pw_multi_aff &fn)
+{
+	const auto &domain = fn.domain();
+	return fn.gist(domain).isa_multi_aff();
+}
+
+/* Does the conversion of "obj" to an isl_pw_multi_aff
+ * result in an expression defined over a single cell?
+ */
+template <typename T>
+static bool has_single_cell_pma(const T &obj)
+{
+	return has_single_cell(obj.as_pw_multi_aff());
+}
+
 /* Perform some basic conversion tests.
  *
  * In particular, check that a map with an output dimension
@@ -223,6 +345,10 @@ static void test_space(isl::ctx ctx)
  * a local variable without a known integer division expression or
  * to some linear combination of integer divisions
  * can be converted to a function expressed in the same way.
+ *
+ * Also, check that a nested modulo expression can be extracted
+ * from a set or binary relation representation, or at least
+ * that a conversion to a function does not result in multiple cells.
  */
 static void test_conversion(isl::ctx ctx)
 {
@@ -243,6 +369,19 @@ static void test_conversion(isl::ctx ctx)
 	    "exists (e0: 8*floor((-a + e0)/8) <= -8 - a + 8e0) }" },
 	{ "{ [a, b] -> [(2*floor((a)/8) + floor((b)/6))] }",
 	  "{ [a, b] -> [(2*floor((a)/8) + floor((b)/6))] }" },
+	});
+
+	C(&has_single_cell_pma<isl::set>, {
+	{ "[s=0:23] -> { A[(s//4)%3, s%4, s//12] }", true },
+	});
+
+	C(&has_single_cell_pma<isl::map>, {
+	{ "{ [a] -> [a//2] : "
+	    "exists (e0: 8*floor((-a + e0)/8) <= -8 - a + 8e0) }",
+	  true },
+	{ "{ [s=0:23, t] -> B[((s+1+2t)//4)%3, 2+(s+1+2t)%4, (s+1+2t)//12] }",
+	  true },
+	{ "{ [a=0:31] -> [b=0:3, c] : 4c = 28 - a + b }", true },
 	});
 }
 
@@ -335,6 +474,71 @@ static void test_fixed_power(isl::ctx ctx)
 	});
 }
 
+/* Perform basic simple fixed box hull tests.
+ */
+static void test_box_hull(isl::ctx ctx)
+{
+	C(&isl::set::simple_fixed_box_hull, {
+	{ "{ S[x, y] : 0 <= x, y < 10 }",
+	  "{ offset: { S[0, 0] }, size: { S[10, 10] } }" },
+	{ "[N] -> { S[x, y] : N <= x, y < N + 10 }",
+	  "{ offset: [N] -> { S[(N), (N)] }, size: { S[10, 10] } }" },
+	{ "{ S[x, y] : 0 <= x + y, x - y < 10 }",
+	  "{ offset: { S[0, -4] }, size: { S[10, 9] } }" },
+	{ "{ [i=0:10] : exists (e0, e1: 3e1 >= 1 + 2e0 and "
+	    "8e1 <= -1 + 5i - 5e0 and 2e1 >= 1 + 2i - 5e0) }",
+	  "{ offset: { [3] }, size: { [8] } }" },
+	{ "[N] -> { [w = 0:17] : exists (e0: w < 2N and "
+	    "-1 + w <= e0 <= w and 2e0 >= N + w and w <= 2e0 <= 15 + w) }",
+	  "{ offset: [N] -> { [N] }, size: { [9] } }" },
+	{ "[N] -> { [N//2:N//2+4] }",
+	  "{ offset: [N] -> { [N//2] }, size: { [5] } }" },
+	{ "[N] -> { [N//2+N//3:N//2+N//3+4] }",
+	  "{ offset: [N] -> { [N//2+N//3] }, size: { [5] } }" },
+	{ "[N] -> { [a=0:59, b=0:1] : 15N - a <= 60b <= 59 + 15N - a and "
+	    "-22 + 20b <= 20*floor((-1 + 15N - a)/60) < 20b and "
+	    "60*floor((-1 + 15N - a)/60) <= -46 + 15N - a }",
+	  "{ offset: [N] -> { [(15*((N) mod 4)), (floor((N)/4))] }, "
+	    "size: { [15, 1] } }" },
+	{ "{ [i=-3:7] : i mod 4 = 0 }",
+	  "{ offset: { [(0)] }, size: { [5] } }" },
+	{ "[N] -> { [i, N - 4i] : -14 + N <= 16i <= 1 + N }",
+	  "{ offset: [N] -> { [(floor((1 + N)/16)), "
+			      "(4 + N + 4*floor((-2 - N)/16))] }, "
+	    "size: { [1, 1] } }" },
+	});
+
+	C(&isl::map::range_simple_fixed_box_hull, {
+	{ "{ [N] -> [i, N - 4i] : -14 + N <= 16i <= 1 + N }",
+	  "{ offset: { [N] -> [(floor((1 + N)/16)), "
+			      "(4 + N + 4*floor((-2 - N)/16))] }, "
+	    "size: { [1, 1] } }" },
+	{ "{ [N] -> [i, j] : 4j = N - i and -1 + 3N <= 4i <= 14 + 3N }",
+	  "{ offset: { [N] -> [(4 + N + 4*floor((-2 - N)/16)), "
+			      "(floor((1 + N)/16))] }, "
+	    "size: { [1, 1] } }" },
+	});
+}
+
+/* Perform some coalescing tests.
+ */
+static void test_coalesce(isl::ctx ctx)
+{
+	/* The following sequence can result in the same basic set
+	 * appearing multiple times in the coalesced set.
+	 * Check that the presence of such duplicates
+	 * does not cause internal errors.
+	 */
+	isl::set a(ctx, "[g, t] -> { [i] : "
+		"(exists (e0 = floor((1 + g)/2): 2e0 = 1 + g and 0 < i <= -t)) "
+		"or (exists (e0 = floor((1 + g)/2): i = 0 and 2e0 = 1 + g)) }");
+	a = a.coalesce();
+	isl::set b (ctx, "[g, t] -> { [i] : "
+		"(exists (e0 = floor((g)/2): 2e0 = g and 0 < i <= -t)) or "
+		"(exists (e0 = floor((g)/2): i = 0 and 2e0 = g)) }");
+	b.unite(a).unite(a).coalesce();
+}
+
 /* Perform some basic intersection tests.
  */
 static void test_intersect(isl::ctx ctx)
@@ -369,10 +573,202 @@ static void test_intersect(isl::ctx ctx)
 	});
 }
 
+/* Is the expression for the lexicographic minimum of "obj"
+ * defined over a single cell?
+ */
+template <typename T>
+static bool lexmin_has_single_cell(const T &obj)
+{
+	return has_single_cell(obj.lexmin_pw_multi_aff());
+}
+
+/* Perform some basic lexicographic minimization tests.
+ */
+static void test_lexmin(isl::ctx ctx)
+{
+	C(&lexmin_has_single_cell<isl::map>, {
+	/* The following two inputs represent the same binary relation,
+	 * the second with extra redundant constraints.
+	 * The lexicographic minimum of both should consist of a single cell.
+	 */
+	{ "{ [a=0:11] -> [b] : -1 + b <= 2*floor((a)/6) <= b }", true },
+	{ "{ [a=0:11] -> [b=0:3] : -1 + b <= 2*floor((a)/6) <= b }", true },
+
+	{ "{ [a = 0:2, b = 0:1] -> [c = 0:9, d = (-a + b) mod 3] : "
+	    "10a + 5b - 3c <= 5d <= 12 + 10a + 5b - 3c }", true },
+	{ "{ [a=0:71] -> [(a//3)%8] }", true },
+	{ "{ [a=0:71] -> [b=0:7] : (a - 3 * b + 21) % 24 >= 21 }", true },
+	{ "{ [a=0:71] -> [b=0:7] : (a - 3 * b + 21) % 24 >= 20 }", false },
+	{ "{ [a=0:71] -> [b=0:7] : (a - 3 * b + 21) % 24 >= 22 }", true },
+	{ "{ [a=0:71] -> [b=-7:0] : (a + 3 * b + 21) % 24 >= 21 }", true },
+	{ "{ [a=0:71] -> [b=-7:0] : (a + 3 * b + 21) % 24 >= 20 }", false },
+	{ "{ [a=0:71] -> [b=-7:0] : (a + 3 * b + 21) % 24 >= 22 }", true },
+	});
+
+	C(&isl::map::lexmin_pw_multi_aff, {
+	/* The following two inputs represent the same binary relation,
+	 * the second with some redundant constraints removed.
+	 * The lexicographic minimum of both should consist of a single cell.
+	 */
+	{ "{ [a=0:3] -> [b=a//2] : 0 <= b <= 1 }",
+	  "{ [a=0:3] -> [(floor((a)/2))] }" },
+	{ "{ [a] -> [b=a//2] : 0 <= b <= 1 }",
+	  "{ [a=0:3] -> [(floor((a)/2))] }" },
+
+	{ "{ [a = 0:2, b = 0:1] -> [c = 0:9, d = (-a + b) mod 3] : "
+	    "10a + 5b - 3c <= 5d <= 12 + 10a + 5b - 3c }",
+	  "{ [a = 0:2, b = 0:1] -> [5*(2a + b)//3, (2a + b) mod 3] }" },
+	{ "{ [a=0:71] -> [(a//3)%8] }",
+	  "{ [a=0:71] -> [(a//3)%8] }" },
+	{ "{ [a=0:71] -> [b=0:7] : (a - 3 * b + 21) % 24 >= 21 }",
+	  "{ [a=0:71] -> [(a//3)%8] }" },
+	{ "{ [a=0:71] -> [b=0:7] : (a - 3 * b + 21) % 24 >= 22 }",
+	  "{ [a=0:71] -> [(a//3)%8] : a % 3 > 0 }" },
+	{ "{ [a=0:71] -> [b=-7:0] : (a + 3 * b + 21) % 24 >= 21 }",
+	  "{ [a=0:71] -> [(-7 + (-1 - floor((a)/3)) mod 8)] }" },
+	});
+
+	C(&isl::set::lexmin_pw_multi_aff, {
+	{ "[a] -> { [b=a//2] : 0 <= b <= 1 }",
+	  "[a=0:3] -> { [(floor((a)/2))] }" },
+	{ "[a=0:71] -> { [(a//3)%8] }",
+	  "[a=0:71] -> { [(a//3)%8] }" },
+	{ "[a=0:71] -> { [b=0:7] : (a - 3 * b + 21) % 24 >= 21 }",
+	  "[a=0:71] -> { [(a//3)%8] }" },
+	});
+}
+
+/* Compute the gist of "obj" with respect to "context",
+ * with "copy" an independent copy of "obj",
+ * but also check that applying the gist operation does
+ * not modify the input set (an earlier version of isl would do that) and
+ * that the test case is consistent, i.e., that the gist has the same
+ * intersection with the context as the input set.
+ */
+template <typename T>
+T gist(const T &obj, const T &copy, const T &context)
+{
+	const auto &res = obj.gist(context);
+	if (!is_equal(obj, copy)) {
+		std::ostringstream ss;
+		ss << "gist changed " << copy << " into " << obj;
+		THROW_INVALID(ss.str().c_str());
+	}
+	if (!is_equal(obj.intersect(context), res.intersect(context))) {
+		std::ostringstream ss;
+		ss << "inconsistent "
+		   << obj << " % " << context << " = " << res;
+		THROW_INVALID(ss.str().c_str());
+	}
+	return res;
+}
+
+/* A helper macro for producing two instances of "x".
+ */
+#define TWO(x)	(x), (x)
+
 /* Perform some basic gist tests.
+ *
+ * The gist() function is given two identical inputs so that
+ * it can check that the input to the call to the gist method
+ * is not modified.
  */
 static void test_gist(isl::ctx ctx)
 {
+	C(&gist<isl::basic_set> , {
+	{ TWO("{ [i=100:] }"),
+	  "{ [i] : exists a, b: 2b > 2i - 5a > 8b -3 i and 3b > 2a }",
+	  "{ [i=100:] }" },
+	{ TWO("{ [i=0:] }"),
+	  "{ [i] : exists a, b: 2b > 2i - 5a > 8b -3 i and 3b > 2a }",
+	  "{ [i] }" },
+	{ TWO("{ [i] : exists (e0, e1: 3e1 >= 1 + 2e0 and "
+	    "8e1 <= -1 + 5i - 5e0 and 2e1 >= 1 + 2i - 5e0) }"),
+	  "{ [i] : i >= 0 }",
+	  "{ [i] : exists (e0, e1: 3e1 >= 1 + 2e0 and "
+	    "8e1 <= -1 + 5i - 5e0 and 2e1 >= 1 + 2i - 5e0) }" },
+	{ TWO("{ [i=0:10] : exists a, b: 2b > 2i - 5a > 8b -3 i and 3b > 2a }"),
+	  "{ [i=0:10] }",
+	  "{ [i] : exists a, b: 2b > 2i - 5a > 8b -3 i and 3b > 2a }" },
+	});
+
+	C(&gist<isl::set> , {
+	{ TWO("{ [1, -1, 3] }"),
+	  "{ [1, b, 2 - b] : -1 <= b <= 2 }",
+	  "{ [a, -1, c] }" },
+	{ TWO("{ [a, b, c] : a <= 15 and a >= 1 }"),
+	  "{ [a, b, c] : exists (e0 = floor((-1 + a)/16): a >= 1 and "
+			"c <= 30 and 32e0 >= -62 + 2a + 2b - c and b >= 0) }",
+	  "{ [a, b, c] : a <= 15 }" },
+	{ TWO("{ : }"), "{ : 1 = 0 }", "{ : }" },
+	{ TWO("{ : 1 = 0 }"), "{ : 1 = 0 }", "{ : }" },
+	{ TWO("[M] -> { [x] : exists (e0 = floor((-2 + x)/3): 3e0 = -2 + x) }"),
+	  "[M] -> { [3M] }" , "[M] -> { [x] : 1 = 0 }" },
+	{ TWO("{ [m, n, a, b] : a <= 2147 + n }"),
+	  "{ [m, n, a, b] : (m >= 1 and n >= 1 and a <= 2148 - m and "
+			"b <= 2148 - n and b >= 0 and b >= 2149 - n - a) or "
+			"(n >= 1 and a >= 0 and b <= 2148 - n - a and "
+			"b >= 0) }",
+	  "{ [m, n, ku, kl] }" },
+	{ TWO("{ [a, a, b] : a >= 10 }"),
+	  "{ [a, b, c] : c >= a and c <= b and c >= 2 }",
+	  "{ [a, a, b] : a >= 10 }" },
+	{ TWO("{ [i, j] : i >= 0 and i + j >= 0 }"), "{ [i, j] : i <= 0 }",
+	  "{ [0, j] : j >= 0 }" },
+	/* Check that no constraints on i6 are introduced in the gist */
+	{ TWO("[t1] -> { [i4, i6] : exists (e0 = floor((1530 - 4t1 - 5i4)/20): "
+		"20e0 <= 1530 - 4t1 - 5i4 and 20e0 >= 1511 - 4t1 - 5i4 and "
+		"5e0 <= 381 - t1 and i4 <= 1) }"),
+	  "[t1] -> { [i4, i6] : exists (e0 = floor((-t1 + i6)/5): "
+		"5e0 = -t1 + i6 and i6 <= 6 and i6 >= 3) }",
+	  "[t1] -> { [i4, i6] : exists (e0 = floor((1530 - 4t1 - 5i4)/20): "
+		"i4 <= 1 and 5e0 <= 381 - t1 and 20e0 <= 1530 - 4t1 - 5i4 and "
+		"20e0 >= 1511 - 4t1 - 5i4) }" },
+	/* Check that no constraints on i6 are introduced in the gist */
+	{ TWO("[t1, t2] -> { [i4, i5, i6] : exists (e0 = floor((1 + i4)/2), "
+		"e1 = floor((1530 - 4t1 - 5i4)/20), "
+		"e2 = floor((-4t1 - 5i4 + 10*floor((1 + i4)/2))/20), "
+		"e3 = floor((-1 + i4)/2): t2 = 0 and 2e3 = -1 + i4 and "
+			"20e2 >= -19 - 4t1 - 5i4 + 10e0 and 5e2 <= 1 - t1 and "
+			"2e0 <= 1 + i4 and 2e0 >= i4 and "
+			"20e1 <= 1530 - 4t1 - 5i4 and "
+			"20e1 >= 1511 - 4t1 - 5i4 and i4 <= 1 and "
+			"5e1 <= 381 - t1 and 20e2 <= -4t1 - 5i4 + 10e0) }"),
+	  "[t1, t2] -> { [i4, i5, i6] : exists (e0 = floor((-17 + i4)/2), "
+		"e1 = floor((-t1 + i6)/5): 5e1 = -t1 + i6 and "
+			"2e0 <= -17 + i4 and 2e0 >= -18 + i4 and "
+			"10e0 <= -91 + 5i4 + 4i6 and "
+			"10e0 >= -105 + 5i4 + 4i6) }",
+	  "[t1, t2] -> { [i4, i5, i6] : exists (e0 = floor((381 - t1)/5), "
+		"e1 = floor((-1 + i4)/2): t2 = 0 and 2e1 = -1 + i4 and "
+		"i4 <= 1 and 5e0 <= 381 - t1 and 20e0 >= 1511 - 4t1 - 5i4) }" },
+	{ TWO("{ [0, 0, q, p] : -5 <= q <= 5 and p >= 0 }"),
+	  "{ [a, b, q, p] : b >= 1 + a }",
+	  "{ [a, b, q, p] : false }" },
+	{ TWO("[n] -> { [x] : x = n && x mod 32 = 0 }"),
+	  "[n] -> { [x] : x mod 32 = 0 }",
+	  "[n] -> { [x = n] }" },
+	{ TWO("{ [x] : x mod 6 = 0 }"), "{ [x] : x mod 3 = 0 }",
+	  "{ [x] : x mod 2 = 0 }" },
+	{ TWO("{ [x] : x mod 3200 = 0 }"), "{ [x] : x mod 10000 = 0 }",
+	  "{ [x] : x mod 128 = 0 }" },
+	{ TWO("{ [x] : x mod 3200 = 0 }"), "{ [x] : x mod 10 = 0 }",
+	  "{ [x] : x mod 3200 = 0 }" },
+	{ TWO("{ [a, b, c] : a mod 2 = 0 and a = c }"),
+	  "{ [a, b, c] : b mod 2 = 0 and b = c }",
+	  "{ [a, b, c = a] }" },
+	{ TWO("{ [a, b, c] : a mod 6 = 0 and a = c }"),
+	  "{ [a, b, c] : b mod 2 = 0 and b = c }",
+	  "{ [a, b, c = a] : a mod 3 = 0 }" },
+	{ TWO("{ [x] : 0 <= x <= 4 or 6 <= x <= 9 }"),
+	  "{ [x] : 1 <= x <= 3 or 7 <= x <= 8 }",
+	  "{ [x] }" },
+	{ TWO("{ [x,y] : x < 0 and 0 <= y <= 4 or "
+			"x >= -2 and -x <= y <= 10 + x }"),
+	  "{ [x,y] : 1 <= y <= 3 }",
+	  "{ [x,y] }" },
+	});
+
 	C(arg<isl::set>(&isl::pw_aff::gist), {
 	{ "{ [x] -> [x] : x != 0 }", "{ [x] : x < -1 or x > 1 }",
 	  "{ [x] -> [x] }" },
@@ -617,6 +1013,43 @@ static void test_id_to_id(isl::ctx ctx)
 	});
 }
 
+/* Perform some basic isl::id_set tests.
+ */
+static void test_id_set(isl::ctx ctx)
+{
+	C(&isl::id_set::is_equal, {
+	{ "{ }", "{ }", true },
+	{ "{ }", "{ a }", false },
+	{ "{ a }", "{ }", false },
+	{ "{ a, b }", "{ b, a }", true },
+	{ "{ a, b }", "{ a }", false },
+	{ "{ a, b }", "{ b }", false },
+	{ "{ a, b }", "{ a, c }", false },
+	});
+
+	C((arg<isl::id>(&isl::id_set::insert)), {
+	{ "{ }", "a",
+	  "{ a }" },
+	{ "{ a }", "a",
+	  "{ a }" },
+	{ "{ a, c }", "a",
+	  "{ a, c }" },
+	{ "{ b }", "a",
+	  "{ a, b }" },
+	});
+
+	C((arg<isl::id>(&isl::id_set::drop)), {
+	{ "{ }", "a",
+	  "{ }" },
+	{ "{ a }", "a",
+	  "{ }" },
+	{ "{ b }", "a",
+	  "{ b }" },
+	{ "{ a, b }", "a",
+	  "{ b }" },
+	});
+}
+
 /* The list of tests to perform.
  */
 static std::vector<std::pair<const char *, void (*)(isl::ctx)>> tests =
@@ -625,12 +1058,16 @@ static std::vector<std::pair<const char *, void (*)(isl::ctx)>> tests =
 	{ "conversion", &test_conversion },
 	{ "preimage", &test_preimage },
 	{ "fixed power", &test_fixed_power },
+	{ "box hull", &test_box_hull },
+	{ "coalesce", &test_coalesce },
 	{ "intersect", &test_intersect },
+	{ "lexmin", &test_lexmin },
 	{ "gist", &test_gist },
 	{ "project out parameters", &test_project },
 	{ "reverse", &test_reverse },
 	{ "scale", &test_scale },
 	{ "id-to-id", &test_id_to_id },
+	{ "id-set", &test_id_set },
 };
 
 /* Perform some basic checks by means of the C++ bindings.

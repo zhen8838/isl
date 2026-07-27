@@ -136,6 +136,7 @@ libisl_la_SOURCES = \
 	isl_fold.c \
 	isl_hash.c \
 	isl_hash_private.h \
+	isl_id_set.c \
 	isl_id_to_ast_expr.c \
 	isl_id_to_id.c \
 	isl_id_to_pw_aff.c \
@@ -159,6 +160,7 @@ libisl_la_SOURCES = \
 	isl_map_to_basic_set.c \
 	isl_mat.c \
 	isl_mat_private.h \
+	isl_maybe_aff.h \
 	isl_morph.c \
 	isl_morph.h \
 	isl_id.c \
@@ -364,11 +366,14 @@ libdep_a_SOURCES = dep.c
 
 if HAVE_CLANG
 if HAVE_CXX11
-$(srcdir)/interface/isl.py.core: interface/extract_interface$(BUILD_EXEEXT) \
-		libdep.a
-	$(AM_V_GEN)interface/extract_interface$(BUILD_EXEEXT) \
+CP_IF_DIFFERENT = "$(srcdir)/cp_if_different.sh"
+.gen/isl.py.core: interface/extract_interface$(BUILD_EXEEXT) libdep.a
+	$(AM_V_GEN)$(MKDIR_P) ".gen" && \
+	interface/extract_interface$(BUILD_EXEEXT) \
 		--language=python $(includes) $(srcdir)/all.h \
-		> interface/isl.py.Tcore && mv interface/isl.py.Tcore $@
+		> .gen/isl.py.Tcore && mv .gen/isl.py.Tcore $@
+$(srcdir)/interface/isl.py.core: .gen/isl.py.core
+	$(AM_V_at)$(CP_IF_DIFFERENT) .gen/isl.py.core $@
 
 $(srcdir)/interface/Interop.cs: interface/extract_interface$(BUILD_EXEEXT) \
 		libdep.a
@@ -376,50 +381,62 @@ $(srcdir)/interface/Interop.cs: interface/extract_interface$(BUILD_EXEEXT) \
 		--language=csharp $(includes) $(srcdir)/all.h \
 		> interface/Interop.Tcs && mv interface/Interop.Tcs $@
 
-#$(srcdir)/include/isl/cpp.h: interface/extract_interface$(BUILD_EXEEXT) \
+# The C++ bindings are not generated here.  Several declarations this
+# fork exports have no C++ representation (a void return, a struct
+# returned by value), and the generator stops on them.  The headers
+# committed here are the ones upstream generated.
+#.gen/cpp.h: interface/extract_interface$(BUILD_EXEEXT) \
 #		libdep.a cpp/cpp.h.top cpp/cpp.h.bot
-#	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
+#	$(AM_V_GEN)$(MKDIR_P) ".gen" && \
 #	(cat $(srcdir)/cpp/cpp.h.top $(srcdir)/all.h && \
 #		interface/extract_interface$(BUILD_EXEEXT) --language=cpp \
 #			$(includes) $(srcdir)/all.h && \
 #		cat $(srcdir)/cpp/cpp.h.bot) \
-#			> interface/cpp.Th && mv interface/cpp.Th $@
-#
-#$(srcdir)/include/isl/cpp-checked.h: \
+#			> .gen/cpp.Th && mv .gen/cpp.Th $@
+#$(srcdir)/include/isl/cpp.h: .gen/cpp.h
+#	$(AM_V_at)$(CP_IF_DIFFERENT) .gen/cpp.h $@
+
+#.gen/cpp-checked.h: \
 #		interface/extract_interface$(BUILD_EXEEXT) libdep.a \
 #		cpp/cpp-checked.h.top cpp/cpp-checked.h.bot
-#	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
+#	$(AM_V_GEN)$(MKDIR_P) ".gen" && \
 #	(cat $(srcdir)/cpp/cpp-checked.h.top $(srcdir)/all.h && \
 #		interface/extract_interface$(BUILD_EXEEXT) \
 #			--language=cpp-checked \
 #			$(includes) $(srcdir)/all.h && \
 #		cat $(srcdir)/cpp/cpp-checked.h.bot) \
-#			> interface/cpp-checked.Th && \
-#			mv interface/cpp-checked.Th $@
-#
-#$(srcdir)/include/isl/cpp-checked-conversion.h: \
+#			> .gen/cpp-checked.Th && \
+#			mv .gen/cpp-checked.Th $@
+#$(srcdir)/include/isl/cpp-checked.h: .gen/cpp-checked.h
+#	$(AM_V_at)$(CP_IF_DIFFERENT) .gen/cpp-checked.h $@
+
+#.gen/cpp-checked-conversion.h: \
 #		interface/extract_interface$(BUILD_EXEEXT) \
 #		libdep.a \
 #		cpp/cpp-checked-conversion.h.top \
 #		cpp/cpp-checked-conversion.h.bot
-#	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
+#	$(AM_V_GEN)$(MKDIR_P) ".gen" && \
 #	(cat $(srcdir)/cpp/cpp-checked-conversion.h.top && \
 #		interface/extract_interface$(BUILD_EXEEXT) \
 #			--language=cpp-checked-conversion \
 #			$(includes) $(srcdir)/all.h && \
 #		cat $(srcdir)/cpp/cpp-checked-conversion.h.bot) \
-#			> interface/cpp-checked-conversion.Th && \
-#			mv interface/cpp-checked-conversion.Th $@
-#
-#$(srcdir)/include/isl/typed_cpp.h: interface/extract_interface$(BUILD_EXEEXT) \
+#			> .gen/cpp-checked-conversion.Th && \
+#			mv .gen/cpp-checked-conversion.Th $@
+#$(srcdir)/include/isl/cpp-checked-conversion.h: .gen/cpp-checked-conversion.h
+#	$(AM_V_at)$(CP_IF_DIFFERENT) .gen/cpp-checked-conversion.h $@
+
+#.gen/typed_cpp.h: interface/extract_interface$(BUILD_EXEEXT) \
 #		libdep.a cpp/typed_cpp.h.top cpp/typed_cpp.h.bot
-#	$(AM_V_GEN)$(MKDIR_P) "include/isl" && \
+#	$(AM_V_GEN)$(MKDIR_P) ".gen" && \
 #	(cat $(srcdir)/cpp/typed_cpp.h.top && \
 #		interface/extract_interface$(BUILD_EXEEXT) \
 #			--language=template-cpp \
 #			$(includes) $(srcdir)/all.h && \
 #		cat $(srcdir)/cpp/typed_cpp.h.bot) \
-#			> interface/typed_cpp.Th && mv interface/typed_cpp.Th $@
+#			> .gen/typed_cpp.Th && mv .gen/typed_cpp.Th $@
+#$(srcdir)/include/isl/typed_cpp.h: .gen/typed_cpp.h
+#	$(AM_V_at)$(CP_IF_DIFFERENT) .gen/typed_cpp.h $@
 endif
 endif
 
@@ -449,14 +466,19 @@ pkginclude_HEADERS = \
 	include/isl/fixed_box.h \
 	include/isl/flow.h \
 	include/isl/id.h \
+	include/isl/id_set.h \
 	include/isl/id_type.h \
 	include/isl/id_to_ast_expr.h \
 	include/isl/id_to_id.h \
 	include/isl/id_to_pw_aff.h \
 	include/isl/ilp.h \
 	include/isl/hash.h \
+	include/isl/hbase.h \
+	include/isl/hbase_templ.c \
 	include/isl/hmap.h \
 	include/isl/hmap_templ.c \
+	include/isl/hset.h \
+	include/isl/hset_templ.c \
 	include/isl/list.h \
 	include/isl/local_space.h \
 	include/isl/lp.h \
@@ -507,7 +529,12 @@ if HAVE_CXX11
     BUILT_CPP_INTERFACES = $(CPP_INTERFACES)
 endif
 endif
-BUILT_SOURCES = gitversion.h $(BUILT_CPP_INTERFACES) interface/isl.py interface/Interop.cs
+BUILT_SOURCES = gitversion.h interface/isl.py
+# Interop.cs is only reachable when the generator can be built; a wheel
+# build configures --with-clang=no and is handed a generated copy.
+if HAVE_CLANG
+BUILT_SOURCES += $(srcdir)/interface/Interop.cs
+endif
 CLEANFILES = \
 	gitversion.h \
 	interface/isldlname.py \
@@ -517,6 +544,11 @@ CLEANFILES = \
 	interface/__pycache__/*.pyc
 
 DISTCLEANFILES = \
+	.gen/cpp.h \
+	.gen/cpp-checked-conversion.h \
+	.gen/cpp-checked.h \
+	.gen/isl.py.core \
+	.gen/typed_cpp.h \
 	isl-uninstalled.sh \
 	isl-uninstalled.pc \
 	isl.pc \
@@ -545,6 +577,7 @@ EXTRA_DIST = \
 	isl_drop_unused_params_templ.c \
 	extract_key.c \
 	isl_from_range_templ.c \
+	isl_get_templ.c \
 	isl_ilp_opt_fn_val_templ.c \
 	isl_ilp_opt_multi_val_templ.c \
 	isl_ilp_opt_val_templ.c \
@@ -612,6 +645,7 @@ EXTRA_DIST = \
 	isl_multi_zero_space_templ.c \
 	isl_opt_mpa_templ.c \
 	opt_type.h \
+	isl_peek_templ.c \
 	print_templ.c \
 	print_templ_yaml.c \
 	print_yaml_field_templ.c \
@@ -649,12 +683,14 @@ EXTRA_DIST = \
 	isl_pw_union_opt.c \
 	isl_read_from_str_templ.c \
 	read_in_string_templ.c \
+	isl_restore_templ.c \
 	set_to_map.c \
 	set_from_map.c \
 	set_list_from_map_list_inl.c \
 	isl_stream_read_pw_with_params_templ.c \
 	isl_stream_read_with_params_templ.c \
 	isl_tab_lexopt_templ.c \
+	isl_take_templ.c \
 	isl_test_list_templ.c \
 	isl_test_plain_equal_templ.c \
 	isl_type_check_equal_space_templ.c \
@@ -701,6 +737,7 @@ EXTRA_DIST = \
 	isl_test_cpp_failed.sh \
 	isl_test_cpp17-generic.cc \
 	isl_test_python.py \
+	cp_if_different.sh \
 	test_inputs
 
 dist-hook:
@@ -713,8 +750,13 @@ dist-hook:
 pkgconfigdir=$(pkgconfig_libdir)
 pkgconfig_DATA = $(pkgconfig_libfile)
 
+aclocaldir = $(datadir)/aclocal
+aclocal_DATA = m4/isl_detect_clang.m4
+
 gitversion.h: @GIT_HEAD@
 	$(AM_V_GEN)echo '#define GIT_HEAD_ID "'@GIT_HEAD_VERSION@'"' > $@
+
+all-local: interface/isl.py
 
 install-data-local: $(srcdir)/libisl-gdb.py
 	@libisl=`sed -ne "/^library_names=/{s/.*='//;s/'$$//;s/ .*//;p;}" \
