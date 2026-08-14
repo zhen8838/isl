@@ -6,27 +6,21 @@ import sys
 import sysconfig
 import platform
 
-def configure_lib_path():
+def _find_bundled_isl():
     lib_dir = os.path.join(sysconfig.get_path('data'), 'lib')
-    system = platform.system()
-    if system == "Linux":
-        env_var = "LD_LIBRARY_PATH"
-    elif system == "Darwin":
-        env_var = "DYLD_LIBRARY_PATH"
-    elif system == "Windows":
-        env_var = "PATH"
-    else:
-        raise RuntimeError(f"Unsupported platform: {system}")
-
     lib_dir = os.path.abspath(lib_dir)
-    existing_path = os.environ.get(env_var, "")
-    os.environ[env_var] = f"{lib_dir}{os.pathsep}{existing_path}"
-    return lib_dir
+    library_name = {
+        "Linux": "libisl.so",
+        "Darwin": "libisl.dylib",
+        "Windows": "libisl.dll",
+    }.get(platform.system())
+    if library_name is None:
+        return None
 
-isl_library_path = find_library("isl")
-if isl_library_path is None:
-  lib_dir = configure_lib_path()
-  isl_library_path = os.path.join(lib_dir, find_library("isl"))
+    library_path = os.path.join(lib_dir, library_name)
+    return library_path if os.path.isfile(library_path) else None
+
+isl_library_path = _find_bundled_isl() or find_library("isl")
 isl = cdll.LoadLibrary(isl_library_path)
 assert isl is not None, "can't find the isl shared library!"
 libc = cdll.LoadLibrary(find_library("c"))
