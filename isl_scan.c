@@ -10,6 +10,7 @@
 #include <isl_ctx_private.h>
 #include <isl_map_private.h>
 #include "isl_basis_reduction.h"
+#include <isl_factorization.h>
 #include "isl_scan.h"
 #include <isl_seq.h>
 #include "isl_tab.h"
@@ -301,10 +302,141 @@ error:
 	return -1;
 }
 
-int isl_set_count(__isl_keep isl_set *set, isl_int *count)
+struct isl_factor_count {
+	isl_int count;
+};
+
+/* Multiply the number of elements in "bset" into data->count.
+ * This function is used as an isl_factorizer_every_factor_basic_set
+ * callback, so "bset" is known to be independent of the other factors.
+ */
+static isl_bool count_factor(__isl_keep isl_basic_set *bset, void *user)
 {
+	struct isl_factor_count *data = user;
+	isl_int count;
+
+	isl_int_init(count);
+	if (isl_basic_set_count_upto(bset, bset->ctx->zero, &count) < 0) {
+		isl_int_clear(count);
+		return isl_bool_error;
+	}
+
+	isl_int_mul(data->count, data->count, count);
+	isl_int_clear(count);
+
+	return isl_bool_true;
+}
+
+/* Count the number of elements in "bset", exploiting any factorization
+ * into independent groups of variables.
+ *
+ * The divs in "bset" are assumed to be known.  Lift them to ordinary
+ * set dimensions such that isl_basic_set_factorizer can take them into
+ * account.  Since known divs have a unique value for each element of the
+ * original basic set, this lifting does not change the number of elements.
+ *
+ * If no factorization can be found, fall back to the regular scan on the
+ * original basic set.  Otherwise, count each factor separately and multiply
+ * the results.
+ */
+static int isl_basic_set_count_factorized(__isl_keep isl_basic_set *bset,
+	isl_int *count)
+{
+	isl_bool every;
+	isl_basic_set *lifted;
+	isl_factorizer *f;
+	struct isl_factor_count data;
+
+	lifted = isl_basic_set_lift(isl_basic_set_copy(bset));
+	f = isl_basic_set_factorizer(lifted);
+	if (!f) {
+		isl_basic_set_free(lifted);
+		return -1;
+	}
+
+	if (f->n_group == 0) {
+		isl_factorizer_free(f);
+		isl_basic_set_free(lifted);
+		return isl_basic_set_count_upto(bset, bset->ctx->zero, count);
+	}
+
+	isl_int_init(data.count);
+	isl_int_set_si(data.count, 1);
+	every = isl_factorizer_every_factor_basic_set(f, &count_factor, &data);
+	isl_factorizer_free(f);
+	isl_basic_set_free(lifted);
+	if (every < 0) {
+		isl_int_clear(data.count);
+		return -1;
+	}
+
+	isl_int_set(*count, data.count);
+	isl_int_clear(data.count);
+
+	return 0;
+}
+
+/* Count the total number of elements in a parameter-free "set".
+ *
+ * Make the basic sets disjoint and compute their divs, just like
+ * isl_set_scan.  Count each basic set using any available factorization
+ * and add the results.
+ */
+static int isl_set_count_factorized(__isl_keep isl_set *set, isl_int *count)
+{
+	int i;
+	isl_int total;
+	isl_int n;
+
+	set = isl_set_make_disjoint(isl_set_copy(set));
+	set = isl_set_compute_divs(set);
 	if (!set)
 		return -1;
+
+	isl_int_init(total);
+	isl_int_init(n);
+	isl_int_set_si(total, 0);
+
+	for (i = 0; i < set->n; ++i) {
+		if (isl_basic_set_count_factorized(set->p[i], &n) < 0)
+			goto error;
+		isl_int_add(total, total, n);
+	}
+
+	isl_int_set(*count, total);
+	isl_int_clear(n);
+	isl_int_clear(total);
+	isl_set_free(set);
+
+	return 0;
+error:
+	isl_int_clear(n);
+	isl_int_clear(total);
+	isl_set_free(set);
+	return -1;
+}
+
+int isl_set_count(__isl_keep isl_set *set, isl_int *count)
+{
+	isl_size nparam;
+	isl_size nset;
+
+	if (!set)
+		return -1;
+
+	/* Parameters are shared by all factors.  Multiplying scalar counts
+	 * would count their possible values more than once, so preserve the
+	 * original scan for sets involving parameters.  Preserve it for
+	 * zero- and one-dimensional sets as well, where no factorization is
+	 * possible and the final range is already counted in a single step.
+	 */
+	nparam = isl_set_dim(set, isl_dim_param);
+	nset = isl_set_dim(set, isl_dim_set);
+	if (nparam < 0 || nset < 0)
+		return -1;
+	if (nparam == 0 && nset > 1)
+		return isl_set_count_factorized(set, count);
+
 	return isl_set_count_upto(set, set->ctx->zero, count);
 }
 

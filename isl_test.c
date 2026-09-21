@@ -994,6 +994,62 @@ static int test_val(isl_ctx *ctx)
 	return 0;
 }
 
+static const struct {
+	const char *set;
+	const char *count;
+} count_tests[] = {
+	{
+		"{ [p0,p1,p2,p3,p4,p5,p6,p7,p8,p9] : "
+		"0 <= p0 <= 151935 and p0 mod 128 = 0 and "
+		"0 <= p1 <= 2047 and p1 mod 64 = 0 and "
+		"0 <= p2 <= 27 and "
+		"0 <= p3 <= 2047 and p3 mod 16 = 0 and "
+		"0 <= p4 <= 2047 and p4 mod 64 = 0 and "
+		"0 <= p5 <= 7 and 0 <= p6 <= 1 and "
+		"0 <= p7 <= 512 and p7 mod 128 = 0 and "
+		"0 <= p8 <= 4095 and p8 mod 32 = 0 and "
+		"0 <= p9 <= 2047 and p9 mod 64 = 0 }",
+		"1427475330498560"
+	},
+	{ "{ [i,j] : 0 <= i <= 10 and 0 <= j <= i }", "66" },
+	{ "{ [i,j] : 0 <= i,j <= 10 and (i + j) mod 2 = 0 }", "61" },
+	{
+		"{ [i,j] : 0 <= i <= 2 and 0 <= j <= 3; "
+		"[i,j] : 10 <= i <= 11 and 0 <= j <= 4 }",
+		"22"
+	},
+	{
+		"[N] -> { [i,j] : 0 <= N <= 2 and "
+		"0 <= i <= N and 0 <= j <= N }",
+		"14"
+	},
+};
+
+/* Check exact counting of factorized, non-factorized, union and parametric
+ * sets.  The first case is large enough that a scan without factorization
+ * would not finish in a reasonable amount of time.
+ */
+static int test_count(isl_ctx *ctx)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(count_tests); ++i) {
+		isl_stat ok;
+		isl_set *set;
+		isl_val *count;
+
+		set = isl_set_read_from_str(ctx, count_tests[i].set);
+		count = isl_set_count_val(set);
+		isl_set_free(set);
+		ok = val_check_equal(count, count_tests[i].count);
+		isl_val_free(count);
+		if (ok < 0)
+			return -1;
+	}
+
+	return 0;
+}
+
 /* Sets described using existentially quantified variables that
  * can also be described without.
  */
@@ -10697,6 +10753,7 @@ struct {
 	{ "dual", &test_dual },
 	{ "dependence analysis", &test_flow },
 	{ "val", &test_val },
+	{ "count", &test_count },
 	{ "compute divs", &test_compute_divs },
 	{ "partial lexmin", &test_partial_lexmin },
 	{ "simplify", &test_simplify },
